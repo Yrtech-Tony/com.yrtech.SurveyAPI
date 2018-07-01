@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="com.yrtech.surveyModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2005" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Answer">
+    <Key>
+      <PropertyRef Name="AnswerId" />
+    </Key>
+    <Property Name="AnswerId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="SubjectId" Type="int" Nullable="false" />
+    <Property Name="ShopId" Type="int" Nullable="false" />
+    <Property Name="PhotoScore" Type="decimal" Precision="19" Scale="2" />
+    <Property Name="InspectionStandardResult" Type="nvarchar(max)" />
+    <Property Name="FileResult" Type="nvarchar(max)" />
+    <Property Name="LossResult" Type="nvarchar(max)" />
+    <Property Name="ShopConsultantResult" Type="nvarchar(max)" />
+    <Property Name="Remark" Type="nvarchar(max)" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="AnswerShopConsultant">
+    <Key>
+      <PropertyRef Name="ConsultantId" />
+    </Key>
+    <Property Name="ConsultantId" Type="int" Nullable="false" />
+    <Property Name="ShopId" Type="int" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="ConsultantName" Type="nvarchar" MaxLength="50" />
+    <Property Name="ConsultantType" Type="nvarchar" MaxLength="50" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="AnswerShopInfo">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="ShopId" Type="int" Nullable="false" />
+    <Property Name="TeamLeaderName" Type="nvarchar" MaxLength="10" />
+    <Property Name="StartDate" Type="datetime" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Brand">
+    <Key>
+      <PropertyRef Name="BrandId" />
+    </Key>
+    <Property Name="BrandId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TenantId" Type="int" />
+    <Property Name="BrandName" Type="nvarchar" MaxLength="100" />
+    <Property Name="Remark" Type="nvarchar" MaxLength="1000" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="DeleteFileLog">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="ShopId" Type="int" />
+    <Property Name="SubjectId" Type="int" />
+    <Property Name="FileName" Type="nvarchar" MaxLength="1000" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Project">
+    <Key>
+      <PropertyRef Name="ProjectId" />
+    </Key>
+    <Property Name="ProjectId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TenantId" Type="int" />
+    <Property Name="BrandId" Type="int" />
+    <Property Name="ProjectCode" Type="nvarchar" MaxLength="100" />
+    <Property Name="ProjectName" Type="nvarchar" MaxLength="1000" />
+    <Property Name="Year" Type="nvarchar" MaxLength="50" />
+    <Property Name="Quarter" Type="nvarchar" MaxLength="50" />
+    <Property Name="OrderNO" Type="int" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="ProjectShop">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProjectId" Type="int" Nullable="false" />
+    <Property Name="ShopId" Type="int" Nullable="false" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Shop">
+    <Key>
+      <PropertyRef Name="ShopId" />
+    </Key>
+    <Property Name="ShopId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TenantId" Type="int" />
+    <Property Name="BrandId" Type="int" />
+    <Property Name="ShopCode" Type="nvarchar" MaxLength="1000" />
+    <Property Name="ShopName" Type="nvarchar" MaxLength="1000" />
+    <Property Name="ShopShortName" Type="nvarchar" MaxLength="1000" />
+    <Property Name="Province" Type="nvarchar" MaxLength="50" />
+    <Property Name="City" Type="nvarchar" MaxLength="50" />
+    <Property Name="UseChk" Type="bit" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="ShopSubjectTypeExam">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="ShopId" Type="int" />
+    <Property Name="ShopSubjectTypeExamId" Type="int" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Subject">
+    <Key>
+      <PropertyRef Name="SubjectId" />
+    </Key>
+    <Property Name="SubjectId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectCode" Type="nvarchar" MaxLength="1000" />
+    <Property Name="ProjectId" Type="int" />
+    <Property Name="SubjectTypeExamId" Type="int" />
+    <Property Name="SubjectRecheckTypeId" Type="int" />
+    <Property Name="OrderNO" Type="int" />
+    <Property Name="Implementation" Type="nvarchar(max)" />
+    <Property Name="CheckPoint" Type="nvarchar(max)" />
+    <Property Name="Desc" Type="nvarchar(max)" />
+    <Property Name="AdditionalDesc" Type="nvarchar(max)" />
+    <Property Name="InspectionDesc" Type="nvarchar(max)" />
+    <Property Name="Remark" Type="nvarchar(max)" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectFile">
+    <Key>
+      <PropertyRef Name="FileId" />
+    </Key>
+    <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectId" Type="int" />
+    <Property Name="FileName" Type="nvarchar(max)" />
+    <Property Name="FileType" Type="nvarchar" MaxLength="50" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectInspectionStandard">
+    <Key>
+      <PropertyRef Name="InspectionStandardId" />
+    </Key>
+    <Property Name="InspectionStandardId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="InspectionStandardName" Type="nvarchar(max)" />
+    <Property Name="SubjectId" Type="int" Nullable="false" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectLossResult">
+    <Key>
+      <PropertyRef Name="LossResultId" />
+    </Key>
+    <Property Name="LossResultId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectId" Type="int" />
+    <Property Name="LossResultName" Type="nvarchar(max)" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectRecheckType">
+    <Key>
+      <PropertyRef Name="RecheckTypeId" />
+    </Key>
+    <Property Name="RecheckTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="RecheckTypeName" Type="nvarchar" MaxLength="100" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="nchar" MaxLength="10" />
+  </EntityType>
+  <EntityType Name="SubjectType">
+    <Key>
+      <PropertyRef Name="SubjectTypeId" />
+    </Key>
+    <Property Name="SubjectTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectTypeName" Type="nvarchar" MaxLength="100" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectTypeExam">
+    <Key>
+      <PropertyRef Name="SubjectTypeExamId" />
+    </Key>
+    <Property Name="SubjectTypeExamId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectTypeExamName" Type="nvarchar" MaxLength="100" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="SubjectTypeScoreRegion">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SubjectId" Type="int" />
+    <Property Name="SubjectTypeId" Type="int" />
+    <Property Name="LowestScore" Type="decimal" Precision="19" Scale="2" />
+    <Property Name="FullScore" Type="decimal" Precision="19" Scale="2" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Tenant">
+    <Key>
+      <PropertyRef Name="TenantId" />
+    </Key>
+    <Property Name="TenantId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TenantName" Type="nvarchar" MaxLength="1000" />
+    <Property Name="Email" Type="nvarchar" MaxLength="1000" />
+    <Property Name="TelNo" Type="nvarchar" MaxLength="100" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityType Name="UserInfo">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TenantId" Type="int" />
+    <Property Name="BrandId" Type="nchar" MaxLength="10" />
+    <Property Name="AccountId" Type="nvarchar" MaxLength="100" />
+    <Property Name="AccountName" Type="nvarchar" MaxLength="100" />
+    <Property Name="Password" Type="nvarchar(max)" />
+    <Property Name="UserType" Type="nvarchar" MaxLength="50" />
+    <Property Name="RoleType" Type="nvarchar" MaxLength="50" />
+    <Property Name="UseChk" Type="bit" />
+    <Property Name="InUserId" Type="int" />
+    <Property Name="InDateTime" Type="datetime" />
+    <Property Name="ModifyUserId" Type="int" />
+    <Property Name="ModifyDateTime" Type="datetime" />
+  </EntityType>
+  <EntityContainer Name="comyrtechsurveyModelStoreContainer">
+    <EntitySet Name="Answer" EntityType="Self.Answer" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="AnswerShopConsultant" EntityType="Self.AnswerShopConsultant" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="AnswerShopInfo" EntityType="Self.AnswerShopInfo" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DeleteFileLog" EntityType="Self.DeleteFileLog" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Project" EntityType="Self.Project" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Shop" EntityType="Self.Shop" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ShopSubjectTypeExam" EntityType="Self.ShopSubjectTypeExam" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Subject" EntityType="Self.Subject" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectFile" EntityType="Self.SubjectFile" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectInspectionStandard" EntityType="Self.SubjectInspectionStandard" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectLossResult" EntityType="Self.SubjectLossResult" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectRecheckType" EntityType="Self.SubjectRecheckType" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectType" EntityType="Self.SubjectType" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectTypeExam" EntityType="Self.SubjectTypeExam" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="SubjectTypeScoreRegion" EntityType="Self.SubjectTypeScoreRegion" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Tenant" EntityType="Self.Tenant" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="UserInfo" EntityType="Self.UserInfo" Schema="dbo" store:Type="Tables" />
+  </EntityContainer>
+</Schema>

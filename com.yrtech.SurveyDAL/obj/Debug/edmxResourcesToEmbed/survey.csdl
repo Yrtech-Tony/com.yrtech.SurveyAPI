@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="com.yrtech.surveyModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Answer">
+    <Key>
+      <PropertyRef Name="AnswerId" />
+    </Key>
+    <Property Name="AnswerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="SubjectId" Type="Int32" Nullable="false" />
+    <Property Name="ShopId" Type="Int32" Nullable="false" />
+    <Property Name="PhotoScore" Type="Decimal" Precision="19" Scale="2" />
+    <Property Name="InspectionStandardResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="FileResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="ShopConsultantResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="AnswerShopConsultant">
+    <Key>
+      <PropertyRef Name="ConsultantId" />
+    </Key>
+    <Property Name="ConsultantId" Type="Int32" Nullable="false" />
+    <Property Name="ShopId" Type="Int32" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="ConsultantName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ConsultantType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="AnswerShopInfo">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="ShopId" Type="Int32" Nullable="false" />
+    <Property Name="TeamLeaderName" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="StartDate" Type="DateTime" Precision="3" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Brand">
+    <Key>
+      <PropertyRef Name="BrandId" />
+    </Key>
+    <Property Name="BrandId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenantId" Type="Int32" />
+    <Property Name="BrandName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Remark" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="DeleteFileLog">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="ShopId" Type="Int32" />
+    <Property Name="SubjectId" Type="Int32" />
+    <Property Name="FileName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Project">
+    <Key>
+      <PropertyRef Name="ProjectId" />
+    </Key>
+    <Property Name="ProjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenantId" Type="Int32" />
+    <Property Name="BrandId" Type="Int32" />
+    <Property Name="ProjectCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="ProjectName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="Year" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Quarter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="OrderNO" Type="Int32" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="ProjectShop">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProjectId" Type="Int32" Nullable="false" />
+    <Property Name="ShopId" Type="Int32" Nullable="false" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Shop">
+    <Key>
+      <PropertyRef Name="ShopId" />
+    </Key>
+    <Property Name="ShopId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenantId" Type="Int32" />
+    <Property Name="BrandId" Type="Int32" />
+    <Property Name="ShopCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="ShopName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="ShopShortName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="Province" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="City" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="UseChk" Type="Boolean" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="ShopSubjectTypeExam">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="ShopId" Type="Int32" />
+    <Property Name="ShopSubjectTypeExamId" Type="Int32" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Subject">
+    <Key>
+      <PropertyRef Name="SubjectId" />
+    </Key>
+    <Property Name="SubjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="ProjectId" Type="Int32" />
+    <Property Name="SubjectTypeExamId" Type="Int32" />
+    <Property Name="SubjectRecheckTypeId" Type="Int32" />
+    <Property Name="OrderNO" Type="Int32" />
+    <Property Name="Implementation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Desc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="AdditionalDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="InspectionDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectFile">
+    <Key>
+      <PropertyRef Name="FileId" />
+    </Key>
+    <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectId" Type="Int32" />
+    <Property Name="FileName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectInspectionStandard">
+    <Key>
+      <PropertyRef Name="InspectionStandardId" />
+    </Key>
+    <Property Name="InspectionStandardId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="InspectionStandardName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="SubjectId" Type="Int32" Nullable="false" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectLossResult">
+    <Key>
+      <PropertyRef Name="LossResultId" />
+    </Key>
+    <Property Name="LossResultId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectId" Type="Int32" />
+    <Property Name="LossResultName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectRecheckType">
+    <Key>
+      <PropertyRef Name="RecheckTypeId" />
+    </Key>
+    <Property Name="RecheckTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="RecheckTypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+  </EntityType>
+  <EntityType Name="SubjectType">
+    <Key>
+      <PropertyRef Name="SubjectTypeId" />
+    </Key>
+    <Property Name="SubjectTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectTypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectTypeExam">
+    <Key>
+      <PropertyRef Name="SubjectTypeExamId" />
+    </Key>
+    <Property Name="SubjectTypeExamId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectTypeExamName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="SubjectTypeScoreRegion">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="SubjectId" Type="Int32" />
+    <Property Name="SubjectTypeId" Type="Int32" />
+    <Property Name="LowestScore" Type="Decimal" Precision="19" Scale="2" />
+    <Property Name="FullScore" Type="Decimal" Precision="19" Scale="2" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Tenant">
+    <Key>
+      <PropertyRef Name="TenantId" />
+    </Key>
+    <Property Name="TenantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenantName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="Email" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+    <Property Name="TelNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="UserInfo">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenantId" Type="Int32" />
+    <Property Name="BrandId" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+    <Property Name="AccountId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="AccountName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="UserType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="RoleType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="UseChk" Type="Boolean" />
+    <Property Name="InUserId" Type="Int32" />
+    <Property Name="InDateTime" Type="DateTime" Precision="3" />
+    <Property Name="ModifyUserId" Type="Int32" />
+    <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityContainer Name="Entities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Answer" EntityType="Self.Answer" />
+    <EntitySet Name="AnswerShopConsultant" EntityType="Self.AnswerShopConsultant" />
+    <EntitySet Name="AnswerShopInfo" EntityType="Self.AnswerShopInfo" />
+    <EntitySet Name="Brand" EntityType="Self.Brand" />
+    <EntitySet Name="DeleteFileLog" EntityType="Self.DeleteFileLog" />
+    <EntitySet Name="Project" EntityType="Self.Project" />
+    <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" />
+    <EntitySet Name="Shop" EntityType="Self.Shop" />
+    <EntitySet Name="ShopSubjectTypeExam" EntityType="Self.ShopSubjectTypeExam" />
+    <EntitySet Name="Subject" EntityType="Self.Subject" />
+    <EntitySet Name="SubjectFile" EntityType="Self.SubjectFile" />
+    <EntitySet Name="SubjectInspectionStandard" EntityType="Self.SubjectInspectionStandard" />
+    <EntitySet Name="SubjectLossResult" EntityType="Self.SubjectLossResult" />
+    <EntitySet Name="SubjectRecheckType" EntityType="Self.SubjectRecheckType" />
+    <EntitySet Name="SubjectType" EntityType="Self.SubjectType" />
+    <EntitySet Name="SubjectTypeExam" EntityType="Self.SubjectTypeExam" />
+    <EntitySet Name="SubjectTypeScoreRegion" EntityType="Self.SubjectTypeScoreRegion" />
+    <EntitySet Name="Tenant" EntityType="Self.Tenant" />
+    <EntitySet Name="UserInfo" EntityType="Self.UserInfo" />
+  </EntityContainer>
+</Schema>
