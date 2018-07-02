@@ -8,3 +8,4 @@ C:\Workspace\com.yrtech.SurveyAPI\com.yrtech.SurveyDAL\bin\Debug\EntityFramework
 C:\Workspace\com.yrtech.SurveyAPI\com.yrtech.SurveyDAL\bin\Debug\EntityFramework.SqlServer.xml
 C:\Workspace\com.yrtech.SurveyAPI\com.yrtech.SurveyDAL\obj\Debug\Purchase.DAL.dll
 C:\Workspace\com.yrtech.SurveyAPI\com.yrtech.SurveyDAL\obj\Debug\Purchase.DAL.pdb
+C:\Workspace\com.yrtech.SurveyAPI\com.yrtech.SurveyDAL\obj\Debug\com.yrtech.SurveyDAL.csprojResolveAssemblyReference.cache

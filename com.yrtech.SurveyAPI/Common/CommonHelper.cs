@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -70,7 +71,17 @@ namespace com.yrtech.SurveyAPI.Common
             str = str.Replace("utf-8", "utf-16");
             return str;
         }
-
+        public static T DecodeString<T>(string json)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
+        }
         public static string FormatterString(string str, int length,bool sign)
         {
             decimal data;

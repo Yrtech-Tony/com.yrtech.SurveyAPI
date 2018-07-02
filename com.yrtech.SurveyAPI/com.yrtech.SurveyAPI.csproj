@@ -96,12 +96,15 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Common\APIResult.cs" />
     <Compile Include="Common\CommonHelper.cs" />
-    <Compile Include="Controllers\ShopController.cs" />
+    <Compile Include="Controllers\AccountControl.cs" />
+    <Compile Include="Controllers\MasterController.cs" />
     <Compile Include="DTO\Account\AccountDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ShopService.cs" />
+    <Compile Include="Service\MasterService.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Service\DataDownService.cs" />
   </ItemGroup>

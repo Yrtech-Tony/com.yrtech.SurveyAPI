@@ -15,7 +15,13 @@ namespace com.yrtech.SurveyAPI.Service
     {
         Entities db = new Entities();
 
-        public async Task<APIResult> Login(string accountId,string password)
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<APIResult> Login(string accountId, string password)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password)};
@@ -26,8 +32,8 @@ namespace com.yrtech.SurveyAPI.Service
                                             INNER JOIN Brand D ON C.BrandId = D.BrandId AND B.TenantId = D.TenantId
                             WHERE AccountId = @AccountId AND[Password] = @Password
                             AND UseChk = 1";
-            List<AccountDto> accountList =  db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<AccountDto>(accountList) };
+            List<AccountDto> list = db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
+            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<AccountDto>(list) };
         }
     }
 }
