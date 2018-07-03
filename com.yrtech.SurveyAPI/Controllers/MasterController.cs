@@ -53,9 +53,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [ActionName("Shop")]
-        public Task<APIResult> GetShop(string tenantId, string brandId, string shopId)
+        public APIResult GetShop(string tenantId, string brandId, string shopId)
         {
-            return service.GetShop(tenantId, brandId, shopId);
+            //return service.GetShop(tenantId, brandId, shopId)
+            return new APIResult() { Status = true, Body = "" };
+
         }
 
     }

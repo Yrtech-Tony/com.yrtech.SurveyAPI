@@ -18,7 +18,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// 获取复审类型
         /// </summary>
         /// <returns></returns>
-        public async Task<APIResult> GetSubjectRecheckType()
+        public List<SubjectRecheckType> GetSubjectRecheckType()
         {
             Type t = typeof(SubjectRecheckType);
             string sql = "";
@@ -30,14 +30,13 @@ namespace com.yrtech.SurveyAPI.Service
                   ,[ModifyUserId]
                   ,[ModifyDateTime]
               FROM [SubjectRecheckType] ";
-            List<SubjectRecheckType> list = db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<SubjectRecheckType>(list) };
+            return db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
         }
         /// <summary>
         /// 获取体系类型
         /// </summary>
         /// <returns></returns>
-        public async Task<APIResult> GetSubjectType()
+        public List<SubjectType> GetSubjectType()
         {
             Type t = typeof(SubjectType);
             string sql = "";
@@ -47,14 +46,14 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[InUserId]
                           ,[InDateTime]
                    FROM [SubjectType] ";
-            List<SubjectType> list = db.Database.SqlQuery(t, sql, null).Cast<SubjectType>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<SubjectType>(list) };
+            return db.Database.SqlQuery(t, sql, null).Cast<SubjectType>().ToList();
+            
         }
         /// <summary>
         /// 获取体系试卷类型
         /// </summary>
         /// <returns></returns>
-        public async Task<APIResult> GetSubjectTypeExam()
+        public List<SubjectTypeExam> GetSubjectTypeExam()
         {
             Type t = typeof(SubjectTypeExam);
             string sql = "";
@@ -66,8 +65,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                       FROM [SubjectTypeExam] ";
-            List<SubjectTypeExam> list = db.Database.SqlQuery(t, sql, null).Cast<SubjectTypeExam>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<SubjectTypeExam>(list) };
+            return db.Database.SqlQuery(t, sql, null).Cast<SubjectTypeExam>().ToList();
+            
         }
         /// <summary>
         /// 查询租户信息
@@ -155,7 +154,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public async Task<APIResult> GetShop(string tenantId, string brandId, string shopId)
+        public List<Shop> GetShop(string tenantId, string brandId, string shopId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
@@ -183,8 +182,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ShopId = @ShopId";
             }
-            List<Shop> list = db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<Shop>(list) };
+            return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
         }
     }
 }

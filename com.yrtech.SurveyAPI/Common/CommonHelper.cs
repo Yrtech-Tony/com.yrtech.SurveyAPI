@@ -13,6 +13,25 @@ namespace com.yrtech.SurveyAPI.Common
 {
     public class CommonHelper
     {
+        public static string Encode(object obj)
+        {
+            string jsonString = string.Empty;
+
+            try
+            {
+                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+                {
+                    Formatting = Newtonsoft.Json.Formatting.Indented,
+                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                };
+                jsonString = JsonConvert.SerializeObject(obj);
+            }
+            catch (Exception)
+            {
+            }
+            return jsonString;
+        }
+
         public static string EncodeDto<T>(IEnumerable t)
         {
             string jsonString = string.Empty;
