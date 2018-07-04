@@ -1,13 +1,10 @@
 ﻿using com.yrtech.SurveyAPI.Common;
-using com.yrtech.SurveyAPI.DTO.Account;
-using Survey.DAL;
+using Purchase.DAL;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace com.yrtech.SurveyAPI.Service
 {

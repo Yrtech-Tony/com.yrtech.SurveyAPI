@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Survey.DAL
+namespace Purchase.DAL
 {
     using System;
     using System.Collections.Generic;

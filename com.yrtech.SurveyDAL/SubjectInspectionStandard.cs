@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Survey.DAL
+namespace Purchase.DAL
 {
     using System;
     using System.Collections.Generic;
@@ -21,5 +21,6 @@ namespace Survey.DAL
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
+        public Nullable<int> SeqNO { get; set; }
     }
 }

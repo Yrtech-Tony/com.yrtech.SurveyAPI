@@ -1,6 +1,6 @@
 ﻿using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.DTO.Account;
-using Survey.DAL;
+using Purchase.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -26,7 +26,7 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password)};
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,AccountId,AccountName,[Password],ISNULL(UseChk,0) AS UseChk 
+            string sql = @"SELECT A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,[Password],ISNULL(UseChk,0) AS UseChk 
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             INNER JOIN UserInfoBrand C ON A.Id = C.UserId
                                             INNER JOIN Brand D ON C.BrandId = D.BrandId AND B.TenantId = D.TenantId
@@ -34,6 +34,41 @@ namespace com.yrtech.SurveyAPI.Service
                             AND UseChk = 1";
            return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
             
+        }
+        public List<UserInfo> GetUserInfo(string userId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId)};
+            Type t = typeof(UserInfo);
+            string sql = @"SELECT [Id]
+                          ,[TenantId]
+                          ,[AccountId]
+                          ,[AccountName]
+                          ,[Password]
+                          ,[UserType]
+                          ,[RoleType]
+                          ,[UseChk]
+                          ,[InUserId]
+                          ,[InDateTime]
+                          ,[ModifyUserId]
+                          ,[ModifyDateTime]
+                      FROM [UserInfo]
+                    WHERE Id = @UserId";
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
+        }
+        public List<UserInfoBrand> GetUserInfoBrand(string userId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId) };
+            Type t = typeof(UserInfoBrand);
+            string sql = @"SELECT [Id]
+                          ,[UserId]
+                          ,[BrandId]
+                          ,[InUserId]
+                          ,[InDateTime]
+                          ,[ModifyUserId]
+                          ,[ModifyDateTime]
+                      FROM [UserInfoBrand]
+                    WHERE UserId = @UserId";
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfoBrand>().ToList();
         }
     }
 }

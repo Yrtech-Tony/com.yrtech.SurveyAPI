@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Survey.DAL
+namespace Purchase.DAL
 {
     using System;
     using System.Data.Entity;
@@ -43,6 +43,7 @@ namespace Survey.DAL
         public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
         public virtual DbSet<SubjectTypeScoreRegion> SubjectTypeScoreRegion { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
+        public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfo> UserInfo { get; set; }
     }
 }

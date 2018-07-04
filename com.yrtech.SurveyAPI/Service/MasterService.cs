@@ -1,13 +1,8 @@
-﻿using com.yrtech.SurveyAPI.Common;
-using com.yrtech.SurveyAPI.DTO.Account;
-using Survey.DAL;
+﻿using Purchase.DAL;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace com.yrtech.SurveyAPI.Service
 {
@@ -46,8 +41,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[InUserId]
                           ,[InDateTime]
                    FROM [SubjectType] ";
-            return db.Database.SqlQuery(t, sql, null).Cast<SubjectType>().ToList();
-            
+            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<SubjectType>().ToList();
+
         }
         /// <summary>
         /// 获取体系试卷类型
@@ -65,15 +60,15 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                       FROM [SubjectTypeExam] ";
-            return db.Database.SqlQuery(t, sql, null).Cast<SubjectTypeExam>().ToList();
-            
+            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<SubjectTypeExam>().ToList();
+
         }
         /// <summary>
         /// 查询租户信息
         /// </summary>
         /// <param name="tenantId"></param>
         /// <returns></returns>
-        public async Task<APIResult> GetTenant(string tenantId)
+        public List<Tenant> GetTenant(string tenantId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId) };
             Type t = typeof(Tenant);
@@ -85,8 +80,8 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND TenantId = @TenantId";
             }
-            List<Tenant> list = db.Database.SqlQuery(t, sql, para).Cast<Tenant>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<Tenant>(list) };
+            return db.Database.SqlQuery(t, sql, para).Cast<Tenant>().ToList();
+
         }
         /// <summary>
         /// 查询品牌信息
@@ -94,22 +89,27 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="tenantId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<APIResult> GetBrand(string tenantId, string userId)
+        public List<Brand> GetBrand(string tenantId, string userId,string brandId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
-                                                       new SqlParameter("@UserId", userId)};
+                                                       new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@BrandId", brandId)};
             Type t = typeof(Brand);
             string sql = "";
 
             sql = @"SELECT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
                     FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId
-                    WHERE 1=1 AND TenantId = @TenantId ";
+                    WHERE 1=1 AND A.TenantId = @TenantId ";
             if (!string.IsNullOrEmpty(userId))
             {
-                sql += " AND UserId = @UserId";
+                sql += " AND B.UserId = @UserId";
             }
-            List<Brand> list = db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<Brand>(list) };
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
+
         }
         /// <summary>
         /// 
@@ -118,7 +118,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public async Task<APIResult> GetProject(string tenantId, string brandId, string projectId)
+        public List<Project> GetProject(string tenantId, string brandId, string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
@@ -138,14 +138,18 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                     FROM [Project]
-                    WHERE TenantId = @TenantId AND BrandId = @Brand
+                    WHERE TenantId = @TenantId 
                     ";
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND BrandId = @BrandId";
+            }
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND ProjectId = @ProjectId";
             }
-            List<Project> list = db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<Project>(list) };
+            return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
+           
         }
         /// <summary>
         /// 
@@ -176,8 +180,11 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyDateTime]
                       FROM [Shop]
                     WHERE TenantId = @TenantId
-                    AND BrandId = @BrandId 
                     ";
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND BrandId = @BrandId";
+            }
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND ShopId = @ShopId";
