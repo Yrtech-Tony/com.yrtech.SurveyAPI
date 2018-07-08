@@ -1,4 +1,5 @@
-﻿using Purchase.DAL;
+﻿using com.yrtech.SurveyAPI.Common;
+using Purchase.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -89,7 +90,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="tenantId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<Brand> GetBrand(string tenantId, string userId,string brandId)
+        public List<Brand> GetBrand(string tenantId, string userId, string brandId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                        new SqlParameter("@UserId", userId),
@@ -149,7 +150,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND ProjectId = @ProjectId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
-           
+
         }
         /// <summary>
         /// 
@@ -190,6 +191,154 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND ShopId = @ShopId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
+        }
+
+        /// <summary>
+        /// 获取体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<Subject> GetSubject(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(Subject);
+            string sql = "";
+            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,OrderNO,Implementation,[CheckPoint]," +
+                  "[Desc],AdditionalDesc,InspectionDesc,Remark,InUserId,InDateTime,ModifyUserId,ModifyDateTime  FROM Subject WHERE ProjectId = @ProjectId";
+            List<Subject> list = db.Database.SqlQuery(t, sql, para).Cast<Subject>().ToList();
+            return list;
+        }
+
+        /// <summary>
+        /// 获取标准照片信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectFile> GetSubjectFile(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectFile);
+            string sql = "";
+            sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime" +
+                  " FROM SubjectFile sf,Subject s WHERE sf.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            List<SubjectFile> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
+            return list;
+        }
+
+        /// <summary>
+        /// 获取检查标准信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectInspectionStandard> GetSubjectInspectionStandard(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectInspectionStandard);
+            string sql = "";
+            sql = @"SELECT sis.InspectionStandardId,sis.InspectionStandardName,sis.SubjectId,sis.SeqNO,sis.InUserId,sis.InDateTime,sis.ModifyUserId,sis.ModifyDateTime" +
+                  " FROM SubjectInspectionStandard sis,Subject s WHERE sis.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            List<SubjectInspectionStandard> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
+            return list;
+        }
+
+        /// <summary>
+        /// 获取检查标准信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectLossResult> GetSubjectLossResult(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectLossResult);
+            string sql = "";
+            sql = @"SELECT slr.LossResultId,slr.SubjectId,slr.SeqNO,slr.LossResultName,slr.InUserId,slr.InDateTime,slr.ModifyUserId,slr.ModifyDateTime" +
+                  " FROM SubjectLossResult slr,Subject s WHERE slr.SubjectId=s.SubjectId and s.ProjectId = @ProjectId";
+            List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
+            return list;
+        }
+        
+        /// <summary>
+        /// 获取体系类型打分范围信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectTypeScoreRegion);
+            string sql = "";
+            sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
+                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
+            return list;
+        }
+
+        /// <summary>
+        /// 保存答题信息列表
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public void InserAnswerList(List<Answer> lst)
+        {
+            if (lst == null) return;
+            foreach(Answer answer in lst){
+                Answer findOne = db.Answer.Where(x => (x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId && x.SubjectId == answer.SubjectId)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    db.Answer.Add(answer);
+                }
+                else
+                {
+                    db.Entry<Answer>(answer).State = System.Data.Entity.EntityState.Modified;
+                }
+            }
+            db.SaveChanges();
+        }
+
+        /// <summary>
+        /// 保存信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public void InserAnswerShopInfoList(List<AnswerShopInfo> lst)
+        {
+            if (lst == null) return;
+            foreach (AnswerShopInfo answerShopInfo in lst)
+            {
+                AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == answerShopInfo.ProjectId && x.ShopId == answerShopInfo.ShopId)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    db.AnswerShopInfo.Add(answerShopInfo);
+                }
+                else
+                {
+                    db.Entry<AnswerShopInfo>(findOne).State = System.Data.Entity.EntityState.Modified;
+                }
+            }
+            db.SaveChanges();
+        }
+
+        /// <summary>
+        /// 保存顾问信息列表
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public void InserAnswerShopConsultantList(List<AnswerShopConsultant> lst)
+        {
+            if (lst == null) return;
+            foreach (AnswerShopConsultant item in lst)
+            {
+                AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == item.ProjectId && x.ShopId == item.ShopId)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    db.AnswerShopConsultant.Add(item);
+                }
+                else
+                {
+                    db.Entry<AnswerShopConsultant>(findOne).State = System.Data.Entity.EntityState.Modified;
+                }
+            }
+            db.SaveChanges();
         }
     }
 }

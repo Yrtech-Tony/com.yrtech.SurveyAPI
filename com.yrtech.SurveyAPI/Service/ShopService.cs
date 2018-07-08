@@ -17,17 +17,32 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public async Task<APIResult> GetProjectShop(string projectId)
+        public List<ProjectShop> GetProjectShop(string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
             Type t = typeof(ProjectShop);
             string sql = "";
-            sql = @"SELECT A.ProjectId,A.ShopId,A.InUserId,A.InDateTime
+            sql = @"SELECT Id,A.ProjectId,A.ShopId,A.InUserId,A.InDateTime
                     FROM ProjectShop A 
                     WHERE ProjectId = @ProjectId 
                     ";
             List<ProjectShop> list = db.Database.SqlQuery(t, sql, para).Cast<ProjectShop>().ToList();
-            return new APIResult() { Status = true, Body = CommonHelper.EncodeDto<ProjectShop>(list) };
+            return list;
+        }
+
+        /// <summary>
+        /// 获取经销商试卷信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<ShopSubjectTypeExam> GetShopSubjectTypeExam(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(ShopSubjectTypeExam);
+            string sql = "";
+            sql = @"SELECT Id,ProjectId,ShopId,ShopSubjectTypeExamId,InUserId,InDateTime,ModifyUserId,ModifyDateTime FROM ShopSubjectTypeExam WHERE ProjectId = @ProjectId";
+            List<ShopSubjectTypeExam> list = db.Database.SqlQuery(t, sql, para).Cast<ShopSubjectTypeExam>().ToList();
+            return list;
         }
     }
 }
