@@ -28,31 +28,31 @@ namespace com.yrtech.SurveyAPI.Controllers
                     string tenantId = account.TenantId.ToString();
 
                     #region 登录成功后下载基础数据到Mobile本地
-                    // 用户信息
+                    // 用户信息 UserInfo
                     resultList.Add(accountService.GetUserInfo(account.UserId.ToString()));
-                    // 品牌用户信息
+                    // 品牌用户信息 UserInfoBrand
                     resultList.Add(accountService.GetUserInfoBrand(account.UserId.ToString()));
-                    // 体系类型
+                    // 体系类型 SubjectType
                     resultList.Add(masterService.GetSubjectType());
-                    // 试卷类型
+                    // 试卷类型 SubjectTypeExam
                     resultList.Add(masterService.GetSubjectTypeExam());
-                    // 租户信息
+                    // 租户信息 Tenant
                     resultList.Add(masterService.GetTenant(tenantId));
-                    // 品牌信息
+                    // 品牌信息 Brand
                     List<Brand> brandList = new List<Brand>();
                     foreach (AccountDto ac in accountlist)
                     {
                         brandList.AddRange(masterService.GetBrand(tenantId, ac.UserId.ToString(), ac.BrandId.ToString()));
                     }
                     resultList.Add(brandList);
-                    // 期号信息
+                    // 期号信息 Project
                     List<Project> projectList = new List<Project>();
                     foreach (AccountDto ac in accountlist)
                     {
                         projectList.AddRange(masterService.GetProject(tenantId, ac.BrandId.ToString(), ""));
                     }
                     resultList.Add(projectList);
-                    // 经销商信息
+                    // 经销商信息 Shop
                     List<Shop> shopList = new List<Shop>();
                     foreach (AccountDto ac in accountlist)
                     {
@@ -64,12 +64,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else
                 {
-                    return new APIResult() { Status = true, Body = "" };
+                    return new APIResult() { Status = true, Body = "用户不存在或者密码不正确" };
                 }
             }
             catch (Exception ex)
             {
-
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }

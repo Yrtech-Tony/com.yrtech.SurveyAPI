@@ -242,7 +242,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
 
         /// <summary>
-        /// 获取检查标准信息
+        /// 获取失分说明
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
@@ -256,7 +256,7 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
             return list;
         }
-        
+
         /// <summary>
         /// 获取体系类型打分范围信息
         /// </summary>
@@ -281,7 +281,8 @@ namespace com.yrtech.SurveyAPI.Service
         public void InserAnswerList(List<Answer> lst)
         {
             if (lst == null) return;
-            foreach(Answer answer in lst){
+            foreach (Answer answer in lst)
+            {
                 Answer findOne = db.Answer.Where(x => (x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId && x.SubjectId == answer.SubjectId)).FirstOrDefault();
                 if (findOne == null)
                 {
@@ -328,7 +329,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (lst == null) return;
             foreach (AnswerShopConsultant item in lst)
             {
-                AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == item.ProjectId && x.ShopId == item.ShopId)).FirstOrDefault();
+                AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == item.ProjectId && x.ShopId == item.ShopId && x.ConsultantName == item.ConsultantName && x.ConsultantType == item.ConsultantType)).FirstOrDefault();
                 if (findOne == null)
                 {
                     db.AnswerShopConsultant.Add(item);
