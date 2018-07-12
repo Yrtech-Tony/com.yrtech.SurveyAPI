@@ -48,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Master/Upload")]
         public APIResult Upload(string userId, string data)
         {
