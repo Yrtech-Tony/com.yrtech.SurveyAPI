@@ -10,6 +10,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     [RoutePrefix("survey/api")]
     public class MasterController : ApiController
     {
+        AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
         ShopService shopService = new ShopService();
 
@@ -27,7 +28,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 经销商试卷类型信息 ShopSubjectTypeExam
                 resultList.Add(shopService.GetShopSubjectTypeExam(projectId));
                 // 体系类型信息  Subject
-                resultList.Add(masterService.GetSubject(projectId));
+                resultList.Add(masterService.GetSubject(projectId,""));
                 // 标准照片信息 SubjectFile
                 resultList.Add(masterService.GetSubjectFile(projectId));
                 // 检查标准信息 SubjectInspectionStandard
@@ -54,10 +55,9 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
-                masterService.InserAnswerList(uploadData.AnswerList);
-                masterService.InserAnswerShopInfoList(uploadData.AnswerShopInfoList);
-                masterService.InserAnswerShopConsultantList(uploadData.AnswerShopConsultantList);
-
+                answerService.SaveAnswerShopInfoList(uploadData.AnswerShopInfoList, userId);
+                answerService.SaveAnswerShopConsultantList(uploadData.AnswerShopConsultantList, userId);
+                answerService.SaveAnswerList(uploadData.AnswerList,userId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

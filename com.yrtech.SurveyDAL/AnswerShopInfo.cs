@@ -23,5 +23,7 @@ namespace Purchase.DAL
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
+        public Nullable<System.DateTime> UploadDateTime { get; set; }
+        public Nullable<int> UploadUserId { get; set; }
     }
 }
