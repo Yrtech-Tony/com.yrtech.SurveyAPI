@@ -1,4 +1,6 @@
-﻿using Purchase.DAL;
+﻿using com.yrtech.SurveyAPI.Common;
+using com.yrtech.SurveyAPI.DTO.AnswerResult;
+using Purchase.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -20,8 +22,35 @@ namespace com.yrtech.SurveyAPI.Service
         public void SaveAnswerList(List<Answer> lst, string userId)
         {
             if (lst == null) return;
-            string shopId = lst[0].ShopId.ToString();
-            string projectId = lst[0].ProjectId.ToString();
+            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
+            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString())[0].ProjectCode;
+            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            /// 保存得分信息
+            foreach (Answer answer in lst)
+            {
+                string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
+                webService.SaveAnswer(projectCode, subjectCode, shopCode, null, answer.Remark, "", accountId,'0', "", DateTime.Now.ToString(), answer.InDateTime.ToString(), answer.PhotoScore.ToString());
+                List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
+                List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                List<ShopConsultantResultDto> shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+                foreach (InspectionStandardResultDto inspection in inspectionList)
+                {
+                    webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, "");
+                }
+                foreach (FileResultDto file in fileList)
+                {
+                    webService.SaveAnswerDtl2(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId,"",file.FileName);
+                }
+                foreach (LossResultDto loss in lossResultList)
+                {
+                    webService.SaveAnswerDtl3(projectCode, subjectCode, shopCode, Convert.ToInt32(loss.SeqNO),loss.LossDesc,loss.LossFIleNameUrl);
+                }
+                foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
+                {
+                    webService.SaveSalesConsultant(projectCode,shopCode, subjectCode,shopConsult.SeqNO,shopConsult.ConsultantName,shopConsult.ConsultantScore,shopConsult.ConsultantLossDesc,accountId,"",shopConsult.ConsultantType);
+                }
+            }
 
             foreach (Answer answer in lst)
             {

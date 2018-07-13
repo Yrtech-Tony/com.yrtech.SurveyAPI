@@ -116,6 +116,10 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
     <Compile Include="DTO\Account\AccountDto.cs" />
+    <Compile Include="DTO\AnswerResult\FileResultDto.cs" />
+    <Compile Include="DTO\AnswerResult\ShopConsultantResultDto.cs" />
+    <Compile Include="DTO\AnswerResult\LossResultDto.cs" />
+    <Compile Include="DTO\AnswerResult\InspectionStandardResultDto.cs" />
     <Compile Include="DTO\UploadData.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
