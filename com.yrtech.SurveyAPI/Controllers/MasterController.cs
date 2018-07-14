@@ -51,7 +51,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload(string data)
+        public APIResult Upload([FromBody] string data)
         {
             try
             {
