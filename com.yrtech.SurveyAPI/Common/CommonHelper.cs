@@ -126,5 +126,31 @@ namespace com.yrtech.SurveyAPI.Common
             }
             return strData;
         }
+
+        public static void log(string message)
+        {
+            string appDomainPath = AppDomain.CurrentDomain.BaseDirectory;
+            string fileName = appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
+            //File.Create(fileName);
+            if (!Directory.Exists(appDomainPath + @"\" + "Log"))
+            {
+                Directory.CreateDirectory(appDomainPath + @"\" + "Log");
+            }
+            if (!Directory.Exists(appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd")))
+            {
+                Directory.CreateDirectory(appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd"));
+            }
+            using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                byte[] by = WriteStringToByte(message, fs);
+                fs.Flush();
+            }
+        }
+        public static byte[] WriteStringToByte(string str, FileStream fs)
+        {
+            byte[] info = new UTF8Encoding(true).GetBytes(str);
+            fs.Write(info, 0, info.Length);
+            return info;
+        }
     }
 }

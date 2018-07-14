@@ -54,6 +54,9 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList);
+                CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
+                CommonHelper.log("Control AnswerList" + uData.AnswerList);
                 string userId = uData.UserId;
                 answerService.SaveAnswerShopInfoList(uData.AnswerShopInfoList, userId);
                 answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);

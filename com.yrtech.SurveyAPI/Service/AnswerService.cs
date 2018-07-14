@@ -76,7 +76,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public void SaveAnswerShopInfoList(List<AnswerShopInfo> lst, string userId)
         {
+            CommonHelper.log("Service"+lst.ToString());
             if (lst == null) return;
+            CommonHelper.log(lst.ToString());
             string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
             string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString())[0].ProjectCode;
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;

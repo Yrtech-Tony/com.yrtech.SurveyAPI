@@ -184,7 +184,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                       FROM [Shop]
-                    WHERE AND 1=1 
+                    WHERE  1=1 
                     ";
             if (!string.IsNullOrEmpty(tenantId))
             {
