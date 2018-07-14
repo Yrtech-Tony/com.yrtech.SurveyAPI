@@ -50,14 +50,15 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload(string userId, string data)
+        public APIResult Upload([FromBody] UploadData uData)
         {
             try
             {
-                UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
-                answerService.SaveAnswerShopInfoList(uploadData.AnswerShopInfoList, userId);
-                answerService.SaveAnswerShopConsultantList(uploadData.AnswerShopConsultantList, userId);
-                answerService.SaveAnswerList(uploadData.AnswerList,userId);
+                string userId = uData.UserId;
+                answerService.SaveAnswerShopInfoList(uData.AnswerShopInfoList, userId);
+                answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);
+                answerService.SaveAnswerList(uData.AnswerList, userId);
+
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

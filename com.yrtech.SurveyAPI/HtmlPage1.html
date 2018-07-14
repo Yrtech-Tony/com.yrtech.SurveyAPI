@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="https://cdn.bootcss.com/jquery/1.10.1/jquery.min.js"></script>
+    <script>
+        $(function () {
+
+        })
+
+        function upload() {
+            var data = {
+                "AnswerList": [{ "ModifyDateTime": "2018-07-14 15:34:55", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "9", "ShopId": "3", "InDateTime": "2018-07-14 15:20:28", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "2", "AnswerId": "5", "Remark": "CESHI", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:21:22", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "29", "ShopId": "3", "InDateTime": "2018-07-14 15:20:36", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "1", "AnswerId": "6", "Remark": "DDD", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:33:30", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "49", "ShopId": "3", "InDateTime": "2018-07-14 15:20:58", "ShopConsultantResult": "", "FileResult": "", "LossResult": "[{\"LossDesc\":\"未明示汽车销售收费标准;未明示附加产品收费标准\",\"LastTime\":\"2018-07-14 15:20:58\",\"LossId\":1}]", "PhotoScore": "3", "AnswerId": "7", "Remark": "CESHI3-update", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:21:10", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "49", "ShopId": "3", "InDateTime": "2018-07-14 15:21:10", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "2", "AnswerId": "8", "Remark": "DDD", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:26:49", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "53", "ShopId": "3", "InDateTime": "2018-07-14 15:24:40", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "2", "AnswerId": "9", "Remark": "CESHI5", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:36:32", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "58", "ShopId": "3", "InDateTime": "2018-07-14 15:35:56", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "1", "AnswerId": "10", "Remark": "BEIZHU5", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:36:28", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "69", "ShopId": "3", "InDateTime": "2018-07-14 15:36:05", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "2", "AnswerId": "11", "Remark": "BEIZHU6", "ProjectId": "1" }, { "ModifyDateTime": "2018-07-14 15:36:09", "ModifyUserId": "1", "InUserId": "1", "InspectionStandardResult": "", "SubjectId": "69", "ShopId": "3", "InDateTime": "2018-07-14 15:36:09", "ShopConsultantResult": "", "FileResult": "", "LossResult": "", "PhotoScore": "2", "AnswerId": "12", "Remark": "BEIZHU6", "ProjectId": "1" }], "AnswerShopInfoList": [{ "StartDate": "2018-07-10 22:30:00", "TeamLeaderName": "李四", "ShopId": "3", "ProjectId": "1" }], "AnswerShopConsultantList": []
+            };
+            data.userId = "1";
+            $.ajax({
+                url: "http://localhost:57328/survey/api/Master/UpLoad",
+                data: data,
+                method: "post",
+                header: {
+                    'Content-Type': 'application/json'
+                }
+
+            })
+        }
+    </script>
+</head>
+<body>
+    <input type="button" value="上传数据" onclick="upload()" />
+</body>
+</html>
