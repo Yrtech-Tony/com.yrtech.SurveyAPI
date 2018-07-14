@@ -4,13 +4,13 @@ using com.yrtech.SurveyAPI.Common;
 using System.Collections.Generic;
 using System;
 using com.yrtech.SurveyAPI.DTO;
-using Newtonsoft.Json.Linq;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
     [RoutePrefix("survey/api")]
     public class MasterController : ApiController
     {
+        AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
         ShopService shopService = new ShopService();
 
@@ -28,7 +28,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 经销商试卷类型信息 ShopSubjectTypeExam
                 resultList.Add(shopService.GetShopSubjectTypeExam(projectId));
                 // 体系类型信息  Subject
-                resultList.Add(masterService.GetSubject(projectId));
+                resultList.Add(masterService.GetSubject(projectId,""));
                 // 标准照片信息 SubjectFile
                 resultList.Add(masterService.GetSubjectFile(projectId));
                 // 检查标准信息 SubjectInspectionStandard
@@ -47,26 +47,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpPost]
-        [Route("Master/Upload")]
-        public APIResult Upload(string userId)
-        {
 
-            return null;
-        }
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] UploadData uData)
+        public APIResult Upload(string userId, string data)
         {
             try
             {
-                string userId = uData.UserId;// obj["userId"].ToString();
-                //string data = obj["data"].ToString();
-                //UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
-                masterService.InserAnswerList(uData.AnswerList);
-                masterService.InserAnswerShopInfoList(uData.AnswerShopInfoList);
-                masterService.InserAnswerShopConsultantList(uData.AnswerShopConsultantList);
-
+                UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
+                answerService.SaveAnswerShopInfoList(uploadData.AnswerShopInfoList, userId);
+                answerService.SaveAnswerShopConsultantList(uploadData.AnswerShopConsultantList, userId);
+                answerService.SaveAnswerList(uploadData.AnswerList,userId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

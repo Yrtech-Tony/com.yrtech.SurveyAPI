@@ -25,9 +25,6 @@ namespace Purchase.DAL
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
-        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
         public virtual DbSet<DeleteFileLog> DeleteFileLog { get; set; }
         public virtual DbSet<Project> Project { get; set; }
@@ -45,5 +42,8 @@ namespace Purchase.DAL
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfo> UserInfo { get; set; }
+        public virtual DbSet<Answer> Answer { get; set; }
+        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
+        public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
     }
 }

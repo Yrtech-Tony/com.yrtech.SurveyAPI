@@ -139,8 +139,12 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                     FROM [Project]
-                    WHERE TenantId = @TenantId 
+                    WHERE 1=1   
                     ";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND TenantId = @TenantId";
+            }
             if (!string.IsNullOrEmpty(brandId))
             {
                 sql += " AND BrandId = @BrandId";
@@ -180,8 +184,12 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                       FROM [Shop]
-                    WHERE TenantId = @TenantId
+                    WHERE AND 1=1 
                     ";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND TenantId = @TenantId";
+            }
             if (!string.IsNullOrEmpty(brandId))
             {
                 sql += " AND BrandId = @BrandId";
@@ -198,13 +206,23 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<Subject> GetSubject(string projectId)
+        public List<Subject> GetSubject(string projectId,string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SubjectId", subjectId)};
             Type t = typeof(Subject);
             string sql = "";
-            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,OrderNO,Implementation,[CheckPoint]," +
-                  "[Desc],AdditionalDesc,InspectionDesc,Remark,InUserId,InDateTime,ModifyUserId,ModifyDateTime  FROM Subject WHERE ProjectId = @ProjectId";
+            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,OrderNO,Implementation,[CheckPoint],
+                  [Desc],AdditionalDesc,InspectionDesc,Remark,InUserId,InDateTime,ModifyUserId,ModifyDateTime  
+                FROM Subject WHERE 1=1 ";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND SubjectId = @SubjectId";
+            }
             List<Subject> list = db.Database.SqlQuery(t, sql, para).Cast<Subject>().ToList();
             return list;
         }
@@ -219,8 +237,9 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectFile);
             string sql = "";
-            sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime" +
-                  " FROM SubjectFile sf,Subject s WHERE sf.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime
+                   FROM SubjectFile sf,Subject s 
+                   WHERE sf.SubjectId=s.SubjectId AND ProjectId = @ProjectId";
             List<SubjectFile> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
             return list;
         }
@@ -271,75 +290,6 @@ namespace com.yrtech.SurveyAPI.Service
                   " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId and ProjectId = @ProjectId";
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
-        }
-
-        /// <summary>
-        /// 保存答题信息列表
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public void InserAnswerList(List<Answer> lst)
-        {
-            if (lst == null) return;
-            foreach (Answer answer in lst)
-            {
-                Answer findOne = db.Answer.Where(x => (x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId && x.SubjectId == answer.SubjectId)).FirstOrDefault();
-                if (findOne == null)
-                {
-                    db.Answer.Add(answer);
-                }
-                else
-                {
-                    db.Entry<Answer>(answer).State = System.Data.Entity.EntityState.Modified;
-                }
-            }
-            db.SaveChanges();
-        }
-
-        /// <summary>
-        /// 保存信息
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public void InserAnswerShopInfoList(List<AnswerShopInfo> lst)
-        {
-            if (lst == null) return;
-            foreach (AnswerShopInfo answerShopInfo in lst)
-            {
-                AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == answerShopInfo.ProjectId && x.ShopId == answerShopInfo.ShopId)).FirstOrDefault();
-                if (findOne == null)
-                {
-                    db.AnswerShopInfo.Add(answerShopInfo);
-                }
-                else
-                {
-                    db.Entry<AnswerShopInfo>(findOne).State = System.Data.Entity.EntityState.Modified;
-                }
-            }
-            db.SaveChanges();
-        }
-
-        /// <summary>
-        /// 保存顾问信息列表
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public void InserAnswerShopConsultantList(List<AnswerShopConsultant> lst)
-        {
-            if (lst == null) return;
-            foreach (AnswerShopConsultant item in lst)
-            {
-                AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == item.ProjectId && x.ShopId == item.ShopId && x.ConsultantName == item.ConsultantName && x.ConsultantType == item.ConsultantType)).FirstOrDefault();
-                if (findOne == null)
-                {
-                    db.AnswerShopConsultant.Add(item);
-                }
-                else
-                {
-                    db.Entry<AnswerShopConsultant>(findOne).State = System.Data.Entity.EntityState.Modified;
-                }
-            }
-            db.SaveChanges();
         }
     }
 }
