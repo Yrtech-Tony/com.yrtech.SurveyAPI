@@ -50,10 +50,11 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] UploadData uData)
+        public APIResult Upload(string data)
         {
             try
             {
+                UploadData uData = CommonHelper.DecodeString<UploadData>(data);
                 CommonHelper.log("Control AnswerShopInfoList" + uData+"-------"+uData.AnswerShopInfoList+"----------"+uData.UserId);
                
                 //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
