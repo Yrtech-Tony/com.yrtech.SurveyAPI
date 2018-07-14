@@ -48,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
                 { 
-                    webService.SaveSalesConsultant(projectCode,shopCode, subjectCode,shopConsult.SeqNO,shopConsult.ConsultantName,shopConsult.ConsultantScore,shopConsult.ConsultantLossDesc,accountId,"",shopConsult.ConsultantType);
+                    webService.SaveSalesConsultant(projectCode,shopCode, subjectCode,shopConsult.SeqNO,shopConsult.ConsultantName,shopConsult.ConsultantScore,shopConsult.ConsultantLossDesc,accountId,'I',shopConsult.ConsultantType);
                 }
             }
 
