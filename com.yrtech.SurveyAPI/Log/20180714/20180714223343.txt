@@ -1,0 +1,1 @@
+Control AnswerShopInfoListSystem.Collections.Generic.List`1[Purchase.DAL.AnswerShopInfo]
