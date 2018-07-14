@@ -102,10 +102,10 @@
     <Content Include="Web References\localhost\PictureDto.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\localhost\Reference.map">
+    <None Include="Web References\localhost\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <None Include="Web References\localhost\service.disco" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -168,10 +168,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://123.57.229.128/benzserver/service.asmx">
+    <WebReferenceUrl Include="http://123.57.229.128/benzservernew/service.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\localhost\</RelPath>
-      <UpdateFromURL>http://123.57.229.128/benzserver/service.asmx</UpdateFromURL>
+      <UpdateFromURL>http://123.57.229.128/benzservernew/service.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
