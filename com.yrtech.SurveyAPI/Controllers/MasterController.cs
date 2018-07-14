@@ -4,6 +4,7 @@ using com.yrtech.SurveyAPI.Common;
 using System.Collections.Generic;
 using System;
 using com.yrtech.SurveyAPI.DTO;
+using System.Threading;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -50,13 +51,16 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload(string data)
+        public APIResult Upload([FromBody] UploadData uData)
         {
             try
             {
-                UploadData uData = CommonHelper.DecodeString<UploadData>(data);
-                CommonHelper.log("Control AnswerShopInfoList" + uData+"-------"+uData.AnswerShopInfoList+"----------"+uData.UserId);
-               
+                CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
+                Thread.Sleep(200);
+                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString() );
+                Thread.Sleep(200);
+                CommonHelper.log("Control AnswerShopInfoList" +uData.UserId.ToString());
+                Thread.Sleep(200);
                 //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
                 //CommonHelper.log("Control AnswerList" + uData.AnswerList);
                 string userId = uData.UserId;
