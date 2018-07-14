@@ -55,6 +55,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                CommonHelper.log("data="+data);
                 UploadData uData = CommonHelper.DecodeString<UploadData>(data);
                 CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
                 Thread.Sleep(200);
