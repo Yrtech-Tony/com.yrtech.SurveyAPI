@@ -54,18 +54,21 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList);
-                CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
-                CommonHelper.log("Control AnswerList" + uData.AnswerList);
+                CommonHelper.log("Control AnswerShopInfoList" + uData+"-------"+uData.AnswerShopInfoList+"----------"+uData.UserId);
+               
+                //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
+                //CommonHelper.log("Control AnswerList" + uData.AnswerList);
                 string userId = uData.UserId;
+
                 answerService.SaveAnswerShopInfoList(uData.AnswerShopInfoList, userId);
-                answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);
-                answerService.SaveAnswerList(uData.AnswerList, userId);
+                //answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);
+                //answerService.SaveAnswerList(uData.AnswerList, userId);
 
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
+                CommonHelper.log("Control AnswerShopInfoList" + ex.Message.ToString());
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
