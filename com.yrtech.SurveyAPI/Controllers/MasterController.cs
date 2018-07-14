@@ -4,6 +4,7 @@ using com.yrtech.SurveyAPI.Common;
 using System.Collections.Generic;
 using System;
 using com.yrtech.SurveyAPI.DTO;
+using Newtonsoft.Json.Linq;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -46,17 +47,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload(string userId, string data)
+        public APIResult Upload(string userId)
+        {
+
+            return null;
+        }
+        [HttpPost]
+        [Route("Master/Upload")]
+        public APIResult Upload([FromBody] UploadData uData)
         {
             try
             {
-                UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
-                masterService.InserAnswerList(uploadData.AnswerList);
-                masterService.InserAnswerShopInfoList(uploadData.AnswerShopInfoList);
-                masterService.InserAnswerShopConsultantList(uploadData.AnswerShopConsultantList);
+                string userId = uData.UserId;// obj["userId"].ToString();
+                //string data = obj["data"].ToString();
+                //UploadData uploadData = CommonHelper.DecodeString<UploadData>(data);
+                masterService.InserAnswerList(uData.AnswerList);
+                masterService.InserAnswerShopInfoList(uData.AnswerShopInfoList);
+                masterService.InserAnswerShopConsultantList(uData.AnswerShopConsultantList);
 
                 return new APIResult() { Status = true, Body = "" };
             }
