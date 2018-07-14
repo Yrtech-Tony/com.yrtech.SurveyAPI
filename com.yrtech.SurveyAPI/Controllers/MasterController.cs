@@ -51,15 +51,16 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] UploadData uData)
+        public APIResult Upload(string data)
         {
             try
             {
+                UploadData uData = CommonHelper.DecodeString<UploadData>(data);
                 CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
                 Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString() );
+                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString());
                 Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" +uData.UserId.ToString());
+                CommonHelper.log("Control AnswerShopInfoList" + uData.UserId.ToString());
                 Thread.Sleep(200);
                 //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
                 //CommonHelper.log("Control AnswerList" + uData.AnswerList);
