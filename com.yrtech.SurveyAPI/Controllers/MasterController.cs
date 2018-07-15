@@ -51,22 +51,23 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] string data)
+        public APIResult Upload([FromBody]string data)
         {
             try
             {
-                UploadData uData = CommonHelper.DecodeString<UploadData>(data);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
-                Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString());
-                Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.UserId.ToString());
-                Thread.Sleep(200);
+                CommonHelper.log("Control AnswerShopInfoList" + data);
+                ////UploadData uData = CommonHelper.DecodeString<UploadData>(data);
+                //CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
+                //Thread.Sleep(200);
+                //CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString());
+                //Thread.Sleep(200);
+                //CommonHelper.log("Control AnswerShopInfoList" + uData.UserId.ToString());
+                //Thread.Sleep(200);
                 //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
                 //CommonHelper.log("Control AnswerList" + uData.AnswerList);
-                string userId = uData.UserId;
+                //string userId = uData.UserId;
 
-                answerService.SaveAnswerShopInfoList(uData.AnswerShopInfoList, userId);
+                //answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, "1");
                 //answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);
                 //answerService.SaveAnswerList(uData.AnswerList, userId);
 
