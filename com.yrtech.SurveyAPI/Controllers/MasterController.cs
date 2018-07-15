@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using com.yrtech.SurveyAPI.DTO;
 using System.Threading;
+using Purchase.DAL;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -51,31 +52,23 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] string data)
+        public APIResult Upload([FromBody] UploadData data)
         {
             try
             {
-                CommonHelper.log("data="+data);
-                UploadData uData = CommonHelper.DecodeString<UploadData>(data);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.ToString());
-                Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.AnswerShopInfoList.ToString());
-                Thread.Sleep(200);
-                CommonHelper.log("Control AnswerShopInfoList" + uData.UserId.ToString());
-                Thread.Sleep(200);
-                //CommonHelper.log("Control AnswerShopConsultantList" + uData.AnswerShopConsultantList);
-                //CommonHelper.log("Control AnswerList" + uData.AnswerList);
-                string userId = uData.UserId;
+                string userId = data.UserId;
+                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
+                data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
+                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
 
-                answerService.SaveAnswerShopInfoList(uData.AnswerShopInfoList, userId);
-                //answerService.SaveAnswerShopConsultantList(uData.AnswerShopConsultantList, userId);
-                //answerService.SaveAnswerList(uData.AnswerList, userId);
+                answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
+                answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
+                answerService.SaveAnswerList(data.AnswerList, userId);
 
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
-                CommonHelper.log("Control AnswerShopInfoList" + ex.Message.ToString());
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
