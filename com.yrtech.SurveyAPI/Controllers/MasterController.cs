@@ -55,7 +55,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         public APIResult Upload([FromBody] UploadData data)
         {
             try
-            {
+            { 
                 string userId = data.UserId;
                 data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
                 data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
