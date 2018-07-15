@@ -79,8 +79,17 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 else
                 {
-                    answer.AnswerId = findOne.AnswerId;
-                    db.Entry<Answer>(answer).State = System.Data.Entity.EntityState.Modified;
+                    findOne.FileResult = answer.FileResult;
+                    findOne.InspectionStandardResult = answer.InspectionStandardResult;
+                    findOne.LossResult = answer.LossResult;
+                    findOne.ModifyDateTime = answer.ModifyDateTime;
+                    findOne.ModifyUserId = answer.ModifyUserId;
+                    findOne.PhotoScore = answer.PhotoScore;
+                    findOne.Remark = answer.Remark;
+                    findOne.ShopConsultantResult = answer.ShopConsultantResult;
+                    findOne.UploadDate = answer.UploadDate;
+                    findOne.UploadUserId = answer.UploadUserId;
+                    //db.Entry<Answer>(answer).State = System.Data.Entity.EntityState.Modified;
                 }
             }
             db.SaveChanges();
@@ -121,7 +130,7 @@ namespace com.yrtech.SurveyAPI.Service
                     findOne.TeamLeaderName = answerShopInfo.TeamLeaderName;
                     findOne.UploadDateTime = answerShopInfo.UploadDateTime;
                     findOne.UploadUserId = answerShopInfo.UploadUserId;
-                    db.Entry<AnswerShopInfo>(findOne).State = System.Data.Entity.EntityState.Modified;
+                    //db.Entry<AnswerShopInfo>(findOne).State = System.Data.Entity.EntityState.Modified;
                 }
             }
             db.SaveChanges();
@@ -153,8 +162,11 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 else
                 {
-                    item.ConsultantId = findOne.ConsultantId;
-                    db.Entry<AnswerShopConsultant>(item).State = System.Data.Entity.EntityState.Modified;
+                    findOne.ModifyDateTime = item.ModifyDateTime;
+                    findOne.ModifyUserId = item.ModifyUserId;
+                    findOne.UploadUserId = item.UploadUserId;
+                    findOne.UploadDateTime = item.UploadDateTime;
+                   // db.Entry<AnswerShopConsultant>(item).State = System.Data.Entity.EntityState.Modified;
                 }
             }
             db.SaveChanges();
