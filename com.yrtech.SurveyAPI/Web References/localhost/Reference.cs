@@ -36,6 +36,8 @@ namespace com.yrtech.SurveyAPI.localhost {
         
         private System.Threading.SendOrPostCallback SaveSaleContantScoreListOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SaveSaleContantInfoOperationCompleted;
+        
         private System.Threading.SendOrPostCallback SearchShopOperationCompleted;
         
         private System.Threading.SendOrPostCallback SearchShopForRecheckUserOperationCompleted;
@@ -553,6 +555,9 @@ namespace com.yrtech.SurveyAPI.localhost {
         
         /// <remarks/>
         public event SaveSaleContantScoreListCompletedEventHandler SaveSaleContantScoreListCompleted;
+        
+        /// <remarks/>
+        public event SaveSaleContantInfoCompletedEventHandler SaveSaleContantInfoCompleted;
         
         /// <remarks/>
         public event SearchShopCompletedEventHandler SearchShopCompleted;
@@ -1318,6 +1323,42 @@ namespace com.yrtech.SurveyAPI.localhost {
             if ((this.SaveSaleContantScoreListCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SaveSaleContantScoreListCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/SaveSaleContantInfo", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void SaveSaleContantInfo(string projectCode, string shopCode, string seqNO, string salesConsultant, string memberType) {
+            this.Invoke("SaveSaleContantInfo", new object[] {
+                        projectCode,
+                        shopCode,
+                        seqNO,
+                        salesConsultant,
+                        memberType});
+        }
+        
+        /// <remarks/>
+        public void SaveSaleContantInfoAsync(string projectCode, string shopCode, string seqNO, string salesConsultant, string memberType) {
+            this.SaveSaleContantInfoAsync(projectCode, shopCode, seqNO, salesConsultant, memberType, null);
+        }
+        
+        /// <remarks/>
+        public void SaveSaleContantInfoAsync(string projectCode, string shopCode, string seqNO, string salesConsultant, string memberType, object userState) {
+            if ((this.SaveSaleContantInfoOperationCompleted == null)) {
+                this.SaveSaleContantInfoOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSaveSaleContantInfoOperationCompleted);
+            }
+            this.InvokeAsync("SaveSaleContantInfo", new object[] {
+                        projectCode,
+                        shopCode,
+                        seqNO,
+                        salesConsultant,
+                        memberType}, this.SaveSaleContantInfoOperationCompleted, userState);
+        }
+        
+        private void OnSaveSaleContantInfoOperationCompleted(object arg) {
+            if ((this.SaveSaleContantInfoCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SaveSaleContantInfoCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -9383,6 +9424,10 @@ namespace com.yrtech.SurveyAPI.localhost {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SaveSaleContantScoreListCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    public delegate void SaveSaleContantInfoCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]

@@ -30,7 +30,7 @@
           <Key>
             <PropertyRef Name="ConsultantId" />
           </Key>
-          <Property Name="ConsultantId" Type="int" Nullable="false" />
+          <Property Name="ConsultantId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ShopId" Type="int" />
           <Property Name="ProjectId" Type="int" />
           <Property Name="SeqNO" Type="int" />
@@ -540,8 +540,8 @@
           <EntitySet Name="Tenant" EntityType="Self.Tenant" />
           <EntitySet Name="UserInfoBrand" EntityType="com.yrtech.surveyModel.UserInfoBrand" />
           <EntitySet Name="UserInfo" EntityType="com.yrtech.surveyModel.UserInfo" />
-          <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
           <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.surveyModel.AnswerShopInfo" />
+          <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
           <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
         </EntityContainer>
         <EntityType Name="UserInfoBrand">
@@ -573,6 +573,22 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="AnswerShopInfo">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ShopId" Type="Int32" Nullable="false" />
+          <Property Name="TeamLeaderName" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+          <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
+          <Property Name="UploadUserId" Type="Int32" />
+        </EntityType>
         <EntityType Name="Answer">
           <Key>
             <PropertyRef Name="AnswerId" />
@@ -594,27 +610,11 @@
           <Property Name="UploadDate" Type="DateTime" Precision="3" />
           <Property Name="UploadUserId" Type="Int32" />
         </EntityType>
-        <EntityType Name="AnswerShopInfo">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="ShopId" Type="Int32" Nullable="false" />
-          <Property Name="TeamLeaderName" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="StartDate" Type="DateTime" Precision="3" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadUserId" Type="Int32" />
-        </EntityType>
         <EntityType Name="AnswerShopConsultant">
           <Key>
             <PropertyRef Name="ConsultantId" />
           </Key>
-          <Property Name="ConsultantId" Type="Int32" Nullable="false" />
+          <Property Name="ConsultantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ShopId" Type="Int32" />
           <Property Name="ProjectId" Type="Int32" />
           <Property Name="SeqNO" Type="Int32" />
@@ -883,6 +883,23 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="AnswerShopInfo">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AnswerShopInfo">
+              <MappingFragment StoreEntitySet="AnswerShopInfo">
+                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
+                <ScalarProperty Name="UploadDateTime" ColumnName="UploadDateTime" />
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="TeamLeaderName" ColumnName="TeamLeaderName" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Answer">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.Answer">
               <MappingFragment StoreEntitySet="Answer">
@@ -902,23 +919,6 @@
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="AnswerShopInfo">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AnswerShopInfo">
-              <MappingFragment StoreEntitySet="AnswerShopInfo">
-                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
-                <ScalarProperty Name="UploadDateTime" ColumnName="UploadDateTime" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
-                <ScalarProperty Name="TeamLeaderName" ColumnName="TeamLeaderName" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
