@@ -6,6 +6,7 @@ using System;
 using com.yrtech.SurveyAPI.DTO;
 using System.Threading;
 using Purchase.DAL;
+using System.Web;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -55,15 +56,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         public APIResult Upload([FromBody] UploadData data)
         {
             try
-            { 
+            {
                 string userId = data.UserId;
                 data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
                 data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
                 data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
 
-                answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
-                answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
-                answerService.SaveAnswerList(data.AnswerList, userId);
+                //answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
+                //answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
+                //answerService.SaveAnswerList(data.AnswerList, userId);
+
+                if (HttpContext.Current.Request.Files != null)
+                {
+                    foreach (HttpPostedFile file in HttpContext.Current.Request.Files)
+                    {
+                        OSSClientHelper.UploadOSSFile(file.FileName, file.InputStream, file.ContentLength);
+                    }
+                }
 
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -72,5 +81,29 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpPost]
+        [Route("Master/UploadImages")]
+        public APIResult UploadImages()
+        {
+            try
+            {
+                HttpFileCollection files = HttpContext.Current.Request.Files;
+                if (files != null)
+                {
+                    foreach (string key in files.AllKeys)
+                    {
+                        HttpPostedFile file = files[key];
+                        OSSClientHelper.UploadOSSFile(file.FileName, file.InputStream, file.ContentLength);
+                    }
+                }
+
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
     }
 }
