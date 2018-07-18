@@ -18,7 +18,6 @@
             data2.AnswerShopConsultantListJson = JSON.stringify(data.AnswerShopConsultantList);
             data2.userId = data.userId;
             console.log(JSON.stringify(data2));
-            return;
             $.ajax({
                 url: "http://192.168.1.104/SurveryAPI/survey/api/Master/UpLoad",
                 data: data,
@@ -28,6 +27,8 @@
                 //},
             })
         }
+
+        
     </script>
 </head>
 <body>

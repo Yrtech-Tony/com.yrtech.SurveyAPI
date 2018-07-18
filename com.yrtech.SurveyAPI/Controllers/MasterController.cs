@@ -7,6 +7,11 @@ using com.yrtech.SurveyAPI.DTO;
 using System.Threading;
 using Purchase.DAL;
 using System.Web;
+using System.Net.Http;
+using System.Net;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.IO;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -31,7 +36,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 经销商试卷类型信息 ShopSubjectTypeExam
                 resultList.Add(shopService.GetShopSubjectTypeExam(projectId));
                 // 体系类型信息  Subject
-                resultList.Add(masterService.GetSubject(projectId,""));
+                resultList.Add(masterService.GetSubject(projectId, ""));
                 // 标准照片信息 SubjectFile
                 resultList.Add(masterService.GetSubjectFile(projectId));
                 // 检查标准信息 SubjectInspectionStandard
@@ -53,27 +58,22 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public APIResult Upload([FromBody] UploadData data)
+        public async Task<APIResult> Upload()
         {
             try
             {
-                string userId = data.UserId;
-                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
-                data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
-                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
+                Dictionary<string, string> formData = await PostFormData();
+                string userId = formData["UserId"];
 
-                //answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
-                //answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
-                //answerService.SaveAnswerList(data.AnswerList, userId);
+                UploadData data = new UploadData();
+                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(formData["AnswerShopInfoListJson"]);
+                data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(formData["AnswerShopConsultantListJson"]);
+                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(formData["AnswerListJson"]);
 
-                if (HttpContext.Current.Request.Files != null)
-                {
-                    foreach (HttpPostedFile file in HttpContext.Current.Request.Files)
-                    {
-                        OSSClientHelper.UploadOSSFile(file.FileName, file.InputStream, file.ContentLength);
-                    }
-                }
-
+                answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
+                answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
+                answerService.SaveAnswerList(data.AnswerList, userId);
+                
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -81,27 +81,44 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpPost]
-        [Route("Master/UploadImages")]
-        public APIResult UploadImages()
+
+        public async Task<Dictionary<string, string>> PostFormData()
         {
             try
             {
-                HttpFileCollection files = HttpContext.Current.Request.Files;
-                if (files != null)
+                if (!Request.Content.IsMimeMultipartContent())
                 {
-                    foreach (string key in files.AllKeys)
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                }
+
+                var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                foreach (var content in multipartMemoryStreamProvider.Contents)
+                {
+                    string fileName = content.Headers.ContentDisposition.FileName;
+                    if (!string.IsNullOrEmpty(fileName))
                     {
-                        HttpPostedFile file = files[key];
-                        OSSClientHelper.UploadOSSFile(file.FileName, file.InputStream, file.ContentLength);
+                        using (Stream stream = await content.ReadAsStreamAsync())
+                        {
+                            string projectId = dic["projectId"];
+                            string shopId = dic["shopId"];
+                            string fileKey = "survey/" + projectId + "/" + shopId + "/" + fileName.Replace("\"","");
+                            //处理文件
+                            OSSClientHelper.UploadOSSFile(fileKey, stream, stream.Length);
+                        }
+                    }
+                    else
+                    {
+                        string val = await content.ReadAsStringAsync();
+                        dic.Add(content.Headers.ContentDisposition.Name.Replace("\"", ""), val);
                     }
                 }
 
-                return new APIResult() { Status = true, Body = "" };
+                return dic;
             }
             catch (Exception ex)
             {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+                return null;
             }
         }
 
