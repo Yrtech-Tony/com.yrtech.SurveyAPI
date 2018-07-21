@@ -201,9 +201,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>57328</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://192.168.1.104/SurveyAPI</IISUrl>
+          <IISUrl>http://192.168.1.107/SurveyAPI</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
-          <IISAppRootUrl>http://192.168.1.104/SurveyAPI</IISAppRootUrl>
+          <IISAppRootUrl>http://192.168.1.107/SurveyAPI</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
