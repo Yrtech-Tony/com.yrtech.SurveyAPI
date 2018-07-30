@@ -9,14 +9,17 @@
     <_PublishTargetUrl>C:\Workspace\com.yrtech.SurveyAPI\发布文件</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
+    <File Include="bin/Aliyun.OSS.dll">
+      <publishTime>01/09/2018 17:52:22</publishTime>
+    </File>
     <File Include="bin/App.Config">
       <publishTime>07/04/2018 20:37:30</publishTime>
     </File>
     <File Include="bin/com.yrtech.SurveyAPI.dll">
-      <publishTime>07/15/2018 17:44:10</publishTime>
+      <publishTime>07/22/2018 11:02:06</publishTime>
     </File>
     <File Include="bin/com.yrtech.SurveyAPI.XmlSerializers.dll">
-      <publishTime>07/15/2018 17:44:11</publishTime>
+      <publishTime>07/22/2018 11:02:08</publishTime>
     </File>
     <File Include="bin/EntityFramework.dll">
       <publishTime>02/25/2018 19:21:33</publishTime>
@@ -31,7 +34,7 @@
       <publishTime>08/03/2014 21:33:56</publishTime>
     </File>
     <File Include="bin/Purchase.DAL.dll">
-      <publishTime>07/14/2018 18:17:51</publishTime>
+      <publishTime>07/22/2018 11:01:58</publishTime>
     </File>
     <File Include="bin/roslyn/csc.exe">
       <publishTime>06/18/2015 20:19:46</publishTime>
@@ -91,19 +94,19 @@
       <publishTime>07/02/2018 23:03:56</publishTime>
     </File>
     <File Include="HtmlPage1.html">
-      <publishTime>07/15/2018 17:35:36</publishTime>
+      <publishTime>07/22/2018 11:00:12</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>07/04/2018 20:38:28</publishTime>
+      <publishTime>07/22/2018 11:00:12</publishTime>
     </File>
     <File Include="Properties/DataSources/System.Data.DataSet.datasource">
       <publishTime>07/11/2018 22:18:28</publishTime>
     </File>
     <File Include="Web References/localhost/PictureDto.datasource">
-      <publishTime>07/14/2018 18:14:02</publishTime>
+      <publishTime>07/15/2018 18:23:57</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/14/2018 22:56:12</publishTime>
+      <publishTime>07/22/2018 11:02:09</publishTime>
     </File>
   </ItemGroup>
 </Project>
