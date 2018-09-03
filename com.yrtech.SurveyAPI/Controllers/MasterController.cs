@@ -58,17 +58,14 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public async Task<APIResult> Upload()
+        public async Task<APIResult> Upload([FromBody]UploadData data)
         {
             try
             {
-                Dictionary<string, string> formData = await PostFormData();
-                string userId = formData["UserId"];
-
-                UploadData data = new UploadData();
-                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(formData["AnswerShopInfoListJson"]);
-                data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(formData["AnswerShopConsultantListJson"]);
-                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(formData["AnswerListJson"]);
+                string userId = data.UserId;
+                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
+                data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
+                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
 
                 answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
                 answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
