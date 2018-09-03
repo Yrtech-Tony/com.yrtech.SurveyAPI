@@ -96,7 +96,7 @@ namespace com.yrtech.SurveyAPI.Common
             {
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return default(T);
             }
