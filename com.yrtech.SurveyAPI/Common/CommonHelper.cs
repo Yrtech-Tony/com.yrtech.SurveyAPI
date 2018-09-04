@@ -98,6 +98,8 @@ namespace com.yrtech.SurveyAPI.Common
             }
             catch (Exception ex)
             {
+                CommonHelper.log("反序列化json错误!" + ex.ToString());
+                CommonHelper.log("错误json=" + json);
                 return default(T);
             }
         }
