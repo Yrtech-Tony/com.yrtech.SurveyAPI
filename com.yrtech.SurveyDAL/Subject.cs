@@ -19,6 +19,7 @@ namespace Purchase.DAL
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> SubjectTypeExamId { get; set; }
         public Nullable<int> SubjectRecheckTypeId { get; set; }
+        public Nullable<int> SubjectConsultantId { get; set; }
         public Nullable<int> OrderNO { get; set; }
         public string Implementation { get; set; }
         public string CheckPoint { get; set; }

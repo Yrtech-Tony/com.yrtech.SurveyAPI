@@ -85,6 +85,9 @@
     <Compile Include="Subject.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="SubjectConsultant.cs">
+      <DependentUpon>survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="SubjectFile.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>

@@ -20,6 +20,8 @@ namespace Purchase.DAL
         public Nullable<int> SeqNO { get; set; }
         public string ConsultantName { get; set; }
         public string ConsultantType { get; set; }
+        public Nullable<int> SubjectConsultantId { get; set; }
+        public Nullable<bool> UseChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
