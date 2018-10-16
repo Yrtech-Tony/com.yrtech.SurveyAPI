@@ -14,6 +14,8 @@ namespace com.yrtech.SurveyAPI.DTO.AnswerResult
         public string ConsultantLossDesc { get; set; }
         public string ConsultantScore { get; set; }
         public string ConsultantType { get; set; }
+        public string SubjectConsultantId { get; set; }
+        public bool UseChk { get; set; }
         public DateTime LastTime { get; set; }
     }
 }
