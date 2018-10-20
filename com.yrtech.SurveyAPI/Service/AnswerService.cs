@@ -14,6 +14,7 @@ namespace com.yrtech.SurveyAPI.Service
         localhost.Service webService = new localhost.Service();
         MasterService masterService = new MasterService();
         AccountService accountService = new AccountService();
+        #region 不联网版本
         /// <summary>
         /// 保存答题信息列表
         /// </summary>
@@ -34,7 +35,7 @@ namespace com.yrtech.SurveyAPI.Service
                 foreach (Answer answer in lst)
                 {
                     string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
-                    webService.SaveAnswer(projectCode, subjectCode, shopCode,answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
+                    webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
                         answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
                     List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
                     List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
@@ -67,7 +68,7 @@ namespace com.yrtech.SurveyAPI.Service
                         foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
                         {
                             CommonHelper.log(shopConsult.ConsultantScore.ToString());
-                           // System.Threading.Thread.Sleep(500);
+                            // System.Threading.Thread.Sleep(500);
                             webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
                         }
                     }
@@ -123,8 +124,8 @@ namespace com.yrtech.SurveyAPI.Service
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             // 保存数据到原系统
-            CommonHelper.log(webService.Url+" "+brandId.ToString());
-            
+            CommonHelper.log(webService.Url + " " + brandId.ToString());
+
             foreach (AnswerShopInfo answerShopInfo in lst)
             {
                 webService.AnswerStartInfoSave(projectCode, shopCode, answerShopInfo.TeamLeaderName, accountId, Convert.ToDateTime(answerShopInfo.StartDate).ToString("yyyy-MM-dd HH:mm:ss"));
@@ -191,5 +192,214 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        #endregion
+        /// <summary>
+        /// 获取当前经销商需要打分的体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectTypeId"></param>
+        /// <param name="subjectTypeExamId"></param>
+        /// <param name="subjectConsultantId"></param>
+        /// <returns></returns>
+        public List<Subject> GetShopNeedAnswerSubject(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectConsultantId)
+        {
+            #region 获取当前经销商最后一次打分的序号
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)
+                                                                            };
+            Type t = typeof(int);
+            string sql = "";
+            int lastAnswerSubjectOrderNO = 0;// 最后一次的序号
+            int answerSubjectId = 0;
+            sql = @"SELECT ISNULL(MAX(B.OrderNO),0) AS OrderNO 
+                    FROM Answer A JOIN [Subject] B ON A.ProjectId = B.ProjectId
+                                                   AND A.SubjectId = B.SubjectId
+		            WHERE 1=1
+                    AND A.ProjectId = @ProjectId
+				    AND A.ShopId = @ShopId
+				    AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
+				    AND (B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
+            if (string.IsNullOrEmpty(subjectConsultantId))
+            {
+                sql += "AND B.SubjectConsultantId = @SubjectConsultantId";
+            }
+            lastAnswerSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+            #endregion
+            #region 查询需要打分体系Id
+            SqlParameter[] para1 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@LastAnswerSubjectOrderNO", lastAnswerSubjectOrderNO),
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId) };
+
+            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO > @LastAnswerSubjectOrderNO	
+		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+            if (string.IsNullOrEmpty(subjectConsultantId))
+            {
+                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+            }
+            answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().First();
+
+            #endregion
+            #region 通过最后一次打分的Id查询需要打分的体系
+            SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId) };
+            sql = @"SELECT A.ProjectId
+					       ,A.SubjectId
+					       ,A.SubjectCode
+					       ,A.Implementation -- 执行方式
+					       ,A.[CheckPoint]-- 检查点
+					       ,A.[Desc]--说明
+					       ,A.AdditionalDesc-- 补充说明
+					       ,A.InspectionDesc-- 检查标准
+					       ,A.OrderNO-- 执行顺序 
+                    FROM[Subject] A WHERE 1=1 
+                                    AND ProjectId = @ProjectId
+                                    AND SubjectId = @AnswerSubjectId";
+            Type t_subject = typeof(Subject);
+            return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
+            #endregion
+        }
+        /// <summary>
+        /// 查询经销商下一个体系的信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="subjectTypeId"></param>
+        /// <param name="subjectTypeExamId"></param>
+        /// <param name="orderNO"></param>
+        /// <param name="subjectConsultantId"></param>
+        /// <returns></returns>
+        public List<Subject> GetShopNextAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
+                                                       new SqlParameter("@OrderNO", orderNO),
+                                                       new SqlParameter("@SubjectConsultantId", subjectConsultantId)
+            };
+            Type t = typeof(int);
+            #region 查询需要打分体系Id
+            string sql = "";
+            int answerSubjectId = 0;
+            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO > @OrderNO	
+		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+            if (string.IsNullOrEmpty(subjectConsultantId))
+            {
+                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+            }
+            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+
+            #endregion
+            #region 通过最后一次打分的Id查询需要打分的体系
+            SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId) };
+            sql = @"SELECT A.ProjectId
+					       ,A.SubjectId
+					       ,A.SubjectCode
+					       ,A.Implementation -- 执行方式
+					       ,A.[CheckPoint]-- 检查点
+					       ,A.[Desc]--说明
+					       ,A.AdditionalDesc-- 补充说明
+					       ,A.InspectionDesc-- 检查标准
+					       ,A.OrderNO-- 执行顺序 
+                    FROM[Subject] A WHERE 1=1 
+                                    AND ProjectId = @ProjectId
+                                    AND SubjectId = @AnswerSubjectId";
+            Type t_subject = typeof(Subject);
+            return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
+            #endregion
+        }
+        /// <summary>
+        /// 查询经销商上一个体系的信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="subjectTypeId"></param>
+        /// <param name="subjectTypeExamId"></param>
+        /// <param name="orderNO"></param>
+        /// <param name="subjectConsultantId"></param>
+        /// <returns></returns>
+        public List<Subject> GetShopPreAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
+                                                       new SqlParameter("@OrderNO", orderNO),
+                                                       new SqlParameter("@SubjectConsultantId", subjectConsultantId)
+            };
+            Type t = typeof(int);
+            #region 查询需要打分体系Id
+            string sql = "";
+            int answerSubjectId = 0;
+            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT ISNULL(Max(OrderNO),0)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO < @OrderNO	
+		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+            if (string.IsNullOrEmpty(subjectConsultantId))
+            {
+                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+            }
+            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+
+            #endregion
+            #region 通过最后一次打分的Id查询需要打分的体系
+            SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId) };
+            sql = @"SELECT A.ProjectId
+					       ,A.SubjectId
+					       ,A.SubjectCode
+					       ,A.Implementation -- 执行方式
+					       ,A.[CheckPoint]-- 检查点
+					       ,A.[Desc]--说明
+					       ,A.AdditionalDesc-- 补充说明
+					       ,A.InspectionDesc-- 检查标准
+					       ,A.OrderNO-- 执行顺序 
+                    FROM[Subject] A WHERE 1=1 
+                                    AND ProjectId = @ProjectId
+                                    AND SubjectId = @AnswerSubjectId";
+            Type t_subject = typeof(Subject);
+            return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
+            #endregion
+        }
+        /// <summary>
+        /// 获取当期经销商当前体系打分的详细信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        public List<Answer> GetAnswerInfoDetail(string projectId, string shopId, string subjectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@SubjectId", subjectId) };
+            Type t = typeof(Answer);
+            string sql = "";
+            sql = @"SELECT A.PhotoScore
+                            ,A.InspectionStandardResult
+                            ,A.FileResult
+                            ,A.LossResult
+                            ,A.ShopConsultantResult
+                            ,A.Remark 
+		            FROM Answer A 
+		            WHERE ProjectId = @ProjectId
+		            AND ShopId = @ShopId
+		            AND SubjectId = @SubjectId";
+            return db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
+        }
+
+
     }
 }

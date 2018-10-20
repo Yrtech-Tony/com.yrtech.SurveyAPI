@@ -127,6 +127,7 @@
     <Compile Include="Common\CommonHelper.cs" />
     <Compile Include="Common\OSSClientHelper.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AnswerController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
