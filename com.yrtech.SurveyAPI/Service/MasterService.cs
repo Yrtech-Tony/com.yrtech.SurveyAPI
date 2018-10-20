@@ -212,7 +212,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@SubjectId", subjectId)};
             Type t = typeof(Subject);
             string sql = "";
-            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,OrderNO,Implementation,[CheckPoint],
+            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,SubjectConsultantId,OrderNO,Implementation,[CheckPoint],
                   [Desc],AdditionalDesc,InspectionDesc,Remark,InUserId,InDateTime,ModifyUserId,ModifyDateTime  
                 FROM Subject WHERE 1=1 ";
             if (!string.IsNullOrEmpty(projectId))

@@ -31,7 +31,6 @@ namespace Purchase.DAL
         public virtual DbSet<ProjectShop> ProjectShop { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ShopSubjectTypeExam> ShopSubjectTypeExam { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<SubjectFile> SubjectFile { get; set; }
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
@@ -44,6 +43,8 @@ namespace Purchase.DAL
         public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
+        public virtual DbSet<SubjectConsultant> SubjectConsultant { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
     }
 }

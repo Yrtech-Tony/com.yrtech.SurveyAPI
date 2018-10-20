@@ -58,15 +58,20 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpPost]
         [Route("Master/Upload")]
-        public async Task<APIResult> Upload([FromBody]UploadData data)
+        public async Task<APIResult> Upload([FromBody]UploadData data,string ProjectCode)
         {
             try
             {
+                CommonHelper.log("aaa");
                 string userId = data.UserId;
                 data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
                 data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
                 data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
+                CommonHelper.log(data.AnswerShopInfoListJson.ToString());
+               // Thread.Sleep(1000);
 
+                
+               // CommonHelper.log(data.AnswerListJson);
                 answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
                 answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
                 answerService.SaveAnswerList(data.AnswerList, userId);
