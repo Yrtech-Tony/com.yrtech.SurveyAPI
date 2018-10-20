@@ -114,7 +114,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public void SaveAnswerShopInfoList(List<AnswerShopInfo> lst, string userId)
         {
-            CommonHelper.log("Service" + lst.ToString());
+            //CommonHelper.log("Service" + lst.ToString());
             if (lst == null) return;
             //CommonHelper.log(lst.ToString());
             string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
@@ -123,6 +123,8 @@ namespace com.yrtech.SurveyAPI.Service
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             // 保存数据到原系统
+            CommonHelper.log(webService.Url+" "+brandId.ToString());
+            
             foreach (AnswerShopInfo answerShopInfo in lst)
             {
                 webService.AnswerStartInfoSave(projectCode, shopCode, answerShopInfo.TeamLeaderName, accountId, Convert.ToDateTime(answerShopInfo.StartDate).ToString("yyyy-MM-dd HH:mm:ss"));
