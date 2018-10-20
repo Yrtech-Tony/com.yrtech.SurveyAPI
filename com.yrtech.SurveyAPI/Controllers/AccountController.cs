@@ -73,5 +73,26 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("Account/Login")]
+        public APIResult Login(string accountId, string password)
+        {
+            try
+            {
+                List<AccountDto> accountlist = accountService.Login(accountId, password);
+                if (accountlist != null && accountlist.Count != 0)
+                {
+                    return new APIResult() { Status = true, Body = CommonHelper.Encode(accountlist) };
+                }
+                else
+                {
+                    return new APIResult() { Status = true, Body = "用户不存在或者密码不正确" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
     }
 }
