@@ -399,7 +399,47 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND SubjectId = @SubjectId";
             return db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
         }
+        public void SaveAnswerInfo(Answer answer, string userId)
+        {
+            Answer findOne = db.Answer.Where(x => (x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId && x.SubjectId == answer.SubjectId)).FirstOrDefault();
+            answer.UploadDate = DateTime.Now;
+            answer.UploadUserId = Convert.ToInt32(userId);
 
+            if (findOne == null)
+            {
+                db.Answer.Add(answer);
+            }
+            else
+            {
+                findOne.FileResult = answer.FileResult;
+                findOne.InspectionStandardResult = answer.InspectionStandardResult;
+                findOne.LossResult = answer.LossResult;
+                findOne.ModifyDateTime = answer.ModifyDateTime;
+                findOne.ModifyUserId = answer.ModifyUserId;
+                findOne.PhotoScore = answer.PhotoScore;
+                findOne.Remark = answer.Remark;
+                findOne.ShopConsultantResult = answer.ShopConsultantResult;
+                findOne.UploadDate = answer.UploadDate;
+                findOne.UploadUserId = answer.UploadUserId;
+            }
+            db.SaveChanges();
+        }
 
+        #region 原系统保存
+        public void SaveAnswerInfo_Old(Answer answer, string userId)
+        {
+            if (answer == null) return;
+            string shopCode = masterService.GetShop("", "", answer.ShopId.ToString())[0].ShopCode;
+            string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
+            string brandId = masterService.GetShop("", "", answer.ShopId.ToString())[0].BrandId.ToString();
+            string projectCode = masterService.GetProject("", "", answer.ProjectId.ToString())[0].ProjectCode;
+            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
+                        answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
+        }
+
+        #endregion
     }
 }
