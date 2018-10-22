@@ -192,6 +192,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
+        #region 得分登记时调用
         /// <summary>
         /// 获取当前经销商需要打分的体系信息
         /// </summary>
@@ -405,32 +406,22 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerInfo(AnswerDto answerDto, string userId)
         {
-            answerDto.UploadDate = DateTime.Now;
-            answerDto.UploadUserId = Convert.ToInt32(userId);
-
             Answer answer = new Answer();
+            answer.ProjectId = answerDto.ProjectId;
+            answer.ShopId = answerDto.ShopId;
+            answer.SubjectId = answerDto.SubjectId;
+            answer.PhotoScore = answerDto.PhotoScore;
+            answer.Remark = answerDto.Remark;
             answer.FileResult = answerDto.FileResult;
             answer.InspectionStandardResult = answerDto.InspectionStandardResult;
             answer.LossResult = answerDto.LossResult;
-            answer.ModifyDateTime = answerDto.ModifyDateTime;
-            answer.ModifyUserId = answerDto.ModifyUserId;
-            answer.PhotoScore = answerDto.PhotoScore;
-            answer.Remark = answerDto.Remark;
             answer.ShopConsultantResult = answerDto.ShopConsultantResult;
-            answer.UploadDate = answerDto.UploadDate;
-            answer.UploadUserId = answerDto.UploadUserId;
-
-            Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                db.Answer.Add(answer);
-            }
-            else
-            {
-                findOne = answer;
-            }
-            db.SaveChanges();
-
+            answer.InDateTime = DateTime.Now;
+            answer.InUserId = Convert.ToInt32(userId);
+            answer.ModifyDateTime = DateTime.Now;
+            answer.ModifyUserId = Convert.ToInt32(userId);
+            answer.UploadDate = DateTime.Now;
+            answer.UploadUserId = Convert.ToInt32(userId);
             // 保存打分信息
             string shopCode = masterService.GetShop("", "", answer.ShopId.ToString())[0].ShopCode;
             string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
@@ -452,18 +443,23 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 foreach (InspectionStandardResultDto inspection in inspectionList)
                 {
+
                     if (!string.IsNullOrEmpty(inspection.ModifyType))
-                        webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, "");
+                    { webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, ""); }
+                    inspection.ModifyType = "";
                 }
             }
+            answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
             if (fileList != null)
             {
                 foreach (FileResultDto file in fileList)
                 {
                     if (!string.IsNullOrEmpty(file.ModifyType))
                         webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
+                    file.ModifyType = "";
                 }
             }
+            answer.FileResult = CommonHelper.Encode(fileList);
             if (lossResultList != null)
             {
                 foreach (LossResultDto loss in lossResultList)
@@ -476,8 +472,10 @@ namespace com.yrtech.SurveyAPI.Service
                         type = 'D';
                     }
                     webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
+                    loss.ModifyType = "";
                 }
             }
+            answer.LossResult = CommonHelper.Encode(lossResultList);
             if (shopConsultantList != null)
             {
                 foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
@@ -489,11 +487,96 @@ namespace com.yrtech.SurveyAPI.Service
                     {
                         type = 'D';
                     }
-                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode,shopConsult.SeqNO,shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId,type, shopConsult.ConsultantType);
+                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO, shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId, type, shopConsult.ConsultantType);
+                    shopConsult.ModifyType = "";
                 }
             }
-
+            answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
+            Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                db.Answer.Add(answer);
+            }
+            else
+            {
+                findOne.PhotoScore = answer.PhotoScore;
+                findOne.Remark = answer.Remark;
+                findOne.FileResult = answer.FileResult;
+                findOne.InspectionStandardResult = answer.InspectionStandardResult;
+                findOne.LossResult = answer.LossResult;
+                findOne.ShopConsultantResult = answer.ShopConsultantResult;
+                findOne.ModifyDateTime = answer.ModifyDateTime;
+                findOne.ModifyUserId = answer.ModifyUserId;
+                findOne.UploadDate = answer.UploadDate;
+                findOne.UploadUserId = answer.UploadUserId;
+            }
+            db.SaveChanges();
         }
+        #endregion
+        #region 打分开始经销商基本信息
+        /// <summary>
+        /// 查询经销商进店信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
+        public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(AnswerShopInfoDto);
+            string sql = "";
+            sql = @"SELECT ProjectId,ShopId,TeamLeaderName,StartDate,InUserId,InDateTime,ModifyUserId,ModifyDateTime 
+                    FROM AnswerShopInfo  
+		            WHERE ProjectId = @ProjectId
+		            AND ShopId = @ShopId";
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoDto>().ToList();
+        }
+        /// <summary>
+        /// 保存经销商进店信息
+        /// </summary>
+        /// <param name="shopInfo"></param>
+        /// <param name="userId"></param>
+        public void SaveAnswerShopInfo(AnswerShopInfo shopInfo, string userId)
+        {
+            AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == shopInfo.ProjectId && x.ShopId == shopInfo.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                shopInfo.InDateTime = DateTime.Now;
+                shopInfo.InUserId = Convert.ToInt32(userId);
+                shopInfo.ModifyUserId = Convert.ToInt32(userId);
+                shopInfo.ModifyDateTime = DateTime.Now;
+                db.AnswerShopInfo.Add(shopInfo);
+            }
+            else
+            {
+                findOne.TeamLeaderName = shopInfo.TeamLeaderName;
+                findOne.StartDate = shopInfo.StartDate;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = Convert.ToInt32(userId);
+            }
+            db.SaveChanges();
+        }
+        #endregion
+        #region 销售顾问信息
+        public List<ShopConsultantDto> GetShopConsultant(string projectId, string shopId)
+        {
 
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(ShopConsultantDto);
+            string sql = "";
+            sql = @"SELECT ProjectId,ShopId,SeqNO
+		                    ,ConsultantName,ConsultantType
+		                    ,A.SubjectConsultantId,B.SubjectConsultantName
+		                    ,UseChk
+		                    ,InUserId,InDateTime
+		                    ,ModifyUserId,ModifyDateTime
+                    FROM AnswerShopConsultant A INNER JOIN SubjectConsultant B ON A.SubjectConsultantId = B.SubjectConsultantId  
+		            WHERE ProjectId = @ProjectId
+		            AND ShopId = @ShopId";
+            return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
+        }
+        #endregion
     }
 }

@@ -29,6 +29,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectTypeExamId"></param>
         /// <param name="subjectConsultantId"></param>
         /// <returns></returns>
+        [HttpGet]
         [Route("Master/GetShopNeedAnswerSubjectInfo")]
         public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectConsultantId)
         {
@@ -48,6 +49,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
         [Route("Master/GetShopNextAnswerSubjectInfo")]
         public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
         {
@@ -67,6 +69,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
         [Route("Master/GetShopPreAnswerSubjectInfo")]
         public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
         {
@@ -86,6 +89,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpPost]
         [Route("Master/SaveAnswerInfo")]
         public async Task<APIResult> SaveAnswerInfo([FromBody]UploadData data)
         {
@@ -94,6 +98,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                 string userId = data.UserId;
                 data.AnswerList = CommonHelper.DecodeString<List<AnswerDto>>(data.AnswerListJson);
                 answerService.SaveAnswerInfo(data.AnswerList[0], userId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveShopAnswerInfo")]
+        public async Task<APIResult> SaveShopAnswerInfo([FromBody]UploadData data)
+        {
+            try
+            {
+                string userId = data.UserId;
+                data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
+                answerService.SaveAnswerShopInfo(data.AnswerShopInfoList[0], userId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
