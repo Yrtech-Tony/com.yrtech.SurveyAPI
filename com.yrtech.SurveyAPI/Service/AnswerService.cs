@@ -1,5 +1,5 @@
 ﻿using com.yrtech.SurveyAPI.Common;
-using com.yrtech.SurveyAPI.DTO.AnswerResult;
+using com.yrtech.SurveyAPI.DTO;
 using Purchase.DAL;
 using System;
 using System.Collections.Generic;
@@ -60,7 +60,7 @@ namespace com.yrtech.SurveyAPI.Service
                     {
                         foreach (LossResultDto loss in lossResultList)
                         {
-                            webService.SaveAnswerDtl3(projectCode, subjectCode, shopCode, Convert.ToInt32(loss.LossId), loss.LossDesc, loss.LossFIleNameUrl);
+                            webService.SaveAnswerDtl3(projectCode, subjectCode, shopCode, Convert.ToInt32(loss.LossId), loss.LossDesc, loss.LossFileNameUrl);
                         }
                     }
                     if (shopConsultantList != null)
@@ -76,7 +76,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             catch (Exception ex)
             {
-
                 CommonHelper.log(ex.ToString());
             }
 
@@ -399,47 +398,102 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND SubjectId = @SubjectId";
             return db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
         }
-        public void SaveAnswerInfo(Answer answer, string userId)
+        /// <summary>
+        /// 保存打分信息
+        /// </summary>
+        /// <param name="answerDto"></param>
+        /// <param name="userId"></param>
+        public void SaveAnswerInfo(AnswerDto answerDto, string userId)
         {
-            Answer findOne = db.Answer.Where(x => (x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId && x.SubjectId == answer.SubjectId)).FirstOrDefault();
-            answer.UploadDate = DateTime.Now;
-            answer.UploadUserId = Convert.ToInt32(userId);
+            answerDto.UploadDate = DateTime.Now;
+            answerDto.UploadUserId = Convert.ToInt32(userId);
 
+            Answer answer = new Answer();
+            answer.FileResult = answerDto.FileResult;
+            answer.InspectionStandardResult = answerDto.InspectionStandardResult;
+            answer.LossResult = answerDto.LossResult;
+            answer.ModifyDateTime = answerDto.ModifyDateTime;
+            answer.ModifyUserId = answerDto.ModifyUserId;
+            answer.PhotoScore = answerDto.PhotoScore;
+            answer.Remark = answerDto.Remark;
+            answer.ShopConsultantResult = answerDto.ShopConsultantResult;
+            answer.UploadDate = answerDto.UploadDate;
+            answer.UploadUserId = answerDto.UploadUserId;
+
+            Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
                 db.Answer.Add(answer);
             }
             else
             {
-                findOne.FileResult = answer.FileResult;
-                findOne.InspectionStandardResult = answer.InspectionStandardResult;
-                findOne.LossResult = answer.LossResult;
-                findOne.ModifyDateTime = answer.ModifyDateTime;
-                findOne.ModifyUserId = answer.ModifyUserId;
-                findOne.PhotoScore = answer.PhotoScore;
-                findOne.Remark = answer.Remark;
-                findOne.ShopConsultantResult = answer.ShopConsultantResult;
-                findOne.UploadDate = answer.UploadDate;
-                findOne.UploadUserId = answer.UploadUserId;
+                findOne = answer;
             }
             db.SaveChanges();
-        }
 
-        #region 原系统保存
-        public void SaveAnswerInfo_Old(Answer answer, string userId)
-        {
-            if (answer == null) return;
+            // 保存打分信息
             string shopCode = masterService.GetShop("", "", answer.ShopId.ToString())[0].ShopCode;
             string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
             string brandId = masterService.GetShop("", "", answer.ShopId.ToString())[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", answer.ProjectId.ToString())[0].ProjectCode;
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;
-            
+
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+
+            List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
+            List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+            List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+            List<ShopConsultantResultDto> shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+
             webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
                         answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
+
+            if (inspectionList != null)
+            {
+                foreach (InspectionStandardResultDto inspection in inspectionList)
+                {
+                    if (!string.IsNullOrEmpty(inspection.ModifyType))
+                        webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, "");
+                }
+            }
+            if (fileList != null)
+            {
+                foreach (FileResultDto file in fileList)
+                {
+                    if (!string.IsNullOrEmpty(file.ModifyType))
+                        webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
+                }
+            }
+            if (lossResultList != null)
+            {
+                foreach (LossResultDto loss in lossResultList)
+                {
+                    char type = 'N';
+                    if (loss.ModifyType == "U")
+                    { type = 'U'; }
+                    else if (loss.ModifyType == "D")
+                    {
+                        type = 'D';
+                    }
+                    webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
+                }
+            }
+            if (shopConsultantList != null)
+            {
+                foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
+                {
+                    char type = 'N';
+                    if (shopConsult.ModifyType == "U")
+                    { type = 'U'; }
+                    else if (shopConsult.ModifyType == "D")
+                    {
+                        type = 'D';
+                    }
+                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode,shopConsult.SeqNO,shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId,type, shopConsult.ConsultantType);
+                }
+            }
+
         }
 
-        #endregion
     }
 }
