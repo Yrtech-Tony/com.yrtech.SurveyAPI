@@ -66,7 +66,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 string userId = data.UserId;
                 data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
                 data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
-                data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
+               // data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
                 //CommonHelper.log(data.sh);
                // Thread.Sleep(1000);
 
@@ -74,7 +74,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                // CommonHelper.log(data.AnswerListJson);
                 answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
                 answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
-                answerService.SaveAnswerList(data.AnswerList, userId);
+                //answerService.SaveAnswerList(data.AnswerList, userId);
                 
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -83,7 +83,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         public async Task<Dictionary<string, string>> PostFormData()
         {
             try
