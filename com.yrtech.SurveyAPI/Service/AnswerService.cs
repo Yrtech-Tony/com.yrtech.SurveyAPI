@@ -513,7 +513,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
-        #region 打分开始经销商基本信息
+        #region 经销商进店信息
         /// <summary>
         /// 查询经销商进店信息
         /// </summary>
@@ -539,6 +539,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerShopInfo(AnswerShopInfo shopInfo, string userId)
         {
+            string shopCode = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].ShopCode;
+            string subjectCode = masterService.GetSubject(shopInfo.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
+            string brandId = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].BrandId.ToString();
+            string projectCode = masterService.GetProject("", "", shopInfo.ProjectId.ToString())[0].ProjectCode;
+            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+
+            webService.AnswerStartInfoSave(projectCode, shopCode, shopInfo.TeamLeaderName, accountId, shopInfo.StartDate.ToString());
+
             AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == shopInfo.ProjectId && x.ShopId == shopInfo.ShopId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -576,6 +586,36 @@ namespace com.yrtech.SurveyAPI.Service
 		            WHERE ProjectId = @ProjectId
 		            AND ShopId = @ShopId";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
+        }
+        public void SaveShopConsultant(AnswerShopConsultant consultant, string userId)
+        {
+            string shopCode = masterService.GetShop("", "", consultant.ShopId.ToString())[0].ShopCode;
+            string brandId = masterService.GetShop("", "", consultant.ShopId.ToString())[0].BrandId.ToString();
+            string projectCode = masterService.GetProject("", "", consultant.ProjectId.ToString())[0].ProjectCode;
+            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+
+            webService.SaveSaleContantInfo(projectCode, shopCode, consultant.SeqNO.ToString(), consultant.ConsultantName, consultant.ConsultantType);
+
+            AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId&&x.SeqNO == consultantDto.SeqNO)).FirstOrDefault();
+            if (findOne == null)
+            {
+                consultant.InDateTime = DateTime.Now;
+                consultant.InUserId = Convert.ToInt32(userId);
+                consultant.ModifyUserId = Convert.ToInt32(userId);
+                consultant.ModifyDateTime = DateTime.Now;
+                db.AnswerShopConsultant.Add(consultant);
+            }
+            else
+            {
+                findOne.ConsultantName = consultant.ConsultantName;
+                findOne.ConsultantType = consultant.ConsultantType;
+                findOne.UseChk = consultant.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = Convert.ToInt32(userId);
+            }
+            db.SaveChanges();
         }
         #endregion
     }
