@@ -49,6 +49,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 查询下一个体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectTypeId"></param>
+        /// <param name="subjectTypeExamId"></param>
+        /// <param name="orderNO"></param>
+        /// <param name="subjectConsultantId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Master/GetShopNextAnswerSubjectInfo")]
         public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
@@ -69,6 +79,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 查询上一个体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectTypeId"></param>
+        /// <param name="subjectTypeExamId"></param>
+        /// <param name="orderNO"></param>
+        /// <param name="subjectConsultantId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Master/GetShopPreAnswerSubjectInfo")]
         public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
@@ -89,6 +109,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [Route("Master/GetShopPreAnswerSubjectInfo")]
+        /// <summary>
+        /// 保存打分信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveAnswerInfo")]
         public async Task<APIResult> SaveAnswerInfo([FromBody]UploadData data)
@@ -105,6 +131,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 保存经销商进店信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveShopAnswerInfo")]
         public async Task<APIResult> SaveShopAnswerInfo([FromBody]UploadData data)
