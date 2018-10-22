@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace com.yrtech.SurveyAPI.DTO.AnswerResult
+namespace com.yrtech.SurveyAPI.DTO
 {
     [Serializable]
     public class InspectionStandardResultDto
@@ -13,5 +13,6 @@ namespace com.yrtech.SurveyAPI.DTO.AnswerResult
         public string InspectionStandardName { get; set;  }
         public string AnswerResult { get; set; }
         public DateTime LastTime { get; set; }
+        public string ModifyType { get; set; }//"U"：修改；"D":删除; 
     }
 }

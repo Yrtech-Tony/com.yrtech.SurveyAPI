@@ -13,7 +13,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string AnswerShopInfoListJson { get; set; }
         public string AnswerShopConsultantListJson { get; set; }
 
-        public List<Answer> AnswerList{get;set;}
+        public List<AnswerDto> AnswerList{get;set;}
         public List<AnswerShopInfo> AnswerShopInfoList { get; set; }
         public List<AnswerShopConsultant> AnswerShopConsultantList { get; set; }
     }
