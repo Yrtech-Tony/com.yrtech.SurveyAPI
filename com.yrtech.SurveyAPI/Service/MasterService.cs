@@ -1,4 +1,5 @@
 ﻿using com.yrtech.SurveyAPI.Common;
+using com.yrtech.SurveyAPI.DTO;
 using Purchase.DAL;
 using System;
 using System.Collections.Generic;
@@ -206,24 +207,38 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<Subject> GetSubject(string projectId,string subjectId)
+        public List<SubjectDto> GetSubject(string projectId,string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@SubjectId", subjectId)};
-            Type t = typeof(Subject);
+            Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT SubjectId,SubjectCode,ProjectId,SubjectTypeExamId,SubjectRecheckTypeId,SubjectConsultantId,OrderNO,Implementation,[CheckPoint],
-                  [Desc],AdditionalDesc,InspectionDesc,Remark,InUserId,InDateTime,ModifyUserId,ModifyDateTime  
-                FROM Subject WHERE 1=1 ";
+            sql = @"SELECT SubjectId
+                          ,[SubjectCode]
+                          ,[ProjectId]
+                          ,A.[SubjectTypeExamId]
+                          ,B.SubjectTypeExamName
+                          ,[SubjectRecheckTypeId]
+                          ,A.[SubjectConsultantId]
+                          ,C.SubjectConsultantName
+                          ,[OrderNO]
+                          ,[Implementation]
+                          ,[CheckPoint]
+                          ,[Desc]
+                          ,[AdditionalDesc]
+                          ,[InspectionDesc]
+                    FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
+				                   INNER JOIN SubjectConsultant C ON A.SubjectConsultantId = C.SubjectConsultantId
+                    WHERE 1=1 ";
             if (!string.IsNullOrEmpty(projectId))
             {
-                sql += " AND ProjectId = @ProjectId";
+                sql += " AND A.ProjectId = @ProjectId";
             }
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND SubjectId = @SubjectId";
+                sql += " AND A.SubjectId = @SubjectId";
             }
-            List<Subject> list = db.Database.SqlQuery(t, sql, para).Cast<Subject>().ToList();
+            List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
         }
 
@@ -232,14 +247,18 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectFile> GetSubjectFile(string projectId)
+        public List<SubjectFile> GetSubjectFile(string projectId,string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectFile);
             string sql = "";
             sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime
                    FROM SubjectFile sf,Subject s 
                    WHERE sf.SubjectId=s.SubjectId AND ProjectId = @ProjectId";
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND S.SubjectId = @SubjectId";
+            }
             List<SubjectFile> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
             return list;
         }
@@ -249,13 +268,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectInspectionStandard> GetSubjectInspectionStandard(string projectId)
+        public List<SubjectInspectionStandard> GetSubjectInspectionStandard(string projectId,string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectInspectionStandard);
             string sql = "";
             sql = @"SELECT sis.InspectionStandardId,sis.InspectionStandardName,sis.SubjectId,sis.SeqNO,sis.InUserId,sis.InDateTime,sis.ModifyUserId,sis.ModifyDateTime" +
                   " FROM SubjectInspectionStandard sis,Subject s WHERE sis.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += "AND S.SubjectId = @SubjectId";
+            }
             List<SubjectInspectionStandard> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
             return list;
         }
@@ -265,13 +288,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectLossResult> GetSubjectLossResult(string projectId)
+        public List<SubjectLossResult> GetSubjectLossResult(string projectId,string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectLossResult);
             string sql = "";
             sql = @"SELECT slr.LossResultId,slr.SubjectId,slr.SeqNO,slr.LossResultName,slr.InUserId,slr.InDateTime,slr.ModifyUserId,slr.ModifyDateTime" +
                   " FROM SubjectLossResult slr,Subject s WHERE slr.SubjectId=s.SubjectId and s.ProjectId = @ProjectId";
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND S.SubjectId = @SubjectId";
+            }
             List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
             return list;
         }
@@ -281,13 +308,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId)
+        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId,string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectTypeScoreRegion);
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
                   " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND S.SubjectId = @SubjectId";
+            }
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
         }

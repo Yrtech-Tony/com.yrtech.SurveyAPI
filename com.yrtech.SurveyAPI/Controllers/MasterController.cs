@@ -21,7 +21,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
         ShopService shopService = new ShopService();
-
+        #region 不联网
         [HttpGet]
         [Route("Master/GetBaseInfo")]
         public APIResult GetBaseInfo(string projectId)
@@ -38,13 +38,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 体系类型信息  Subject
                 resultList.Add(masterService.GetSubject(projectId, ""));
                 // 标准照片信息 SubjectFile
-                resultList.Add(masterService.GetSubjectFile(projectId));
+                resultList.Add(masterService.GetSubjectFile(projectId, ""));
                 // 检查标准信息 SubjectInspectionStandard
-                resultList.Add(masterService.GetSubjectInspectionStandard(projectId));
+                resultList.Add(masterService.GetSubjectInspectionStandard(projectId, ""));
                 // 失分描述 SubjectLossResult
-                resultList.Add(masterService.GetSubjectLossResult(projectId));
+                resultList.Add(masterService.GetSubjectLossResult(projectId, ""));
                 // 体系类型打分范围信息 SubjectTypeScoreRegion
-                resultList.Add(masterService.GetSubjectTypeScoreRegion(projectId));
+                resultList.Add(masterService.GetSubjectTypeScoreRegion(projectId, ""));
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
                 #endregion
@@ -62,20 +62,20 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                
+
                 string userId = data.UserId;
                 data.AnswerShopInfoList = CommonHelper.DecodeString<List<AnswerShopInfo>>(data.AnswerShopInfoListJson);
                 data.AnswerShopConsultantList = CommonHelper.DecodeString<List<AnswerShopConsultant>>(data.AnswerShopConsultantListJson);
-               // data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
+                // data.AnswerList = CommonHelper.DecodeString<List<Answer>>(data.AnswerListJson);
                 //CommonHelper.log(data.sh);
-               // Thread.Sleep(1000);
+                // Thread.Sleep(1000);
 
-                
-               // CommonHelper.log(data.AnswerListJson);
+
+                // CommonHelper.log(data.AnswerListJson);
                 answerService.SaveAnswerShopInfoList(data.AnswerShopInfoList, userId);
                 answerService.SaveAnswerShopConsultantList(data.AnswerShopConsultantList, userId);
                 //answerService.SaveAnswerList(data.AnswerList, userId);
-                
+
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -103,7 +103,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             string projectId = dic["projectId"];
                             string shopId = dic["shopId"];
-                            string fileKey = "survey/" + projectId + "/" + shopId + "/" + fileName.Replace("\"","");
+                            string fileKey = "survey/" + projectId + "/" + shopId + "/" + fileName.Replace("\"", "");
                             //处理文件
                             OSSClientHelper.UploadOSSFile(fileKey, stream, stream.Length);
                         }
@@ -122,6 +122,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return null;
             }
         }
+        #endregion
+        /// <summary>
+        /// 根据体系Id查询体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        public APIResult GetSubject(string projectId, string subjectId)
+        {
+            try
+            {
+                List<SubjectDto> subjectList = masterService.GetSubject(projectId, "");
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
 
+        }
     }
 }

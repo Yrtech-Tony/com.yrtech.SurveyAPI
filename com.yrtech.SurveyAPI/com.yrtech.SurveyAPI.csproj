@@ -139,6 +139,7 @@
     <Compile Include="DTO\Answer\ShopConsultantResultDto.cs" />
     <Compile Include="DTO\Answer\LossResultDto.cs" />
     <Compile Include="DTO\Answer\InspectionStandardResultDto.cs" />
+    <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
     <Compile Include="DTO\UploadData.cs" />
     <Compile Include="Global.asax.cs">

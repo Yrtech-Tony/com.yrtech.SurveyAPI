@@ -6,17 +6,10 @@ using System.Web;
 namespace com.yrtech.SurveyAPI.DTO
 {
     [Serializable]
-    public class AnswerDto
+    public class SubjectDto
     {
-        public int AnswerId { get; set; }
         public int ProjectId { get; set; }
         public int SubjectId { get; set; }
-        public int ShopId { get; set; }
-        public decimal? PhotoScore { get; set; }
-        public string InspectionStandardResult { get; set; }
-        public string FileResult { get; set; }
-        public string LossResult { get; set; }
-        public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }
         public int InUserId { get; set; }
         public DateTime InDateTime { get; set; }

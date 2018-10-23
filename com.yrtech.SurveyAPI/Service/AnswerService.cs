@@ -374,14 +374,20 @@ namespace com.yrtech.SurveyAPI.Service
             #endregion
         }
         /// <summary>
-        /// 获取当期经销商当前体系打分的详细信息
+        /// 获取当期经销商已经打分的信息
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<Answer> GetAnswerInfoDetail(string projectId, string shopId, string subjectId)
+        public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId)
         {
+            List<AnswerDto> answerResultList = new List<AnswerDto>();
+
+            // 先查询体系信息
+            List<SubjectDto> subjectList = masterService.GetSubject(projectId, subjectId);
+
+            // 获取打分的信息
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectId", subjectId) };
@@ -396,15 +402,58 @@ namespace com.yrtech.SurveyAPI.Service
 		            FROM Answer A 
 		            WHERE ProjectId = @ProjectId
 		            AND ShopId = @ShopId
-		            AND SubjectId = @SubjectId";
-            return db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
+		            ";
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND SubjectId = @SubjectId";
+            }
+            List<Answer> answerList = db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
+
+            // 组合返回结果
+            foreach (SubjectDto subject in subjectList)
+            {
+                AnswerDto answerdto = new AnswerDto();
+                answerdto.ProjectId = Convert.ToInt32(subject.ProjectId);
+                answerdto.SubjectId = subject.SubjectId;
+                answerdto.SubjectCode = subject.SubjectCode;
+                answerdto.SubjectTypeExamId = Convert.ToInt32(subject.SubjectTypeExamId);
+                answerdto.SubjectTypeExamName = subject.SubjectTypeExamName;
+                answerdto.SubjectConsultantId = subject.SubjectConsultantId;
+                answerdto.SubjectConsultantName = subject.SubjectConsultantName;
+                answerdto.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
+                answerdto.OrderNO = subject.OrderNO;
+                answerdto.Implementation = subject.Implementation;
+                answerdto.CheckPoint = subject.CheckPoint;
+                answerdto.AdditionalDesc = subject.AdditionalDesc;
+                answerdto.Desc = subject.Desc;
+                answerdto.InspectionDesc = subject.InspectionDesc;
+                foreach (Answer answer in answerList)
+                {
+                    if (answer.SubjectId == subject.SubjectId)
+                    {
+                        answerdto.ShopId = answer.ShopId;
+                        answerdto.AnswerId = answer.AnswerId;
+                        answerdto.InDateTime = Convert.ToDateTime(answer.InDateTime);
+                        answerdto.InUserId = Convert.ToInt32(answer.InUserId);
+                        answerdto.ModifyUserId = Convert.ToInt32(answer.ModifyUserId);
+                        answerdto.ModifyDateTime = Convert.ToDateTime(answer.ModifyDateTime);
+                        answerdto.InspectionStandardResult = answer.InspectionStandardResult;
+                        answerdto.LossResult = answer.LossResult;
+                        answerdto.PhotoScore = answer.PhotoScore;
+                        answerdto.Remark = answer.Remark;
+                        answerdto.ShopConsultantResult = answer.ShopConsultantResult;
+                    }
+                    answerResultList.Add(answerdto);
+                }
+            }
+            return answerResultList;
         }
         /// <summary>
         /// 保存打分信息
         /// </summary>
         /// <param name="answerDto"></param>
         /// <param name="userId"></param>
-        public void SaveAnswerInfo(AnswerDto answerDto, string userId)
+        public void SaveAnswerInfo(AnswerDto answerDto)
         {
             Answer answer = new Answer();
             answer.ProjectId = answerDto.ProjectId;
@@ -417,17 +466,17 @@ namespace com.yrtech.SurveyAPI.Service
             answer.LossResult = answerDto.LossResult;
             answer.ShopConsultantResult = answerDto.ShopConsultantResult;
             answer.InDateTime = DateTime.Now;
-            answer.InUserId = Convert.ToInt32(userId);
+            answer.InUserId = Convert.ToInt32(answerDto.ModifyUserId);
             answer.ModifyDateTime = DateTime.Now;
-            answer.ModifyUserId = Convert.ToInt32(userId);
+            answer.ModifyUserId = Convert.ToInt32(answerDto.ModifyUserId);
             answer.UploadDate = DateTime.Now;
-            answer.UploadUserId = Convert.ToInt32(userId);
+            answer.UploadUserId = Convert.ToInt32(answerDto.ModifyUserId);
             // 保存打分信息
             string shopCode = masterService.GetShop("", "", answer.ShopId.ToString())[0].ShopCode;
             string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
             string brandId = masterService.GetShop("", "", answer.ShopId.ToString())[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", answer.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            string accountId = accountService.GetUserInfo(answerDto.ModifyUserId.ToString())[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
@@ -537,13 +586,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="shopInfo"></param>
         /// <param name="userId"></param>
-        public void SaveAnswerShopInfo(AnswerShopInfo shopInfo, string userId)
+        public void SaveAnswerShopInfo(AnswerShopInfo shopInfo)
         {
             string shopCode = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].ShopCode;
-            string subjectCode = masterService.GetSubject(shopInfo.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
             string brandId = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", shopInfo.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            string accountId = accountService.GetUserInfo(shopInfo.ModifyUserId.ToString())[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
@@ -553,8 +601,6 @@ namespace com.yrtech.SurveyAPI.Service
             if (findOne == null)
             {
                 shopInfo.InDateTime = DateTime.Now;
-                shopInfo.InUserId = Convert.ToInt32(userId);
-                shopInfo.ModifyUserId = Convert.ToInt32(userId);
                 shopInfo.ModifyDateTime = DateTime.Now;
                 db.AnswerShopInfo.Add(shopInfo);
             }
@@ -563,7 +609,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.TeamLeaderName = shopInfo.TeamLeaderName;
                 findOne.StartDate = shopInfo.StartDate;
                 findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = Convert.ToInt32(userId);
+                findOne.ModifyUserId = shopInfo.ModifyUserId;
             }
             db.SaveChanges();
         }
@@ -587,23 +633,21 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND ShopId = @ShopId";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
         }
-        public void SaveShopConsultant(AnswerShopConsultant consultant, string userId)
+        public void SaveShopConsultant(AnswerShopConsultant consultant)
         {
             string shopCode = masterService.GetShop("", "", consultant.ShopId.ToString())[0].ShopCode;
             string brandId = masterService.GetShop("", "", consultant.ShopId.ToString())[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", consultant.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            string accountId = accountService.GetUserInfo(consultant.ModifyUserId.ToString())[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
             webService.SaveSaleContantInfo(projectCode, shopCode, consultant.SeqNO.ToString(), consultant.ConsultantName, consultant.ConsultantType);
 
-            AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId&&x.SeqNO == consultantDto.SeqNO)).FirstOrDefault();
+            AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId&&x.SeqNO == consultant.SeqNO)).FirstOrDefault();
             if (findOne == null)
             {
                 consultant.InDateTime = DateTime.Now;
-                consultant.InUserId = Convert.ToInt32(userId);
-                consultant.ModifyUserId = Convert.ToInt32(userId);
                 consultant.ModifyDateTime = DateTime.Now;
                 db.AnswerShopConsultant.Add(consultant);
             }
@@ -613,7 +657,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ConsultantType = consultant.ConsultantType;
                 findOne.UseChk = consultant.UseChk;
                 findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = Convert.ToInt32(userId);
+                findOne.ModifyUserId = consultant.ModifyUserId;
             }
             db.SaveChanges();
         }
