@@ -129,11 +129,13 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="projectId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetSubject")]
         public APIResult GetSubject(string projectId, string subjectId)
         {
             try
             {
-                List<SubjectDto> subjectList = masterService.GetSubject(projectId, "");
+                List<SubjectDto> subjectList = masterService.GetSubject(projectId, subjectId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectList) };
             }
             catch (Exception ex)
@@ -142,5 +144,21 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        [HttpGet]
+        [Route("Master/GetSubjectLink")]
+        public APIResult GetSubjectLink(string projectId)
+        {
+            try
+            {
+                List<SubjectLink> subjectLinkList = masterService.GetSubjectLink(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectLinkList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+
     }
 }

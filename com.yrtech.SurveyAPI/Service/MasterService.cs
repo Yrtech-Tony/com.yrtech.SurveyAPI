@@ -207,7 +207,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectDto> GetSubject(string projectId,string subjectId)
+        public List<SubjectDto> GetSubject(string projectId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@SubjectId", subjectId)};
@@ -219,8 +219,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,A.[SubjectTypeExamId]
                           ,B.SubjectTypeExamName
                           ,[SubjectRecheckTypeId]
-                          ,A.[SubjectConsultantId]
-                          ,C.SubjectConsultantName
+                          ,A.[SubjectLinkId]
+                          ,C.SubjectLinkName
                           ,[OrderNO]
                           ,[Implementation]
                           ,[CheckPoint]
@@ -228,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[AdditionalDesc]
                           ,[InspectionDesc]
                     FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
-				                   INNER JOIN SubjectConsultant C ON A.SubjectConsultantId = C.SubjectConsultantId
+				                   INNER JOIN SubjectLink C ON A.SubjectLinkId= C.SubjectLinkId
                     WHERE 1=1 ";
             if (!string.IsNullOrEmpty(projectId))
             {
@@ -247,7 +247,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectFile> GetSubjectFile(string projectId,string subjectId)
+        public List<SubjectFile> GetSubjectFile(string projectId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectFile);
@@ -268,7 +268,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectInspectionStandard> GetSubjectInspectionStandard(string projectId,string subjectId)
+        public List<SubjectInspectionStandard> GetSubjectInspectionStandard(string projectId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectInspectionStandard);
@@ -288,7 +288,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectLossResult> GetSubjectLossResult(string projectId,string subjectId)
+        public List<SubjectLossResult> GetSubjectLossResult(string projectId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectLossResult);
@@ -308,7 +308,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId,string subjectId)
+        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectTypeScoreRegion);
@@ -321,6 +321,18 @@ namespace com.yrtech.SurveyAPI.Service
             }
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
+        }
+        public List<SubjectLink> GetSubjectLink(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectLink);
+            string sql = @"SELECT [SubjectLinkId]
+                      ,[SubjectLinkCode]
+                      ,[SubjectLinkName]
+                      ,[InUserId]
+                      ,[InDateTime]
+                        FROM [SubjectLink] WHERE ProjectId = @ProjectId";
+            return db.Database.SqlQuery(t, sql, null).Cast<SubjectLink>().ToList();
         }
     }
 }

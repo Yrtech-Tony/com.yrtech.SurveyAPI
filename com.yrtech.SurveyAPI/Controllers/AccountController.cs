@@ -27,17 +27,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                     AccountDto account = accountlist[0];
                     string tenantId = account.TenantId.ToString();
 
-                    #region 登录成功后下载基础数据到Mobile本地
+                    #region 登录成功后查询品牌信息
                     // 用户信息 UserInfo
-                    resultList.Add(accountService.GetUserInfo(account.UserId.ToString()));
+                    // resultList.Add(accountService.GetUserInfo(account.UserId.ToString()));
                     // 品牌用户信息 UserInfoBrand
-                    resultList.Add(accountService.GetUserInfoBrand(account.UserId.ToString()));
+                    //resultList.Add(accountService.GetUserInfoBrand(account.UserId.ToString()));
                     // 体系类型 SubjectType
-                    resultList.Add(masterService.GetSubjectType());
+                    // resultList.Add(masterService.GetSubjectType());
                     // 试卷类型 SubjectTypeExam
-                    resultList.Add(masterService.GetSubjectTypeExam());
+                    //resultList.Add(masterService.GetSubjectTypeExam());
+                    // 登录信息
+                    resultList.Add(accountlist);
                     // 租户信息 Tenant
-                    resultList.Add(masterService.GetTenant(tenantId));
+                    List<Tenant> tenantList = masterService.GetTenant(tenantId);
+                    resultList.Add(tenantList);
                     // 品牌信息 Brand
                     List<Brand> brandList = new List<Brand>();
                     foreach (AccountDto ac in accountlist)
@@ -47,16 +50,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                     resultList.Add(brandList);
                     // 期号信息 Project
                     List<Project> projectList = new List<Project>();
-                    foreach (AccountDto ac in accountlist)
+                    foreach (Brand brand in brandList)
                     {
-                        projectList.AddRange(masterService.GetProject(tenantId, ac.BrandId.ToString(), ""));
+                        projectList.AddRange(masterService.GetProject(tenantId, brand.BrandId.ToString(), ""));
                     }
                     resultList.Add(projectList);
                     // 经销商信息 Shop
                     List<Shop> shopList = new List<Shop>();
-                    foreach (AccountDto ac in accountlist)
+                    foreach (Brand brand in brandList)
                     {
-                        shopList.AddRange(masterService.GetShop(tenantId, ac.BrandId.ToString(), ""));
+                        shopList.AddRange(masterService.GetShop(tenantId, brand.BrandId.ToString(),""));
                     }
                     resultList.Add(shopList);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };

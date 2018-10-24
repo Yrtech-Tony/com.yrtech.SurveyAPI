@@ -32,8 +32,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectConsultantId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Master/GetShopNeedAnswerSubjectInfo")]
-        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectConsultantId)
+        [Route("Answer/GetShopNeedAnswerSubjectInfo")]
+        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLink)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectConsultantId);
+                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLink);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -78,8 +78,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectConsultantId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Master/GetShopNextAnswerSubjectInfo")]
-        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        [Route("Answer/GetShopNextAnswerSubjectInfo")]
+        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLink)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopNextAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectConsultantId);
+                List<Subject> subjectList = answerService.GetShopNextAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLink);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -124,8 +124,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectConsultantId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Master/GetShopPreAnswerSubjectInfo")]
-        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        [Route("Answer/GetShopPreAnswerSubjectInfo")]
+        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLink)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopPreAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectConsultantId);
+                List<Subject> subjectList = answerService.GetShopPreAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLink);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -159,14 +159,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [Route("Master/GetShopPreAnswerSubjectInfo")]
+        [Route("Answer/GetShopPreAnswerSubjectInfo")]
         /// <summary>
         /// 保存打分信息
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("Master/SaveAnswerInfo")]
+        [Route("Answer/SaveAnswerInfo")]
         public async Task<APIResult> SaveAnswerInfo([FromBody]AnswerDto answer)
         {
             try
@@ -189,7 +189,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Master/GetShopAnswerScoreInfo")]
+        [Route("Answer/GetShopAnswerScoreInfo")]
         public APIResult GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId)
         {
             try
@@ -202,14 +202,14 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-            #region 进店信息
-            /// <summary>
-            /// 保存经销商进店信息
-            /// </summary>
-            /// <param name="data"></param>
-            /// <returns></returns>
+        #region 进店信息
+        /// <summary>
+        /// 保存经销商进店信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route("Master/SaveShopAnswerInfo")]
+        [Route("Answer/SaveShopAnswerInfo")]
         public async Task<APIResult> SaveShopAnswerInfo([FromBody]AnswerShopInfo answerShopInfo)
         {
             try
@@ -228,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        [Route("Master/GetShopAnswerInfo")]
+        [Route("Answer/GetShopAnswerInfo")]
         public APIResult GetShopAnswerInfo(string projectId, string shopId)
         {
             try
@@ -250,7 +250,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="shopConsultant"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("Master/SaveShopConsultant")]
+        [Route("Answer/SaveShopConsultant")]
         public async Task<APIResult> SaveShopConsultant([FromBody]AnswerShopConsultant shopConsultant)
         {
             try
@@ -269,7 +269,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        [Route("Master/GetShopShopConsultant")]
+        [Route("Answer/GetShopShopConsultant")]
         public APIResult GetShopShopConsultant(string projectId, string shopId)
         {
             try

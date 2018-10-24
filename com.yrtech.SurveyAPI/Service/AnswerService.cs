@@ -418,8 +418,8 @@ namespace com.yrtech.SurveyAPI.Service
                 answerdto.SubjectCode = subject.SubjectCode;
                 answerdto.SubjectTypeExamId = Convert.ToInt32(subject.SubjectTypeExamId);
                 answerdto.SubjectTypeExamName = subject.SubjectTypeExamName;
-                answerdto.SubjectConsultantId = subject.SubjectConsultantId;
-                answerdto.SubjectConsultantName = subject.SubjectConsultantName;
+                answerdto.SubjectLinkId = subject.SubjectLinkId;
+                answerdto.SubjectLinkName = subject.SubjectLinkName;
                 answerdto.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
                 answerdto.OrderNO = subject.OrderNO;
                 answerdto.Implementation = subject.Implementation;

@@ -21,8 +21,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int SubjectTypeExamId { get; set; }
         public string SubjectTypeExamName { get; set; }
         public int SubjectRecheckTypeId { get; set; }
-        public int SubjectConsultantId { get; set; }
-        public string SubjectConsultantName { get; set; }
+        public int SubjectLinkId { get; set; }
+        public string SubjectLinkName { get; set; }
         public int OrderNO { get; set; }
         public string Implementation { get; set; }
         public string CheckPoint { get; set; }
