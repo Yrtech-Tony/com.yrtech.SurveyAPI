@@ -56,12 +56,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     resultList.Add(projectList);
                     // 经销商信息 Shop
-                    List<Shop> shopList = new List<Shop>();
-                    foreach (Brand brand in brandList)
-                    {
-                        shopList.AddRange(masterService.GetShop(tenantId, brand.BrandId.ToString(),""));
-                    }
-                    resultList.Add(shopList);
+                    //List<Shop> shopList = new List<Shop>();
+                    //foreach (Brand brand in brandList)
+                    //{
+                    //    shopList.AddRange(masterService.GetShop(tenantId, brand.BrandId.ToString(),""));
+                    //}
+                    //resultList.Add(shopList);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
                     #endregion
                 }
