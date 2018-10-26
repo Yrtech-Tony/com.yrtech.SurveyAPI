@@ -199,6 +199,7 @@
             <PropertyRef Name="SubjectLinkId" />
           </Key>
           <Property Name="SubjectLinkId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" />
           <Property Name="SubjectLinkCode" Type="nvarchar" MaxLength="500" />
           <Property Name="SubjectLinkName" Type="nvarchar" MaxLength="500" />
           <Property Name="InUserId" Type="int" />
@@ -650,6 +651,7 @@
             <PropertyRef Name="SubjectLinkId" />
           </Key>
           <Property Name="SubjectLinkId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
           <Property Name="SubjectLinkCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="SubjectLinkName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
@@ -978,6 +980,7 @@
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="SubjectLinkName" ColumnName="SubjectLinkName" />
                 <ScalarProperty Name="SubjectLinkCode" ColumnName="SubjectLinkCode" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
               </MappingFragment>
             </EntityTypeMapping>

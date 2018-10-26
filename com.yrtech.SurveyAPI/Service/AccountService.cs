@@ -45,7 +45,7 @@ namespace com.yrtech.SurveyAPI.Service
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             INNER JOIN UserInfoBrand C ON A.Id = C.UserId
                                             INNER JOIN Brand D ON C.BrandId = D.BrandId AND B.TenantId = D.TenantId
-                            WHERE AccountId = @AccountId AND[Password] = @Password
+                            WHERE AccountId = @AccountId 
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
 
