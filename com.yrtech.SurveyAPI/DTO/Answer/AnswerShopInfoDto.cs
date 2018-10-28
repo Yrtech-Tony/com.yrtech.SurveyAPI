@@ -11,6 +11,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int Id { get; set; }
         public int ProjectId { get; set; }
         public int ShopId { get; set; }
+        public string TeamLeaderName { get; set; }
         public int UserId { get; set; }
         public DateTime StartDate { get; set; }
         public int InUserId { get; set;  }

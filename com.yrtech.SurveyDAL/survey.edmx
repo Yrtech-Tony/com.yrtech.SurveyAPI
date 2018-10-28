@@ -36,7 +36,7 @@
           <Property Name="SeqNO" Type="int" />
           <Property Name="ConsultantName" Type="nvarchar" MaxLength="50" />
           <Property Name="ConsultantType" Type="nvarchar" MaxLength="50" />
-          <Property Name="SubjectConsultantId" Type="int" />
+          <Property Name="SubjectLinkId" Type="int" />
           <Property Name="UseChk" Type="bit" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -535,9 +535,9 @@
           <EntitySet Name="UserInfo" EntityType="com.yrtech.surveyModel.UserInfo" />
           <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.surveyModel.AnswerShopInfo" />
           <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
-          <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
           <EntitySet Name="Subject" EntityType="com.yrtech.surveyModel.Subject" />
           <EntitySet Name="SubjectLink" EntityType="com.yrtech.surveyModel.SubjectLink" />
+          <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
         </EntityContainer>
         <EntityType Name="UserInfoBrand">
           <Key>
@@ -605,25 +605,6 @@
           <Property Name="UploadDate" Type="DateTime" Precision="3" />
           <Property Name="UploadUserId" Type="Int32" />
         </EntityType>
-        <EntityType Name="AnswerShopConsultant">
-          <Key>
-            <PropertyRef Name="ConsultantId" />
-          </Key>
-          <Property Name="ConsultantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ShopId" Type="Int32" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="SeqNO" Type="Int32" />
-          <Property Name="ConsultantName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ConsultantType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="SubjectConsultantId" Type="Int32" />
-          <Property Name="UseChk" Type="Boolean" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadUserId" Type="Int32" />
-        </EntityType>
         <EntityType Name="Subject">
           <Key>
             <PropertyRef Name="SubjectId" />
@@ -656,6 +637,25 @@
           <Property Name="SubjectLinkName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="AnswerShopConsultant">
+          <Key>
+            <PropertyRef Name="ConsultantId" />
+          </Key>
+          <Property Name="ConsultantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="SeqNO" Type="Int32" />
+          <Property Name="ConsultantName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ConsultantType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SubjectLinkId" Type="Int32" />
+          <Property Name="UseChk" Type="Boolean" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+          <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
+          <Property Name="UploadUserId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -930,26 +930,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AnswerShopConsultant">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AnswerShopConsultant">
-              <MappingFragment StoreEntitySet="AnswerShopConsultant">
-                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
-                <ScalarProperty Name="UploadDateTime" ColumnName="UploadDateTime" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
-                <ScalarProperty Name="SubjectConsultantId" ColumnName="SubjectConsultantId" />
-                <ScalarProperty Name="ConsultantType" ColumnName="ConsultantType" />
-                <ScalarProperty Name="ConsultantName" ColumnName="ConsultantName" />
-                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="ConsultantId" ColumnName="ConsultantId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Subject">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.Subject">
               <MappingFragment StoreEntitySet="Subject">
@@ -982,6 +962,26 @@
                 <ScalarProperty Name="SubjectLinkCode" ColumnName="SubjectLinkCode" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AnswerShopConsultant">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AnswerShopConsultant">
+              <MappingFragment StoreEntitySet="AnswerShopConsultant">
+                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
+                <ScalarProperty Name="UploadDateTime" ColumnName="UploadDateTime" />
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
+                <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
+                <ScalarProperty Name="ConsultantType" ColumnName="ConsultantType" />
+                <ScalarProperty Name="ConsultantName" ColumnName="ConsultantName" />
+                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ConsultantId" ColumnName="ConsultantId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

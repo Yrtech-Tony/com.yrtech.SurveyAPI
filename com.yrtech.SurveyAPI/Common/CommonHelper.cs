@@ -13,18 +13,19 @@ namespace com.yrtech.SurveyAPI.Common
 {
     public class CommonHelper
     {
+        static JsonSerializerSettings defaultJsonSetting = new JsonSerializerSettings
+                {
+                    Formatting = Newtonsoft.Json.Formatting.Indented,
+                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Ignore
+                };
         public static string Encode(object obj)
         {
             string jsonString = string.Empty;
 
             try
             {
-                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-                {
-                    Formatting = Newtonsoft.Json.Formatting.Indented,
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                };
-                jsonString = JsonConvert.SerializeObject(obj);
+                jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, defaultJsonSetting);
             }
             catch (Exception)
             {
@@ -38,12 +39,7 @@ namespace com.yrtech.SurveyAPI.Common
 
             try
             {
-                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-                {
-                    Formatting = Newtonsoft.Json.Formatting.Indented,
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                };
-                jsonString = JsonConvert.SerializeObject(t);
+                jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
             }
             catch (Exception)
             {
@@ -57,12 +53,8 @@ namespace com.yrtech.SurveyAPI.Common
 
             try
             {
-                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-                {
-                    Formatting = Newtonsoft.Json.Formatting.Indented,
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                };
-                jsonString = JsonConvert.SerializeObject(t);
+                JsonConvert.DefaultSettings = () => defaultJsonSetting;
+                jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
             }
             catch (Exception)
             {

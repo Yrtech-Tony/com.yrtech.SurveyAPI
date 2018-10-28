@@ -213,20 +213,20 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@SubjectId", subjectId)};
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT SubjectId
-                          ,[SubjectCode]
-                          ,[ProjectId]
+            sql = @"SELECT A.SubjectId
+                          ,A.[SubjectCode]
+                          ,A.[ProjectId]
                           ,A.[SubjectTypeExamId]
                           ,B.SubjectTypeExamName
-                          ,[SubjectRecheckTypeId]
+                          ,A.[SubjectRecheckTypeId]
                           ,A.[SubjectLinkId]
                           ,C.SubjectLinkName
-                          ,[OrderNO]
-                          ,[Implementation]
-                          ,[CheckPoint]
-                          ,[Desc]
-                          ,[AdditionalDesc]
-                          ,[InspectionDesc]
+                          ,A.[OrderNO]
+                          ,A.[Implementation]
+                          ,A.[CheckPoint]
+                          ,A.[Desc]
+                          ,A.[AdditionalDesc]
+                          ,A.[InspectionDesc]
                     FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
 				                   INNER JOIN SubjectLink C ON A.SubjectLinkId= C.SubjectLinkId
                     WHERE 1=1 ";

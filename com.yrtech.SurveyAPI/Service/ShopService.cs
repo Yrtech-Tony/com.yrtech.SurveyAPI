@@ -56,7 +56,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<Shop> GetShopByProjectId(string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            string sql = "SELECT A.ShopId,ShopCode,ShopName,Province,City FROM ProjectShop A" +
+            string sql = "SELECT B.* FROM ProjectShop A" +
                         " INNER JOIN Shop B ON A.ShopId = B.ShopId" +
                         " WHERE A.ProjectId =@ProjectId";
             List<Shop> list = db.Database.SqlQuery<Shop>(sql, para).ToList();

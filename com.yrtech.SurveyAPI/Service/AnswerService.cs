@@ -184,7 +184,7 @@ namespace com.yrtech.SurveyAPI.Service
                     findOne.ModifyUserId = item.ModifyUserId;
                     findOne.UploadUserId = item.UploadUserId;
                     findOne.UploadDateTime = item.UploadDateTime;
-                    findOne.SubjectConsultantId = item.SubjectConsultantId;
+                    findOne.SubjectLinkId = item.SubjectLinkId;
                     findOne.UseChk = item.UseChk;
                     // db.Entry<AnswerShopConsultant>(item).State = System.Data.Entity.EntityState.Modified;
                 }
@@ -200,17 +200,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<Subject> GetShopNeedAnswerSubject(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectConsultantId)
+        public List<Subject> GetShopNeedAnswerSubject(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId)
         {
             #region 获取当前经销商最后一次打分的序号
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),
-                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
-                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)
-                                                                            };
+                                                       new SqlParameter("@ShopId", shopId),                                                       
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId)};
             Type t = typeof(int);
             string sql = "";
             int lastAnswerSubjectOrderNO = 0;// 最后一次的序号
@@ -223,9 +222,12 @@ namespace com.yrtech.SurveyAPI.Service
 				    AND A.ShopId = @ShopId
 				    AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
 				    AND (B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
-            if (string.IsNullOrEmpty(subjectConsultantId))
+            if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND B.SubjectConsultantId = @SubjectConsultantId";
+                sql += "AND B.SubjectLinkId = @SubjectLinkId";
+                var lst = para.ToList();
+                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
+                para = lst.ToArray();
             }
             lastAnswerSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
             #endregion
@@ -233,7 +235,7 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para1 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@LastAnswerSubjectOrderNO", lastAnswerSubjectOrderNO),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId),
-                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId) };
+                                                       new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)};
 
             sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
 		            FROM [Subject] A 
@@ -241,9 +243,12 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND OrderNO > @LastAnswerSubjectOrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
 		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
-            if (string.IsNullOrEmpty(subjectConsultantId))
+            if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+                sql += "AND A.SubjectLinkId = @SubjectLinkId";
+                var lst = para.ToList();
+                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
+                para = lst.ToArray();
             }
             answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().First();
 
@@ -251,18 +256,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@AnswerSubjectId", answerSubjectId) };
-            sql = @"SELECT A.ProjectId
-					       ,A.SubjectId
-					       ,A.SubjectCode
-					       ,A.Implementation -- 执行方式
-					       ,A.[CheckPoint]-- 检查点
-					       ,A.[Desc]--说明
-					       ,A.AdditionalDesc-- 补充说明
-					       ,A.InspectionDesc-- 检查标准
-					       ,A.OrderNO-- 执行顺序 
-                    FROM[Subject] A WHERE 1=1 
-                                    AND ProjectId = @ProjectId
-                                    AND SubjectId = @AnswerSubjectId";
+            sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @AnswerSubjectId";
             Type t_subject = typeof(Subject);
             return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
             #endregion
@@ -274,15 +268,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
         /// <param name="orderNO"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<Subject> GetShopNextAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        public List<Subject> GetShopNextAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLinkId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
-                                                       new SqlParameter("@OrderNO", orderNO),
-                                                       new SqlParameter("@SubjectConsultantId", subjectConsultantId)
+                                                       new SqlParameter("@OrderNO", orderNO)
             };
             Type t = typeof(int);
             #region 查询需要打分体系Id
@@ -294,9 +287,12 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND OrderNO > @OrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
 		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
-            if (string.IsNullOrEmpty(subjectConsultantId))
+            if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+                sql += "AND A.SubjectLinkId = @SubjectLinkId";
+                var lst = para.ToList();
+                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
+                para = lst.ToArray();
             }
             answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
 
@@ -304,15 +300,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@AnswerSubjectId", answerSubjectId) };
-            sql = @"SELECT A.ProjectId
-					       ,A.SubjectId
-					       ,A.SubjectCode
-					       ,A.Implementation -- 执行方式
-					       ,A.[CheckPoint]-- 检查点
-					       ,A.[Desc]--说明
-					       ,A.AdditionalDesc-- 补充说明
-					       ,A.InspectionDesc-- 检查标准
-					       ,A.OrderNO-- 执行顺序 
+            sql = @"SELECT A.* 
                     FROM[Subject] A WHERE 1=1 
                                     AND ProjectId = @ProjectId
                                     AND SubjectId = @AnswerSubjectId";
@@ -327,15 +315,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
         /// <param name="orderNO"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<Subject> GetShopPreAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectConsultantId)
+        public List<Subject> GetShopPreAnswerSubject(string projectId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLinkId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
-                                                       new SqlParameter("@OrderNO", orderNO),
-                                                       new SqlParameter("@SubjectConsultantId", subjectConsultantId)
+                                                       new SqlParameter("@OrderNO", orderNO)
             };
             Type t = typeof(int);
             #region 查询需要打分体系Id
@@ -347,9 +334,12 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND OrderNO < @OrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
 		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
-            if (string.IsNullOrEmpty(subjectConsultantId))
+            if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectConsultantId = @SubjectConsultantId";
+                sql += "AND A.SubjectLinkId = @SubjectLinkId";
+                var lst = para.ToList();
+                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
+                para = lst.ToArray();
             }
             answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
 
@@ -357,15 +347,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@AnswerSubjectId", answerSubjectId) };
-            sql = @"SELECT A.ProjectId
-					       ,A.SubjectId
-					       ,A.SubjectCode
-					       ,A.Implementation -- 执行方式
-					       ,A.[CheckPoint]-- 检查点
-					       ,A.[Desc]--说明
-					       ,A.AdditionalDesc-- 补充说明
-					       ,A.InspectionDesc-- 检查标准
-					       ,A.OrderNO-- 执行顺序 
+            sql = @"SELECT A.*
                     FROM[Subject] A WHERE 1=1 
                                     AND ProjectId = @ProjectId
                                     AND SubjectId = @AnswerSubjectId";
@@ -393,17 +375,12 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(Answer);
             string sql = "";
-            sql = @"SELECT A.PhotoScore
-                            ,A.InspectionStandardResult
-                            ,A.FileResult
-                            ,A.LossResult
-                            ,A.ShopConsultantResult
-                            ,A.Remark 
+            sql = @"SELECT A.* 
 		            FROM Answer A 
 		            WHERE ProjectId = @ProjectId
 		            AND ShopId = @ShopId
 		            ";
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND SubjectId = @SubjectId";
             }
@@ -472,11 +449,31 @@ namespace com.yrtech.SurveyAPI.Service
             answer.UploadDate = DateTime.Now;
             answer.UploadUserId = Convert.ToInt32(answerDto.ModifyUserId);
             // 保存打分信息
-            string shopCode = masterService.GetShop("", "", answer.ShopId.ToString())[0].ShopCode;
-            string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
-            string brandId = masterService.GetShop("", "", answer.ShopId.ToString())[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", answer.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(answerDto.ModifyUserId.ToString())[0].AccountId;
+            List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString());
+            if (projectList == null || projectList.Count == 0)
+            {
+                throw new Exception("没有找到对应的期号");
+            }
+            List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString());
+            if (shopList == null || shopList.Count == 0)
+            {
+                throw new Exception("没有找到对应的经销商");
+            }
+            List<UserInfo> userList = accountService.GetUserInfo(answerDto.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString());
+            if (subjectList == null || subjectList.Count == 0)
+            {
+                throw new Exception("没有找到对应的体系");
+            }
+            string projectCode = projectList[0].ProjectCode;
+            string shopCode = shopList[0].ShopCode;
+            string brandId = shopList[0].BrandId.ToString();
+            string accountId = userList[0].AccountId;
+            string subjectCode = subjectList[0].SubjectCode;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
@@ -588,10 +585,25 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerShopInfo(AnswerShopInfo shopInfo)
         {
-            string shopCode = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].ShopCode;
-            string brandId = masterService.GetShop("", "", shopInfo.ShopId.ToString())[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", shopInfo.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(shopInfo.ModifyUserId.ToString())[0].AccountId;
+            List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString());
+            if (projectList == null || projectList.Count == 0)
+            {
+                throw new Exception("没有找到对应的期号");
+            }
+            List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString());
+            if (shopList == null || shopList.Count == 0)
+            {
+                throw new Exception("没有找到对应的经销商");
+            }
+            List<UserInfo> userList = accountService.GetUserInfo(shopInfo.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            string projectCode = projectList[0].ProjectCode;
+            string shopCode = shopList[0].ShopCode;
+            string brandId = shopList[0].BrandId.ToString();
+            string accountId = userList[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
@@ -622,13 +634,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(ShopConsultantDto);
             string sql = "";
-            sql = @"SELECT ProjectId,ShopId,SeqNO
-		                    ,ConsultantName,ConsultantType
-		                    ,A.SubjectConsultantId,B.SubjectConsultantName
-		                    ,UseChk
-		                    ,InUserId,InDateTime
-		                    ,ModifyUserId,ModifyDateTime
-                    FROM AnswerShopConsultant A INNER JOIN SubjectConsultant B ON A.SubjectConsultantId = B.SubjectConsultantId  
+            sql = @"SELECT A.*,B.SubjectLinkName
+                    FROM AnswerShopConsultant A INNER JOIN SubjectLink B ON A.SubjectLinkId = B.SubjectLinkId  
 		            WHERE ProjectId = @ProjectId
 		            AND ShopId = @ShopId";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
@@ -644,7 +651,7 @@ namespace com.yrtech.SurveyAPI.Service
 
             webService.SaveSaleContantInfo(projectCode, shopCode, consultant.SeqNO.ToString(), consultant.ConsultantName, consultant.ConsultantType);
 
-            AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId&&x.SeqNO == consultant.SeqNO)).FirstOrDefault();
+            AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId && x.SeqNO == consultant.SeqNO)).FirstOrDefault();
             if (findOne == null)
             {
                 consultant.InDateTime = DateTime.Now;

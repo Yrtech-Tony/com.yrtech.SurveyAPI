@@ -85,7 +85,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<AccountDto> accountlist = accountService.Login(accountId, password);
                 if (accountlist != null && accountlist.Count != 0)
                 {
-                    accountlist = accountService.GetLoginInfo(accountId, password);
+                    accountlist = accountService.GetLoginInfo(accountId);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(accountlist) };
                 }
                 else

@@ -29,11 +29,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="shopId"></param>
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="subjectLinkId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNeedAnswerSubjectInfo")]
-        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLink)
+        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLink);
+                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLinkId);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -75,11 +75,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
         /// <param name="orderNO"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="SubjectLinkId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNextAnswerSubjectInfo")]
-        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLink)
+        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLinkId)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopNextAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLink);
+                List<Subject> subjectList = answerService.GetShopNextAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLinkId);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -121,11 +121,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="subjectTypeId"></param>
         /// <param name="subjectTypeExamId"></param>
         /// <param name="orderNO"></param>
-        /// <param name="subjectConsultantId"></param>
+        /// <param name="subjectLinkId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopPreAnswerSubjectInfo")]
-        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLink)
+        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string orderNO, string subjectLinkId)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopPreAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLink);
+                List<Subject> subjectList = answerService.GetShopPreAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLinkId);
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
