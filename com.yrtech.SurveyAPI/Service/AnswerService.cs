@@ -161,9 +161,25 @@ namespace com.yrtech.SurveyAPI.Service
         {
 
             if (lst == null || lst.Count == 0) return;
-            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
-            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            List<Project> projectList = masterService.GetProject("", "", lst[0].ProjectId.ToString());
+            if (projectList == null || projectList.Count == 0)
+            {
+                throw new Exception("没有找到对应的期号");
+            }
+            List<Shop> shopList = masterService.GetShop("", "", lst[0].ShopId.ToString());
+            if (shopList == null || shopList.Count == 0)
+            {
+                throw new Exception("没有找到对应的经销商");
+            }
+            List<UserInfo> userList = accountService.GetUserInfo(userId);
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+
+            string shopCode = shopList[0].ShopCode;
+            string projectCode = projectList[0].ProjectCode;
+            string accountId = userList[0].AccountId;
             foreach (AnswerShopConsultant item in lst)
             {
                 // 不需要了，在保存分数的时候一块保存了
@@ -224,7 +240,7 @@ namespace com.yrtech.SurveyAPI.Service
 				    AND (B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND B.SubjectLinkId = @SubjectLinkId";
+                sql += " AND B.SubjectLinkId = @SubjectLinkId";
                 var lst = para.ToList();
                 lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
                 para = lst.ToArray();
@@ -242,14 +258,15 @@ namespace com.yrtech.SurveyAPI.Service
 		            WHERE ProjectId = @ProjectId 
 		            AND OrderNO > @LastAnswerSubjectOrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
-		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1)";
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectLinkId = @SubjectLinkId";
-                var lst = para.ToList();
+                sql += " AND A.SubjectLinkId = @SubjectLinkId";
+                var lst = para1.ToList();
                 lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
-                para = lst.ToArray();
+                para1 = lst.ToArray();
             }
+            sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().First();
 
             #endregion
@@ -279,23 +296,22 @@ namespace com.yrtech.SurveyAPI.Service
             };
             Type t = typeof(int);
             #region 查询需要打分体系Id
-            string sql = "";
-            int answerSubjectId = 0;
-            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
+            string sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
 		            FROM [Subject] A 
 		            WHERE ProjectId = @ProjectId 
 		            AND OrderNO > @OrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
-		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1)";
+            int answerSubjectId = 0;
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectLinkId = @SubjectLinkId";
+                sql += " AND A.SubjectLinkId = @SubjectLinkId";
                 var lst = para.ToList();
                 lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
                 para = lst.ToArray();
             }
+            sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
-
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
@@ -326,22 +342,22 @@ namespace com.yrtech.SurveyAPI.Service
             };
             Type t = typeof(int);
             #region 查询需要打分体系Id
-            string sql = "";
-            int answerSubjectId = 0;
-            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT ISNULL(Max(OrderNO),0)	
+            string sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT ISNULL(Max(OrderNO),0)	
 		            FROM [Subject] A 
 		            WHERE ProjectId = @ProjectId 
 		            AND OrderNO < @OrderNO	
 		            AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = A.SubjectId AND SubjectTypeId = @SubjectTypeId)
-		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1))";
+		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1)";
+            int answerSubjectId = 0;
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND A.SubjectLinkId = @SubjectLinkId";
+                sql += " AND A.SubjectLinkId = @SubjectLinkId";
                 var lst = para.ToList();
                 lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
                 para = lst.ToArray();
             }
-            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+            sql += ")";
+            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
 
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
@@ -377,8 +393,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.* 
 		            FROM Answer A 
-		            WHERE ProjectId = @ProjectId
-		            AND ShopId = @ShopId
+		            WHERE ProjectId = @ProjectId AND ShopId = @ShopId
 		            ";
             if (!string.IsNullOrEmpty(subjectId))
             {
@@ -636,16 +651,32 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.SubjectLinkName
                     FROM AnswerShopConsultant A INNER JOIN SubjectLink B ON A.SubjectLinkId = B.SubjectLinkId  
-		            WHERE ProjectId = @ProjectId
-		            AND ShopId = @ShopId";
+		            WHERE A.ProjectId = @ProjectId
+		            AND A.ShopId = @ShopId";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
         }
         public void SaveShopConsultant(AnswerShopConsultant consultant)
         {
-            string shopCode = masterService.GetShop("", "", consultant.ShopId.ToString())[0].ShopCode;
-            string brandId = masterService.GetShop("", "", consultant.ShopId.ToString())[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", consultant.ProjectId.ToString())[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(consultant.ModifyUserId.ToString())[0].AccountId;
+            // 保存顾问信息
+            List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString());
+            if (projectList == null || projectList.Count == 0)
+            {
+                throw new Exception("没有找到对应的期号");
+            }
+            List<Shop> shopList =  masterService.GetShop("", "", consultant.ShopId.ToString());
+            if (shopList == null || shopList.Count == 0)
+            {
+                throw new Exception("没有找到对应的经销商");
+            }
+            List<UserInfo> userList = accountService.GetUserInfo(consultant.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            string shopCode =shopList[0].ShopCode;
+            string brandId = shopList[0].BrandId.ToString();
+            string projectCode = projectList[0].ProjectCode;
+            string accountId = userList[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 

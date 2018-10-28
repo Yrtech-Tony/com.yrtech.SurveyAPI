@@ -22,58 +22,40 @@ namespace com.yrtech.SurveyAPI.Common
         public static string Encode(object obj)
         {
             string jsonString = string.Empty;
-
-            try
+            if (obj == null)
             {
-                jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, defaultJsonSetting);
+                return jsonString;
             }
-            catch (Exception)
-            {
-            }
+            jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, defaultJsonSetting);
             return jsonString;
         }
 
         public static string EncodeDto<T>(IEnumerable t)
         {
             string jsonString = string.Empty;
-
-            try
+            if (t == null)
             {
-                jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
+                return jsonString;
             }
-            catch (Exception)
-            {
-                return "";
-            }
+            jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
             return jsonString;
         }
         public static string EncodeDto<T>(T t)
         {
             string jsonString = string.Empty;
-
-            try
+            if (t == null)
             {
-                JsonConvert.DefaultSettings = () => defaultJsonSetting;
-                jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
+                return jsonString;
             }
-            catch (Exception)
-            {
-            }
+            jsonString = JsonConvert.SerializeObject(t, Formatting.Indented, defaultJsonSetting);
             return jsonString;
         }
         public static string Serializer(Type type, object obj)
         {
             MemoryStream Stream = new MemoryStream();
             XmlSerializer xml = new XmlSerializer(type);
-            try
-            {
-                //序列化对象
-                xml.Serialize(Stream, obj);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw ex;
-            }
+            //序列化对象
+            xml.Serialize(Stream, obj);
             Stream.Position = 0;
             StreamReader sr = new StreamReader(Stream, Encoding.Unicode);
             string str = sr.ReadToEnd();

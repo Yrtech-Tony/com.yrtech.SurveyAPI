@@ -8,7 +8,7 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class ShopConsultantDto
     {
-        public string ConsultantId { get; set; }
+        public int ConsultantId { get; set; }
         public int ShopId { get; set; }
         public int ProjectId { get; set; }
         public int SeqNO { get; set; }
@@ -21,8 +21,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public DateTime InDateTime { get; set; }
         public int ModifyUserId { get; set; }
         public DateTime ModifyDateTime { get; set; }
-        public int UploadUserId { get; set; }
-        public DateTime UploadDateTime { get; set; }
+        public int? UploadUserId { get; set; }
+        public DateTime? UploadDateTime { get; set; }
         public string ModifyType { get; set; }//"U"：修改；"D":删除; 
     }
 }

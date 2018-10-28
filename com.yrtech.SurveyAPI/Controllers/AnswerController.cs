@@ -44,16 +44,23 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
                 List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLinkId);
+                if (subjectList == null || subjectList.Count == 0)
+                {
+                    throw new Exception("已经是最后一题");
+                }
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
                     subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
                     subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
                     subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString());
-
                 }
                 // 获取打分信息
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                List<AnswerDto> answerList = new List<AnswerDto>();
+                if (subjectList != null && subjectList.Count > 0)
+                {
+                    answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                }
                 resultList.Add(subjectList);
                 resultList.Add(subjectInspectionStandardList);
                 resultList.Add(subjectFileList);
@@ -90,6 +97,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
                 List<Subject> subjectList = answerService.GetShopNextAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLinkId);
+                if (subjectList == null || subjectList.Count == 0)
+                {
+                    throw new Exception("已经是最后一题");
+                }
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -99,7 +110,11 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 }
                 // 获取打分信息
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                List<AnswerDto> answerList = new List<AnswerDto>();
+                if (subjectList != null && subjectList.Count > 0)
+                {
+                    answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                }
                 resultList.Add(subjectList);
                 resultList.Add(subjectInspectionStandardList);
                 resultList.Add(subjectFileList);
@@ -136,6 +151,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
                 List<Subject> subjectList = answerService.GetShopPreAnswerSubject(projectId, subjectTypeId, subjectTypeExamId, orderNO, subjectLinkId);
+                if (subjectList == null || subjectList.Count == 0)
+                {
+                    throw new Exception("已经是第一题");
+                }
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -145,7 +164,11 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 }
                 // 获取打分信息
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                List<AnswerDto> answerList = new List<AnswerDto>();
+                if (subjectList != null && subjectList.Count > 0)
+                {
+                    answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                }
                 resultList.Add(subjectList);
                 resultList.Add(subjectInspectionStandardList);
                 resultList.Add(subjectFileList);

@@ -255,7 +255,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime
                    FROM SubjectFile sf,Subject s 
                    WHERE sf.SubjectId=s.SubjectId AND ProjectId = @ProjectId";
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND S.SubjectId = @SubjectId";
             }
@@ -275,9 +275,9 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT sis.InspectionStandardId,sis.InspectionStandardName,sis.SubjectId,sis.SeqNO,sis.InUserId,sis.InDateTime,sis.ModifyUserId,sis.ModifyDateTime" +
                   " FROM SubjectInspectionStandard sis,Subject s WHERE sis.SubjectId=s.SubjectId and ProjectId = @ProjectId";
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += "AND S.SubjectId = @SubjectId";
+                sql += " AND S.SubjectId = @SubjectId";
             }
             List<SubjectInspectionStandard> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
             return list;
@@ -295,7 +295,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT slr.LossResultId,slr.SubjectId,slr.SeqNO,slr.LossResultName,slr.InUserId,slr.InDateTime,slr.ModifyUserId,slr.ModifyDateTime" +
                   " FROM SubjectLossResult slr,Subject s WHERE slr.SubjectId=s.SubjectId and s.ProjectId = @ProjectId";
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND S.SubjectId = @SubjectId";
             }
@@ -315,7 +315,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
                   " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId and ProjectId = @ProjectId";
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND S.SubjectId = @SubjectId";
             }
@@ -326,13 +326,8 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectLink);
-            string sql = @"SELECT [SubjectLinkId]
-                      ,[SubjectLinkCode]
-                      ,[SubjectLinkName]
-                      ,[InUserId]
-                      ,[InDateTime]
-                        FROM [SubjectLink] WHERE ProjectId = @ProjectId";
-            return db.Database.SqlQuery(t, sql, null).Cast<SubjectLink>().ToList();
+            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
         }
     }
 }
