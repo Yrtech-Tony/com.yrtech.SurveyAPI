@@ -245,7 +245,7 @@ namespace com.yrtech.SurveyAPI.Service
                 lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
                 para = lst.ToArray();
             }
-            lastAnswerSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+            lastAnswerSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
             #endregion
             #region 查询需要打分体系Id
             SqlParameter[] para1 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
@@ -267,7 +267,7 @@ namespace com.yrtech.SurveyAPI.Service
                 para1 = lst.ToArray();
             }
             sql += ")";
-            answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().First();
+            answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().FirstOrDefault();
 
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
@@ -311,7 +311,7 @@ namespace com.yrtech.SurveyAPI.Service
                 para = lst.ToArray();
             }
             sql += ")";
-            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().First();
+            answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
