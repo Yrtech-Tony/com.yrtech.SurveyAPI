@@ -223,7 +223,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 获取当前经销商最后一次打分的序号
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@ShopId", shopId),                                                       
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId)};
             Type t = typeof(int);

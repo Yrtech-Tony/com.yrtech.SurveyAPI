@@ -8,8 +8,6 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class InspectionStandardResultDto
     {
-        public int SubjectId { get; set; }
-        public int InUserId { get; set; }
         public string InspectionStandardId { get; set; }
         public string SeqNO { get; set; }
         public string InspectionStandardName { get; set;  }
