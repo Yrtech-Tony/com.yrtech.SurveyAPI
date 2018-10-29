@@ -69,7 +69,7 @@ namespace com.yrtech.SurveyAPI.Service
                         {
                             CommonHelper.log(shopConsult.ConsultantScore.ToString());
                             // System.Threading.Thread.Sleep(500);
-                            webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
+                            webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore.HasValue?shopConsult.ConsultantScore.ToString():"", shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
                         }
                     }
                 }
@@ -511,7 +511,7 @@ namespace com.yrtech.SurveyAPI.Service
 
                     if (!string.IsNullOrEmpty(inspection.ModifyType))
                     { webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, ""); }
-                    inspection.ModifyType = "";
+                    inspection.ModifyType = null;
                 }
             }
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
@@ -521,7 +521,7 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     if (!string.IsNullOrEmpty(file.ModifyType))
                         webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
-                    file.ModifyType = "";
+                    file.ModifyType = null;
                 }
             }
             answer.FileResult = CommonHelper.Encode(fileList);
@@ -537,7 +537,7 @@ namespace com.yrtech.SurveyAPI.Service
                         type = 'D';
                     }
                     webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
-                    loss.ModifyType = "";
+                    loss.ModifyType = null;
                 }
             }
             answer.LossResult = CommonHelper.Encode(lossResultList);
@@ -552,8 +552,10 @@ namespace com.yrtech.SurveyAPI.Service
                     {
                         type = 'D';
                     }
-                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO, shopConsult.ConsultantName, shopConsult.ConsultantScore, shopConsult.ConsultantLossDesc, accountId, type, shopConsult.ConsultantType);
-                    shopConsult.ModifyType = "";
+                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName, 
+                        shopConsult.ConsultantScore.HasValue?shopConsult.ConsultantScore.ToString():"", shopConsult.ConsultantLossDesc,
+                        accountId, type, shopConsult.ConsultantType);
+                    shopConsult.ModifyType = null;
                 }
             }
             // answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
@@ -656,7 +658,8 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT A.*,B.SubjectLinkName
                     FROM AnswerShopConsultant A INNER JOIN SubjectLink B ON A.SubjectLinkId = B.SubjectLinkId  
 		            WHERE A.ProjectId = @ProjectId
-		            AND A.ShopId = @ShopId";
+		            AND A.ShopId = @ShopId 
+                    ORDER BY UseChk DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
         }
         public void SaveShopConsultant(AnswerShopConsultant consultant)
