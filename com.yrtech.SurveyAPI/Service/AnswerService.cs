@@ -223,7 +223,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 获取当前经销商最后一次打分的序号
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),                                                       
+                                                       new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId)};
             Type t = typeof(int);
@@ -489,13 +489,17 @@ namespace com.yrtech.SurveyAPI.Service
             string brandId = shopList[0].BrandId.ToString();
             string accountId = userList[0].AccountId;
             string subjectCode = subjectList[0].SubjectCode;
-
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            List<InspectionStandardResultDto> inspectionList = new List<InspectionStandardResultDto>();
+            List<FileResultDto> fileList = new List<FileResultDto>();
+            List<LossResultDto> lossResultList = new List<LossResultDto>();
+            List<ShopConsultantResultDto> shopConsultantList = new List<ShopConsultantResultDto>();
 
-            List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
-            List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
-            List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-            List<ShopConsultantResultDto> shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+            inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
+            fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+            lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+            shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+
 
             webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
                         answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
@@ -552,7 +556,7 @@ namespace com.yrtech.SurveyAPI.Service
                     shopConsult.ModifyType = "";
                 }
             }
-            answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
+            // answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
             Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -663,7 +667,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的期号");
             }
-            List<Shop> shopList =  masterService.GetShop("", "", consultant.ShopId.ToString());
+            List<Shop> shopList = masterService.GetShop("", "", consultant.ShopId.ToString());
             if (shopList == null || shopList.Count == 0)
             {
                 throw new Exception("没有找到对应的经销商");
@@ -673,7 +677,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的用户");
             }
-            string shopCode =shopList[0].ShopCode;
+            string shopCode = shopList[0].ShopCode;
             string brandId = shopList[0].BrandId.ToString();
             string projectCode = projectList[0].ProjectCode;
             string accountId = userList[0].AccountId;
