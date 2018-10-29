@@ -66,6 +66,10 @@ namespace com.yrtech.SurveyAPI.Common
         }
         public static T DecodeString<T>(string json)
         {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return default(T);
+            }
             try
             {
                 return JsonConvert.DeserializeObject<T>(json);
