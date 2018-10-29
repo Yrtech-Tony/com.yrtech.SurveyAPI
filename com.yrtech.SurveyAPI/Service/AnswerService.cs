@@ -566,9 +566,9 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.InspectionStandardResult = answer.InspectionStandardResult;
                 findOne.LossResult = answer.LossResult;
                 findOne.ShopConsultantResult = answer.ShopConsultantResult;
-                findOne.ModifyDateTime = answer.ModifyDateTime;
+                findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = answer.ModifyUserId;
-                findOne.UploadDate = answer.UploadDate;
+                findOne.UploadDate = DateTime.Now;
                 findOne.UploadUserId = answer.UploadUserId;
             }
             db.SaveChanges();
