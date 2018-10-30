@@ -54,8 +54,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
                     subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
                     subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(),subjectTypeId);
-                    Thread.Sleep(1000);
-                    CommonHelper.log(subjectTypeScoreRegionList[0].LowestScore + "  " + subjectTypeScoreRegionList[0].FullScore);
+                    //Thread.Sleep(1000);
+                    //CommonHelper.log(subjectTypeScoreRegionList[0].LowestScore + "  " + subjectTypeScoreRegionList[0].FullScore);
                 }
                 // 获取打分信息
                 List<AnswerDto> answerList = new List<AnswerDto>();
@@ -159,14 +159,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 if (subjectList != null && subjectList.Count > 0)
                 {
-                    CommonHelper.log("subjectTypeID" + subjectTypeId);
-                    Thread.Sleep(1000);
+                    //CommonHelper.log("subjectTypeID" + subjectTypeId);
+                    //Thread.Sleep(1000);
                       subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
                     subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
                     subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
                     subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), subjectTypeId);
-                    Thread.Sleep(1000);
-                    CommonHelper.log(subjectTypeScoreRegionList[0].LowestScore + "  " + subjectTypeScoreRegionList[0].FullScore);
+                    //Thread.Sleep(1000);
+                    //CommonHelper.log(subjectTypeScoreRegionList[0].LowestScore + "  " + subjectTypeScoreRegionList[0].FullScore);
                 }
                 // 获取打分信息
                 List<AnswerDto> answerList = new List<AnswerDto>();

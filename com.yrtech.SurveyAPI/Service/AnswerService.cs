@@ -272,8 +272,16 @@ namespace com.yrtech.SurveyAPI.Service
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId) };
-            sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @AnswerSubjectId";
+                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId)
+                                                        ,new SqlParameter("@OrderNO", lastAnswerSubjectOrderNO)};
+            if (answerSubjectId == 0)
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = @OrderNO";
+            }
+            else
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @AnswerSubjectId";
+            }
             Type t_subject = typeof(Subject);
             return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
             #endregion

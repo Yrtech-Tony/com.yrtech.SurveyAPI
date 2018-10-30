@@ -310,7 +310,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId,string subjectTypeId)
         {
-            CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
+            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                         , new SqlParameter("@SubjectId", subjectId)
                                                         , new SqlParameter("@SubjectTypeId", subjectTypeId) };
