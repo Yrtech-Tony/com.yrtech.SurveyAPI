@@ -44,7 +44,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 失分描述 SubjectLossResult
                 resultList.Add(masterService.GetSubjectLossResult(projectId, ""));
                 // 体系类型打分范围信息 SubjectTypeScoreRegion
-                resultList.Add(masterService.GetSubjectTypeScoreRegion(projectId, ""));
+                resultList.Add(masterService.GetSubjectTypeScoreRegion(projectId, "",""));
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
                 #endregion
