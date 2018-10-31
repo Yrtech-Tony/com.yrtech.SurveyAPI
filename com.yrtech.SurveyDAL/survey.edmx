@@ -49,7 +49,7 @@
           <Key>
             <PropertyRef Name="AnswerShopConsultantSubjectId" />
           </Key>
-          <Property Name="AnswerShopConsultantSubjectId" Type="int" Nullable="false" />
+          <Property Name="AnswerShopConsultantSubjectId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ConsultantId" Type="int" />
           <Property Name="SubjectLinkId" Type="int" />
           <Property Name="InUserId" Type="int" />
@@ -299,6 +299,9 @@
           <Property Name="UserType" Type="nvarchar" MaxLength="50" />
           <Property Name="RoleType" Type="nvarchar" MaxLength="50" />
           <Property Name="UseChk" Type="bit" />
+          <Property Name="Email" Type="nvarchar" MaxLength="500" />
+          <Property Name="TelNO" Type="nvarchar" MaxLength="50" />
+          <Property Name="HeadPicUrl" Type="nvarchar" MaxLength="500" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
@@ -579,6 +582,9 @@
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+          <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="TelNO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HeadPicUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="AnswerShopInfo">
           <Key>
@@ -898,6 +904,9 @@
           <EntitySetMapping Name="UserInfo">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.UserInfo">
               <MappingFragment StoreEntitySet="UserInfo">
+                <ScalarProperty Name="HeadPicUrl" ColumnName="HeadPicUrl" />
+                <ScalarProperty Name="TelNO" ColumnName="TelNO" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
                 <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />

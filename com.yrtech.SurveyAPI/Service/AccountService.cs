@@ -54,19 +54,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId) };
             Type t = typeof(UserInfo);
-            string sql = @"SELECT [Id]
-                          ,[TenantId]
-                          ,[AccountId]
-                          ,[AccountName]
-                          ,[Password]
-                          ,[UserType]
-                          ,[RoleType]
-                          ,[UseChk]
-                          ,[InUserId]
-                          ,[InDateTime]
-                          ,[ModifyUserId]
-                          ,[ModifyDateTime]
-                      FROM [UserInfo]
+            string sql = @"SELECT * FROM [UserInfo]
                     WHERE Id = @UserId";
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }

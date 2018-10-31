@@ -283,6 +283,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                shopConsultant.ShopConsultantSubjectLinkList = CommonHelper.DecodeString<List<ShopConsultantSubjectLinkDto>>(shopConsultant.ShopConsultantSubjectLinkListJson);
                 answerService.SaveShopConsultant(shopConsultant);
                 return new APIResult() { Status = true, Body = "" };
             }
