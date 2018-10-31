@@ -26,5 +26,8 @@ namespace Purchase.DAL
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
+        public string Email { get; set; }
+        public string TelNO { get; set; }
+        public string HeadPicUrl { get; set; }
     }
 }

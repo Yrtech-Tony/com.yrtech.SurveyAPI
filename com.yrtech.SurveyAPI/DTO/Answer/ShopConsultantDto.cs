@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.DTO
         //public int SubjectLinkId { get; set; }
         //public string SubjectLinkName { get; set; }
         public List<ShopConsultantSubjectLinkDto> ShopConsultantSubjectLinkList { get; set; }
+        public string ShopConsultantSubjectLinkListJson { get; set; }
         public bool UseChk { get; set; }
         public int InUserId { get; set; }
         public DateTime InDateTime { get; set; }
