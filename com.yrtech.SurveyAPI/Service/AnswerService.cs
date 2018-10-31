@@ -69,7 +69,7 @@ namespace com.yrtech.SurveyAPI.Service
                         {
                             CommonHelper.log(shopConsult.ConsultantScore.ToString());
                             // System.Threading.Thread.Sleep(500);
-                            webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore.HasValue?shopConsult.ConsultantScore.ToString():"", shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
+                            webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
                         }
                     }
                 }
@@ -223,7 +223,7 @@ namespace com.yrtech.SurveyAPI.Service
             #region 获取当前经销商最后一次打分的序号
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),                                                       
+                                                       new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
                                                        new SqlParameter("@SubjectTypeId", subjectTypeId)};
             Type t = typeof(int);
@@ -268,12 +268,19 @@ namespace com.yrtech.SurveyAPI.Service
             }
             sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().FirstOrDefault();
-
             #endregion
             #region 通过最后一次打分的Id查询需要打分的体系
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId) };
-            sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @AnswerSubjectId";
+                                                       new SqlParameter("@AnswerSubjectId", answerSubjectId),
+                                                        new SqlParameter("@OrderNO", lastAnswerSubjectOrderNO)  };
+            if (answerSubjectId == 0) // 如果全部打完分查询最后一个题
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND OrderNO =@OrderNO";
+            }
+            else
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @AnswerSubjectId";
+            }
             Type t_subject = typeof(Subject);
             return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
             #endregion
@@ -552,8 +559,8 @@ namespace com.yrtech.SurveyAPI.Service
                     {
                         type = 'D';
                     }
-                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName, 
-                        shopConsult.ConsultantScore.HasValue?shopConsult.ConsultantScore.ToString():"", shopConsult.ConsultantLossDesc,
+                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName,
+                        shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc,
                         accountId, type, shopConsult.ConsultantType);
                     shopConsult.ModifyType = null;
                 }

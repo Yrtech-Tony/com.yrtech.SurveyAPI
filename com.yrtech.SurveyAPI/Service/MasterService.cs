@@ -241,7 +241,7 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
         }
-
+        
         /// <summary>
         /// 获取标准照片信息
         /// </summary>
