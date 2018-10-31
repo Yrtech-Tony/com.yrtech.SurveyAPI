@@ -674,7 +674,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(ShopConsultantDto);
             string sql = "";
-            sql = @"SELECT A.*,B.SubjectLinkName
+            sql = @"SELECT A.*
                     FROM AnswerShopConsultant A 
 		            WHERE A.ProjectId = @ProjectId
 		            AND A.ShopId = @ShopId 
