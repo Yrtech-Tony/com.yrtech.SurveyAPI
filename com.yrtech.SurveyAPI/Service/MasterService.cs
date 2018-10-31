@@ -308,9 +308,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId)
+        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId,string subjectTypeId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
+            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@SubjectId", subjectId)
+                                                        , new SqlParameter("@SubjectTypeId", subjectTypeId) };
             Type t = typeof(SubjectTypeScoreRegion);
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
@@ -318,6 +321,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND S.SubjectId = @SubjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectTypeId))
+            {
+                sql += " AND str.SubjectTypeId = @SubjectTypeId";
             }
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;

@@ -565,7 +565,10 @@ namespace com.yrtech.SurveyAPI.Service
                     shopConsult.ModifyType = null;
                 }
             }
-            // answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
+            answer.LossResult = CommonHelper.Encode(lossResultList);
+            answer.FileResult = CommonHelper.Encode(fileList);
+            answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
+            answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
             Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
