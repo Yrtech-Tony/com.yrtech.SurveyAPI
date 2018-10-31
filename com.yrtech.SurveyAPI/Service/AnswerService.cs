@@ -752,7 +752,7 @@ namespace com.yrtech.SurveyAPI.Service
         public void SaveShopConsultantSubjectLink(AnswerShopConsultantSubjectLink subjectLink)
         {
             AnswerShopConsultantSubjectLink findOne = db.AnswerShopConsultantSubjectLink.Where(x => (x.ConsultantId==subjectLink.ConsultantId&&x.SubjectLinkId==subjectLink.SubjectLinkId)).FirstOrDefault();
-            if (findOne == null)// 只会执行操作，不能修改
+            if (findOne == null)// 只会执行添加操作，不能修改
             {
                 subjectLink.InDateTime = DateTime.Now;
                 db.AnswerShopConsultantSubjectLink.Add(subjectLink);
