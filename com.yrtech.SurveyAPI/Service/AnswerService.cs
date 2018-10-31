@@ -749,10 +749,11 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = consultant.ModifyUserId;
             }
             db.SaveChanges();
+            int consultantId = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId && x.SeqNO == consultant.SeqNO)).FirstOrDefault().ConsultantId;
             foreach (ShopConsultantSubjectLinkDto subjectLink in consultantDto.ShopConsultantSubjectLinkList)
             {
                 AnswerShopConsultantSubjectLink consultantSubjectLink = new AnswerShopConsultantSubjectLink();
-                consultantSubjectLink.ConsultantId = subjectLink.ConsultantId;
+                consultantSubjectLink.ConsultantId = consultantId;
                 consultantSubjectLink.InUserId = subjectLink.InUserId;
                 consultantSubjectLink.SubjectLinkId = subjectLink.SubjectLinkId;
                 SaveShopConsultantSubjectLink(consultantSubjectLink);
