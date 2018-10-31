@@ -261,10 +261,13 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND (A.SubjectTypeExamId = @SubjectTypeExamId OR A.SubjectTypeExamId = 1)";
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += " AND A.SubjectLinkId = @SubjectLinkId";
-                var lst = para1.ToList();
-                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
-                para1 = lst.ToArray();
+                sql += "AND A.SubjectLinkId IN (";
+                string[] subjectLinkIdList = subjectLinkId.Split(';');
+                foreach (string subjectLink in subjectLinkIdList)
+                {
+                    sql += subjectLink + ",";
+                }
+                sql += " )";
             }
             sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().FirstOrDefault();
@@ -312,10 +315,13 @@ namespace com.yrtech.SurveyAPI.Service
             int answerSubjectId = 0;
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += " AND A.SubjectLinkId = @SubjectLinkId";
-                var lst = para.ToList();
-                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
-                para = lst.ToArray();
+                sql += "AND A.SubjectLinkId IN (";
+                string[] subjectLinkIdList = subjectLinkId.Split(';');
+                foreach (string subjectLink in subjectLinkIdList)
+                {
+                    sql += subjectLink + ",";
+                }
+                sql += " )";
             }
             sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
@@ -358,10 +364,13 @@ namespace com.yrtech.SurveyAPI.Service
             int answerSubjectId = 0;
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += " AND A.SubjectLinkId = @SubjectLinkId";
-                var lst = para.ToList();
-                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
-                para = lst.ToArray();
+                sql += "AND A.SubjectLinkId IN (";
+                string[] subjectLinkIdList = subjectLinkId.Split(';');
+                foreach (string subjectLink in subjectLinkIdList)
+                {
+                    sql += subjectLink + ",";
+                }
+                sql += " )";
             }
             sql += ")";
             answerSubjectId = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
