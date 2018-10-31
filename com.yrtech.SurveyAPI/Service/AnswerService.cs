@@ -675,7 +675,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ShopConsultantDto);
             string sql = "";
             sql = @"SELECT A.*,B.SubjectLinkName
-                    FROM AnswerShopConsultant A INNER JOIN SubjectLink B ON A.SubjectLinkId = B.SubjectLinkId  
+                    FROM AnswerShopConsultant A 
 		            WHERE A.ProjectId = @ProjectId
 		            AND A.ShopId = @ShopId 
                     ORDER BY UseChk DESC";
