@@ -45,6 +45,16 @@
           <Property Name="UploadDateTime" Type="datetime" />
           <Property Name="UploadUserId" Type="int" />
         </EntityType>
+        <EntityType Name="AnswerShopConsultantSubjectLink">
+          <Key>
+            <PropertyRef Name="AnswerShopConsultantSubjectId" />
+          </Key>
+          <Property Name="AnswerShopConsultantSubjectId" Type="int" Nullable="false" />
+          <Property Name="ConsultantId" Type="int" />
+          <Property Name="SubjectLinkId" Type="int" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+        </EntityType>
         <EntityType Name="AnswerShopInfo">
           <Key>
             <PropertyRef Name="Id" />
@@ -309,6 +319,7 @@
         <EntityContainer Name="comyrtechsurveyModelStoreContainer">
           <EntitySet Name="Answer" EntityType="Self.Answer" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnswerShopConsultant" EntityType="Self.AnswerShopConsultant" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AnswerShopConsultantSubjectLink" EntityType="Self.AnswerShopConsultantSubjectLink" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnswerShopInfo" EntityType="Self.AnswerShopInfo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DeleteFileLog" EntityType="Self.DeleteFileLog" Schema="dbo" store:Type="Tables" />
@@ -538,6 +549,7 @@
           <EntitySet Name="Subject" EntityType="com.yrtech.surveyModel.Subject" />
           <EntitySet Name="SubjectLink" EntityType="com.yrtech.surveyModel.SubjectLink" />
           <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
+          <EntitySet Name="AnswerShopConsultantSubjectLink" EntityType="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink" />
         </EntityContainer>
         <EntityType Name="UserInfoBrand">
           <Key>
@@ -656,6 +668,16 @@
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
           <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
           <Property Name="UploadUserId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="AnswerShopConsultantSubjectLink">
+          <Key>
+            <PropertyRef Name="AnswerShopConsultantSubjectId" />
+          </Key>
+          <Property Name="AnswerShopConsultantSubjectId" Type="Int32" Nullable="false" />
+          <Property Name="ConsultantId" Type="Int32" />
+          <Property Name="SubjectLinkId" Type="Int32" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -982,6 +1004,17 @@
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="ShopId" ColumnName="ShopId" />
                 <ScalarProperty Name="ConsultantId" ColumnName="ConsultantId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AnswerShopConsultantSubjectLink">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink">
+              <MappingFragment StoreEntitySet="AnswerShopConsultantSubjectLink">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
+                <ScalarProperty Name="ConsultantId" ColumnName="ConsultantId" />
+                <ScalarProperty Name="AnswerShopConsultantSubjectId" ColumnName="AnswerShopConsultantSubjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

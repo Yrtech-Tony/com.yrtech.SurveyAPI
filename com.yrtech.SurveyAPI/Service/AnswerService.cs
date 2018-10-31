@@ -672,9 +672,34 @@ namespace com.yrtech.SurveyAPI.Service
                     ORDER BY UseChk DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
         }
-        public void SaveShopConsultant(AnswerShopConsultant consultant)
+        public List<ShopConsultantSubjectLinkDto> GetShopConsultantSubjectLink(string projectId,string consultantId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ConsultantId", consultantId)};
+            Type t = typeof(ShopConsultantSubjectLinkDto);
+            string sql = "";
+            sql = @"SELECT B.AnswerShopConsultantSubjectId,A.ConsultantId,A.ConsultantName
+                            ,B.SubjectLinkId,C.SubjectLinkCode,C.SubjectLinkName
+                            ,B.InUserId,B.InDateTime
+                    FROM dbo.AnswerShopConsultant A INNER JOIN dbo.AnswerShopConsultantSubjectLink B ON A.ConsultantId = B.ConsultantId
+                                                    INNER JOIN dbo.SubjectLink C ON A.ProjectId = C.ProjectId AND B.SubjectLinkId = C.SubjectLInkId";
+            sql += " WHERE 1=1 AND A.ProjectId = @ProjectId AND A.ConsultantId = @ConsultantId";
+            return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantSubjectLinkDto>().ToList();
+
+        }
+        public void SaveShopConsultant(ShopConsultantDto consultantDto)
         {
             // 保存顾问信息
+            AnswerShopConsultant consultant = new AnswerShopConsultant();
+            consultant.ConsultantId = consultantDto.ConsultantId;
+            consultant.ConsultantName = consultantDto.ConsultantName;
+            consultant.ConsultantType = consultantDto.ConsultantType;
+            consultant.InUserId = consultantDto.InUserId;
+            consultant.ModifyUserId = consultantDto.ModifyUserId;
+            consultant.ProjectId = consultantDto.ProjectId;
+            consultant.SeqNO = consultantDto.SeqNO;
+            consultant.ShopId = consultantDto.ShopId;
+            consultant.UseChk = consultantDto.UseChk;
             List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString());
             if (projectList == null || projectList.Count == 0)
             {
@@ -713,6 +738,24 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.UseChk = consultant.UseChk;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = consultant.ModifyUserId;
+            }
+            db.SaveChanges();
+            foreach (ShopConsultantSubjectLinkDto subjectLink in consultantDto.ShopConsultantSubjectLinkList)
+            {
+                AnswerShopConsultantSubjectLink consultantSubjectLink = new AnswerShopConsultantSubjectLink();
+                consultantSubjectLink.ConsultantId = subjectLink.ConsultantId;
+                consultantSubjectLink.InUserId = subjectLink.InUserId;
+                consultantSubjectLink.SubjectLinkId = subjectLink.SubjectLinkId;
+                SaveShopConsultantSubjectLink(consultantSubjectLink);
+            }
+        }
+        public void SaveShopConsultantSubjectLink(AnswerShopConsultantSubjectLink subjectLink)
+        {
+            AnswerShopConsultantSubjectLink findOne = db.AnswerShopConsultantSubjectLink.Where(x => (x.ConsultantId==subjectLink.ConsultantId&&x.SubjectLinkId==subjectLink.SubjectLinkId)).FirstOrDefault();
+            if (findOne == null)// 只会执行操作，不能修改
+            {
+                subjectLink.InDateTime = DateTime.Now;
+                db.AnswerShopConsultantSubjectLink.Add(subjectLink);
             }
             db.SaveChanges();
         }

@@ -46,5 +46,6 @@ namespace Purchase.DAL
         public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<SubjectLink> SubjectLink { get; set; }
         public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
+        public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
     }
 }

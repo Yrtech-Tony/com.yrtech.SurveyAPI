@@ -53,7 +53,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
                     subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
                     subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
-                    subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(),subjectTypeId);
+                    subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), subjectTypeId);
                     //Thread.Sleep(1000);
                     //CommonHelper.log(subjectTypeScoreRegionList[0].LowestScore + "  " + subjectTypeScoreRegionList[0].FullScore);
                 }
@@ -161,7 +161,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     //CommonHelper.log("subjectTypeID" + subjectTypeId);
                     //Thread.Sleep(1000);
-                      subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
+                    subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
                     subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
                     subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
                     subjectTypeScoreRegionList = masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), subjectTypeId);
@@ -279,7 +279,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/SaveShopConsultant")]
-        public async Task<APIResult> SaveShopConsultant([FromBody]AnswerShopConsultant shopConsultant)
+        public async Task<APIResult> SaveShopConsultant([FromBody]ShopConsultantDto shopConsultant)
         {
             try
             {
@@ -303,6 +303,10 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<ShopConsultantDto> shopContantList = answerService.GetShopConsultant(projectId, shopId);
+                foreach (ShopConsultantDto shopContant in shopContantList)
+                {
+                    shopContant.ShopConsultantSubjectLinkList = answerService.GetShopConsultantSubjectLink(projectId, shopContant.ConsultantId.ToString());
+                }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopContantList) };
             }
             catch (Exception ex)

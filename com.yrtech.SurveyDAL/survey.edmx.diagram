@@ -26,6 +26,7 @@
         <EntityTypeShape EntityType="com.yrtech.surveyModel.Subject" Width="1.5" PointX="13.375" PointY="9.75" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectLink" Width="1.5" PointX="9.375" PointY="13.75" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopConsultant" Width="1.5" PointX="13.375" PointY="4.75" />
+        <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink" Width="1.5" PointX="11.375" PointY="14.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

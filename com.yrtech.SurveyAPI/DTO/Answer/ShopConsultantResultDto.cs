@@ -18,5 +18,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public bool UseChk { get; set; }
         public DateTime LastTime { get; set; }
         public string ModifyType { get; set; }//"U"：修改；"D":删除; 
+        
     }
 }

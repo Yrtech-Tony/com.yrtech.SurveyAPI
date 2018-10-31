@@ -60,6 +60,9 @@
     <Compile Include="AnswerShopConsultant.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="AnswerShopConsultantSubjectLink.cs">
+      <DependentUpon>survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="AnswerShopInfo.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
