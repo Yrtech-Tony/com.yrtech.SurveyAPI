@@ -33,7 +33,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNeedAnswerSubjectInfo")]
-        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId)
+        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId,string consultantId)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
-                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLinkId);
+                List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLinkId,consultantId);
                 if (subjectList == null || subjectList.Count == 0)
                 {
                     throw new Exception("已经是最后一题");
@@ -62,6 +62,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectList[0].SubjectId.ToString());
+                    if (answerList != null && answerList.Count > 0)
+                    {
+                        answerList[0].ShopConsultantResult = CommonHelper.Encode(answerService.GetShopConsultantScore(answerList[0].AnswerId.ToString(),consultantId));
+                    }
                 }
                 resultList.Add(subjectList);
                 resultList.Add(subjectInspectionStandardList);

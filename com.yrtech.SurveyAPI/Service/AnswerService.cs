@@ -218,29 +218,34 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectTypeExamId"></param>
         /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<Subject> GetShopNeedAnswerSubject(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId)
+        public List<Subject> GetShopNeedAnswerSubject(string projectId, string shopId, string subjectTypeId, string subjectTypeExamId, string subjectLinkId, string consultantId)
         {
             #region 获取当前经销商最后一次打分的序号
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
-                                                       new SqlParameter("@SubjectTypeId", subjectTypeId)};
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                        new SqlParameter("@ConsultantId", consultantId)};
             Type t = typeof(int);
             string sql = "";
             int lastAnswerSubjectOrderNO = 0;// 最后一次的序号
             int answerSubjectId = 0;
             sql = @"SELECT ISNULL(MAX(B.OrderNO),0) AS OrderNO 
                     FROM Answer A JOIN [Subject] B ON A.ProjectId = B.ProjectId
-                                                   AND A.SubjectId = B.SubjectId
-		            WHERE 1=1
-                    AND A.ProjectId = @ProjectId
-				    AND A.ShopId = @ShopId
-				    AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
-				    AND (B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
+                                                   AND A.SubjectId = B.SubjectId";
+            if (string.IsNullOrEmpty(consultantId))
+            {
+                sql += " INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId AND B.ConsultantId = @ConsultantId";
+            }
+            sql += "WHERE 1 = 1 ";
+            sql += @"AND A.ProjectId = @ProjectId
+                    AND A.ShopId = @ShopId
+                    AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
+				    AND(B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += "AND B.SubjectLinkId IN (";                
+                sql += "AND B.SubjectLinkId IN (";
                 string[] subjectLinkIdList = subjectLinkId.Split(';');
                 sql += string.Join(",", subjectLinkIdList);
                 sql += " )";
@@ -565,6 +570,7 @@ namespace com.yrtech.SurveyAPI.Service
                     shopConsult.ModifyType = null;
                 }
             }
+            CommonHelper.log(answer.LossResult);
             answer.LossResult = CommonHelper.Encode(lossResultList);
             answer.FileResult = CommonHelper.Encode(fileList);
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
@@ -588,6 +594,56 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.UploadUserId = answer.UploadUserId;
             }
             db.SaveChanges();
+            // 保存销售顾问得分
+            int answerId = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault().AnswerId;
+            foreach (ShopConsultantResultDto result in shopConsultantList)
+            {
+                AnswerShopConsultantScore score = new AnswerShopConsultantScore();
+                score.AnswerId = answerId;
+                score.ConsultantId = result.ConsultantId;
+                score.ConsultantScore = result.ConsultantScore;
+                score.ConsultantLossDesc = result.ConsultantLossDesc;
+                score.InDateTime = DateTime.Now;
+                score.InUserId = answer.ModifyUserId;
+                score.ModifyDateTime = DateTime.Now;
+                SaveConsultantScore(score);
+            }
+
+        }
+        /// <summary>
+        /// 保存销售顾问得分
+        /// </summary>
+        /// <param name="score"></param>
+        public void SaveConsultantScore(AnswerShopConsultantScore score)
+        {
+            AnswerShopConsultantScore findOne = db.AnswerShopConsultantScore.Where(x => (x.AnswerId == score.AnswerId && x.ConsultantId == score.ConsultantId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                db.AnswerShopConsultantScore.Add(score);
+            }
+            else
+            {
+                findOne.ConsultantScore = score.ConsultantScore;
+                findOne.ConsultantLossDesc = score.ConsultantLossDesc;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = score.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        public List<ShopConsultantResultDto> GetShopConsultantScore(string answerId, string consultantId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AnswerId", answerId),
+                                                       new SqlParameter("@ConsultantId", consultantId) };
+            Type t = typeof(ShopConsultantResultDto);
+            string sql = "";
+            sql = @"SELECT B.AnswerShopConsultantScoreId,B.AnswerId,B.ConsultantId,B.ConsultantScore,B.ConsultantLossDesc
+                        ,C.ConsultantName,C.ConsultantType
+                    FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
+						   INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
+                    WHERE B.AnswerId = @AnswerId AND B.ConsultantId = @ConsultantId
+		            ";
+
+            return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantResultDto>().ToList();
         }
         #endregion
         #region 经销商进店信息
@@ -672,7 +728,7 @@ namespace com.yrtech.SurveyAPI.Service
                     ORDER BY UseChk DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantDto>().ToList();
         }
-        public List<ShopConsultantSubjectLinkDto> GetShopConsultantSubjectLink(string projectId,string consultantId)
+        public List<ShopConsultantSubjectLinkDto> GetShopConsultantSubjectLink(string projectId, string consultantId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ConsultantId", consultantId)};
@@ -752,7 +808,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveShopConsultantSubjectLink(AnswerShopConsultantSubjectLink subjectLink)
         {
-            AnswerShopConsultantSubjectLink findOne = db.AnswerShopConsultantSubjectLink.Where(x => (x.ConsultantId==subjectLink.ConsultantId&&x.SubjectLinkId==subjectLink.SubjectLinkId)).FirstOrDefault();
+            AnswerShopConsultantSubjectLink findOne = db.AnswerShopConsultantSubjectLink.Where(x => (x.ConsultantId == subjectLink.ConsultantId && x.SubjectLinkId == subjectLink.SubjectLinkId)).FirstOrDefault();
             if (findOne == null)// 只会执行添加操作，不能修改
             {
                 subjectLink.InDateTime = DateTime.Now;
