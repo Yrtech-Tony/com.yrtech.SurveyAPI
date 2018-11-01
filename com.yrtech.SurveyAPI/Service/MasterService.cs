@@ -209,8 +209,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectDto> GetSubject(string projectId, string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@SubjectId", subjectId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
             Type t = typeof(SubjectDto);
             string sql = "";
             sql = @"SELECT A.SubjectId
@@ -236,7 +235,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND A.SubjectId = @SubjectId";
+                sql += " AND A.SubjectId = "+subjectId;
             }
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
