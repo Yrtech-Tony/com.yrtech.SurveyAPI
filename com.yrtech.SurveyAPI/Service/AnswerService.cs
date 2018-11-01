@@ -240,10 +240,10 @@ namespace com.yrtech.SurveyAPI.Service
 				    AND (B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
             if (!string.IsNullOrEmpty(subjectLinkId))
             {
-                sql += " AND B.SubjectLinkId = @SubjectLinkId";
-                var lst = para.ToList();
-                lst.Add(new SqlParameter("@SubjectLinkId", subjectLinkId));
-                para = lst.ToArray();
+                sql += "AND B.SubjectLinkId IN (";                
+                string[] subjectLinkIdList = subjectLinkId.Split(';');
+                sql += string.Join(",", subjectLinkIdList);
+                sql += " )";
             }
             lastAnswerSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
             #endregion
@@ -263,10 +263,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += "AND A.SubjectLinkId IN (";
                 string[] subjectLinkIdList = subjectLinkId.Split(';');
-                foreach (string subjectLink in subjectLinkIdList)
-                {
-                    sql += subjectLink + ",";
-                }
+                sql += string.Join(",", subjectLinkIdList);
                 sql += " )";
             }
             sql += ")";
@@ -317,10 +314,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += "AND A.SubjectLinkId IN (";
                 string[] subjectLinkIdList = subjectLinkId.Split(';');
-                foreach (string subjectLink in subjectLinkIdList)
-                {
-                    sql += subjectLink + ",";
-                }
+                sql += string.Join(",", subjectLinkIdList);
                 sql += " )";
             }
             sql += ")";
@@ -366,10 +360,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += "AND A.SubjectLinkId IN (";
                 string[] subjectLinkIdList = subjectLinkId.Split(';');
-                foreach (string subjectLink in subjectLinkIdList)
-                {
-                    sql += subjectLink + ",";
-                }
+                sql += string.Join(",", subjectLinkIdList);
                 sql += " )";
             }
             sql += ")";
@@ -674,8 +665,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(ShopConsultantDto);
             string sql = "";
-            sql = @"SELECT A.*,B.SubjectLinkName
-                    FROM AnswerShopConsultant A INNER JOIN SubjectLink B ON A.SubjectLinkId = B.SubjectLinkId  
+            sql = @"SELECT A.*
+                    FROM AnswerShopConsultant A  
 		            WHERE A.ProjectId = @ProjectId
 		            AND A.ShopId = @ShopId 
                     ORDER BY UseChk DESC";
