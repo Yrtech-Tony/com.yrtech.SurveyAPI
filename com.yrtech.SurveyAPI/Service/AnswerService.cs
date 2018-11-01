@@ -387,65 +387,27 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId)
         {
-            List<AnswerDto> answerResultList = new List<AnswerDto>();
-
-            // 先查询体系信息
-            List<SubjectDto> subjectList = masterService.GetSubject(projectId, subjectId);
-
             // 获取打分的信息
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),
-                                                       new SqlParameter("@SubjectId", subjectId) };
-            Type t = typeof(Answer);
+                                                       new SqlParameter("@ShopId", shopId) };
+            Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT A.* 
-		            FROM Answer A 
-		            WHERE ProjectId = @ProjectId AND ShopId = @ShopId
-		            ";
+            sql = @"SELECT S.ProjectId,S.SubjectId,S.SubjectCode,S.SubjectTypeExamId,S.SubjectTypeExamId,
+                           '' SubjectTypeExamName,S.SubjectLinkId,SL.SubjectLinkName,S.SubjectRecheckTypeId,S.OrderNO,
+                           S.Implementation,S.[CheckPoint],S.AdditionalDesc,S.[Desc],S.InspectionDesc,
+                           A.ShopId,A.AnswerId,A.InspectionStandardResult,A.FileResult,A.LossResult,A.ShopConsultantResult,
+                           A.PhotoScore,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime,A.UploadDate,A.UploadUserId 
+                    FROM Subject S 
+		            LEFT JOIN Answer A ON S.ProjectId=A.ProjectId AND S.SubjectId = A.SubjectId
+                    LEFT JOIN SubjectLink SL ON SL.SubjectLinkId = S.SubjectLinkId 
+		            WHERE S.ProjectId = @ProjectId AND A.ShopId = @ShopId";
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND SubjectId = @SubjectId";
+                sql += " AND S.SubjectId = " + subjectId;
             }
-            List<Answer> answerList = db.Database.SqlQuery(t, sql, para).Cast<Answer>().ToList();
+            List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
 
-            // 组合返回结果
-            foreach (SubjectDto subject in subjectList)
-            {
-                AnswerDto answerdto = new AnswerDto();
-                answerdto.ProjectId = Convert.ToInt32(subject.ProjectId);
-                answerdto.SubjectId = subject.SubjectId;
-                answerdto.SubjectCode = subject.SubjectCode;
-                answerdto.SubjectTypeExamId = Convert.ToInt32(subject.SubjectTypeExamId);
-                answerdto.SubjectTypeExamName = subject.SubjectTypeExamName;
-                answerdto.SubjectLinkId = subject.SubjectLinkId;
-                answerdto.SubjectLinkName = subject.SubjectLinkName;
-                answerdto.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
-                answerdto.OrderNO = subject.OrderNO;
-                answerdto.Implementation = subject.Implementation;
-                answerdto.CheckPoint = subject.CheckPoint;
-                answerdto.AdditionalDesc = subject.AdditionalDesc;
-                answerdto.Desc = subject.Desc;
-                answerdto.InspectionDesc = subject.InspectionDesc;
-                foreach (Answer answer in answerList)
-                {
-                    if (answer.SubjectId == subject.SubjectId)
-                    {
-                        answerdto.ShopId = answer.ShopId;
-                        answerdto.AnswerId = answer.AnswerId;
-                        answerdto.InDateTime = Convert.ToDateTime(answer.InDateTime);
-                        answerdto.InUserId = Convert.ToInt32(answer.InUserId);
-                        answerdto.ModifyUserId = Convert.ToInt32(answer.ModifyUserId);
-                        answerdto.ModifyDateTime = Convert.ToDateTime(answer.ModifyDateTime);
-                        answerdto.InspectionStandardResult = answer.InspectionStandardResult;
-                        answerdto.LossResult = answer.LossResult;
-                        answerdto.PhotoScore = answer.PhotoScore;
-                        answerdto.Remark = answer.Remark;
-                        answerdto.ShopConsultantResult = answer.ShopConsultantResult;
-                    }
-                    answerResultList.Add(answerdto);
-                }
-            }
-            return answerResultList;
+            return answerList;
         }
         /// <summary>
         /// 保存打分信息
