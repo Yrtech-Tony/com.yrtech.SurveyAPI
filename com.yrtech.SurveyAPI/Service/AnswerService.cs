@@ -612,6 +612,7 @@ namespace com.yrtech.SurveyAPI.Service
                 score.InDateTime = DateTime.Now;
                 score.InUserId = answer.ModifyUserId;
                 score.ModifyDateTime = DateTime.Now;
+                score.ModifyUserId = answer.ModifyUserId;
                 SaveConsultantScore(score);
             }
 
