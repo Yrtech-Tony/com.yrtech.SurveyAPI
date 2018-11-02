@@ -147,7 +147,6 @@
     <None Include="packages.config" />
     <EntityDeploy Include="survey.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>survey.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <None Include="survey.edmx.diagram">
       <DependentUpon>survey.edmx</DependentUpon>

@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="02ebee03b2fd4b529d16ab43f33751fa" Name="Diagram1">
+      <Diagram DiagramId="02ebee03b2fd4b529d16ab43f33751fa" Name="Diagram1" ZoomLevel="86">
         <EntityTypeShape EntityType="com.yrtech.surveyModel.Brand" Width="1.5" PointX="2.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.DeleteFileLog" Width="1.5" PointX="4.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.Project" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />

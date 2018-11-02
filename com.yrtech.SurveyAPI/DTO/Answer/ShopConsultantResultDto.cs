@@ -11,6 +11,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int AnswerShopConsultantScoreId { get; set; }
         public int ConsultantId { get; set; }
         public string ConsultantName { get; set;  }
+        public int SeqNO { get; set; }
         public string ConsultantLossDesc { get; set; }
         public decimal? ConsultantScore { get; set; }
         public string ConsultantType { get; set; }
