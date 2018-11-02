@@ -225,7 +225,8 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectTypeExamId", subjectTypeExamId),
-                                                       new SqlParameter("@SubjectTypeId", subjectTypeId)};
+                                                       new SqlParameter("@SubjectTypeId", subjectTypeId),
+                                                        new SqlParameter("@ConsultantId", consultantId)};
             Type t = typeof(int);
             string sql = "";
             int lastAnswerSubjectOrderNO = 0;// 最后一次的序号
@@ -233,14 +234,11 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT ISNULL(MAX(B.OrderNO),0) AS OrderNO 
                     FROM Answer A JOIN [Subject] B ON A.ProjectId = B.ProjectId
                                                    AND A.SubjectId = B.SubjectId";
-            if (!string.IsNullOrEmpty(consultantId))
+            if (string.IsNullOrEmpty(consultantId))
             {
-                sql += " INNER JOIN dbo.AnswerShopConsultantScore SC ON A.AnswerId = SC.AnswerId AND SC.ConsultantId = @ConsultantId";
-                var lst = para.ToList();
-                lst.Add(new SqlParameter("@ConsultantId", consultantId));
-                para = lst.ToArray();
+                sql += " INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId AND B.ConsultantId = @ConsultantId";
             }
-            sql += " WHERE 1 = 1 ";
+            sql += "WHERE 1 = 1 ";
             sql += @"AND A.ProjectId = @ProjectId
                     AND A.ShopId = @ShopId
                     AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
@@ -418,21 +416,20 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 answer.ShopConsultantResult = CommonHelper.Encode(GetShopConsultantScore(answer.AnswerId.ToString(), ""));
                 decimal? consultantScore = AvgConsultantScore(answer.AnswerId.ToString());
-                if (consultantScore == null && (answer.PhotoScore == null || Convert.ToInt32(answer.PhotoScore) == 9999))
+                if (consultantScore == null && (answer.PhotoScore == null|| Convert.ToInt32(answer.PhotoScore)==9999))
                 {
                     answer.Score = Convert.ToDecimal(9999);
                 }
                 else if (consultantScore == null)
                 {
-                    answer.Score = Math.Round(Convert.ToDecimal(answer.PhotoScore), 2);
+                    answer.Score = Math.Round(Convert.ToDecimal(answer.PhotoScore),2);
                 }
                 else if (answer.PhotoScore == null)
                 {
-                    answer.Score = Math.Round(Convert.ToDecimal(consultantScore), 2);
+                    answer.Score = Math.Round(Convert.ToDecimal(consultantScore),2);
                 }
-                else
-                {
-                    answer.Score = Math.Round(Convert.ToDecimal((answer.PhotoScore + consultantScore) / 2), 2);
+                else {
+                    answer.Score = Math.Round(Convert.ToDecimal((answer.PhotoScore + consultantScore) / 2),2);
                 }
                 answer.ConsultantScore = consultantScore;
             }
@@ -444,7 +441,7 @@ namespace com.yrtech.SurveyAPI.Service
             decimal? avgScore = null;
             decimal? totalScore = Convert.ToDecimal(0);
             int count = 0;
-            List<ShopConsultantResultDto> consultScoreList = GetShopConsultantScore(answerId, "");
+            List < ShopConsultantResultDto > consultScoreList= GetShopConsultantScore(answerId,"");
             {
                 foreach (ShopConsultantResultDto result in consultScoreList)
                 {
@@ -520,6 +517,7 @@ namespace com.yrtech.SurveyAPI.Service
             fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
             lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
             shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+
 
             webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
                         answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
@@ -604,21 +602,20 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
             // 保存销售顾问得分
             int answerId = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault().AnswerId;
-            if (shopConsultantList != null)
+            foreach (ShopConsultantResultDto result in shopConsultantList)
             {
-                foreach (ShopConsultantResultDto result in shopConsultantList)
-                {
-                    AnswerShopConsultantScore score = new AnswerShopConsultantScore();
-                    score.AnswerId = answerId;
-                    score.ConsultantId = result.ConsultantId;
-                    score.ConsultantScore = result.ConsultantScore;
-                    score.ConsultantLossDesc = result.ConsultantLossDesc;
-                    score.InDateTime = DateTime.Now;
-                    score.InUserId = answer.ModifyUserId;
-                    score.ModifyDateTime = DateTime.Now;
-                    SaveConsultantScore(score);
-                }
+                AnswerShopConsultantScore score = new AnswerShopConsultantScore();
+                score.AnswerId = answerId;
+                score.ConsultantId = result.ConsultantId;
+                score.ConsultantScore = result.ConsultantScore;
+                score.ConsultantLossDesc = result.ConsultantLossDesc;
+                score.InDateTime = DateTime.Now;
+                score.InUserId = answer.ModifyUserId;
+                score.ModifyDateTime = DateTime.Now;
+                score.ModifyUserId = answer.ModifyUserId;
+                SaveConsultantScore(score);
             }
+
         }
         /// <summary>
         /// 保存销售顾问得分
