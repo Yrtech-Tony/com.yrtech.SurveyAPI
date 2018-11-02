@@ -431,7 +431,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else {
                     answer.Score = Math.Round(Convert.ToDecimal((answer.PhotoScore + consultantScore) / 2),2);
                 }
-              
+                answer.ConsultantScore = consultantScore;
             }
 
             return answerList;
