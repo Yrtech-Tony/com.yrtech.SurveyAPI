@@ -13,6 +13,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int SubjectId { get; set; }
         public int ShopId { get; set; }
         public decimal? PhotoScore { get; set; }
+        public decimal? Score { get; set; }
+        public decimal? ConsultantScore { get; set; }
         public string InspectionStandardResult { get; set; }
         public string FileResult { get; set; }
         public string LossResult { get; set; }

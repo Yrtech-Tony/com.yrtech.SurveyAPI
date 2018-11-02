@@ -411,13 +411,52 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND S.SubjectId = " + subjectId;
             }
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
-            // 绑定销售顾问打分信息
+            // 绑定销售顾问打分信息,并计算当前题的得分，模拟得分
             foreach (AnswerDto answer in answerList)
             {
                 answer.ShopConsultantResult = CommonHelper.Encode(GetShopConsultantScore(answer.AnswerId.ToString(), ""));
+                decimal? consultantScore = AvgConsultantScore(answer.AnswerId.ToString());
+                if (consultantScore == null && (answer.PhotoScore == null|| Convert.ToInt32(answer.PhotoScore)==9999))
+                {
+                    answer.Score = Convert.ToDecimal(9999);
+                }
+                else if (consultantScore == null)
+                {
+                    answer.Score = Math.Round(Convert.ToDecimal(answer.PhotoScore),2);
+                }
+                else if (answer.PhotoScore == null)
+                {
+                    answer.Score = Math.Round(Convert.ToDecimal(consultantScore),2);
+                }
+                else {
+                    answer.Score = Math.Round(Convert.ToDecimal((answer.PhotoScore + consultantScore) / 2),2);
+                }
+              
             }
 
             return answerList;
+        }
+        public decimal? AvgConsultantScore(string answerId)
+        {
+            decimal? avgScore = null;
+            decimal? totalScore = Convert.ToDecimal(0);
+            int count = 0;
+            List < ShopConsultantResultDto > consultScoreList= GetShopConsultantScore(answerId,"");
+            {
+                foreach (ShopConsultantResultDto result in consultScoreList)
+                {
+                    if (result.ConsultantScore != null && Convert.ToInt32(result.ConsultantScore) != 9999)
+                    {
+                        totalScore += result.ConsultantScore;
+                        count++;
+                    }
+                }
+            }
+            if (count != 0)
+            {
+                avgScore = totalScore / count;
+            }
+            return avgScore;
         }
         /// <summary>
         /// 保存打分信息
