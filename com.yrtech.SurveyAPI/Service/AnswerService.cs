@@ -411,6 +411,11 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND S.SubjectId = " + subjectId;
             }
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
+            // 绑定销售顾问打分信息
+            foreach (AnswerDto answer in answerList)
+            {
+                answer.ShopConsultantResult = CommonHelper.Encode(GetShopConsultantScore(answer.AnswerId.ToString(), ""));
+            }
 
             return answerList;
         }
@@ -592,6 +597,12 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        /// <summary>
+        /// 获取销售顾问成绩
+        /// </summary>
+        /// <param name="answerId"></param>
+        /// <param name="consultantId"></param>
+        /// <returns></returns>
         public List<ShopConsultantResultDto> GetShopConsultantScore(string answerId, string consultantId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AnswerId", answerId),
@@ -602,9 +613,11 @@ namespace com.yrtech.SurveyAPI.Service
                         ,C.ConsultantName,C.ConsultantType
                     FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
 						   INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
-                    WHERE B.AnswerId = @AnswerId AND B.ConsultantId = @ConsultantId
-		            ";
-
+                    WHERE B.AnswerId = @AnswerId ";
+            if (string.IsNullOrEmpty(consultantId))
+            {
+                sql += " AND B.ConsultantId = @ConsultantId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<ShopConsultantResultDto>().ToList();
         }
         #endregion
