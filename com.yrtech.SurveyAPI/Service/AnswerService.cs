@@ -403,7 +403,7 @@ namespace com.yrtech.SurveyAPI.Service
                            A.ShopId,A.AnswerId,A.InspectionStandardResult,A.FileResult,A.LossResult,A.ShopConsultantResult,
                            A.PhotoScore,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime,A.UploadDate,A.UploadUserId
                            ,CASE WHEN (SELECT Count(*) FROM SubjectTypeScoreRegion WHERE SubjectId = S.SubjectId)=2 THEN '0' -- 交叉类
-                            CASE WHEN  (SELECT Count(*) FROM SubjectTypeScoreRegion WHERE SubjectId = S.SubjectId AND SubjectTypeId = 1)=1 THEN '1'-- 照片类
+                             WHEN  (SELECT Count(*) FROM SubjectTypeScoreRegion WHERE SubjectId = S.SubjectId AND SubjectTypeId = 1)=1 THEN '1'-- 照片类
                             ELSE '2' END AS SubjectTypeCode
                     FROM Subject S 
 		            LEFT JOIN Answer A ON S.ProjectId=A.ProjectId AND S.SubjectId = A.SubjectId
