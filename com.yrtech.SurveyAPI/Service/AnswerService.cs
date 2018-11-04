@@ -234,7 +234,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT ISNULL(MAX(B.OrderNO),0) AS OrderNO 
                     FROM Answer A JOIN [Subject] B ON A.ProjectId = B.ProjectId
                                                    AND A.SubjectId = B.SubjectId";
-            if (string.IsNullOrEmpty(consultantId))
+            if (!string.IsNullOrEmpty(consultantId))
             {
                 sql += " INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId AND B.ConsultantId = @ConsultantId";
             }
@@ -651,9 +651,9 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerShopConsultantScoreId,B.AnswerId,B.ConsultantId,B.ConsultantScore,B.ConsultantLossDesc
                         ,C.ConsultantName,C.ConsultantType
-                    FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
+                    FROM dbo.Answer A LEFT JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
 						   INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
-                    WHERE B.AnswerId = @AnswerId ";
+                    WHERE A.AnswerId = @AnswerId ";
             if (string.IsNullOrEmpty(consultantId))
             {
                 sql += " AND B.ConsultantId = @ConsultantId";
