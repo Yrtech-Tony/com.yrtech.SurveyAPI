@@ -538,7 +538,7 @@ namespace com.yrtech.SurveyAPI.Service
                 foreach (FileResultDto file in fileList)
                 {
                     if (!string.IsNullOrEmpty(file.ModifyType))
-                        webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
+                        webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId,file.AnswerResult, null, "", file.FileName);
                     file.ModifyType = null;
                 }
             }
