@@ -238,7 +238,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId AND B.ConsultantId = @ConsultantId";
             }
-            sql += "WHERE 1 = 1 ";
+            sql += " WHERE 1 = 1 ";
             sql += @"AND A.ProjectId = @ProjectId
                     AND A.ShopId = @ShopId
                     AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
@@ -576,7 +576,7 @@ namespace com.yrtech.SurveyAPI.Service
                     shopConsult.ModifyType = null;
                 }
             }
-            CommonHelper.log(answer.LossResult);
+            //CommonHelper.log(answer.LossResult);
             answer.LossResult = CommonHelper.Encode(lossResultList);
             answer.FileResult = CommonHelper.Encode(fileList);
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
