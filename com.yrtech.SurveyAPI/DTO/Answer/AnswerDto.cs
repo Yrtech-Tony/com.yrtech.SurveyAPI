@@ -11,6 +11,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int AnswerId { get; set; }
         public int ProjectId { get; set; }
         public int SubjectId { get; set; }
+        public string SubjectTypeCode { get; set; }
         public int ShopId { get; set; }
         public decimal? PhotoScore { get; set; }
         public decimal? Score { get; set; }

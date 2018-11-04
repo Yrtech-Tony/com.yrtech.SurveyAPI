@@ -518,10 +518,10 @@ namespace com.yrtech.SurveyAPI.Service
             lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
             shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
 
-
+           // CommonHelper.log(answer.ShopConsultantResult.ToString());
             webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
                         answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
-
+           
             if (inspectionList != null)
             {
                 foreach (InspectionStandardResultDto inspection in inspectionList)
@@ -563,6 +563,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
                 {
+                   // CommonHelper.log(shopConsult.ConsultantLossDesc);
                     char type = 'N';
                     if (shopConsult.ModifyType == "U")
                     { type = 'U'; }
@@ -573,10 +574,11 @@ namespace com.yrtech.SurveyAPI.Service
                     webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName,
                         shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc,
                         accountId, type, shopConsult.ConsultantType);
+                    webService.UpdateSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantLossDesc);
                     shopConsult.ModifyType = null;
                 }
             }
-            //CommonHelper.log(answer.LossResult);
+            CommonHelper.log(answer.LossResult);
             answer.LossResult = CommonHelper.Encode(lossResultList);
             answer.FileResult = CommonHelper.Encode(fileList);
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
@@ -654,8 +656,8 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ShopConsultantResultDto);
             string sql = "";
             sql = @"SELECT B.AnswerShopConsultantScoreId,B.AnswerId,B.ConsultantId,B.ConsultantScore,B.ConsultantLossDesc
-                        ,C.ConsultantName,C.ConsultantType
-                    FROM dbo.Answer A LEFT JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
+                        ,C.ConsultantName,C.ConsultantType,C.SeqNO,B.InUserId,B.ModifyUserId
+                    FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
 						   INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
                     WHERE A.AnswerId = @AnswerId ";
             if (!string.IsNullOrEmpty(consultantId))
