@@ -18,6 +18,8 @@ namespace com.yrtech.SurveyAPI.DTO.Account
         public int UserId { get; set;  }
         public string Password { get; set; }
         public bool UseChk { get; set; }
-
+        public string TelNO { get; set; }
+        public string Email { get; set; }
+        public string HeadPicUrl { get; set; }
     }
 }

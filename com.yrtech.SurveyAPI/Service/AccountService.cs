@@ -26,7 +26,7 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password)};
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk 
+            string sql = @"SELECT A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl
                             FROM UserInfo A
                             WHERE AccountId = @AccountId AND[Password] = @Password
                             AND UseChk = 1";
