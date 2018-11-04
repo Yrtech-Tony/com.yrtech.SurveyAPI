@@ -576,7 +576,7 @@ namespace com.yrtech.SurveyAPI.Service
                     shopConsult.ModifyType = null;
                 }
             }
-            CommonHelper.log(answer.LossResult);
+            //CommonHelper.log(answer.LossResult);
             answer.LossResult = CommonHelper.Encode(lossResultList);
             answer.FileResult = CommonHelper.Encode(fileList);
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
@@ -655,9 +655,9 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerShopConsultantScoreId,B.AnswerId,B.ConsultantId,B.ConsultantScore,B.ConsultantLossDesc
                         ,C.ConsultantName,C.ConsultantType
-                    FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
+                    FROM dbo.Answer A LEFT JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
 						   INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
-                    WHERE B.AnswerId = @AnswerId ";
+                    WHERE A.AnswerId = @AnswerId ";
             if (!string.IsNullOrEmpty(consultantId))
             {
                 sql += " AND B.ConsultantId = @ConsultantId";
