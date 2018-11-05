@@ -239,11 +239,16 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " INNER JOIN dbo.AnswerShopConsultantScore SCS ON A.AnswerId = SCS.AnswerId AND SCS.ConsultantId = @ConsultantId";
             }
             sql += " WHERE 1 = 1 ";
-            sql += @"AND A.ProjectId = @ProjectId
+            if (string.IsNullOrEmpty(consultantId)) // 交叉题的时候销售顾问打过分之后，照片还可以打分
+            {
+                sql += " AND A.PhotoScore IS NOT NULL ";
+            }
+            sql += @" AND A.ProjectId = @ProjectId
                     AND A.ShopId = @ShopId
                     AND EXISTS(SELECT 1 FROM SubjectTypeScoreRegion WHERE SubjectId = B.SubjectId AND SubjectTypeId = @SubjectTypeId)
 				    AND(B.SubjectTypeExamId = @SubjectTypeExamId OR B.SubjectTypeExamId = 1) ";
-            if (!string.IsNullOrEmpty(subjectLinkId))
+           
+                if (!string.IsNullOrEmpty(subjectLinkId))
             {
                 sql += " AND B.SubjectLinkId IN (";
                 string[] subjectLinkIdList = subjectLinkId.Split(';');
