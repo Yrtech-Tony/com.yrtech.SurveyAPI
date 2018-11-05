@@ -124,11 +124,27 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         /// <summary>
-        /// 根据体系Id查询体系信息
+        /// 根据租户信息查询品牌信息
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetBrand")]
+        public APIResult GetBrand(string tenantId, string brandId)
+        {
+            try
+            {
+                List<Brand> brandList = masterService.GetBrand(tenantId, "", brandId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+
         [HttpGet]
         [Route("Master/GetSubject")]
         public APIResult GetSubject(string projectId, string subjectId)
@@ -144,6 +160,11 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        /// <summary>
+        /// 获取
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Master/GetSubjectLink")]
         public APIResult GetSubjectLink(string projectId)

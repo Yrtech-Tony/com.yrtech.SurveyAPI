@@ -37,7 +37,6 @@ namespace com.yrtech.SurveyAPI.Service
         {
             Type t = typeof(SubjectType);
             string sql = "";
-
             sql = @"SELECT [SubjectTypeId]
                           ,[SubjectTypeName]
                           ,[InUserId]
@@ -100,7 +99,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
 
             sql = @"SELECT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
-                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId
+                    FROM Brand A LEFT JOIN UserInfoBrand B ON A.BrandId = B.BrandId
                     WHERE 1=1 AND A.TenantId = @TenantId ";
             if (!string.IsNullOrEmpty(userId))
             {
@@ -114,7 +113,27 @@ namespace com.yrtech.SurveyAPI.Service
 
         }
         /// <summary>
-        /// 
+        /// 查询品牌下账号信息
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public List<UserInfo> GetUserInfoByBrandId(string brandId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)};
+            Type t = typeof(UserInfo);
+            string sql = "";
+
+            sql = @"SELECT C.AccountId,C.AccountName,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,B.InDateTime,
+                            (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName
+                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND BrandId = @BrandId
+								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
+           
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
+
+        }
+        /// <summary>
+        /// 获取期号
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="brandId"></param>
@@ -158,7 +177,7 @@ namespace com.yrtech.SurveyAPI.Service
 
         }
         /// <summary>
-        /// 
+        /// 获取经销商
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="brandId"></param>
@@ -201,7 +220,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
         }
-
         /// <summary>
         /// 获取体系信息
         /// </summary>
@@ -240,7 +258,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
         }
-        
         /// <summary>
         /// 获取标准照片信息
         /// </summary>
@@ -261,7 +278,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectFile> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
             return list;
         }
-
         /// <summary>
         /// 获取检查标准信息
         /// </summary>
@@ -281,7 +297,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectInspectionStandard> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
             return list;
         }
-
         /// <summary>
         /// 获取失分说明
         /// </summary>
@@ -301,7 +316,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
             return list;
         }
-
         /// <summary>
         /// 获取体系类型打分范围信息
         /// </summary>
@@ -328,6 +342,11 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
         }
+        /// <summary>
+        /// 获取流程类型
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
         public List<SubjectLink> GetSubjectLink(string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
