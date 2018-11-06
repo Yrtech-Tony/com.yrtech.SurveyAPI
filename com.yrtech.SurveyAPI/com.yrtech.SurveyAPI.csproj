@@ -141,12 +141,12 @@
     <Compile Include="DTO\Answer\LossResultDto.cs" />
     <Compile Include="DTO\Answer\InspectionStandardResultDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
+    <Compile Include="DTO\Shop\ShopDto.cs" />
     <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
     <Compile Include="DTO\UploadData.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -169,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\com.yrtech.SurveyDAL\com.yrtech.SurveyDAL.csproj">
@@ -206,7 +207,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>57328</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
