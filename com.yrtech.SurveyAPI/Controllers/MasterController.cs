@@ -144,7 +144,53 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        /// <summary>
+        /// 获取品牌下的账号信息
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetUserInfoByBrandId")]
+        public APIResult GetUserInfoByBrandId(string brandId)
+        {
+            try
+            {
+                List<UserInfo> userInfoBrandList = masterService.GetUserInfoByBrandId(brandId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoBrandList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
 
+        }
+        /// <summary>
+        /// 获取品牌下期号的信息，也可以获取单个期号的信息
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetProject")]
+        public APIResult GetProject(string brandId,string projectId)
+        {
+            try
+            {
+                List<Project> projectList = masterService.GetProject("",brandId,projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        /// <summary>
+        /// 获取体系的信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Master/GetSubject")]
         public APIResult GetSubject(string projectId, string subjectId)
@@ -161,7 +207,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         /// <summary>
-        /// 获取
+        /// 获取流程类型
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
@@ -179,6 +225,26 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        /// <summary>
+        /// 更新SubjectLinkId
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SetSubjectLinkId")]
+        public async Task<APIResult> SetSubjectLinkId([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectDto> subjectList = CommonHelper.DecodeString<List<SubjectDto>>(uploadData.ListJson);
+                masterService.SetSubjectLinkId(subjectList);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
 
     }

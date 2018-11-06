@@ -120,7 +120,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<UserInfo> GetUserInfoByBrandId(string brandId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId) };
             Type t = typeof(UserInfo);
             string sql = "";
 
@@ -128,7 +128,7 @@ namespace com.yrtech.SurveyAPI.Service
                             (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName
                     FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND BrandId = @BrandId
 								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
-           
+
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
 
         }
@@ -175,6 +175,18 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
 
+        }
+        /// <summary>
+        /// 期号下获取流程类型
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectLink> GetSubjectLink(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectLink);
+            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
         }
         /// <summary>
         /// 获取经销商
@@ -227,7 +239,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectDto> GetSubject(string projectId, string subjectId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
             sql = @"SELECT A.SubjectId
@@ -253,10 +265,26 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND A.SubjectId = "+subjectId;
+                sql += " AND A.SubjectId = " + subjectId;
             }
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
+        }
+        /// <summary>
+        /// 批量更新SubjectLinkId
+        /// </summary>
+        /// <param name="subjectIdList"></param>
+        /// <param name="subjectLinkId"></param>
+        public void SetSubjectLinkId(List<SubjectDto> subjectList)
+        {
+            Type t = typeof(int);
+            string sql = "";
+            foreach (SubjectDto subject in subjectList)
+            {
+                sql += " UPDATE Subject SET SubjectLinkId ="+subject.SubjectLinkId.ToString()+" WHERE SubjectId = "+subject.SubjectId.ToString()+" ";
+            }
+
+            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
         }
         /// <summary>
         /// 获取标准照片信息
@@ -321,7 +349,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId,string subjectTypeId)
+        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
         {
             //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
@@ -341,18 +369,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
-        }
-        /// <summary>
-        /// 获取流程类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<SubjectLink> GetSubjectLink(string projectId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t = typeof(SubjectLink);
-            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
         }
     }
 }
