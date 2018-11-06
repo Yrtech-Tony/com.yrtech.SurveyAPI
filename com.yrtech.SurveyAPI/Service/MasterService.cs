@@ -11,6 +11,8 @@ namespace com.yrtech.SurveyAPI.Service
     public class MasterService
     {
         Entities db = new Entities();
+        AccountService accountService = new AccountService();
+        localhost.Service webService = new localhost.Service();
         /// <summary>
         /// 获取复审类型
         /// </summary>
@@ -175,6 +177,43 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
 
+        }
+        /// <summary>
+        /// 保存期号信息
+        /// </summary>
+        /// <param name="project"></param>
+        public void SaveProject(Project project)
+        {
+            List<UserInfo> userList = accountService.GetUserInfo(project.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            string brandId = project.BrandId.ToString();
+            string accountId = userList[0].AccountId;
+
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+           
+            webService.SaveProject('I', project.ProjectCode, project.Year, project.Quarter,Convert.ToInt32(project.OrderNO));
+
+            Project findOne = db.Project.Where(x => (x.ProjectId == project.ProjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                project.InDateTime = DateTime.Now;
+                project.ModifyDateTime = DateTime.Now;
+                db.Project.Add(project);
+            }
+            else
+            {
+                findOne.ProjectName = project.ProjectName;
+                findOne.ProjectCode = project.ProjectName;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = project.ModifyUserId;
+                findOne.OrderNO = project.OrderNO;
+                findOne.Quarter = project.Quarter;
+                findOne.Year = project.Year;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 期号下获取流程类型
