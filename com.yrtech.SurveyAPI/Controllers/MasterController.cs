@@ -225,6 +225,29 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         /// <summary>
+        /// 保存体系信息
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveSubject")]
+        public async Task<APIResult> SaveSubject([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<Subject> subjectList = CommonHelper.DecodeString<List<Subject>>(uploadData.ListJson);
+                foreach (Subject subject in subjectList)
+                {
+                    masterService.SaveSubject(subject);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
         /// 获取流程类型
         /// </summary>
         /// <param name="projectId"></param>
@@ -243,6 +266,29 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        /// <summary>
+        /// 新增或者更新流程类型
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveSubjectLink")]
+        public async Task<APIResult> SaveSubjectLink([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectLink> subjectLinkList = CommonHelper.DecodeString<List<SubjectLink>>(uploadData.ListJson);
+                foreach (SubjectLink subjectLink in subjectLinkList)
+                {
+                    masterService.SaveSubjectLink(subjectLink);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         /// <summary>
         /// 更新SubjectLinkId
@@ -286,6 +332,29 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         /// <summary>
+        /// 保存检查标准
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveSubjectInspectionStandard")]
+        public async Task<APIResult> SaveSubjectInspectionStandard([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectInspectionStandard> subjectInspectionStandardList = CommonHelper.DecodeString<List<SubjectInspectionStandard>>(uploadData.ListJson);
+                foreach (SubjectInspectionStandard subjectInspectionStandard in subjectInspectionStandardList)
+                {
+                    masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
         /// 获取标准照片列表
         /// </summary>
         /// <param name="projectId"></param>
@@ -305,6 +374,29 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        /// <summary>
+        /// 保存标准照片
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveSubjectFile")]
+        public async Task<APIResult> SaveSubjectFile([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectFile> subjectFileList = CommonHelper.DecodeString<List<SubjectFile>>(uploadData.ListJson);
+                foreach (SubjectFile subjectFile in subjectFileList)
+                {
+                    masterService.SaveSubjectFile(subjectFile);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         /// <summary>
         /// 获取失分描述
@@ -327,6 +419,29 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        /// <summary>
+        /// 保存失分描述
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveLossResult")]
+        public async Task<APIResult> SaveLossResult([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectLossResult> subjectLossResultList = CommonHelper.DecodeString<List<SubjectLossResult>>(uploadData.ListJson);
+                foreach (SubjectLossResult subjectlossResult in subjectLossResultList)
+                {
+                    masterService.SaveSubjectLossResult(subjectlossResult);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpGet]
         [Route("Master/GetSubjectTypeScoreRegion")]
         public APIResult GetSubjectTypeScoreRegion(string subjectId,string subjectTypeId)
@@ -341,6 +456,24 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        [HttpPost]
+        [Route("Master/SaveSubjectTypeScoreRegion")]
+        public async Task<APIResult> SaveSubjectTypeScoreRegion([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = CommonHelper.DecodeString<List<SubjectTypeScoreRegion>>(uploadData.ListJson);
+                foreach (SubjectTypeScoreRegion subjectTypeScoreRegion in subjectTypeScoreRegionList)
+                {
+                    masterService.SaveSubjectTypeScoreRegion(subjectTypeScoreRegion);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         /// <summary>
         /// 获取经销商信息

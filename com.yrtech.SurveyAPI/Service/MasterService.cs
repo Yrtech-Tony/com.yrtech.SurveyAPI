@@ -193,8 +193,8 @@ namespace com.yrtech.SurveyAPI.Service
             string accountId = userList[0].AccountId;
 
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-           
-            webService.SaveProject('I', project.ProjectCode, project.Year, project.Quarter,Convert.ToInt32(project.OrderNO));
+
+            webService.SaveProject('I', project.ProjectCode, project.Year, project.Quarter, Convert.ToInt32(project.OrderNO));
 
             Project findOne = db.Project.Where(x => (x.ProjectId == project.ProjectId)).FirstOrDefault();
             if (findOne == null)
@@ -226,6 +226,25 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectLink);
             string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
             return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的流程类型
+        /// </summary>
+        /// <param name="project"></param>
+        public void SaveSubjectLink(SubjectLink subjectLink)
+        {
+            SubjectLink findOne = db.SubjectLink.Where(x => (x.SubjectLinkId == subjectLink.SubjectLinkId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectLink.InDateTime = DateTime.Now;
+                db.SubjectLink.Add(subjectLink);
+            }
+            else
+            {
+                findOne.SubjectLinkCode = subjectLink.SubjectLinkCode;
+                findOne.SubjectLinkName = subjectLink.SubjectLinkName;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取经销商
@@ -310,6 +329,36 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
         }
         /// <summary>
+        /// 保存体系信息
+        /// </summary>
+        /// <param name="subject"></param>
+        public void SaveSubject(Subject subject)
+        {
+            Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subject.InDateTime = DateTime.Now;
+                subject.ModifyDateTime = DateTime.Now;
+                db.Subject.Add(subject);
+            }
+            else
+            {
+                findOne.AdditionalDesc = subject.AdditionalDesc;
+                findOne.CheckPoint = subject.CheckPoint;
+                findOne.Desc = subject.Desc;
+                findOne.Implementation = subject.Implementation;
+                findOne.InspectionDesc = subject.InspectionDesc;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subject.ModifyUserId;
+                findOne.OrderNO = subject.OrderNO;
+                findOne.Remark = subject.Remark;
+                findOne.SubjectCode = subject.SubjectCode;
+                findOne.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
+                findOne.SubjectTypeExamId = subject.SubjectTypeExamId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
         /// 批量更新SubjectLinkId
         /// </summary>
         /// <param name="subjectIdList"></param>
@@ -320,7 +369,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             foreach (SubjectDto subject in subjectList)
             {
-                sql += " UPDATE Subject SET SubjectLinkId ="+subject.SubjectLinkId.ToString()+" WHERE SubjectId = "+subject.SubjectId.ToString()+" ";
+                sql += " UPDATE Subject SET SubjectLinkId =" + subject.SubjectLinkId.ToString() + " WHERE SubjectId = " + subject.SubjectId.ToString() + " ";
             }
 
             db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
@@ -346,6 +395,30 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
         }
         /// <summary>
+        /// 保存标准照片
+        /// </summary>
+        /// <param name="subjectFile"></param>
+        public void SaveSubjectFile(SubjectFile subjectFile)
+        {
+            SubjectFile findOne = db.SubjectFile.Where(x => (x.FileId == subjectFile.FileId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectFile.InDateTime = DateTime.Now;
+                subjectFile.ModifyDateTime = DateTime.Now;
+                db.SubjectFile.Add(subjectFile);
+            }
+            else
+            {
+                findOne.FileName = subjectFile.FileName;
+                findOne.FileType = subjectFile.FileType;
+                findOne.SubjectId = subjectFile.SubjectId;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectFile.ModifyUserId;
+                findOne.SeqNO = subjectFile.SeqNO;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
         /// 获取检查标准信息
         /// </summary>
         /// <param name="projectId"></param>
@@ -365,6 +438,29 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
         }
         /// <summary>
+        /// 保存检查标准
+        /// </summary>
+        /// <param name="SubjectInspectionStandard"></param>
+        public void SaveSubjectInspectionStandard(SubjectInspectionStandard subjectInspectionStandard)
+        {
+            SubjectInspectionStandard findOne = db.SubjectInspectionStandard.Where(x => (x.InspectionStandardId == subjectInspectionStandard.InspectionStandardId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectInspectionStandard.InDateTime = DateTime.Now;
+                subjectInspectionStandard.ModifyDateTime = DateTime.Now;
+                db.SubjectInspectionStandard.Add(subjectInspectionStandard);
+            }
+            else
+            {
+                findOne.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectInspectionStandard.ModifyUserId;
+                findOne.SeqNO = subjectInspectionStandard.SeqNO;
+                findOne.SubjectId = subjectInspectionStandard.SubjectId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
         /// 获取失分说明
         /// </summary>
         /// <param name="projectId"></param>
@@ -382,6 +478,29 @@ namespace com.yrtech.SurveyAPI.Service
             }
             List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
             return list;
+        }
+        /// <summary>
+        /// 保存失分说明
+        /// </summary>
+        /// <param name="subjectLossResult"></param>
+        public void SaveSubjectLossResult(SubjectLossResult subjectLossResult)
+        {
+            SubjectLossResult findOne = db.SubjectLossResult.Where(x => (x.LossResultId == subjectLossResult.LossResultId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectLossResult.InDateTime = DateTime.Now;
+                subjectLossResult.ModifyDateTime = DateTime.Now;
+                db.SubjectLossResult.Add(subjectLossResult);
+            }
+            else
+            {
+                findOne.LossResultName = subjectLossResult.LossResultName;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectLossResult.ModifyUserId;
+                findOne.SeqNO = subjectLossResult.SeqNO;
+                findOne.SubjectId = subjectLossResult.SubjectId;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取体系类型打分范围信息
@@ -408,6 +527,27 @@ namespace com.yrtech.SurveyAPI.Service
             }
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
+        }
+        public void SaveSubjectTypeScoreRegion(SubjectTypeScoreRegion subjectTypeScoreRegion)
+        {
+            SubjectTypeScoreRegion findOne = db.SubjectTypeScoreRegion.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectTypeScoreRegion.InDateTime = DateTime.Now;
+                subjectTypeScoreRegion.ModifyDateTime = DateTime.Now;
+                db.SubjectTypeScoreRegion.Add(subjectTypeScoreRegion);
+            }
+            else
+            {
+                findOne.FullScore = subjectTypeScoreRegion.FullScore;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectTypeScoreRegion.ModifyUserId;
+                findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
+                findOne.LowestScore = subjectTypeScoreRegion.LowestScore;
+                findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
+                findOne.SubjectTypeId = subjectTypeScoreRegion.SubjectTypeId;
+            }
+            db.SaveChanges();
         }
     }
 }

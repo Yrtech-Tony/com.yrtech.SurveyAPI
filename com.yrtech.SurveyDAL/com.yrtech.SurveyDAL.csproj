@@ -130,6 +130,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>survey.edmx</DependentUpon>
     </Compile>
+    <Compile Include="survey1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>survey.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Tenant.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
@@ -147,6 +152,7 @@
     <None Include="packages.config" />
     <EntityDeploy Include="survey.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>survey1.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <None Include="survey.edmx.diagram">
       <DependentUpon>survey.edmx</DependentUpon>

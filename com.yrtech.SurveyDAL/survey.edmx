@@ -564,11 +564,11 @@
           <EntitySet Name="UserInfo" EntityType="com.yrtech.surveyModel.UserInfo" />
           <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.surveyModel.AnswerShopInfo" />
           <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
-          <EntitySet Name="Subject" EntityType="com.yrtech.surveyModel.Subject" />
           <EntitySet Name="SubjectLink" EntityType="com.yrtech.surveyModel.SubjectLink" />
           <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
           <EntitySet Name="AnswerShopConsultantSubjectLink" EntityType="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink" />
           <EntitySet Name="AnswerShopConsultantScore" EntityType="com.yrtech.surveyModel.AnswerShopConsultantScore" />
+          <EntitySet Name="Subject" EntityType="com.yrtech.surveyModel.Subject" />
         </EntityContainer>
         <EntityType Name="UserInfoBrand">
           <Key>
@@ -639,28 +639,6 @@
           <Property Name="UploadDate" Type="DateTime" Precision="3" />
           <Property Name="UploadUserId" Type="Int32" />
         </EntityType>
-        <EntityType Name="Subject">
-          <Key>
-            <PropertyRef Name="SubjectId" />
-          </Key>
-          <Property Name="SubjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="SubjectCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="SubjectTypeExamId" Type="Int32" />
-          <Property Name="SubjectRecheckTypeId" Type="Int32" />
-          <Property Name="SubjectLinkId" Type="Int32" />
-          <Property Name="OrderNO" Type="Int32" />
-          <Property Name="Implementation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Desc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AdditionalDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InspectionDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="SubjectLink">
           <Key>
             <PropertyRef Name="SubjectLinkId" />
@@ -710,6 +688,28 @@
           <Property Name="ConsultantId" Type="Int32" />
           <Property Name="ConsultantScore" Type="Decimal" Precision="19" Scale="2" />
           <Property Name="ConsultantLossDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Subject">
+          <Key>
+            <PropertyRef Name="SubjectId" />
+          </Key>
+          <Property Name="SubjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubjectCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="SubjectTypeExamId" Type="Int32" />
+          <Property Name="SubjectRecheckTypeId" Type="Int32" />
+          <Property Name="SubjectLinkId" Type="Int32" />
+          <Property Name="OrderNO" Type="Int32" />
+          <Property Name="Implementation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Desc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AdditionalDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InspectionDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -991,29 +991,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Subject">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Subject">
-              <MappingFragment StoreEntitySet="Subject">
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="InspectionDesc" ColumnName="InspectionDesc" />
-                <ScalarProperty Name="AdditionalDesc" ColumnName="AdditionalDesc" />
-                <ScalarProperty Name="Desc" ColumnName="Desc" />
-                <ScalarProperty Name="CheckPoint" ColumnName="CheckPoint" />
-                <ScalarProperty Name="Implementation" ColumnName="Implementation" />
-                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
-                <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
-                <ScalarProperty Name="SubjectRecheckTypeId" ColumnName="SubjectRecheckTypeId" />
-                <ScalarProperty Name="SubjectTypeExamId" ColumnName="SubjectTypeExamId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
-                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SubjectLink">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.SubjectLink">
               <MappingFragment StoreEntitySet="SubjectLink">
@@ -1069,6 +1046,29 @@
                 <ScalarProperty Name="ConsultantId" ColumnName="ConsultantId" />
                 <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
                 <ScalarProperty Name="AnswerShopConsultantScoreId" ColumnName="AnswerShopConsultantScoreId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Subject">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Subject">
+              <MappingFragment StoreEntitySet="Subject">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="InspectionDesc" ColumnName="InspectionDesc" />
+                <ScalarProperty Name="AdditionalDesc" ColumnName="AdditionalDesc" />
+                <ScalarProperty Name="Desc" ColumnName="Desc" />
+                <ScalarProperty Name="CheckPoint" ColumnName="CheckPoint" />
+                <ScalarProperty Name="Implementation" ColumnName="Implementation" />
+                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
+                <ScalarProperty Name="SubjectLinkId" ColumnName="SubjectLinkId" />
+                <ScalarProperty Name="SubjectRecheckTypeId" ColumnName="SubjectRecheckTypeId" />
+                <ScalarProperty Name="SubjectTypeExamId" ColumnName="SubjectTypeExamId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

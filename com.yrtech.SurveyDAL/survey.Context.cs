@@ -43,10 +43,10 @@ namespace Purchase.DAL
         public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<SubjectLink> SubjectLink { get; set; }
         public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
         public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
         public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
     }
 }
