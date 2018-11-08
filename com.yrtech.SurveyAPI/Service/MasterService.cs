@@ -345,6 +345,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
+            List<UserInfo> userList = accountService.GetUserInfo(subject.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            string accountId = userList[0].AccountId;
+            string brandId = GetBrand("1", subject.ModifyUserId.ToString(), "")[0].BrandId.ToString();
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
+            //    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())
             Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
