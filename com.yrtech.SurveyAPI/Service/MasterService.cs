@@ -94,6 +94,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Brand> GetBrand(string tenantId, string userId, string brandId)
         {
+            userId = userId == null ? "" : userId;
+            brandId = brandId == null ? "" : brandId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                        new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@BrandId", brandId)};
@@ -143,6 +145,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Project> GetProject(string tenantId, string brandId, string projectId)
         {
+            tenantId = tenantId == null ? "" : tenantId;
+            brandId = brandId == null ? "" : brandId;
+            projectId = projectId == null ? "" : projectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId)};
@@ -255,6 +260,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Shop> GetShop(string tenantId, string brandId, string shopId)
         {
+            tenantId = tenantId == null ? "" : tenantId;
+            brandId = brandId == null ? "" : brandId;
+            shopId = shopId == null ? "" : shopId;
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ShopId", shopId)};
@@ -297,6 +306,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectDto> GetSubject(string projectId, string subjectId)
         {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
@@ -381,6 +392,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectFile> GetSubjectFile(string projectId, string subjectId)
         {
+            subjectId = subjectId == null ? "" : subjectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectFile);
             string sql = "";
@@ -509,6 +521,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
         {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
+            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
             //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                         , new SqlParameter("@SubjectId", subjectId)
