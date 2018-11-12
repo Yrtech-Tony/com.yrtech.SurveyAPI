@@ -130,11 +130,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>survey.edmx</DependentUpon>
     </Compile>
-    <Compile Include="survey1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>survey.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Tenant.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
