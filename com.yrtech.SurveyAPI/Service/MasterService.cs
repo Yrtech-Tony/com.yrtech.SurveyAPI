@@ -94,6 +94,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Brand> GetBrand(string tenantId, string userId, string brandId)
         {
+            userId = userId == null ? "" : userId;
+            brandId = brandId == null ? "" : brandId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                        new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@BrandId", brandId)};
@@ -143,6 +145,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Project> GetProject(string tenantId, string brandId, string projectId)
         {
+            tenantId = tenantId == null ? "" : tenantId;
+            brandId = brandId == null ? "" : brandId;
+            projectId = projectId == null ? "" : projectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId)};
@@ -255,6 +260,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<Shop> GetShop(string tenantId, string brandId, string shopId)
         {
+            tenantId = tenantId == null ? "" : tenantId;
+            brandId = brandId == null ? "" : brandId;
+            shopId = shopId == null ? "" : shopId;
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ShopId", shopId)};
