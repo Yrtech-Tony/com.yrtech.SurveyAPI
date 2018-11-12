@@ -306,6 +306,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectDto> GetSubject(string projectId, string subjectId)
         {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
@@ -343,6 +345,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
+            List<UserInfo> userList = accountService.GetUserInfo(subject.ModifyUserId.ToString());
+            if (userList == null || userList.Count == 0)
+            {
+                throw new Exception("没有找到对应的用户");
+            }
+            string accountId = userList[0].AccountId;
+            string brandId = GetBrand("1", subject.ModifyUserId.ToString(), "")[0].BrandId.ToString();
+            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
+            //    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())
             Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -390,6 +402,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectFile> GetSubjectFile(string projectId, string subjectId)
         {
+            subjectId = subjectId == null ? "" : subjectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectFile);
             string sql = "";
@@ -518,6 +531,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
         {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
+            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
             //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                         , new SqlParameter("@SubjectId", subjectId)
