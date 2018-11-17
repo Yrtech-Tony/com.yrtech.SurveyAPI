@@ -541,7 +541,12 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectTypeScoreRegion);
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
-                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId ";
+
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND S.ProjectId = @ProjectId";
+            }
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND S.SubjectId = @SubjectId";
