@@ -128,9 +128,10 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(UserInfo);
             string sql = "";
 
-            sql = @"SELECT C.AccountId,C.AccountName,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,B.InDateTime,
-                            (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName
-                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND BrandId = @BrandId
+            sql = @"SELECT C.Id,C.TenantId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
+                    (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName,Email,TelNO,HeadPicUrl,
+                    C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
+                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
 								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
 
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
@@ -211,7 +212,7 @@ namespace com.yrtech.SurveyAPI.Service
             else
             {
                 findOne.ProjectName = project.ProjectName;
-                findOne.ProjectCode = project.ProjectName;
+                findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
                 findOne.OrderNO = project.OrderNO;

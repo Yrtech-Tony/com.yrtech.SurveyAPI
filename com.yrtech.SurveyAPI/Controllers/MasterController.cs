@@ -187,15 +187,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Master/SaveProject")]
-        public async Task<APIResult> SaveProject([FromBody]UploadData uploadData)
+        public APIResult SaveProject(Project project)
         {
             try
             {
-                List<Project> projectList = CommonHelper.DecodeString<List<Project>>(uploadData.ListJson);
-                foreach (Project project in projectList)
-                {
-                    masterService.SaveProject(project);
-                }
+                masterService.SaveProject(project);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
