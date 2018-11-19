@@ -270,7 +270,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectLink")]
-        public async Task<APIResult> SaveSubjectLink([FromBody]UploadData uploadData)
+        public APIResult SaveSubjectLink([FromBody]UploadData uploadData)
         {
             try
             {
@@ -293,7 +293,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SetSubjectLinkId")]
-        public async Task<APIResult> SetSubjectLinkId([FromBody]UploadData uploadData)
+        public APIResult SetSubjectLinkId([FromBody]UploadData uploadData)
         {
             try
             {
@@ -334,11 +334,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectInspectionStandard")]
-        public async Task<APIResult> SaveSubjectInspectionStandard([FromBody]UploadData uploadData)
+        public APIResult SaveSubjectInspectionStandard(string ListJson)
         {
             try
             {
-                List<SubjectInspectionStandard> subjectInspectionStandardList = CommonHelper.DecodeString<List<SubjectInspectionStandard>>(uploadData.ListJson);
+                List<SubjectInspectionStandard> subjectInspectionStandardList = CommonHelper.DecodeString<List<SubjectInspectionStandard>>(ListJson);
                 foreach (SubjectInspectionStandard subjectInspectionStandard in subjectInspectionStandardList)
                 {
                     masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
@@ -378,11 +378,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectFile")]
-        public async Task<APIResult> SaveSubjectFile([FromBody]UploadData uploadData)
+        public APIResult SaveSubjectFile(string ListJson)
         {
             try
             {
-                List<SubjectFile> subjectFileList = CommonHelper.DecodeString<List<SubjectFile>>(uploadData.ListJson);
+                List<SubjectFile> subjectFileList = CommonHelper.DecodeString<List<SubjectFile>>(ListJson);
                 foreach (SubjectFile subjectFile in subjectFileList)
                 {
                     masterService.SaveSubjectFile(subjectFile);
@@ -440,11 +440,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Master/GetSubjectTypeScoreRegion")]
-        public APIResult GetSubjectTypeScoreRegion(string subjectId,string subjectTypeId)
+        public APIResult GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
         {
             try
             {
-                List<SubjectTypeScoreRegion> lossResultList = masterService.GetSubjectTypeScoreRegion("", subjectId,subjectTypeId);
+                List<SubjectTypeScoreRegion> lossResultList = masterService.GetSubjectTypeScoreRegion(projectId, subjectId, subjectTypeId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(lossResultList) };
             }
             catch (Exception ex)
