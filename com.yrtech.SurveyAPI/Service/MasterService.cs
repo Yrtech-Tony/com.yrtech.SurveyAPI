@@ -312,20 +312,10 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.SubjectId
-                          ,A.[SubjectCode]
-                          ,A.[ProjectId]
-                          ,A.[SubjectTypeExamId]
-                          ,B.SubjectTypeExamName
-                          ,A.[SubjectRecheckTypeId]
-                          ,A.[SubjectLinkId]
-                          ,C.SubjectLinkName
-                          ,A.[OrderNO]
-                          ,A.[Implementation]
-                          ,A.[CheckPoint]
-                          ,A.[Desc]
-                          ,A.[AdditionalDesc]
-                          ,A.[InspectionDesc]
+            sql = @"SELECT A.SubjectId,A.[SubjectCode],A.[ProjectId],A.[SubjectTypeExamId],B.SubjectTypeExamName,A.[SubjectRecheckTypeId]
+                          ,A.[SubjectLinkId],C.SubjectLinkName,A.[OrderNO],A.[Implementation],A.[CheckPoint],A.[Desc]
+                          ,A.[AdditionalDesc],A.[InspectionDesc],A.InUserId,A.InDateTime,
+                          A.ModifyUserId,A.ModifyDateTime
                     FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
 				                   INNER JOIN SubjectLink C ON A.SubjectLinkId= C.SubjectLinkId
                     WHERE 1=1 ";

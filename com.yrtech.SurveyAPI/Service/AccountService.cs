@@ -74,5 +74,14 @@ namespace com.yrtech.SurveyAPI.Service
         //            WHERE UserId = @UserId";
         //    return db.Database.SqlQuery(t, sql, para).Cast<UserInfoBrand>().ToList();
         //}
+
+        public bool UpdatePassword(string userId,string password)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@Password", password)};
+            Type t = typeof(UserInfo);
+            string sql = @"UPDATE [UserInfo] SET Password=@Password Where Id = @UserId";
+            return db.Database.ExecuteSqlCommand(sql,para)>0;
+        }
     }
 }

@@ -12,6 +12,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -172,11 +173,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId,string projectId)
+        public APIResult GetProject(string brandId, string projectId)
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("",brandId,projectId);
+                List<Project> projectList = masterService.GetProject("", brandId, projectId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -227,15 +228,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubject")]
-        public async Task<APIResult> SaveSubject([FromBody]UploadData uploadData)
+        public APIResult SaveSubject([FromBody]Subject subject)
         {
             try
             {
-                List<Subject> subjectList = CommonHelper.DecodeString<List<Subject>>(uploadData.ListJson);
-                foreach (Subject subject in subjectList)
-                {
-                    masterService.SaveSubject(subject);
-                }
+                masterService.SaveSubject(subject);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -270,15 +267,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectLink")]
-        public APIResult SaveSubjectLink([FromBody]UploadData uploadData)
+        public APIResult SaveSubjectLink([FromBody]SubjectLink subjectLink)
         {
             try
             {
-                List<SubjectLink> subjectLinkList = CommonHelper.DecodeString<List<SubjectLink>>(uploadData.ListJson);
-                foreach (SubjectLink subjectLink in subjectLinkList)
-                {
-                    masterService.SaveSubjectLink(subjectLink);
-                }
+                masterService.SaveSubjectLink(subjectLink);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -314,7 +307,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetSubjectInspectionStandard")]
-        public APIResult GetSubjectInspectionStandard(string projectId,string subjectId)
+        public APIResult GetSubjectInspectionStandard(string projectId, string subjectId)
         {
             try
             {
@@ -334,15 +327,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectInspectionStandard")]
-        public APIResult SaveSubjectInspectionStandard(string ListJson)
+        public APIResult SaveSubjectInspectionStandard(SubjectInspectionStandard subjectInspectionStandard)
         {
             try
             {
-                List<SubjectInspectionStandard> subjectInspectionStandardList = CommonHelper.DecodeString<List<SubjectInspectionStandard>>(ListJson);
-                foreach (SubjectInspectionStandard subjectInspectionStandard in subjectInspectionStandardList)
-                {
-                    masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
-                }
+                masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -378,15 +367,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubjectFile")]
-        public APIResult SaveSubjectFile(string ListJson)
+        public APIResult SaveSubjectFile(SubjectFile subjectFile)
         {
             try
             {
-                List<SubjectFile> subjectFileList = CommonHelper.DecodeString<List<SubjectFile>>(ListJson);
-                foreach (SubjectFile subjectFile in subjectFileList)
-                {
-                    masterService.SaveSubjectFile(subjectFile);
-                }
+                masterService.SaveSubjectFile(subjectFile);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -422,15 +407,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveLossResult")]
-        public async Task<APIResult> SaveLossResult([FromBody]UploadData uploadData)
+        public APIResult SaveLossResult([FromBody]SubjectLossResult subjectlossResult)
         {
             try
             {
-                List<SubjectLossResult> subjectLossResultList = CommonHelper.DecodeString<List<SubjectLossResult>>(uploadData.ListJson);
-                foreach (SubjectLossResult subjectlossResult in subjectLossResultList)
-                {
-                    masterService.SaveSubjectLossResult(subjectlossResult);
-                }
+                masterService.SaveSubjectLossResult(subjectlossResult);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -455,15 +436,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Master/SaveSubjectTypeScoreRegion")]
-        public async Task<APIResult> SaveSubjectTypeScoreRegion([FromBody]UploadData uploadData)
+        public APIResult SaveSubjectTypeScoreRegion([FromBody]SubjectTypeScoreRegion subjectTypeScoreRegion)
         {
             try
             {
-                List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = CommonHelper.DecodeString<List<SubjectTypeScoreRegion>>(uploadData.ListJson);
-                foreach (SubjectTypeScoreRegion subjectTypeScoreRegion in subjectTypeScoreRegionList)
-                {
-                    masterService.SaveSubjectTypeScoreRegion(subjectTypeScoreRegion);
-                }
+                masterService.SaveSubjectTypeScoreRegion(subjectTypeScoreRegion);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -483,7 +460,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Shop> shopList = masterService.GetShop("",projectId, shopId);
+                List<Shop> shopList = masterService.GetShop("", projectId, shopId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
             }
             catch (Exception ex)
@@ -506,23 +483,26 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<ShopDto> projectShopList = new List<ShopDto>();
                 List<Shop> shopList = shopService.GetShopByProjectId(projectId);
-                List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId,"");
+                List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId, "");
                 foreach (Shop shop in shopList)
                 {
-                    foreach (ShopSubjectTypeExamDto exam in subjectTypeExamList)
+                    ShopDto shopDto = new ShopDto();
+                    shopDto.ProjectId = Convert.ToInt32(projectId);
+                    shopDto.ShopId = shop.ShopId;
+                    shopDto.ShopCode = shop.ShopCode;
+                    shopDto.ShopName = shop.ShopName;
+                    shopDto.Province = shop.Province;
+                    shopDto.City = shop.City;
+                    shopDto.ShopShortName = shop.ShopShortName;
+
+                    ShopSubjectTypeExamDto exam = subjectTypeExamList.Where(x => x.ShopId == shop.ShopId).FirstOrDefault();
+                    if (exam != null)
                     {
-                        ShopDto shopDto = new ShopDto();
-                        shopDto.ProjectId = Convert.ToInt32(projectId);
-                        shopDto.ShopId = shop.ShopId;
-                        shopDto.ShopCode = shop.ShopCode;
-                        shopDto.ShopName = shop.ShopName;
-                        shopDto.Province = shop.Province;
-                        shopDto.City = shop.City;
-                        shopDto.ShopShortName = shop.ShopShortName;
                         shopDto.SubjectTypeExamId = Convert.ToInt32(exam.ShopSubjectTypeExamId);
                         shopDto.SubjectTypeExamName = exam.SubjectTypeExamName;
-                        projectShopList.Add(shopDto);
                     }
+
+                    projectShopList.Add(shopDto);
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectShopList) };
             }
@@ -531,6 +511,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+
+        [HttpGet]
+        [Route("Master/GetSubjectTypeExam")]
+        public APIResult GetSubjectTypeExam()
+        {
+            try
+            {
+                List<SubjectTypeExam> examList = masterService.GetSubjectTypeExam();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(examList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
     }
 }

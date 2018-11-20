@@ -144,6 +144,7 @@
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="DTO\Account\AccountDto.cs" />
+    <Compile Include="DTO\Account\ChangePasswordDto.cs" />
     <Compile Include="DTO\Answer\AnswerDto.cs" />
     <Compile Include="DTO\Answer\AnswerShopInfoDto.cs" />
     <Compile Include="DTO\Answer\FileResultDto.cs" />
