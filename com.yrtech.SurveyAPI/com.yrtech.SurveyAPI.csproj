@@ -154,6 +154,7 @@
     <Compile Include="DTO\Answer\LossResultDto.cs" />
     <Compile Include="DTO\Answer\InspectionStandardResultDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
+    <Compile Include="DTO\Master\SubjectTypeScoreRegionDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />
     <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
     <Compile Include="DTO\UploadData.cs" />

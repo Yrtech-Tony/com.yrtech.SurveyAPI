@@ -1,5 +1,6 @@
 ﻿using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.DTO;
+using com.yrtech.SurveyAPI.DTO.Master;
 using Purchase.DAL;
 using System;
 using System.Collections.Generic;
@@ -532,7 +533,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectTypeScoreRegion);
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
-                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId ";
+                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId";
 
             if (!string.IsNullOrEmpty(projectId))
             {
@@ -549,6 +550,37 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
         }
+
+        public List<SubjectTypeScoreRegionDto> GetSubjectTypeScoreRegionDto(string projectId, string subjectId, string subjectTypeId)
+        {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
+            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
+            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@SubjectId", subjectId)
+                                                        , new SqlParameter("@SubjectTypeId", subjectTypeId) };
+            Type t = typeof(SubjectTypeScoreRegionDto);
+            string sql = "";
+            sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,st.SubjectTypeName,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
+                  " FROM SubjectTypeScoreRegion str,Subject s,SubjectType st  WHERE str.SubjectId=s.SubjectId  and st.SubjectTypeId = str.SubjectTypeId";
+
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND S.ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND S.SubjectId = @SubjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectTypeId))
+            {
+                sql += " AND str.SubjectTypeId = @SubjectTypeId";
+            }
+            List<SubjectTypeScoreRegionDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegionDto>().ToList();
+            return list;
+        }
+
         public void SaveSubjectTypeScoreRegion(SubjectTypeScoreRegion subjectTypeScoreRegion)
         {
             SubjectTypeScoreRegion findOne = db.SubjectTypeScoreRegion.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();

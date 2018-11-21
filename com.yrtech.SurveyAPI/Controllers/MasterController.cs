@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using com.yrtech.SurveyAPI.DTO.Master;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -425,7 +426,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<SubjectTypeScoreRegion> lossResultList = masterService.GetSubjectTypeScoreRegion(projectId, subjectId, subjectTypeId);
+                List<SubjectTypeScoreRegionDto> lossResultList = masterService.GetSubjectTypeScoreRegionDto(projectId, subjectId, subjectTypeId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(lossResultList) };
             }
             catch (Exception ex)
@@ -527,5 +528,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+
+        [HttpGet]
+        [Route("Master/GetSubjectType")]
+        public APIResult GetSubjectType()
+        {
+            try
+            {
+                List<SubjectType> examList = masterService.GetSubjectType();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(examList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
     }
 }
