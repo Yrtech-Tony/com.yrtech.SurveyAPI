@@ -103,7 +103,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(Brand);
             string sql = "";
 
-            sql = @"SELECT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
+            sql = @"SELECT DISTINCT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
                     FROM Brand A LEFT JOIN UserInfoBrand B ON A.BrandId = B.BrandId
                     WHERE 1=1 AND A.TenantId = @TenantId ";
             if (!string.IsNullOrEmpty(userId))
