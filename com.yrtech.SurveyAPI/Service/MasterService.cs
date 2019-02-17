@@ -1,5 +1,6 @@
 ﻿using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.DTO;
+using com.yrtech.SurveyAPI.DTO.Master;
 using Purchase.DAL;
 using System;
 using System.Collections.Generic;
@@ -102,7 +103,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(Brand);
             string sql = "";
 
-            sql = @"SELECT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
+            sql = @"SELECT DISTINCT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
                     FROM Brand A LEFT JOIN UserInfoBrand B ON A.BrandId = B.BrandId
                     WHERE 1=1 AND A.TenantId = @TenantId ";
             if (!string.IsNullOrEmpty(userId))
@@ -128,9 +129,10 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(UserInfo);
             string sql = "";
 
-            sql = @"SELECT C.AccountId,C.AccountName,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,B.InDateTime,
-                            (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName
-                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND BrandId = @BrandId
+            sql = @"SELECT C.Id,C.TenantId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
+                    (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName,Email,TelNO,HeadPicUrl,
+                    C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
+                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
 								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
 
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
@@ -211,7 +213,7 @@ namespace com.yrtech.SurveyAPI.Service
             else
             {
                 findOne.ProjectName = project.ProjectName;
-                findOne.ProjectCode = project.ProjectName;
+                findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
                 findOne.OrderNO = project.OrderNO;
@@ -311,20 +313,10 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.SubjectId
-                          ,A.[SubjectCode]
-                          ,A.[ProjectId]
-                          ,A.[SubjectTypeExamId]
-                          ,B.SubjectTypeExamName
-                          ,A.[SubjectRecheckTypeId]
-                          ,A.[SubjectLinkId]
-                          ,C.SubjectLinkName
-                          ,A.[OrderNO]
-                          ,A.[Implementation]
-                          ,A.[CheckPoint]
-                          ,A.[Desc]
-                          ,A.[AdditionalDesc]
-                          ,A.[InspectionDesc]
+            sql = @"SELECT A.SubjectId,A.[SubjectCode],A.[ProjectId],A.[SubjectTypeExamId],B.SubjectTypeExamName,A.[SubjectRecheckTypeId]
+                          ,A.[SubjectLinkId],C.SubjectLinkName,A.[OrderNO],A.[Implementation],A.[CheckPoint],A.[Desc]
+                          ,A.[AdditionalDesc],A.[InspectionDesc],A.InUserId,A.InDateTime,
+                          A.ModifyUserId,A.ModifyDateTime
                     FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
 				                   INNER JOIN SubjectLink C ON A.SubjectLinkId= C.SubjectLinkId
                     WHERE 1=1 ";
@@ -541,7 +533,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectTypeScoreRegion);
             string sql = "";
             sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
-                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId ";
+                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId";
 
             if (!string.IsNullOrEmpty(projectId))
             {
@@ -558,6 +550,37 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
         }
+
+        public List<SubjectTypeScoreRegionDto> GetSubjectTypeScoreRegionDto(string projectId, string subjectId, string subjectTypeId)
+        {
+            projectId = projectId == null ? "" : projectId;
+            subjectId = subjectId == null ? "" : subjectId;
+            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
+            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@SubjectId", subjectId)
+                                                        , new SqlParameter("@SubjectTypeId", subjectTypeId) };
+            Type t = typeof(SubjectTypeScoreRegionDto);
+            string sql = "";
+            sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,st.SubjectTypeName,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
+                  " FROM SubjectTypeScoreRegion str,Subject s,SubjectType st  WHERE str.SubjectId=s.SubjectId  and st.SubjectTypeId = str.SubjectTypeId";
+
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND S.ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND S.SubjectId = @SubjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectTypeId))
+            {
+                sql += " AND str.SubjectTypeId = @SubjectTypeId";
+            }
+            List<SubjectTypeScoreRegionDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegionDto>().ToList();
+            return list;
+        }
+
         public void SaveSubjectTypeScoreRegion(SubjectTypeScoreRegion subjectTypeScoreRegion)
         {
             SubjectTypeScoreRegion findOne = db.SubjectTypeScoreRegion.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();

@@ -70,11 +70,15 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] {
                                             new SqlParameter("@ProjectId", projectId),
                                             new SqlParameter("@ShopId", shopId) };
-            string sql = "";
-            sql = "SELECT A.ShopSubjectTypeExamId,B.SubjectTypeExamName,A.ShopId,A.ProjectId FROM ShopSubjectTypeExam A " +
-                " INNER JOIN SubjectTypeExam B ON ShopSubjectTypeExamId = B.SubjectTypeExamId" +
-                " WHERE A.ProjectId =@ProjectId AND A.ShopId =@ShopId ";
+            string sql = "SELECT A.ShopSubjectTypeExamId,B.SubjectTypeExamName,A.ShopId,A.ProjectId FROM ShopSubjectTypeExam A " +
+                        " INNER JOIN SubjectTypeExam B ON ShopSubjectTypeExamId = B.SubjectTypeExamId" +
+                        " WHERE A.ProjectId =@ProjectId ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId =@ShopId";
+            }
             List<ShopSubjectTypeExamDto> list = db.Database.SqlQuery<ShopSubjectTypeExamDto>(sql, para).ToList();
+            
             return list;
         }
         #endregion

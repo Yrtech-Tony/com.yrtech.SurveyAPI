@@ -73,12 +73,40 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else
                 {
-                    return new APIResult() { Status = true, Body = "用户不存在或者密码不正确" };
+                    return new APIResult() { Status = false, Body = "用户不存在或者密码不正确" };
                 }
             }
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        [HttpPost]
+        [Route("Account/ChangePassword")]
+        public APIResult ChangePassword([FromBody]ChangePasswordDto obj)
+        {
+            try
+            {
+                List<UserInfo> userList = accountService.GetUserInfo(obj.UserId);
+                if (userList != null && userList.Count > 0)
+                {
+                    if (userList[0].Password != obj.sOldPassword)
+                    {//原密码不争取
+                        return new APIResult() { Status = false, Body = "原密码不正确" };
+                    }
+                    accountService.UpdatePassword(obj.UserId, obj.sNewPassword);
+                }
+                else
+                {
+                    return new APIResult() { Status = false, Body = "用户不存在" };
+                }
+
+                return new APIResult() { Status = true, Body = "原密码不正确" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = "密码修改失败！ " + ex.Message };
             }
         }
     }
