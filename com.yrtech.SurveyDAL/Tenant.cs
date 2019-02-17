@@ -15,13 +15,11 @@ namespace Purchase.DAL
     public partial class Tenant
     {
         public int TenantId { get; set; }
+        public string TenantCode { get; set; }
         public string TenantName { get; set; }
-        public string Email { get; set; }
-        public string TelNo { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public string TenantCode { get; set; }
     }
 }

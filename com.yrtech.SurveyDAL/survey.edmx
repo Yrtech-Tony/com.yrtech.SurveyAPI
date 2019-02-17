@@ -9,13 +9,15 @@
           <Key>
             <PropertyRef Name="AnswerId" />
           </Key>
-          <Property Name="AnswerId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AnswerId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" />
           <Property Name="SubjectId" Type="int" Nullable="false" />
           <Property Name="ShopId" Type="int" Nullable="false" />
+          <Property Name="ImportScore" Type="decimal" Precision="19" Scale="2" />
           <Property Name="PhotoScore" Type="decimal" Precision="19" Scale="2" />
           <Property Name="InspectionStandardResult" Type="nvarchar(max)" />
           <Property Name="FileResult" Type="nvarchar(max)" />
+          <Property Name="ImportLossResult" Type="nvarchar(max)" />
           <Property Name="LossResult" Type="nvarchar(max)" />
           <Property Name="ShopConsultantResult" Type="nvarchar(max)" />
           <Property Name="Remark" Type="nvarchar(max)" />
@@ -32,7 +34,7 @@
           </Key>
           <Property Name="ConsultantId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ShopId" Type="int" />
-          <Property Name="ProjectId" Type="int" />
+          <Property Name="ProjectId" Type="bigint" />
           <Property Name="SeqNO" Type="int" />
           <Property Name="ConsultantName" Type="nvarchar" MaxLength="50" />
           <Property Name="ConsultantType" Type="nvarchar" MaxLength="50" />
@@ -49,9 +51,9 @@
           <Key>
             <PropertyRef Name="AnswerShopConsultantScoreId" />
           </Key>
-          <Property Name="AnswerShopConsultantScoreId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="AnswerId" Type="int" />
-          <Property Name="ConsultantId" Type="int" />
+          <Property Name="AnswerShopConsultantScoreId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AnswerId" Type="bigint" />
+          <Property Name="ConsultantId" Type="bigint" />
           <Property Name="ConsultantScore" Type="decimal" Precision="19" Scale="2" />
           <Property Name="ConsultantLossDesc" Type="nvarchar(max)" />
           <Property Name="InUserId" Type="int" />
@@ -63,8 +65,8 @@
           <Key>
             <PropertyRef Name="AnswerShopConsultantSubjectId" />
           </Key>
-          <Property Name="AnswerShopConsultantSubjectId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ConsultantId" Type="int" />
+          <Property Name="AnswerShopConsultantSubjectId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ConsultantId" Type="bigint" />
           <Property Name="SubjectLinkId" Type="int" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -73,7 +75,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" />
           <Property Name="ShopId" Type="int" Nullable="false" />
           <Property Name="TeamLeaderName" Type="nvarchar" MaxLength="10" />
@@ -84,6 +86,74 @@
           <Property Name="ModifyDateTime" Type="datetime" />
           <Property Name="UploadDateTime" Type="datetime" />
           <Property Name="UploadUserId" Type="int" />
+        </EntityType>
+        <EntityType Name="Appeal">
+          <Key>
+            <PropertyRef Name="AppealId" />
+          </Key>
+          <Property Name="AppealId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="ProjectCode" Type="nvarchar" MaxLength="500" />
+          <Property Name="ProjectName" Type="nvarchar" MaxLength="500" />
+          <Property Name="ShopId" Type="int" />
+          <Property Name="ShopCode" Type="nvarchar" MaxLength="500" />
+          <Property Name="ShopName" Type="nvarchar" MaxLength="500" />
+          <Property Name="SubjectId" Type="int" />
+          <Property Name="SubjectCode" Type="nchar" MaxLength="10" />
+          <Property Name="CheckPoint" Type="nvarchar(max)" />
+          <Property Name="Score" Type="decimal" Precision="19" Scale="2" />
+          <Property Name="LossResult" Type="nvarchar(max)" />
+          <Property Name="AppealReason" Type="nvarchar(max)" />
+          <Property Name="AppealUserId" Type="int" />
+          <Property Name="AppealDateTime" Type="datetime" />
+          <Property Name="FeedBackStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="FeedBackReason" Type="nvarchar(max)" />
+          <Property Name="FeedBackUserId" Type="int" />
+          <Property Name="FeedBackDateTime" Type="datetime" />
+          <Property Name="ShopAcceptStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="ShopAcceptReason" Type="nvarchar(max)" />
+          <Property Name="ShopAcceptUserId" Type="int" />
+          <Property Name="ShopAcceptDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="AppealFile">
+          <Key>
+            <PropertyRef Name="FileId" />
+          </Key>
+          <Property Name="FileId" Type="int" Nullable="false" />
+          <Property Name="AppealId" Type="int" />
+          <Property Name="SeqNO" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" />
+          <Property Name="FileName" Type="nvarchar" MaxLength="500" />
+          <Property Name="ServerFileName" Type="nvarchar" MaxLength="500" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Area">
+          <Key>
+            <PropertyRef Name="AreaId" />
+          </Key>
+          <Property Name="AreaId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AreaCode" Type="nvarchar" MaxLength="100" />
+          <Property Name="AreaName" Type="nvarchar" MaxLength="100" />
+          <Property Name="AreaType" Type="nvarchar" MaxLength="100" />
+          <Property Name="ParentId" Type="int" />
+          <Property Name="BrandId" Type="int" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="ModifyUserId" Type="int" />
+          <Property Name="ModifyDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="AreaShop">
+          <Key>
+            <PropertyRef Name="AreaShopId" />
+          </Key>
+          <Property Name="AreaShopId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AreaId" Type="int" />
+          <Property Name="ShopId" Type="int" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="ModifyUserId" Type="int" />
+          <Property Name="ModifyDateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="Brand">
           <Key>
@@ -99,18 +169,6 @@
           <Property Name="ModifyUserId" Type="int" />
           <Property Name="ModifyDateTime" Type="datetime" />
         </EntityType>
-        <EntityType Name="DeleteFileLog">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ProjectId" Type="int" />
-          <Property Name="ShopId" Type="int" />
-          <Property Name="SubjectId" Type="int" />
-          <Property Name="FileName" Type="nvarchar" MaxLength="1000" />
-          <Property Name="InUserId" Type="int" />
-          <Property Name="InDateTime" Type="datetime" />
-        </EntityType>
         <EntityType Name="Project">
           <Key>
             <PropertyRef Name="ProjectId" />
@@ -123,6 +181,7 @@
           <Property Name="Year" Type="nvarchar" MaxLength="50" />
           <Property Name="Quarter" Type="nvarchar" MaxLength="50" />
           <Property Name="OrderNO" Type="int" />
+          <Property Name="DataScore" Type="nvarchar" MaxLength="50" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
@@ -132,7 +191,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" Nullable="false" />
           <Property Name="ShopId" Type="int" Nullable="false" />
           <Property Name="InUserId" Type="int" />
@@ -160,7 +219,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" />
           <Property Name="ShopId" Type="int" />
           <Property Name="ShopSubjectTypeExamId" Type="int" />
@@ -178,7 +237,7 @@
           <Property Name="ProjectId" Type="int" />
           <Property Name="SubjectTypeExamId" Type="int" />
           <Property Name="SubjectRecheckTypeId" Type="int" />
-          <Property Name="SubjectLinkId" Type="int" />
+          <Property Name="SubjectLinkId" Type="bigint" />
           <Property Name="OrderNO" Type="int" />
           <Property Name="Implementation" Type="nvarchar(max)" />
           <Property Name="CheckPoint" Type="nvarchar(max)" />
@@ -195,8 +254,8 @@
           <Key>
             <PropertyRef Name="FileId" />
           </Key>
-          <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SubjectId" Type="int" />
+          <Property Name="FileId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubjectId" Type="bigint" />
           <Property Name="SeqNO" Type="int" />
           <Property Name="FileName" Type="nvarchar(max)" />
           <Property Name="FileType" Type="nvarchar" MaxLength="50" />
@@ -209,9 +268,9 @@
           <Key>
             <PropertyRef Name="InspectionStandardId" />
           </Key>
-          <Property Name="InspectionStandardId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="InspectionStandardId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="InspectionStandardName" Type="nvarchar(max)" />
-          <Property Name="SubjectId" Type="int" Nullable="false" />
+          <Property Name="SubjectId" Type="bigint" Nullable="false" />
           <Property Name="SeqNO" Type="int" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -233,8 +292,8 @@
           <Key>
             <PropertyRef Name="LossResultId" />
           </Key>
-          <Property Name="LossResultId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SubjectId" Type="int" />
+          <Property Name="LossResultId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubjectId" Type="bigint" />
           <Property Name="SeqNO" Type="int" />
           <Property Name="LossResultName" Type="nvarchar(max)" />
           <Property Name="InUserId" Type="int" />
@@ -277,8 +336,8 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SubjectId" Type="int" />
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubjectId" Type="bigint" />
           <Property Name="SubjectTypeId" Type="int" />
           <Property Name="LowestScore" Type="decimal" Precision="19" Scale="2" />
           <Property Name="FullScore" Type="decimal" Precision="19" Scale="2" />
@@ -294,8 +353,6 @@
           <Property Name="TenantId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TenantCode" Type="nvarchar" MaxLength="1000" />
           <Property Name="TenantName" Type="nvarchar" MaxLength="1000" />
-          <Property Name="Email" Type="nvarchar" MaxLength="1000" />
-          <Property Name="TelNo" Type="nvarchar" MaxLength="100" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
@@ -339,8 +396,11 @@
           <EntitySet Name="AnswerShopConsultantScore" EntityType="Self.AnswerShopConsultantScore" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnswerShopConsultantSubjectLink" EntityType="Self.AnswerShopConsultantSubjectLink" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnswerShopInfo" EntityType="Self.AnswerShopInfo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Appeal" EntityType="Self.Appeal" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AppealFile" EntityType="Self.AppealFile" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AreaShop" EntityType="Self.AreaShop" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="DeleteFileLog" EntityType="Self.DeleteFileLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Project" EntityType="Self.Project" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Shop" EntityType="Self.Shop" Schema="dbo" store:Type="Tables" />
@@ -375,35 +435,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
           <Property Name="BrandCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="DeleteFileLog">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="ShopId" Type="Int32" />
-          <Property Name="SubjectId" Type="Int32" />
-          <Property Name="FileName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="Project">
-          <Key>
-            <PropertyRef Name="ProjectId" />
-          </Key>
-          <Property Name="ProjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="BrandId" Type="Int32" />
-          <Property Name="ProjectCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="ProjectName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Year" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Quarter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="OrderNO" Type="Int32" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="ProjectShop">
           <Key>
@@ -531,24 +562,8 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="Tenant">
-          <Key>
-            <PropertyRef Name="TenantId" />
-          </Key>
-          <Property Name="TenantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TenantName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Email" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="TelNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-          <Property Name="TenantCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityContainer Name="Entities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Brand" EntityType="Self.Brand" />
-          <EntitySet Name="DeleteFileLog" EntityType="Self.DeleteFileLog" />
-          <EntitySet Name="Project" EntityType="Self.Project" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" />
           <EntitySet Name="Shop" EntityType="Self.Shop" />
           <EntitySet Name="ShopSubjectTypeExam" EntityType="Self.ShopSubjectTypeExam" />
@@ -559,16 +574,21 @@
           <EntitySet Name="SubjectType" EntityType="Self.SubjectType" />
           <EntitySet Name="SubjectTypeExam" EntityType="Self.SubjectTypeExam" />
           <EntitySet Name="SubjectTypeScoreRegion" EntityType="Self.SubjectTypeScoreRegion" />
-          <EntitySet Name="Tenant" EntityType="Self.Tenant" />
           <EntitySet Name="UserInfoBrand" EntityType="com.yrtech.surveyModel.UserInfoBrand" />
           <EntitySet Name="UserInfo" EntityType="com.yrtech.surveyModel.UserInfo" />
           <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.surveyModel.AnswerShopInfo" />
-          <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
           <EntitySet Name="SubjectLink" EntityType="com.yrtech.surveyModel.SubjectLink" />
           <EntitySet Name="AnswerShopConsultant" EntityType="com.yrtech.surveyModel.AnswerShopConsultant" />
           <EntitySet Name="AnswerShopConsultantSubjectLink" EntityType="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink" />
           <EntitySet Name="AnswerShopConsultantScore" EntityType="com.yrtech.surveyModel.AnswerShopConsultantScore" />
           <EntitySet Name="Subject" EntityType="com.yrtech.surveyModel.Subject" />
+          <EntitySet Name="Appeal" EntityType="com.yrtech.surveyModel.Appeal" />
+          <EntitySet Name="AppealFile" EntityType="com.yrtech.surveyModel.AppealFile" />
+          <EntitySet Name="Area" EntityType="com.yrtech.surveyModel.Area" />
+          <EntitySet Name="AreaShop" EntityType="com.yrtech.surveyModel.AreaShop" />
+          <EntitySet Name="Tenant" EntityType="com.yrtech.surveyModel.Tenant" />
+          <EntitySet Name="Answer" EntityType="com.yrtech.surveyModel.Answer" />
+          <EntitySet Name="Project" EntityType="com.yrtech.surveyModel.Project" />
         </EntityContainer>
         <EntityType Name="UserInfoBrand">
           <Key>
@@ -616,27 +636,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
           <Property Name="UploadDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadUserId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="Answer">
-          <Key>
-            <PropertyRef Name="AnswerId" />
-          </Key>
-          <Property Name="AnswerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="SubjectId" Type="Int32" Nullable="false" />
-          <Property Name="ShopId" Type="Int32" Nullable="false" />
-          <Property Name="PhotoScore" Type="Decimal" Precision="19" Scale="2" />
-          <Property Name="InspectionStandardResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="FileResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ShopConsultantResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-          <Property Name="UploadDate" Type="DateTime" Precision="3" />
           <Property Name="UploadUserId" Type="Int32" />
         </EntityType>
         <EntityType Name="SubjectLink">
@@ -715,6 +714,127 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="Appeal">
+          <Key>
+            <PropertyRef Name="AppealId" />
+          </Key>
+          <Property Name="AppealId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ProjectCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="ShopCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ShopName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="SubjectId" Type="Int32" />
+          <Property Name="SubjectCode" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Score" Type="Decimal" Precision="19" Scale="2" />
+          <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppealReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppealUserId" Type="Int32" />
+          <Property Name="AppealDateTime" Type="DateTime" Precision="3" />
+          <Property Name="FeedBackStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FeedBackReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FeedBackUserId" Type="Int32" />
+          <Property Name="FeedBackDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ShopAcceptStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ShopAcceptReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ShopAcceptUserId" Type="Int32" />
+          <Property Name="ShopAcceptDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="AppealFile">
+          <Key>
+            <PropertyRef Name="FileId" />
+          </Key>
+          <Property Name="FileId" Type="Int32" Nullable="false" />
+          <Property Name="AppealId" Type="Int32" />
+          <Property Name="SeqNO" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ServerFileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Area">
+          <Key>
+            <PropertyRef Name="AreaId" />
+          </Key>
+          <Property Name="AreaId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AreaCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AreaName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AreaType" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ParentId" Type="Int32" />
+          <Property Name="BrandId" Type="Int32" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="AreaShop">
+          <Key>
+            <PropertyRef Name="AreaShopId" />
+          </Key>
+          <Property Name="AreaShopId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AreaId" Type="Int32" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Tenant">
+          <Key>
+            <PropertyRef Name="TenantId" />
+          </Key>
+          <Property Name="TenantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenantCode" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="TenantName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Answer">
+          <Key>
+            <PropertyRef Name="AnswerId" />
+          </Key>
+          <Property Name="AnswerId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="SubjectId" Type="Int32" Nullable="false" />
+          <Property Name="ShopId" Type="Int32" Nullable="false" />
+          <Property Name="ImportScore" Type="Decimal" Precision="19" Scale="2" />
+          <Property Name="PhotoScore" Type="Decimal" Precision="19" Scale="2" />
+          <Property Name="InspectionStandardResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FileResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ImportLossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ShopConsultantResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+          <Property Name="UploadDate" Type="DateTime" Precision="3" />
+          <Property Name="UploadUserId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Project">
+          <Key>
+            <PropertyRef Name="ProjectId" />
+          </Key>
+          <Property Name="ProjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="BrandId" Type="Int32" />
+          <Property Name="ProjectCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Year" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Quarter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNO" Type="Int32" />
+          <Property Name="DataScore" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -729,37 +849,6 @@
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="BrandName" ColumnName="BrandName" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DeleteFileLog">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.DeleteFileLog">
-              <MappingFragment StoreEntitySet="DeleteFileLog">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-                <ScalarProperty Name="FileName" ColumnName="FileName" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Project">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Project">
-              <MappingFragment StoreEntitySet="Project">
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
-                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
-                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
-                <ScalarProperty Name="Year" ColumnName="Year" />
-                <ScalarProperty Name="Quarter" ColumnName="Quarter" />
-                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
                 <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
@@ -903,21 +992,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Tenant">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Tenant">
-              <MappingFragment StoreEntitySet="Tenant">
-                <ScalarProperty Name="TenantCode" ColumnName="TenantCode" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="TenantName" ColumnName="TenantName" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="TelNo" ColumnName="TelNo" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="UserInfoBrand">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.UserInfoBrand">
               <MappingFragment StoreEntitySet="UserInfoBrand">
@@ -966,28 +1040,6 @@
                 <ScalarProperty Name="ShopId" ColumnName="ShopId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Answer">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Answer">
-              <MappingFragment StoreEntitySet="Answer">
-                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
-                <ScalarProperty Name="UploadDate" ColumnName="UploadDate" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="ShopConsultantResult" ColumnName="ShopConsultantResult" />
-                <ScalarProperty Name="LossResult" ColumnName="LossResult" />
-                <ScalarProperty Name="FileResult" ColumnName="FileResult" />
-                <ScalarProperty Name="InspectionStandardResult" ColumnName="InspectionStandardResult" />
-                <ScalarProperty Name="PhotoScore" ColumnName="PhotoScore" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1069,6 +1121,134 @@
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Appeal">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Appeal">
+              <MappingFragment StoreEntitySet="Appeal">
+                <ScalarProperty Name="ShopAcceptDateTime" ColumnName="ShopAcceptDateTime" />
+                <ScalarProperty Name="ShopAcceptUserId" ColumnName="ShopAcceptUserId" />
+                <ScalarProperty Name="ShopAcceptReason" ColumnName="ShopAcceptReason" />
+                <ScalarProperty Name="ShopAcceptStatus" ColumnName="ShopAcceptStatus" />
+                <ScalarProperty Name="FeedBackDateTime" ColumnName="FeedBackDateTime" />
+                <ScalarProperty Name="FeedBackUserId" ColumnName="FeedBackUserId" />
+                <ScalarProperty Name="FeedBackReason" ColumnName="FeedBackReason" />
+                <ScalarProperty Name="FeedBackStatus" ColumnName="FeedBackStatus" />
+                <ScalarProperty Name="AppealDateTime" ColumnName="AppealDateTime" />
+                <ScalarProperty Name="AppealUserId" ColumnName="AppealUserId" />
+                <ScalarProperty Name="AppealReason" ColumnName="AppealReason" />
+                <ScalarProperty Name="LossResult" ColumnName="LossResult" />
+                <ScalarProperty Name="Score" ColumnName="Score" />
+                <ScalarProperty Name="CheckPoint" ColumnName="CheckPoint" />
+                <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+                <ScalarProperty Name="ShopName" ColumnName="ShopName" />
+                <ScalarProperty Name="ShopCode" ColumnName="ShopCode" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AppealFile">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AppealFile">
+              <MappingFragment StoreEntitySet="AppealFile">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ServerFileName" ColumnName="ServerFileName" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
+                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
+                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Area">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Area">
+              <MappingFragment StoreEntitySet="Area">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
+                <ScalarProperty Name="ParentId" ColumnName="ParentId" />
+                <ScalarProperty Name="AreaType" ColumnName="AreaType" />
+                <ScalarProperty Name="AreaName" ColumnName="AreaName" />
+                <ScalarProperty Name="AreaCode" ColumnName="AreaCode" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AreaShop">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.AreaShop">
+              <MappingFragment StoreEntitySet="AreaShop">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="AreaShopId" ColumnName="AreaShopId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tenant">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Tenant">
+              <MappingFragment StoreEntitySet="Tenant">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="TenantName" ColumnName="TenantName" />
+                <ScalarProperty Name="TenantCode" ColumnName="TenantCode" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Answer">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Answer">
+              <MappingFragment StoreEntitySet="Answer">
+                <ScalarProperty Name="UploadUserId" ColumnName="UploadUserId" />
+                <ScalarProperty Name="UploadDate" ColumnName="UploadDate" />
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="ShopConsultantResult" ColumnName="ShopConsultantResult" />
+                <ScalarProperty Name="LossResult" ColumnName="LossResult" />
+                <ScalarProperty Name="ImportLossResult" ColumnName="ImportLossResult" />
+                <ScalarProperty Name="FileResult" ColumnName="FileResult" />
+                <ScalarProperty Name="InspectionStandardResult" ColumnName="InspectionStandardResult" />
+                <ScalarProperty Name="PhotoScore" ColumnName="PhotoScore" />
+                <ScalarProperty Name="ImportScore" ColumnName="ImportScore" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Project">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.Project">
+              <MappingFragment StoreEntitySet="Project">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="DataScore" ColumnName="DataScore" />
+                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
+                <ScalarProperty Name="Quarter" ColumnName="Quarter" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
+                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

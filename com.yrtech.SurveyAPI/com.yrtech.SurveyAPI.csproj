@@ -138,6 +138,7 @@
     <Compile Include="Common\APIResult.cs" />
     <Compile Include="Common\CommonHelper.cs" />
     <Compile Include="Common\OSSClientHelper.cs" />
+    <Compile Include="Controllers\AppealControl.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AnswerController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
@@ -152,6 +153,8 @@
     <Compile Include="DTO\Answer\ShopConsultantResultDto.cs" />
     <Compile Include="DTO\Answer\LossResultDto.cs" />
     <Compile Include="DTO\Answer\InspectionStandardResultDto.cs" />
+    <Compile Include="DTO\Appeal\AppealFileDto.cs" />
+    <Compile Include="DTO\Appeal\AppealDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />
     <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
@@ -165,6 +168,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AnswerService.cs" />
     <Compile Include="Service\ShopService.cs" />
     <Compile Include="Service\MasterService.cs" />

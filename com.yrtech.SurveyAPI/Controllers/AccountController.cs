@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web.Http;
 using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.Service;
-using com.yrtech.SurveyAPI.DTO.Account;
+using com.yrtech.SurveyAPI.DTO;
 using Purchase.DAL;
 
 namespace com.yrtech.SurveyAPI.Controllers

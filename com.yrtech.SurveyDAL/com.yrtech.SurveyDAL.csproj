@@ -69,10 +69,19 @@
     <Compile Include="AnswerShopInfo.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="Brand.cs">
+    <Compile Include="Appeal.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="DeleteFileLog.cs">
+    <Compile Include="AppealFile.cs">
+      <DependentUpon>survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Area.cs">
+      <DependentUpon>survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AreaShop.cs">
+      <DependentUpon>survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Brand.cs">
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Project.cs">
@@ -126,6 +135,11 @@
       <DependentUpon>survey.tt</DependentUpon>
     </Compile>
     <Compile Include="survey.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>survey.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="survey1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>survey.edmx</DependentUpon>

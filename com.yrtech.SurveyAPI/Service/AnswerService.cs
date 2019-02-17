@@ -611,13 +611,13 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
             // 保存销售顾问得分
-            int answerId = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault().AnswerId;
+            long answerId = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault().AnswerId;
             if (shopConsultantList != null)
             {
                 foreach (ShopConsultantResultDto result in shopConsultantList)
                 {
                     AnswerShopConsultantScore score = new AnswerShopConsultantScore();
-                    score.AnswerId = answerId;
+                    score.AnswerId = Convert.ToInt32(answerId);
                     score.ConsultantId = result.ConsultantId;
                     score.ConsultantScore = result.ConsultantScore;
                     score.ConsultantLossDesc = result.ConsultantLossDesc;

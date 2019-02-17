@@ -14,13 +14,15 @@ namespace Purchase.DAL
     
     public partial class Answer
     {
-        public int AnswerId { get; set; }
+        public long AnswerId { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public int SubjectId { get; set; }
         public int ShopId { get; set; }
+        public Nullable<decimal> ImportScore { get; set; }
         public Nullable<decimal> PhotoScore { get; set; }
         public string InspectionStandardResult { get; set; }
         public string FileResult { get; set; }
+        public string ImportLossResult { get; set; }
         public string LossResult { get; set; }
         public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }

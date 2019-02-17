@@ -1,5 +1,5 @@
 ﻿using com.yrtech.SurveyAPI.Common;
-using com.yrtech.SurveyAPI.DTO.Account;
+using com.yrtech.SurveyAPI.DTO;
 using Purchase.DAL;
 using System;
 using System.Collections.Generic;

@@ -22,6 +22,7 @@ namespace Purchase.DAL
         public string Year { get; set; }
         public string Quarter { get; set; }
         public Nullable<int> OrderNO { get; set; }
+        public string DataScore { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
