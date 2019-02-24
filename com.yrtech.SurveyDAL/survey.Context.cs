@@ -13,10 +13,10 @@ namespace Purchase.DAL
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class Entities : DbContext
+    public partial class Survey : DbContext
     {
-        public Entities()
-            : base("name=Entities")
+        public Survey()
+            : base("name=Survey")
         {
         }
     
@@ -25,31 +25,36 @@ namespace Purchase.DAL
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<Answer> Answer { get; set; }
+        public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
+        public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
+        public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
+        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
+        public virtual DbSet<AppealFile> AppealFile { get; set; }
+        public virtual DbSet<Area> Area { get; set; }
+        public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
+        public virtual DbSet<Group> Group { get; set; }
+        public virtual DbSet<HiddenCode> HiddenCode { get; set; }
         public virtual DbSet<ProjectShop> ProjectShop { get; set; }
+        public virtual DbSet<RoleType> RoleType { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ShopSubjectTypeExam> ShopSubjectTypeExam { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<SubjectFile> SubjectFile { get; set; }
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
+        public virtual DbSet<SubjectLink> SubjectLink { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
         public virtual DbSet<SubjectRecheckType> SubjectRecheckType { get; set; }
         public virtual DbSet<SubjectType> SubjectType { get; set; }
         public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
         public virtual DbSet<SubjectTypeScoreRegion> SubjectTypeScoreRegion { get; set; }
-        public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
-        public virtual DbSet<UserInfo> UserInfo { get; set; }
-        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
-        public virtual DbSet<SubjectLink> SubjectLink { get; set; }
-        public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
-        public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
-        public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
-        public virtual DbSet<AppealFile> AppealFile { get; set; }
-        public virtual DbSet<Area> Area { get; set; }
-        public virtual DbSet<AreaShop> AreaShop { get; set; }
+        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
-        public virtual DbSet<Answer> Answer { get; set; }
+        public virtual DbSet<UserInfo> UserInfo { get; set; }
+        public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
+        public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
         public virtual DbSet<Project> Project { get; set; }
     }
 }

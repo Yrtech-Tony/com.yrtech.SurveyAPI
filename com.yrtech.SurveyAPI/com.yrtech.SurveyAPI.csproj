@@ -156,8 +156,11 @@
     <Compile Include="DTO\Answer\InspectionStandardResultDto.cs" />
     <Compile Include="DTO\Appeal\AppealFileDto.cs" />
     <Compile Include="DTO\Appeal\AppealDto.cs" />
+    <Compile Include="DTO\Master\ProjectDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Master\SubjectTypeScoreRegionDto.cs" />
+    <Compile Include="DTO\Shop\GroupDto.cs" />
+    <Compile Include="DTO\Shop\AreaDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />
     <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
     <Compile Include="DTO\UploadData.cs" />
@@ -172,6 +175,7 @@
     </Compile>
     <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AnswerService.cs" />
+    <Compile Include="Service\AreaService.cs" />
     <Compile Include="Service\ShopService.cs" />
     <Compile Include="Service\MasterService.cs" />
     <Compile Include="Service\AccountService.cs" />

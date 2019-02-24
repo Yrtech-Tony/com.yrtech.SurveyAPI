@@ -29,11 +29,11 @@ namespace Purchase.DAL
         public string AppealReason { get; set; }
         public Nullable<int> AppealUserId { get; set; }
         public Nullable<System.DateTime> AppealDateTime { get; set; }
-        public string FeedBackStatus { get; set; }
+        public Nullable<bool> FeedBackStatus { get; set; }
         public string FeedBackReason { get; set; }
         public Nullable<int> FeedBackUserId { get; set; }
         public Nullable<System.DateTime> FeedBackDateTime { get; set; }
-        public string ShopAcceptStatus { get; set; }
+        public Nullable<bool> ShopAcceptStatus { get; set; }
         public string ShopAcceptReason { get; set; }
         public Nullable<int> ShopAcceptUserId { get; set; }
         public Nullable<System.DateTime> ShopAcceptDateTime { get; set; }

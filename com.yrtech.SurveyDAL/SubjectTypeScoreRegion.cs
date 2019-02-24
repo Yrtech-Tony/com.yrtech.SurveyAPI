@@ -14,8 +14,8 @@ namespace Purchase.DAL
     
     public partial class SubjectTypeScoreRegion
     {
-        public int Id { get; set; }
-        public Nullable<int> SubjectId { get; set; }
+        public long Id { get; set; }
+        public Nullable<long> SubjectId { get; set; }
         public Nullable<int> SubjectTypeId { get; set; }
         public Nullable<decimal> LowestScore { get; set; }
         public Nullable<decimal> FullScore { get; set; }

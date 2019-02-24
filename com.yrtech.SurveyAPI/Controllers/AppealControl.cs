@@ -29,13 +29,13 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopAppealInfoByPage")]
-        public APIResult GetShopAppealInfoByPage(string projectId,string shopIdStr, int pageNum, int pageCount)
+        public APIResult GetShopAppealInfoByPage(string projectId,string businessType,string wideArea,string bigArea,string middleArea,string smallArea,string shopIdStr,string keyword, int pageNum, int pageCount)
         {
             try
             {
                 List<object> resultList = new List<object>();
-                resultList.Add(appealService.GetShopAppealInfoByAll(projectId, shopIdStr));
-                resultList.Add(appealService.GetShopAppealInfoByPage(projectId, shopIdStr, pageNum, pageCount));
+                resultList.Add(appealService.GetShopAppealInfoByAll(projectId, businessType,wideArea,bigArea,middleArea,smallArea, keyword, shopIdStr));
+                resultList.Add(appealService.GetShopAppealInfoByPage(projectId, businessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr, pageNum, pageCount));
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
             }
             catch (Exception ex)
@@ -45,11 +45,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopSubjectAppeal")]
-        public APIResult GetShopSubjectAppeal(string projectId, string shopId, string subjectId)
+        public APIResult GetShopSubjectAppeal(string appealId)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopSubjectAppeal(projectId, shopId, subjectId)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopSubjectAppeal(appealId)) };
             }
             catch (Exception ex)
             {
@@ -58,11 +58,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/AppealFileSearch")]
-        public APIResult AppealFileSearch(string appealId)
+        public APIResult AppealFileSearch(string appealId,string fileType)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.AppealFileSearch(appealId)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.AppealFileSearch(appealId, fileType)) };
             }
             catch (Exception ex)
             {

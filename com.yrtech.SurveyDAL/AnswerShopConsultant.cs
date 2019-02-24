@@ -16,7 +16,7 @@ namespace Purchase.DAL
     {
         public int ConsultantId { get; set; }
         public Nullable<int> ShopId { get; set; }
-        public Nullable<int> ProjectId { get; set; }
+        public Nullable<long> ProjectId { get; set; }
         public Nullable<int> SeqNO { get; set; }
         public string ConsultantName { get; set; }
         public string ConsultantType { get; set; }

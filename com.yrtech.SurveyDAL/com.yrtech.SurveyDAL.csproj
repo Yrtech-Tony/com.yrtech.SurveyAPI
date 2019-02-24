@@ -45,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -55,103 +56,113 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Answer.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AnswerShopConsultant.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AnswerShopConsultantScore.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AnswerShopConsultantSubjectLink.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AnswerShopInfo.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Appeal.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AppealFile.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Area.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AreaShop.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Brand.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Group.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="HiddenCode.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Project.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectShop.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoleType.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Shop.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ShopSubjectTypeExam.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Subject.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectFile.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectInspectionStandard.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectLink.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectLossResult.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectRecheckType.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectType.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectTypeExam.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="SubjectTypeScoreRegion.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="survey.Context.cs">
+    <Compile Include="Survey.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>survey.Context.tt</DependentUpon>
+      <DependentUpon>Survey.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="survey.cs">
+    <Compile Include="Survey.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="survey.Designer.cs">
+    <Compile Include="Survey.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>survey.edmx</DependentUpon>
+      <DependentUpon>Survey.edmx</DependentUpon>
     </Compile>
-    <Compile Include="survey1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>survey.edmx</DependentUpon>
+    <Compile Include="sysdiagrams.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Tenant.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="UserInfo.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="UserInfoBrand.cs">
-      <DependentUpon>survey.tt</DependentUpon>
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserInfoObject.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -159,27 +170,27 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <EntityDeploy Include="survey.edmx">
+    <EntityDeploy Include="Survey.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>survey1.Designer.cs</LastGenOutput>
+      <LastGenOutput>Survey.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="survey.edmx.diagram">
-      <DependentUpon>survey.edmx</DependentUpon>
+    <None Include="Survey.edmx.diagram">
+      <DependentUpon>Survey.edmx</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="survey.Context.tt">
+    <Content Include="Survey.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>survey.edmx</DependentUpon>
-      <LastGenOutput>survey.Context.cs</LastGenOutput>
+      <DependentUpon>Survey.edmx</DependentUpon>
+      <LastGenOutput>Survey.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="survey.tt">
+    <Content Include="Survey.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>survey.edmx</DependentUpon>
-      <LastGenOutput>survey.cs</LastGenOutput>
+      <DependentUpon>Survey.edmx</DependentUpon>
+      <LastGenOutput>Survey.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -12,13 +12,12 @@ namespace Purchase.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class AnswerShopConsultantScore
+    public partial class Group
     {
-        public long AnswerShopConsultantScoreId { get; set; }
-        public Nullable<long> AnswerId { get; set; }
-        public Nullable<long> ConsultantId { get; set; }
-        public Nullable<decimal> ConsultantScore { get; set; }
-        public string ConsultantLossDesc { get; set; }
+        public int GroupId { get; set; }
+        public Nullable<int> BrandId { get; set; }
+        public string GroupName { get; set; }
+        public string GroupCode { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

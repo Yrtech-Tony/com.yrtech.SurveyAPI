@@ -11,7 +11,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 {
     public class ProjectController : ApiController
     {
-        Entities db = new Entities();
+        Survey db = new Survey();
         public APIResult Get(string tenantId, string brandId)
         {
             try

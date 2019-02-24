@@ -14,7 +14,7 @@ namespace Purchase.DAL
     
     public partial class ShopSubjectTypeExam
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ShopId { get; set; }
         public Nullable<int> ShopSubjectTypeExamId { get; set; }

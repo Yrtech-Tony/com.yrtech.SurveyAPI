@@ -5,6 +5,7 @@ using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.DTO;
 using Purchase.DAL;
+using com.yrtech.SurveyAPI.DTO.Account;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -14,6 +15,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
 
+        /// <summary>
+        /// 调研公司执行人员登陆使用
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Account/LoginForMobile")]
         public APIResult LoginForMobile(string accountId, string password)
@@ -42,7 +49,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<Project> projectList = new List<Project>();
                     foreach (Brand brand in brandList)
                     {
-                        projectList.AddRange(masterService.GetProject(tenantId, brand.BrandId.ToString(), ""));
+                        projectList.AddRange(masterService.GetProject(tenantId, brand.BrandId.ToString(), "",""));
                     }
                     resultList.Add(projectList);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
@@ -58,7 +65,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
+        /// <summary>
+        /// 调研公司网页端登陆
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Account/Login")]
         public APIResult Login(string accountId, string password)
@@ -81,7 +93,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
+        /// <summary>
+        /// 修改密码
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Account/ChangePassword")]
         public APIResult ChangePassword([FromBody]ChangePasswordDto obj)
@@ -92,7 +108,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)
-                    {//原密码不争取
+                    {//原密码不正确
                         return new APIResult() { Status = false, Body = "原密码不正确" };
                     }
                     accountService.UpdatePassword(obj.UserId, obj.sNewPassword);
@@ -107,6 +123,47 @@ namespace com.yrtech.SurveyAPI.Controllers
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = "密码修改失败！ " + ex.Message };
+            }
+        }
+        /// <summary>
+        /// 厂商各权限登陆使用
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/LoginForBrand")]
+        public APIResult LoginForBrand(string accountId, string password)
+        {
+            try
+            {
+                List<object> resultList = new List<object>();
+                List<AccountDto> accountlist = accountService.Login(accountId, password);
+                if (accountlist != null && accountlist.Count != 0)
+                {
+                    AccountDto account = accountlist[0];
+                    string tenantId = account.TenantId.ToString();
+                    string brandId = account.BrandId.ToString();
+                    string userId = account.UserId.ToString();
+                    string roleType = account.RoleType;
+                    account.ShopList = accountService.GetShopListByRole(brandId, userId, roleType);
+                    account.GroupList = accountService.GetGroupByRole(brandId, userId, roleType);
+                    account.SmallAreaList = accountService.GetSmallAreaByRole(brandId, userId, roleType);
+                    account.MiddleAreaList = accountService.GetMiddleAreaByRole(brandId, userId, roleType);
+                    account.BigAreaList = accountService.GetBigAreaByRole(brandId, userId, roleType);
+                    account.WideAreaList = accountService.GetWideAreaByRole(brandId, userId, roleType);
+                    account.BusinessAreaList = accountService.GetBussnessListByRole(brandId, userId, roleType);
+                    resultList.Add(accountlist);
+                    return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
+                }
+                else
+                {
+                    return new APIResult() { Status = true, Body = "用户不存在或者密码不正确" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
     }

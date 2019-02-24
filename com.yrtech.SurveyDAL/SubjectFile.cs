@@ -14,14 +14,14 @@ namespace Purchase.DAL
     
     public partial class SubjectFile
     {
-        public int FileId { get; set; }
-        public Nullable<int> SubjectId { get; set; }
+        public long FileId { get; set; }
+        public Nullable<long> SubjectId { get; set; }
+        public Nullable<int> SeqNO { get; set; }
         public string FileName { get; set; }
         public string FileType { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public Nullable<int> SeqNO { get; set; }
     }
 }

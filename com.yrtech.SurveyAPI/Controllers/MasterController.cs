@@ -174,11 +174,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId, string projectId)
+        public APIResult GetProject(string brandId, string projectId,string year)
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("", brandId, projectId);
+                List<Project> projectList = masterService.GetProject("", brandId, projectId,year);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)

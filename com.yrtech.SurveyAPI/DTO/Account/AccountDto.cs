@@ -16,10 +16,18 @@ namespace com.yrtech.SurveyAPI.DTO
         public string AccountId { get; set; }
         public string AccountName { get; set; }
         public int UserId { get; set;  }
+        public string RoleType { get; set; }
         public string Password { get; set; }
         public bool UseChk { get; set; }
         public string TelNO { get; set; }
         public string Email { get; set; }
         public string HeadPicUrl { get; set; }
+        public List<ShopDto> ShopList { get; set; }
+        public List<AreaDto> SmallAreaList { get; set; }
+        public List<AreaDto> MiddleAreaList { get; set; }
+        public List<AreaDto> BigAreaList { get; set; }
+        public List<AreaDto> WideAreaList { get; set; }
+        public List<AreaDto> BusinessAreaList { get; set; }
+        public List<GroupDto> GroupList { get; set; }
     }
 }

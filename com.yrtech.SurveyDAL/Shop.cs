@@ -22,6 +22,7 @@ namespace Purchase.DAL
         public string ShopShortName { get; set; }
         public string Province { get; set; }
         public string City { get; set; }
+        public Nullable<int> GroupId { get; set; }
         public Nullable<bool> UseChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

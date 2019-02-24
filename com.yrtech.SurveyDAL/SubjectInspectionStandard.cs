@@ -14,13 +14,13 @@ namespace Purchase.DAL
     
     public partial class SubjectInspectionStandard
     {
-        public int InspectionStandardId { get; set; }
+        public long InspectionStandardId { get; set; }
         public string InspectionStandardName { get; set; }
-        public int SubjectId { get; set; }
+        public long SubjectId { get; set; }
+        public Nullable<int> SeqNO { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public Nullable<int> SeqNO { get; set; }
     }
 }

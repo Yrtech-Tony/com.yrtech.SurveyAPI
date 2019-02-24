@@ -18,7 +18,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public string City { get; set; }
         public int SubjectTypeExamId { get; set; }
         public string SubjectTypeExamName { get; set; }
+        public bool? UseChk { get; set; }
         public int InUserId { get; set; }
         public DateTime InDateTime { get; set; }
+        public int ModifyUserId { get; set; }
+        public DateTime ModifyDateTime { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace Purchase.DAL
     
     public partial class AnswerShopInfo
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public int ShopId { get; set; }
         public string TeamLeaderName { get; set; }

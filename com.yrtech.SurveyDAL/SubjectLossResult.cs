@@ -14,13 +14,13 @@ namespace Purchase.DAL
     
     public partial class SubjectLossResult
     {
-        public int LossResultId { get; set; }
-        public Nullable<int> SubjectId { get; set; }
+        public long LossResultId { get; set; }
+        public Nullable<long> SubjectId { get; set; }
+        public Nullable<int> SeqNO { get; set; }
         public string LossResultName { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public Nullable<int> SeqNO { get; set; }
     }
 }

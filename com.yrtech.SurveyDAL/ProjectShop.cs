@@ -14,7 +14,7 @@ namespace Purchase.DAL
     
     public partial class ProjectShop
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int ProjectId { get; set; }
         public int ShopId { get; set; }
         public Nullable<int> InUserId { get; set; }

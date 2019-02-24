@@ -10,7 +10,7 @@ namespace com.yrtech.SurveyAPI.Service
 {
     public class AnswerService
     {
-        Entities db = new Entities();
+        Survey db = new Survey();
         localhost.Service webService = new localhost.Service();
         MasterService masterService = new MasterService();
         AccountService accountService = new AccountService();
@@ -26,7 +26,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (lst == null) return;
             string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
             string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString())[0].ProjectCode;
+            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             try
@@ -119,7 +119,7 @@ namespace com.yrtech.SurveyAPI.Service
             //CommonHelper.log(lst.ToString());
             string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
             string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString())[0].ProjectCode;
+            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
             string accountId = accountService.GetUserInfo(userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             // 保存数据到原系统
@@ -161,7 +161,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
 
             if (lst == null || lst.Count == 0) return;
-            List<Project> projectList = masterService.GetProject("", "", lst[0].ProjectId.ToString());
+            List<Project> projectList = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"");
             if (projectList == null || projectList.Count == 0)
             {
                 throw new Exception("没有找到对应的期号");
@@ -490,7 +490,7 @@ namespace com.yrtech.SurveyAPI.Service
             answer.UploadDate = DateTime.Now;
             answer.UploadUserId = Convert.ToInt32(answerDto.ModifyUserId);
             // 保存打分信息
-            List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString());
+            List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(),"");
             if (projectList == null || projectList.Count == 0)
             {
                 throw new Exception("没有找到对应的期号");
@@ -701,7 +701,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerShopInfo(AnswerShopInfo shopInfo)
         {
-            List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString());
+            List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString(),"");
             if (projectList == null || projectList.Count == 0)
             {
                 throw new Exception("没有找到对应的期号");
@@ -785,7 +785,7 @@ namespace com.yrtech.SurveyAPI.Service
             consultant.SeqNO = consultantDto.SeqNO;
             consultant.ShopId = consultantDto.ShopId;
             consultant.UseChk = consultantDto.UseChk;
-            List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString());
+            List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString(),"");
             if (projectList == null || projectList.Count == 0)
             {
                 throw new Exception("没有找到对应的期号");

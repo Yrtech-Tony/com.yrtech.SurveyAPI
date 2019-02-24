@@ -11,7 +11,7 @@ namespace com.yrtech.SurveyAPI.Service
 {
     public class ShopService
     {
-        Entities db = new Entities();
+        Survey db = new Survey();
         //#region 不联网时使用
         ///// <summary>
         ///// 获取当前期下的经销商
@@ -82,6 +82,5 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
         }
         #endregion
-       
     }
 }

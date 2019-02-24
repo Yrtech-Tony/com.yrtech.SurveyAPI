@@ -13,7 +13,7 @@ namespace com.yrtech.SurveyAPI.Service
 {
     public class AppealService
     {
-        Entities db = new Entities();
+        Survey db = new Survey();
         /// <summary>
         /// 生成经销商得分的信息用来申诉
         /// </summary>
@@ -47,6 +47,9 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 //系统打分的时候，计算总分和失分说明，进行更新
             }
+            // 更新申诉开始时间。
+            sql_project = "UPDATE Project SET AppealStartDate = GETDATE() WHERE ProjectId = @ProjectId";
+            db.Database.SqlQuery(t, sql_project, para).Cast<int>().ToList();
         }
         /// <summary>
         /// 查询经销商申诉列表_按页码
@@ -54,10 +57,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<AppealDto> GetShopAppealInfoByPage(string projectId, string shopIdStr, int pageNum, int pageCount)
+        public List<AppealDto> GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea,string keyword, string shopIdStr, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount + 1;
-            return GetShopAppealInfoByAll(projectId, shopIdStr).GetRange(startIndex, pageNum);
+            return GetShopAppealInfoByAll(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr).GetRange(startIndex, pageNum);
         }
         /// <summary>
         /// 查询所有的申诉列表
@@ -65,11 +68,18 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopIdStr"></param>
         /// <returns></returns>
-        public List<AppealDto> GetShopAppealInfoByAll(string projectId, string shopIdStr)
+        public List<AppealDto> GetShopAppealInfoByAll(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr,string keyword)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SmallArea", smallArea),
+                                                        new SqlParameter("@MiddleArea", middleArea),
+                                                        new SqlParameter("@BigArea", bigArea),
+                                                        new SqlParameter("@WideArea", wideArea),
+                                                        new SqlParameter("@BusinessType", bussinessType),
+                                                    new SqlParameter("@KeyWord", keyword)};
             Type t = typeof(AppealDto);
-            string sql = @"SELECT [AppealId]
+            string sql = "";
+            sql = @"SELECT [AppealId]
                                   ,[ProjectId]
                                   ,[ProjectCode]
                                   ,[ProjectName]
@@ -105,12 +115,11 @@ namespace com.yrtech.SurveyAPI.Service
                                    ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [ShopAcceptUserId]),'') AS [ShopAcceptUserName]
                                   ,[ShopAcceptUserId]
                                   ,[ShopAcceptDateTime]
-                              FROM [Appeal]
-                              WHERE ProjectId = @ProjectId  ";
-            if (string.IsNullOrEmpty(shopIdStr))
+                              FROM [Appeal] A  ";
+            if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(';');
-                sql += " AND ShopId IN(";
+                sql += " WHERE ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName '%'+@KeyWord+'%') AND ShopId IN(";
                 for (int i = 0; i < shopIdList.Count(); i++)
                 {
                     if (i == shopIdList.Count() - 1)
@@ -124,6 +133,51 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 sql += ")";
             }
+            else if (!string.IsNullOrEmpty(smallArea))
+            {
+                sql += @" INNER JOIN Shop B ON A.ShopId = B.ShopId
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId -- smallArea
+                    WHERE D.AreaId = @SmallArea AND ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(middleArea))
+            {
+                sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                    WHERE ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bigArea))
+            {
+                sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                    WHERE ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(wideArea))
+            {
+                sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
+                    WHERE ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bussinessType))
+            {
+                sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
+                        INNER JOIN Area H ON G.ParentId = H.AreaId --businessType
+                    WHERE ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
@@ -133,11 +187,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<AppealDto> GetShopSubjectAppeal(string projectId, string shopId, string subjectId)
+        public List<AppealDto> GetShopSubjectAppeal(string appealId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                    ,new SqlParameter("@ShopId", shopId)
-                                                    ,new SqlParameter("@SubjectId", subjectId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
                                   ,[ProjectId]
@@ -176,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,[ShopAcceptUserId]
                                   ,[ShopAcceptDateTime]
                               FROM [Appeal]
-                              WHERE ProjectId = @ProjectId  AND ShopId = @ShopId AND SubjectId = @SubjectId";
+                              WHERE AppealId = @AppealId";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
@@ -237,9 +289,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="appealId"></param>
         /// <returns></returns>
-        public List<AppealFileDto> AppealFileSearch(string appealId)
+        public List<AppealFileDto> AppealFileSearch(string appealId, string fileType)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId), new SqlParameter("@FileType", fileType) };
             Type t = typeof(AppealFileDto);
             string sql = @"SELECT FileId,AppealId,SeqNO
                                 ,Case WHEN FileType = 'Recheck' THEN '审核人员'
@@ -250,6 +302,10 @@ namespace com.yrtech.SurveyAPI.Service
                                 ,InUserId,InDateTime
                          FROM AppealFile
 	                    WHERE AppealId = @AppealId";
+            if (!string.IsNullOrEmpty(fileType))
+            {
+                sql += " AND FileType = @FileType";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealFileDto>().ToList();
         }
         public void AppealFileSave(string appealId, int seqNo, string fileType, string fileName, string serverFileName, int userId)

@@ -11,7 +11,7 @@ namespace com.yrtech.SurveyAPI.Service
 {
     public class MasterService
     {
-        Entities db = new Entities();
+        Survey db = new Survey();
         AccountService accountService = new AccountService();
         localhost.Service webService = new localhost.Service();
         /// <summary>
@@ -145,14 +145,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<Project> GetProject(string tenantId, string brandId, string projectId)
+        public List<Project> GetProject(string tenantId, string brandId, string projectId,string year)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             projectId = projectId == null ? "" : projectId;
+            year = year == null ? "" : year;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
-                                                       new SqlParameter("@ProjectId", projectId)};
+                                                       new SqlParameter("@ProjectId", projectId),
+                                                    new SqlParameter("@Year", year)};
             Type t = typeof(Project);
             string sql = "";
             sql = @"SELECT [ProjectId]
@@ -162,6 +164,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ProjectName]
                           ,[Year]
                           ,[Quarter]
+                          ,[DataSource]
+                          ,AppealStartDate
                           ,[OrderNO]
                           ,[InUserId]
                           ,[InDateTime]
@@ -181,6 +185,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(year))
+            {
+                sql += " AND Year = @Year";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
 
