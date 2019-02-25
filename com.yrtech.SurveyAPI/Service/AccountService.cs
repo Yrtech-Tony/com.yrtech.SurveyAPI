@@ -94,7 +94,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_BussinessSysadmin")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
@@ -106,7 +106,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
@@ -117,7 +117,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
@@ -127,7 +127,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
@@ -136,7 +136,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId

@@ -9,6 +9,8 @@ namespace com.yrtech.SurveyAPI.DTO
     {
         public int ProjectId { get; set; }
         public int ShopId { get; set; }
+        public int AreaId { get; set; }
+        public int GroupId { get; set; }
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> BrandId { get; set; }
         public string ShopCode { get; set; }
