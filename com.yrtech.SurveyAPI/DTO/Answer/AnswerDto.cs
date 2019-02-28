@@ -8,13 +8,18 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class AnswerDto
     {
+        public int TenantId { get; set; }
+        public int BrandId { get; set; }
         public int AnswerId { get; set; }
         public int ProjectId { get; set; }
         public int SubjectId { get; set; }
         public string SubjectTypeCode { get; set; }
         public int ShopId { get; set; }
+        public string ShopCode { get; set; }
         public decimal? PhotoScore { get; set; }
         public decimal? Score { get; set; }
+        public decimal? ImportScore { get; set; }
+        public decimal? ImportLossResult { get; set; }
         public decimal? ConsultantScore { get; set; }
         public string InspectionStandardResult { get; set; }
         public string FileResult { get; set; }

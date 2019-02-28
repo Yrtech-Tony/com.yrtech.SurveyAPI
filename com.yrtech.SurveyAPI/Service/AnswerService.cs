@@ -846,5 +846,27 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
+        #region 外部得分导入
+        public void ImportAnswerResult(string tenantId,string brandId,string projectId,string userId,List<AnswerDto> answerList)
+        {
+            string sql = "";
+            Type t = typeof(int);
+            foreach (AnswerDto answer in answerList)
+            {
+                Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == Convert.ToInt32(brandId)&&x.TenantId==Convert.ToInt32(tenantId))).FirstOrDefault();
+                Subject subject = db.Subject.Where(x => (x.ProjectId == Convert.ToInt32(projectId) && x.SubjectId == Convert.ToInt32(answer.SubjectCode))).FirstOrDefault();
+                sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime) VALUES(";
+                sql += projectId + ",";
+                sql += subject.SubjectId + ",";
+                sql += shop.ShopId + ",";
+                sql += answer.ImportScore + ",";
+                sql += answer.ImportLossResult + ",";
+                sql += userId + ",GETDATE(),";
+                sql += userId + ",GETDATE())";
+                sql += "/r/n";
+            }
+            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
+        }
+        #endregion
     }
 }

@@ -226,6 +226,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId)) };
             }
             catch (Exception ex)
@@ -313,6 +314,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                     shopContant.ShopConsultantSubjectLinkList = answerService.GetShopConsultantSubjectLink(projectId, shopContant.ConsultantId.ToString());
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopContantList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region ImportAnswer
+        [HttpPost]
+        [Route("Answer/ImportAnswer")]
+        public async Task<APIResult> ImportAnswer([FromBody]UploadData data)
+        {
+            try
+            {
+                answerService.ImportAnswerResult(data.AnswerList[0].TenantId.ToString(), data.AnswerList[0].BrandId.ToString(), data.AnswerList[0].ProjectId.ToString(), data.AnswerList[0].InUserId.ToString(), data.AnswerList);
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
