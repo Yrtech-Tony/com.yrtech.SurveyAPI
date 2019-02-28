@@ -42,7 +42,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<Brand> brandList = new List<Brand>();
                     foreach (AccountDto ac in accountlist)
                     {
-                        brandList.AddRange(masterService.GetBrand(tenantId, ac.UserId.ToString(), ac.BrandId.ToString()));
+                        brandList.AddRange(masterService.GetBrand(tenantId, ac.Id.ToString(), ac.BrandId.ToString()));
                     }
                     resultList.Add(brandList);
                     // 期号信息 Project
@@ -133,27 +133,37 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Account/LoginForBrand")]
-        public APIResult LoginForBrand(string accountId, string password)
+        public APIResult LoginForBrand(string accountId, string password,string tenantId,string brandId)
         {
             try
             {
+                //CommonHelper.log(tenantId + " "+brandId);
                 List<object> resultList = new List<object>();
-                List<AccountDto> accountlist = accountService.Login(accountId, password);
+                List<AccountDto> accountlist = accountService.LoginForBrand(accountId, password,tenantId,brandId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
+                    
                     AccountDto account = accountlist[0];
-                    string tenantId = account.TenantId.ToString();
-                    string brandId = account.BrandId.ToString();
-                    string userId = account.UserId.ToString();
+                    string userId = account.Id.ToString();
+                    //CommonHelper.log("b" +userId);
                     string roleType = account.RoleType;
                     account.ShopList = accountService.GetShopListByRole(brandId, userId, roleType);
+                    //CommonHelper.log("a");
                     account.GroupList = accountService.GetGroupByRole(brandId, userId, roleType);
+                    //CommonHelper.log("2");
                     account.SmallAreaList = accountService.GetSmallAreaByRole(brandId, userId, roleType);
+                    //CommonHelper.log("3");
                     account.MiddleAreaList = accountService.GetMiddleAreaByRole(brandId, userId, roleType);
+                    //CommonHelper.log("4");
                     account.BigAreaList = accountService.GetBigAreaByRole(brandId, userId, roleType);
+                    //CommonHelper.log("5");
                     account.WideAreaList = accountService.GetWideAreaByRole(brandId, userId, roleType);
+                    //CommonHelper.log("6");
                     account.BusinessAreaList = accountService.GetBussnessListByRole(brandId, userId, roleType);
+                    //CommonHelper.log("7");
                     resultList.Add(accountlist);
+                    //CommonHelper.log("8");
+                    //CommonHelper.log(CommonHelper.Encode(resultList).ToString());
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
                 }
                 else

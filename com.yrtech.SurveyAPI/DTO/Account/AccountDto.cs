@@ -8,6 +8,7 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class AccountDto
     {
+        public int Id { get; set; }
         public int TenantId { get; set; }
         public int BrandId { get; set; }
         public string TenantName { get; set;  }
@@ -15,7 +16,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public string BrandName { get; set; }
         public string AccountId { get; set; }
         public string AccountName { get; set; }
-        public int UserId { get; set;  }
         public string RoleType { get; set; }
         public string Password { get; set; }
         public bool UseChk { get; set; }
