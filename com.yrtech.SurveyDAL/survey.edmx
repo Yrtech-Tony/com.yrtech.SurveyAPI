@@ -188,7 +188,7 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="HiddenCodeGroup" Type="nvarchar" MaxLength="100" />
-          <Property Name="HiddeCode" Type="nvarchar" MaxLength="100" />
+          <Property Name="HiddenCode" Type="nvarchar" MaxLength="100" />
           <Property Name="HiddenName" Type="nvarchar" MaxLength="100" />
           <Property Name="Remark" Type="nvarchar(max)" />
           <Property Name="InUserId" Type="int" />
@@ -220,6 +220,49 @@
           <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" Nullable="false" />
           <Property Name="ShopId" Type="int" Nullable="false" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="ReCheck">
+          <Key>
+            <PropertyRef Name="RecheckId" />
+          </Key>
+          <Property Name="RecheckId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="ShopId" Type="int" Nullable="false" />
+          <Property Name="SubjectId" Type="int" Nullable="false" />
+          <Property Name="PassReCheck" Type="bit" />
+          <Property Name="ReCheckContent" Type="nvarchar(max)" />
+          <Property Name="ReCheckUserId" Type="int" />
+          <Property Name="RecheckDateTime" Type="datetime" />
+          <Property Name="AgreeCheck" Type="bit" />
+          <Property Name="AgreeReason" Type="nvarchar(max)" />
+          <Property Name="AgreeUserId" Type="int" />
+          <Property Name="AgreeDateTime" Type="datetime" />
+          <Property Name="LastConfirmCheck" Type="bit" />
+          <Property Name="LastConfirmReason" Type="nvarchar(max)" />
+          <Property Name="LastConfirmUserId" Type="int" />
+          <Property Name="LastConfirmDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="ReCheckStatus">
+          <Key>
+            <PropertyRef Name="RecheckStatusId" />
+          </Key>
+          <Property Name="RecheckStatusId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="ShopId" Type="int" Nullable="false" />
+          <Property Name="StatusCode" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="RecheckStatusDtl">
+          <Key>
+            <PropertyRef Name="RecheckStatusDtlId" />
+          </Key>
+          <Property Name="RecheckStatusDtlId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="ShopId" Type="int" />
+          <Property Name="RecheckTypeId" Type="int" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
         </EntityType>
@@ -347,10 +390,12 @@
           </Key>
           <Property Name="RecheckTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="RecheckTypeName" Type="nvarchar" MaxLength="100" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="UseChk" Type="bit" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
-          <Property Name="ModifyDateTime" Type="nchar" MaxLength="10" />
+          <Property Name="ModifyDateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="SubjectType">
           <Key>
@@ -466,6 +511,9 @@
           <EntitySet Name="HiddenCode" EntityType="Self.HiddenCode" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Project" EntityType="Self.Project" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ReCheck" EntityType="Self.ReCheck" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ReCheckStatus" EntityType="Self.ReCheckStatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RecheckStatusDtl" EntityType="Self.RecheckStatusDtl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RoleType" EntityType="Self.RoleType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Shop" EntityType="Self.Shop" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ShopSubjectTypeExam" EntityType="Self.ShopSubjectTypeExam" Schema="dbo" store:Type="Tables" />
@@ -665,18 +713,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="HiddenCode">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="HiddenCodeGroup" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="HiddeCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="HiddenName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="ProjectShop">
           <Key>
             <PropertyRef Name="Id" />
@@ -805,17 +841,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="SubjectRecheckType">
-          <Key>
-            <PropertyRef Name="RecheckTypeId" />
-          </Key>
-          <Property Name="RecheckTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RecheckTypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
-        </EntityType>
         <EntityType Name="SubjectType">
           <Key>
             <PropertyRef Name="SubjectTypeId" />
@@ -927,7 +952,6 @@
           <EntitySet Name="AreaShop" EntityType="Self.AreaShop" />
           <EntitySet Name="Brand" EntityType="Self.Brand" />
           <EntitySet Name="Group" EntityType="Self.Group" />
-          <EntitySet Name="HiddenCode" EntityType="Self.HiddenCode" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" />
           <EntitySet Name="RoleType" EntityType="Self.RoleType" />
           <EntitySet Name="Shop" EntityType="Self.Shop" />
@@ -937,7 +961,6 @@
           <EntitySet Name="SubjectInspectionStandard" EntityType="Self.SubjectInspectionStandard" />
           <EntitySet Name="SubjectLink" EntityType="Self.SubjectLink" />
           <EntitySet Name="SubjectLossResult" EntityType="Self.SubjectLossResult" />
-          <EntitySet Name="SubjectRecheckType" EntityType="Self.SubjectRecheckType" />
           <EntitySet Name="SubjectType" EntityType="Self.SubjectType" />
           <EntitySet Name="SubjectTypeExam" EntityType="Self.SubjectTypeExam" />
           <EntitySet Name="SubjectTypeScoreRegion" EntityType="Self.SubjectTypeScoreRegion" />
@@ -947,6 +970,11 @@
           <EntitySet Name="UserInfoBrand" EntityType="Self.UserInfoBrand" />
           <EntitySet Name="UserInfoObject" EntityType="Self.UserInfoObject" />
           <EntitySet Name="Project" EntityType="com.yrtech.surveyModel.Project" />
+          <EntitySet Name="ReCheck" EntityType="com.yrtech.surveyModel.ReCheck" />
+          <EntitySet Name="HiddenCode" EntityType="com.yrtech.surveyModel.HiddenCode" />
+          <EntitySet Name="ReCheckStatus" EntityType="com.yrtech.surveyModel.ReCheckStatus" />
+          <EntitySet Name="RecheckStatusDtl" EntityType="com.yrtech.surveyModel.RecheckStatusDtl" />
+          <EntitySet Name="SubjectRecheckType" EntityType="com.yrtech.surveyModel.SubjectRecheckType" />
         </EntityContainer>
         <EntityType Name="Project">
           <Key>
@@ -962,6 +990,74 @@
           <Property Name="OrderNO" Type="Int32" />
           <Property Name="DataScore" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="AppealStartDate" Type="DateTime" Precision="3" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ReCheck">
+          <Key>
+            <PropertyRef Name="RecheckId" />
+          </Key>
+          <Property Name="RecheckId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ShopId" Type="Int32" Nullable="false" />
+          <Property Name="SubjectId" Type="Int32" Nullable="false" />
+          <Property Name="PassReCheck" Type="Boolean" />
+          <Property Name="ReCheckContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ReCheckUserId" Type="Int32" />
+          <Property Name="RecheckDateTime" Type="DateTime" Precision="3" />
+          <Property Name="AgreeCheck" Type="Boolean" />
+          <Property Name="AgreeReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AgreeUserId" Type="Int32" />
+          <Property Name="AgreeDateTime" Type="DateTime" Precision="3" />
+          <Property Name="LastConfirmCheck" Type="Boolean" />
+          <Property Name="LastConfirmReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LastConfirmUserId" Type="Int32" />
+          <Property Name="LastConfirmDate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="HiddenCode">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HiddenCodeGroup" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HiddenCode1" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HiddenName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ReCheckStatus">
+          <Key>
+            <PropertyRef Name="RecheckStatusId" />
+          </Key>
+          <Property Name="RecheckStatusId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="ShopId" Type="Int32" Nullable="false" />
+          <Property Name="StatusCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="RecheckStatusDtl">
+          <Key>
+            <PropertyRef Name="RecheckStatusDtlId" />
+          </Key>
+          <Property Name="RecheckStatusDtlId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="RecheckTypeId" Type="Int32" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="SubjectRecheckType">
+          <Key>
+            <PropertyRef Name="RecheckTypeId" />
+          </Key>
+          <Property Name="RecheckTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RecheckTypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="UseChk" Type="Boolean" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -1161,19 +1257,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="HiddenCode">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.HiddenCode">
-              <MappingFragment StoreEntitySet="HiddenCode">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="HiddenCodeGroup" ColumnName="HiddenCodeGroup" />
-                <ScalarProperty Name="HiddeCode" ColumnName="HiddeCode" />
-                <ScalarProperty Name="HiddenName" ColumnName="HiddenName" />
-                <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ProjectShop">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.ProjectShop">
               <MappingFragment StoreEntitySet="ProjectShop">
@@ -1311,18 +1394,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SubjectRecheckType">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.SubjectRecheckType">
-              <MappingFragment StoreEntitySet="SubjectRecheckType">
-                <ScalarProperty Name="RecheckTypeId" ColumnName="RecheckTypeId" />
-                <ScalarProperty Name="RecheckTypeName" ColumnName="RecheckTypeName" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SubjectType">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.SubjectType">
               <MappingFragment StoreEntitySet="SubjectType">
@@ -1447,6 +1518,79 @@
                 <ScalarProperty Name="BrandId" ColumnName="BrandId" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReCheck">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.ReCheck">
+              <MappingFragment StoreEntitySet="ReCheck">
+                <ScalarProperty Name="LastConfirmDate" ColumnName="LastConfirmDate" />
+                <ScalarProperty Name="LastConfirmUserId" ColumnName="LastConfirmUserId" />
+                <ScalarProperty Name="LastConfirmReason" ColumnName="LastConfirmReason" />
+                <ScalarProperty Name="LastConfirmCheck" ColumnName="LastConfirmCheck" />
+                <ScalarProperty Name="AgreeDateTime" ColumnName="AgreeDateTime" />
+                <ScalarProperty Name="AgreeUserId" ColumnName="AgreeUserId" />
+                <ScalarProperty Name="AgreeReason" ColumnName="AgreeReason" />
+                <ScalarProperty Name="AgreeCheck" ColumnName="AgreeCheck" />
+                <ScalarProperty Name="RecheckDateTime" ColumnName="RecheckDateTime" />
+                <ScalarProperty Name="ReCheckUserId" ColumnName="ReCheckUserId" />
+                <ScalarProperty Name="ReCheckContent" ColumnName="ReCheckContent" />
+                <ScalarProperty Name="PassReCheck" ColumnName="PassReCheck" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RecheckId" ColumnName="RecheckId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HiddenCode">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.HiddenCode">
+              <MappingFragment StoreEntitySet="HiddenCode">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="HiddenName" ColumnName="HiddenName" />
+                <ScalarProperty Name="HiddenCode1" ColumnName="HiddenCode" />
+                <ScalarProperty Name="HiddenCodeGroup" ColumnName="HiddenCodeGroup" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReCheckStatus">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.ReCheckStatus">
+              <MappingFragment StoreEntitySet="ReCheckStatus">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="StatusCode" ColumnName="StatusCode" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RecheckStatusId" ColumnName="RecheckStatusId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RecheckStatusDtl">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.RecheckStatusDtl">
+              <MappingFragment StoreEntitySet="RecheckStatusDtl">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="RecheckTypeId" ColumnName="RecheckTypeId" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RecheckStatusDtlId" ColumnName="RecheckStatusDtlId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubjectRecheckType">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.SubjectRecheckType">
+              <MappingFragment StoreEntitySet="SubjectRecheckType">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RecheckTypeName" ColumnName="RecheckTypeName" />
+                <ScalarProperty Name="RecheckTypeId" ColumnName="RecheckTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

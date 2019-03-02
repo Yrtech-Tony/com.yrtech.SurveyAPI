@@ -133,11 +133,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetBrand")]
-        public APIResult GetBrand(string tenantId, string brandId)
+        public APIResult GetBrand(string tenantId, string userId,string brandId)
         {
             try
             {
-                List<Brand> brandList = masterService.GetBrand(tenantId, "", brandId);
+                List<Brand> brandList = masterService.GetBrand(tenantId, userId, brandId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
             }
             catch (Exception ex)

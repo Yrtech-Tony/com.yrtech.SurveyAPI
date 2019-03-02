@@ -16,9 +16,11 @@ namespace Purchase.DAL
     {
         public int RecheckTypeId { get; set; }
         public string RecheckTypeName { get; set; }
+        public Nullable<int> ProjectId { get; set; }
+        public Nullable<bool> UseChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
-        public string ModifyDateTime { get; set; }
+        public Nullable<System.DateTime> ModifyDateTime { get; set; }
     }
 }

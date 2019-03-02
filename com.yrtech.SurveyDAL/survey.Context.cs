@@ -36,7 +36,6 @@ namespace Purchase.DAL
         public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
         public virtual DbSet<Group> Group { get; set; }
-        public virtual DbSet<HiddenCode> HiddenCode { get; set; }
         public virtual DbSet<ProjectShop> ProjectShop { get; set; }
         public virtual DbSet<RoleType> RoleType { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
@@ -46,7 +45,6 @@ namespace Purchase.DAL
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
         public virtual DbSet<SubjectLink> SubjectLink { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
-        public virtual DbSet<SubjectRecheckType> SubjectRecheckType { get; set; }
         public virtual DbSet<SubjectType> SubjectType { get; set; }
         public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
         public virtual DbSet<SubjectTypeScoreRegion> SubjectTypeScoreRegion { get; set; }
@@ -56,5 +54,10 @@ namespace Purchase.DAL
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<HiddenCode> HiddenCode { get; set; }
+        public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
+        public virtual DbSet<RecheckStatusDtl> RecheckStatusDtl { get; set; }
+        public virtual DbSet<SubjectRecheckType> SubjectRecheckType { get; set; }
     }
 }

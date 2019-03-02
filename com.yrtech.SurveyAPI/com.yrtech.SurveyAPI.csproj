@@ -141,6 +141,7 @@
     <Compile Include="Common\APIResult.cs" />
     <Compile Include="Common\CommonHelper.cs" />
     <Compile Include="Common\OSSClientHelper.cs" />
+    <Compile Include="Controllers\RecheckControl.cs" />
     <Compile Include="Controllers\AppealControl.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AnswerController.cs" />
@@ -162,6 +163,8 @@
     <Compile Include="DTO\Master\ProjectDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Master\SubjectTypeScoreRegionDto.cs" />
+    <Compile Include="DTO\Recheck\RecheckStatusDtlDto.cs" />
+    <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />
     <Compile Include="DTO\Shop\GroupDto.cs" />
     <Compile Include="DTO\Shop\AreaDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />
@@ -179,6 +182,7 @@
     <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AnswerService.cs" />
     <Compile Include="Service\AreaService.cs" />
+    <Compile Include="Service\RecheckService.cs" />
     <Compile Include="Service\ShopService.cs" />
     <Compile Include="Service\MasterService.cs" />
     <Compile Include="Service\AccountService.cs" />

@@ -138,7 +138,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 //CommonHelper.log(tenantId + " "+brandId);
-                List<object> resultList = new List<object>();
+                //List<object> resultList = new List<object>();
                 List<AccountDto> accountlist = accountService.LoginForBrand(accountId, password,tenantId,brandId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
@@ -161,10 +161,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                     //CommonHelper.log("6");
                     account.BusinessAreaList = accountService.GetBussnessListByRole(brandId, userId, roleType);
                     //CommonHelper.log("7");
-                    resultList.Add(accountlist);
+                    //resultList.Add(accountlist);
                     //CommonHelper.log("8");
                     //CommonHelper.log(CommonHelper.Encode(resultList).ToString());
-                    return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
+                    return new APIResult() { Status = true, Body = CommonHelper.Encode(accountlist) };
                 }
                 else
                 {

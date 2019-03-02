@@ -18,19 +18,46 @@ namespace com.yrtech.SurveyAPI.Service
         /// 获取复审类型
         /// </summary>
         /// <returns></returns>
-        public List<SubjectRecheckType> GetSubjectRecheckType()
+        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId,string recheckTypeId)
         {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
             Type t = typeof(SubjectRecheckType);
             string sql = "";
 
             sql = @"SELECT [RecheckTypeId]
                   ,[RecheckTypeName]
+                  , BrandId
+                  ,UseChk
                   ,[InUserId]
                   ,[InDateTime]
                   ,[ModifyUserId]
                   ,[ModifyDateTime]
-              FROM [SubjectRecheckType] ";
+              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(recheckTypeId))
+            {
+                sql += " AND RecheckTypeId = @RecheckTypeId";
+            }
             return db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
+        }
+        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
+        {
+
+            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectRecheckType.InDateTime = DateTime.Now;
+                subjectRecheckType.ModifyDateTime = DateTime.Now;
+                subjectRecheckType.UseChk = true;
+                db.SubjectRecheckType.Add(subjectRecheckType);
+            }
+            else
+            {
+                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
+                findOne.UseChk = subjectRecheckType.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取体系类型

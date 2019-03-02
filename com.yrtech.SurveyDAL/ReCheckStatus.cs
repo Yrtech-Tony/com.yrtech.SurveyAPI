@@ -12,13 +12,12 @@ namespace Purchase.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class HiddenCode
+    public partial class ReCheckStatus
     {
-        public int Id { get; set; }
-        public string HiddenCodeGroup { get; set; }
-        public string HiddenCode1 { get; set; }
-        public string HiddenName { get; set; }
-        public string Remark { get; set; }
+        public int RecheckStatusId { get; set; }
+        public int ProjectId { get; set; }
+        public int ShopId { get; set; }
+        public string StatusCode { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
     }

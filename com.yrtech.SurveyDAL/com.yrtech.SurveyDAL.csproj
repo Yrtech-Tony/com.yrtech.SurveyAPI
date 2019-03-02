@@ -98,6 +98,15 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReCheck.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReCheckStatus.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RecheckStatusDtl.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="RoleType.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
