@@ -12,7 +12,7 @@ namespace com.yrtech.SurveyAPI.Service
     public class RecheckService
     {
         Survey db = new Survey();
-       
+
         #region 复审状态
         public List<RecheckStatusDto> GetShopRecheckStauts(string projectId, string shopId, string statusCode)
         {
@@ -54,13 +54,13 @@ namespace com.yrtech.SurveyAPI.Service
         //    Type t = typeof(RecheckStatusDtlDto);
         //    string sql = "";
         //    sql = @"SELECT A.ProjectId,B.ProjectCode,B.ProjectName
-	       //                 ,A.RecheckTypeId,RecheckTypeName
-	       //                 ,InUserId AS RecheckUserId,E.AccountName AS RecheckUserName
+        //                 ,A.RecheckTypeId,RecheckTypeName
+        //                 ,InUserId AS RecheckUserId,E.AccountName AS RecheckUserName
         //            FROM RecheckStatusDtl A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-								//			INNER JOIN Shop C ON A.ShopId = C.ShopId
-								//			INNER JOIN SubjectRecheckType D ON A.RecheckTypeId = D.RecheckTypeId
-								//											AND D.ProjectId = B.ProjectId
-								//			INNER JOIN UserInfo E ON A.InUserId = E.Id
+        //			INNER JOIN Shop C ON A.ShopId = C.ShopId
+        //			INNER JOIN SubjectRecheckType D ON A.RecheckTypeId = D.RecheckTypeId
+        //											AND D.ProjectId = B.ProjectId
+        //			INNER JOIN UserInfo E ON A.InUserId = E.Id
         //            WHERE A.ProjectId = @ProjectId";
         //    if (!string.IsNullOrEmpty(shopId))
         //    {
@@ -102,7 +102,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveRecheckStatusDtl(RecheckStatusDtl statusDtl)
         {
-            RecheckStatusDtl findOne = db.RecheckStatusDtl.Where(x => (x.ProjectId == statusDtl.ProjectId&&x.ShopId==statusDtl.ShopId&&x.RecheckTypeId==statusDtl.RecheckTypeId)).FirstOrDefault();
+            RecheckStatusDtl findOne = db.RecheckStatusDtl.Where(x => (x.ProjectId == statusDtl.ProjectId && x.ShopId == statusDtl.ShopId && x.RecheckTypeId == statusDtl.RecheckTypeId)).FirstOrDefault();
             if (findOne == null)
             {
                 statusDtl.InDateTime = DateTime.Now;
@@ -110,6 +110,84 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        #endregion
+        #region 复审详细
+        public List<Subject> GetShopNeedRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId)
+        {
+            #region 获取当前经销商最后一次打分的序号
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId)};
+            Type t = typeof(int);
+            string sql = "";
+            int lastRecheckSubjectOrderNO = 0;// 最后一次的序号
+            int recheckSubjectId = 0;// 需要复审的体系
+            sql = @"SELECT ISNULL(MAX(B.OrderNO),0) AS OrderNO 
+                    FROM Answer A JOIN [Subject] B ON A.ProjectId = B.ProjectId
+                                                   AND A.SubjectId = B.SubjectId
+                                INNER JOIN Recheck C ON A.ProjectId = C.ProjectId
+                                                      AND A.ShopId = C.ShopId
+                                                      AND A.SubjectId = C.SubjectId
+                WHERE B.SubjectRecheckTypeId = @SubjectRecheckTypeId
+                      AND A.ProjectId = @ProjectId
+                      AND A.ShopId = @ShopId";
+            lastRecheckSubjectOrderNO = db.Database.SqlQuery(t, sql, para).Cast<int>().FirstOrDefault();
+            #endregion
+            #region 查询需要打分体系Id
+            SqlParameter[] para1 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@LastRecheckSubjectOrderNO", lastRecheckSubjectOrderNO),
+                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId)};
+
+            sql = @"SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO > @LastRecheckSubjectOrderNO	
+		            AND A.SubjectRecheckTypeId = @SubjectRecheckTypeId";
+            recheckSubjectId = db.Database.SqlQuery(t, sql, para1).Cast<int>().FirstOrDefault();
+            #endregion
+            #region 通过最后一次打分的Id查询需要打分的体系
+            SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@RecheckSubjectId", recheckSubjectId),
+                                                        new SqlParameter("@OrderNO", lastRecheckSubjectOrderNO)  };
+            if (recheckSubjectId == 0) // 如果全部打完分查询最后一个题
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND OrderNO =@OrderNO";
+            }
+            else
+            {
+                sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND SubjectId = @RecheckSubjectId";
+            }
+            Type t_subject = typeof(Subject);
+            return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
+            #endregion
+        }
+        public List<Subject> GetShopNextRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId),
+                                                        new SqlParameter("@OrderNO", orderNO)};
+            Type t_subject = typeof(Subject);
+            string sql = @"SELECT * FROM Subject  WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MIN(OrderNO)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO > @OrderNO	
+		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
+            return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
+        }
+        public List<Subject> GetShopPreRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId),
+                                                        new SqlParameter("@OrderNO", orderNO)};
+            Type t_subject = typeof(Subject);
+            string sql = @"SELECT * FROM Subject  WHERE ProjectId = @ProjectId AND OrderNO = (SELECT MAX(OrderNO)	
+		            FROM [Subject] A 
+		            WHERE ProjectId = @ProjectId 
+		            AND OrderNO < @OrderNO	
+		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
+            return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
+        }
+       
         #endregion
     }
 }
