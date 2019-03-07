@@ -19,19 +19,13 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public void CreateAppealInfoByProject(string projectId)
+        public void CreateAppealInfoByProject(int projectId)
         {
 
             // 生成申诉的基本信息
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t_Project = typeof(Project);
-            Type t = typeof(int);
-            string sql_project = "SELECT * FROM Project WHERE ProjectId = @ProjectId";
-            string sql = "";
-            List<Project> project = db.Database.SqlQuery(t_Project, sql_project, para).Cast<Project>().ToList();
-
-            sql = @"INSERT INTO Appeal
-                        SELECT A.ProjectId,B.ProjectCode,B.ProjectName
+            Type t = typeof(Appeal);
+            string sql = @"SELECT A.ProjectId,B.ProjectCode,B.ProjectName
 		                        ,A.ShopId,D.ShopCode,D.ShopName
 		                        ,A.SubjectId,C.SubjectCode,C.[CheckPoint]
 		                        ,A.ImportScore AS Score,A.ImportLossResult AS LossResult
@@ -42,14 +36,23 @@ namespace com.yrtech.SurveyAPI.Service
 			                           INNER JOIN [Subject] C ON A.SubjectId  = C.SubjectId AND A.ProjectId = C.ProjectId
 			                           INNER JOIN Shop D ON A.ShopId = D.ShopId
                             WHERE A.ProjectId = @ProjectId ";
-            db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
-            if (project[0].DataScore == "01")// 01:系统打分 02：导入
+            List<Appeal> appealList = db.Database.SqlQuery(t, sql, para).Cast<Appeal>().ToList();
+            foreach (Appeal appeal in appealList)
             {
-                //系统打分的时候，计算总分和失分说明，进行更新
+                db.Appeal.Add(appeal);
             }
-            // 更新申诉开始时间。
-            sql_project = "UPDATE Project SET AppealStartDate = GETDATE() WHERE ProjectId = @ProjectId";
-            db.Database.SqlQuery(t, sql_project, para).Cast<int>().ToList();
+            // 判断是导入的还是系统打分
+            Project findOne = db.Project.Where(x => x.ProjectId == projectId).FirstOrDefault();
+            if (findOne != null)
+            {
+                if (findOne.DataScore == "01")// 01:系统打分 02：导入
+                {
+                    //系统打分的时候，计算总分和失分说明，进行更新
+                }
+                // 更新申诉开始时间。
+                findOne.AppealStartDate = DateTime.Now;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 查询经销商申诉列表_按页码
@@ -341,7 +344,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealFileDto>().ToList();
         }
-        public void AppealFileSave(string appealId, string fileType, string fileName, string serverFileName, int userId)
+        public void AppealFileSave(int appealId, string fileType, string fileName, string serverFileName, int userId)
         {
             int seqNo = 1;
             SqlParameter[] paraMax = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
@@ -353,27 +356,39 @@ namespace com.yrtech.SurveyAPI.Service
               seqNo = appealFile.SeqNO + 1;
             }
 
-
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
-                                                            new SqlParameter("@SeqNO", seqNo),
-                                                            new SqlParameter("@FileType", fileType),
-                                                            new SqlParameter("@FileName", fileName),
-                                                            new SqlParameter("@ServerFileName", serverFileName),
-                                                            new SqlParameter("@InUserId]", userId)};
-            Type t = typeof(int);
-            string sql = @"INSERT INTO [AppealFile]
-                               ([AppealId],SeqNO,[FileType],[FileName],[ServerFileName],[InUserId],[InDateTime])
-                                VALUES
-                               (@AppealId,@SeqNO, @FileType, @FileName, @ServerFileName, @UserId, GETDATE())";
-            db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
+            AppealFile findOne = new AppealFile();
+            findOne.AppealId = appealId;
+            findOne.InDateTime = DateTime.Now;
+            findOne.InUserId = userId;
+            findOne.SeqNO = seqNo;
+            findOne.ServerFileName = serverFileName;
+            findOne.FileName = fileName;
+            findOne.FileType = fileType;
+            db.AppealFile.Add(findOne);
+            db.SaveChanges();
+            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
+            //                                                new SqlParameter("@SeqNO", seqNo),
+            //                                                new SqlParameter("@FileType", fileType),
+            //                                                new SqlParameter("@FileName", fileName),
+            //                                                new SqlParameter("@ServerFileName", serverFileName),
+            //                                                new SqlParameter("@InUserId]", userId)};
+            //Type t = typeof(int);
+            //string sql = @"INSERT INTO [AppealFile]
+            //                   ([AppealId],SeqNO,[FileType],[FileName],[ServerFileName],[InUserId],[InDateTime])
+            //                    VALUES
+            //                   (@AppealId,@SeqNO, @FileType, @FileName, @ServerFileName, @UserId, GETDATE())";
+            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
 
         }
-        public void AppealFileDelete(string fileId)
+        public void AppealFileDelete(int fileId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
-            Type t = typeof(int);
-            string sql = @"DELETE [AppealFile] WHERE FileId = @FileId";
-            db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
+            AppealFile findone = db.AppealFile.Where(x => x.FileId == fileId).FirstOrDefault();
+            db.AppealFile.Remove(findone);
+            db.SaveChanges();
+            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
+            //Type t = typeof(int);
+            //string sql = @"DELETE [AppealFile] WHERE FileId = @FileId";
+            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
         }
     }
 }

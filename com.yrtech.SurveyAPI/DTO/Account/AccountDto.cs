@@ -10,7 +10,7 @@ namespace com.yrtech.SurveyAPI.DTO
     {
         public int Id { get; set; }
         public int TenantId { get; set; }
-        public int BrandId { get; set; }
+        public int? BrandId { get; set; }
         public string TenantName { get; set;  }
         public string TenantCode { get; set; }
         public string BrandName { get; set; }
@@ -18,7 +18,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string AccountName { get; set; }
         public string RoleType { get; set; }
         public string Password { get; set; }
-        public bool UseChk { get; set; }
+        public bool? UseChk { get; set; }
         public string TelNO { get; set; }
         public string Email { get; set; }
         public string HeadPicUrl { get; set; }
