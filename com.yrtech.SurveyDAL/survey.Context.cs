@@ -31,7 +31,6 @@ namespace Purchase.DAL
         public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
-        public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
@@ -54,10 +53,12 @@ namespace Purchase.DAL
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
         public virtual DbSet<Project> Project { get; set; }
-        public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<HiddenCode> HiddenCode { get; set; }
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<RecheckStatusDtl> RecheckStatusDtl { get; set; }
         public virtual DbSet<SubjectRecheckType> SubjectRecheckType { get; set; }
+        public virtual DbSet<AppealFile> AppealFile { get; set; }
+        public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<RecheckErrorType> RecheckErrorType { get; set; }
     }
 }

@@ -112,9 +112,10 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 复审详细
+        // 查询体系信息
         public List<Subject> GetShopNeedRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId)
         {
-            #region 获取当前经销商最后一次打分的序号
+            #region 获取当前经销商最后一次复审的体系序号
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId)};
@@ -149,7 +150,7 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para2 = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@RecheckSubjectId", recheckSubjectId),
                                                         new SqlParameter("@OrderNO", lastRecheckSubjectOrderNO)  };
-            if (recheckSubjectId == 0) // 如果全部打完分查询最后一个题
+            if (recheckSubjectId == 0) // 当已经复审到最后一题时recheckSubjectId==0,这是查询当前序号的体系即为最后一题
             {
                 sql = @"SELECT * FROM Subject WHERE ProjectId = @ProjectId AND OrderNO =@OrderNO";
             }
@@ -187,7 +188,20 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
             return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
         }
-       
+        // 查询打分信息和复审信息
+        public List<RecheckDto> GetShopRecheckInfo(string projectId, string shopId, string subjectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@SubjectId", subjectId)};
+            string sql = "";
+            Type t = typeof(AnswerDto);
+            sql += @"SELECT A.*,B.* FROM Answer A LEFT JOIN Recheck B ON A.ProjectId = B.ProjectId 
+                                                                AND A.ShopId = B.ShopId 
+                                                                AND A.SubjectId = B.SubjectId";
+            return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
+        }
+        
         #endregion
     }
 }

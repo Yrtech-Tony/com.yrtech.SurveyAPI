@@ -348,7 +348,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             int seqNo = 1;
             SqlParameter[] paraMax = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
-            string sql_Max = "SELECT TOP 1 * FROM AppealFile WHERE AppealId = @AppealId";
+            string sql_Max = "SELECT MAX(ISNULL(SeqNO,0)) FROM AppealFile WHERE AppealId = @AppealId";
             Type t_max = typeof(AppealFile);
             AppealFile appealFile = db.Database.SqlQuery(t_max, sql_Max, paraMax).Cast<AppealFile>().ToList().FirstOrDefault();
             if (appealFile != null && appealFile.SeqNO > 0)

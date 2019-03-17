@@ -101,6 +101,9 @@
     <Compile Include="ReCheck.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="RecheckErrorType.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="ReCheckStatus.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

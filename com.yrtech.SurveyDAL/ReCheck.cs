@@ -15,11 +15,13 @@ namespace Purchase.DAL
     public partial class ReCheck
     {
         public int RecheckId { get; set; }
+        public Nullable<int> AnswerId { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public int ShopId { get; set; }
         public int SubjectId { get; set; }
         public Nullable<bool> PassReCheck { get; set; }
         public string ReCheckContent { get; set; }
+        public string RecheckError { get; set; }
         public Nullable<int> ReCheckUserId { get; set; }
         public Nullable<System.DateTime> RecheckDateTime { get; set; }
         public Nullable<bool> AgreeCheck { get; set; }

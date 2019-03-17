@@ -16,8 +16,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopName { get; set; }
         public string StatusCode { get; set; }
         public string StatusName { get; set; }
-        public int RecheckUserId { get; set; }
+        public int? RecheckUserId { get; set; }
         public string RecheckUserName { get; set; }
-        public DateTime RecheckDateTime { get; set; }
+        public DateTime? RecheckDateTime { get; set; }
     }
 }
