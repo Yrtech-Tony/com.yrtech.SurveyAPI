@@ -405,13 +405,13 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT S.ProjectId,S.SubjectId,S.SubjectCode,S.SubjectTypeExamId,S.SubjectTypeExamId,
                            '' SubjectTypeExamName,S.SubjectLinkId,SL.SubjectLinkName,S.SubjectRecheckTypeId,S.OrderNO,
                            S.Implementation,S.[CheckPoint],S.AdditionalDesc,S.[Desc],S.InspectionDesc,
-                           A.ShopId,A.AnswerId,A.InspectionStandardResult,A.FileResult,A. ,A.ShopConsultantResult,
+                           A.ShopId,A.AnswerId,A.InspectionStandardResult,A.FileResult,A.LossResult,A.ShopConsultantResult,
                            A.PhotoScore,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime,A.UploadDate,A.UploadUserId
                            ,CASE WHEN (SELECT Count(*) FROM SubjectTypeScoreRegion WHERE SubjectId = S.SubjectId)=2 THEN '0' -- 交叉类
                              WHEN  (SELECT Count(*) FROM SubjectTypeScoreRegion WHERE SubjectId = S.SubjectId AND SubjectTypeId = 1)=1 THEN '1'-- 照片类
                             ELSE '2' END AS SubjectTypeCode
                     FROM Subject S 
-		            LEFT JOIN Answer A ON S.ProjectId=A.ProjectId AND S.SubjectId = A.SubjectId
+		            INNER JOIN Answer A ON S.ProjectId=A.ProjectId AND S.SubjectId = A.SubjectId
                     LEFT JOIN SubjectLink SL ON SL.SubjectLinkId = S.SubjectLinkId 
 		            WHERE S.ProjectId = @ProjectId AND A.ShopId = @ShopId";
             if (!string.IsNullOrEmpty(subjectId))

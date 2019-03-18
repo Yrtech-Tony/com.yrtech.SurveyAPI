@@ -112,7 +112,14 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 复审详细
-        // 查询体系信息
+        #region 查询体系信息
+        /// <summary>
+        /// 查询需要进行复审的体系
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectRecheckTypeId"></param>
+        /// <returns></returns>
         public List<Subject> GetShopNeedRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId)
         {
             #region 获取当前经销商最后一次复审的体系序号
@@ -162,6 +169,14 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t_subject, sql, para2).Cast<Subject>().ToList();
             #endregion
         }
+        /// <summary>
+        /// 点击下一个按钮时调用
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectRecheckTypeId"></param>
+        /// <param name="orderNO"></param>
+        /// <returns></returns>
         public List<Subject> GetShopNextRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
@@ -175,6 +190,14 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
             return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
         }
+        /// <summary>
+        /// 点击上一个调用
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectRecheckTypeId"></param>
+        /// <param name="orderNO"></param>
+        /// <returns></returns>
         public List<Subject> GetShopPreRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
@@ -188,20 +211,54 @@ namespace com.yrtech.SurveyAPI.Service
 		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
             return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
         }
-        // 查询打分信息和复审信息
+        #endregion
+        #region 体系复审详细
+        /// <summary>
+        /// 查询打分信息和复审内容
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
         public List<RecheckDto> GetShopRecheckInfo(string projectId, string shopId, string subjectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@SubjectId", subjectId)};
             string sql = "";
-            Type t = typeof(AnswerDto);
-            sql += @"SELECT A.*,B.* FROM Answer A LEFT JOIN Recheck B ON A.ProjectId = B.ProjectId 
-                                                                AND A.ShopId = B.ShopId 
-                                                                AND A.SubjectId = B.SubjectId";
+            Type t = typeof(RecheckDto);
+            sql += @"SELECT A.*,B.AccountName AS RecheckUserName 
+                    FROM Recheck A INNER JOIN UserInfo B ON A.RecheckUserId = B.UserId
+                    WHERE A.ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId ";
+            }
+            if (!string.IsNullOrEmpty(subjectId))
+            {
+                sql += "  AND A.SubjectId = @SubjectId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
-        
+        public void SaveShopRecheckInfo(ReCheck recheck)
+        {
+            ReCheck findOne = db.ReCheck.Where(x => x.ProjectId == recheck.ProjectId && x.ShopId == recheck.ShopId && x.SubjectId == recheck.SubjectId).FirstOrDefault();
+            if (findOne == null)
+            {
+                recheck.RecheckDateTime = DateTime.Now;
+                db.ReCheck.Add(recheck);
+            }
+            else
+            {
+                findOne.PassReCheck = recheck.PassReCheck;
+                findOne.ReCheckContent = recheck.ReCheckContent;
+                findOne.RecheckDateTime = DateTime.Now;
+                findOne.RecheckError = recheck.RecheckError;
+                findOne.ReCheckUserId = recheck.ReCheckUserId;
+            }
+            db.SaveChanges();
+        }
+        #endregion 
         #endregion
     }
 }

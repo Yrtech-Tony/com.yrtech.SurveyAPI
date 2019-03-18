@@ -44,6 +44,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Desc { get; set; }
         public string AdditionalDesc { get; set; }
         public string InspectionDesc { get; set; }
+        public RecheckDto Recheck { get; set; }
         public char ModifyType { get; set; }//"U"：修改；"D":删除; 
 
     }

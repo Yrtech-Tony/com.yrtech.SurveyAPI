@@ -15,51 +15,6 @@ namespace com.yrtech.SurveyAPI.Service
         AccountService accountService = new AccountService();
         localhost.Service webService = new localhost.Service();
         /// <summary>
-        /// 获取复审类型
-        /// </summary>
-        /// <returns></returns>
-        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId,string recheckTypeId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
-            Type t = typeof(SubjectRecheckType);
-            string sql = "";
-
-            sql = @"SELECT [RecheckTypeId]
-                  ,[RecheckTypeName]
-                  , BrandId
-                  ,UseChk
-                  ,[InUserId]
-                  ,[InDateTime]
-                  ,[ModifyUserId]
-                  ,[ModifyDateTime]
-              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
-            if (!string.IsNullOrEmpty(recheckTypeId))
-            {
-                sql += " AND RecheckTypeId = @RecheckTypeId";
-            }
-            return db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
-        }
-        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
-        {
-
-            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectRecheckType.InDateTime = DateTime.Now;
-                subjectRecheckType.ModifyDateTime = DateTime.Now;
-                subjectRecheckType.UseChk = true;
-                db.SubjectRecheckType.Add(subjectRecheckType);
-            }
-            else
-            {
-                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
-                findOne.UseChk = subjectRecheckType.UseChk;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
         /// 获取体系类型
         /// </summary>
         /// <returns></returns>
@@ -254,6 +209,97 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 获取期号下的复审类型
+        /// </summary>
+        /// <returns></returns>
+        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId, string recheckTypeId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
+            Type t = typeof(SubjectRecheckType);
+            string sql = "";
+
+            sql = @"SELECT [RecheckTypeId]
+                  ,[RecheckTypeName]
+                  , BrandId
+                  ,UseChk
+                  ,[InUserId]
+                  ,[InDateTime]
+                  ,[ModifyUserId]
+                  ,[ModifyDateTime]
+              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(recheckTypeId))
+            {
+                sql += " AND RecheckTypeId = @RecheckTypeId";
+            }
+            return db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的复审类型
+        /// </summary>
+        /// <param name="subjectRecheckType"></param>
+        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
+        {
+
+            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectRecheckType.InDateTime = DateTime.Now;
+                subjectRecheckType.ModifyDateTime = DateTime.Now;
+                subjectRecheckType.UseChk = true;
+                db.SubjectRecheckType.Add(subjectRecheckType);
+            }
+            else
+            {
+                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
+                findOne.UseChk = subjectRecheckType.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 获取期号下的复审错误类型
+        /// </summary>
+        /// <returns></returns>
+        public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                    , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
+            Type t = typeof(RecheckErrorType);
+            string sql = "";
+
+            sql = @"SELECT * FROM RecheckErrorType WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(recheckErrorTypeId))
+            {
+                sql += " AND RecheckErrorTypeId = @RecheckErrorTypeId";
+            }
+            return db.Database.SqlQuery(t, sql, null).Cast<RecheckErrorType>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的复审错误类型
+        /// </summary>
+        /// <param name="subjectRecheckType"></param>
+        public void SaveRecheckErrorType(RecheckErrorType recheckErrorType)
+        {
+
+            RecheckErrorType findOne = db.RecheckErrorType.Where(x => (x.RecheckErrorTypeId == recheckErrorType.RecheckErrorTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                recheckErrorType.InDateTime = DateTime.Now;
+                recheckErrorType.ModifyDateTime = DateTime.Now;
+                recheckErrorType.UseChk = true;
+                db.RecheckErrorType.Add(recheckErrorType);
+            }
+            else
+            {
+                findOne.RecheckErrorName = recheckErrorType.RecheckErrorName;
+                findOne.UseChk = recheckErrorType.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = recheckErrorType.ModifyUserId;
             }
             db.SaveChanges();
         }
@@ -585,7 +631,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
             return list;
         }
-
         public List<SubjectTypeScoreRegionDto> GetSubjectTypeScoreRegionDto(string projectId, string subjectId, string subjectTypeId)
         {
             projectId = projectId == null ? "" : projectId;
@@ -615,7 +660,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectTypeScoreRegionDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegionDto>().ToList();
             return list;
         }
-
         public void SaveSubjectTypeScoreRegion(SubjectTypeScoreRegion subjectTypeScoreRegion)
         {
             SubjectTypeScoreRegion findOne = db.SubjectTypeScoreRegion.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();
