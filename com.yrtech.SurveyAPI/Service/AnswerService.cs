@@ -399,7 +399,8 @@ namespace com.yrtech.SurveyAPI.Service
         {
             // 获取打分的信息
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId) };
+                                                       new SqlParameter("@ShopId", shopId)
+                                                       };
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"SELECT S.ProjectId,S.SubjectId,S.SubjectCode,S.SubjectTypeExamId,S.SubjectTypeExamId,

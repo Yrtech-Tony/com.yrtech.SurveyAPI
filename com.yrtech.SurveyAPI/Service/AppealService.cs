@@ -330,8 +330,8 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId), new SqlParameter("@FileType", fileType) };
             Type t = typeof(AppealFileDto);
             string sql = @"SELECT FileId,AppealId,SeqNO
-                                ,Case WHEN FileType = 'Recheck' THEN '审核人员'
-                                      WHEN FileType = 'Shop' THEN '经销商'
+                                ,Case WHEN FileType = 'FeedBack' THEN '申诉反馈'
+                                      WHEN FileType = 'Shop' THEN '经销商申诉'
                                 END AS FileTypeName,
                                 FileType,[FileName],ServerFileName
                                 ,(SELECT AccountName FROM UserInfo WHERE Id = InUserId) AS InUserName
@@ -347,13 +347,11 @@ namespace com.yrtech.SurveyAPI.Service
         public void AppealFileSave(int appealId, string fileType, string fileName, string serverFileName, int userId)
         {
             int seqNo = 1;
-            SqlParameter[] paraMax = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
-            string sql_Max = "SELECT MAX(ISNULL(SeqNO,0)) FROM AppealFile WHERE AppealId = @AppealId";
-            Type t_max = typeof(AppealFile);
-            AppealFile appealFile = db.Database.SqlQuery(t_max, sql_Max, paraMax).Cast<AppealFile>().ToList().FirstOrDefault();
-            if (appealFile != null && appealFile.SeqNO > 0)
+            //int MaxSeqNO= Convert.ToInt32(db.Database.SqlQuery(t_max, sql_Max, paraMax).Cast<int>());
+            int MaxSeqNO = db.AppealFile.Where(x => x.AppealId.Value == appealId).OrderByDescending(x => x.SeqNO).Select(x => x.SeqNO).FirstOrDefault();
+            if (MaxSeqNO!=0)
             {
-              seqNo = appealFile.SeqNO + 1;
+              seqNo = MaxSeqNO + 1;
             }
 
             AppealFile findOne = new AppealFile();

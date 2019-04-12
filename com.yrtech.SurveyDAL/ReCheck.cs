@@ -15,7 +15,6 @@ namespace Purchase.DAL
     public partial class ReCheck
     {
         public int RecheckId { get; set; }
-        public Nullable<int> AnswerId { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public int ShopId { get; set; }
         public int SubjectId { get; set; }

@@ -44,10 +44,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
                 //获取体系信息
                 List<Subject> subjectList = answerService.GetShopNeedAnswerSubject(projectId, shopId, subjectTypeId, subjectTypeExamId, subjectLinkId,consultantId);
-                if (subjectList == null || subjectList.Count == 0)
-                {
-                    throw new Exception("已经是最后一题");
-                }
+                
                 if (subjectList != null && subjectList.Count > 0)
                 {
                     subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
@@ -199,7 +196,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/SaveAnswerInfo")]
-        public async Task<APIResult> SaveAnswerInfo([FromBody]AnswerDto answer)
+        public  APIResult SaveAnswerInfo([FromBody]AnswerDto answer)
         {
             try
             {
@@ -243,7 +240,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/SaveShopAnswerInfo")]
-        public async Task<APIResult> SaveShopAnswerInfo([FromBody]AnswerShopInfo answerShopInfo)
+        public APIResult SaveShopAnswerInfo([FromBody]AnswerShopInfo answerShopInfo)
         {
             try
             {
@@ -284,7 +281,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/SaveShopConsultant")]
-        public async Task<APIResult> SaveShopConsultant([FromBody]ShopConsultantDto shopConsultant)
+        public APIResult SaveShopConsultant([FromBody]ShopConsultantDto shopConsultant)
         {
             try
             {
@@ -324,7 +321,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region ImportAnswer
         [HttpPost]
         [Route("Answer/ImportAnswer")]
-        public async Task<APIResult> ImportAnswer([FromBody]UploadData data)
+        public APIResult ImportAnswer([FromBody]UploadData data)
         {
             try
             {

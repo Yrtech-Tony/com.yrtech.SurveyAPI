@@ -208,7 +208,15 @@ namespace com.yrtech.SurveyAPI.Service
 		            FROM [Subject] A 
 		            WHERE ProjectId = @ProjectId 
 		            AND OrderNO < @OrderNO	
-		            AND SubjectRecheckTypeId = @SubjectRecheckTypeId)";
+		            ";
+            if (!string.IsNullOrEmpty(subjectRecheckTypeId))
+            {
+                sql += " AND SubjectRecheckTypeId = @SubjectRecheckTypeId) ";
+            }
+            else
+            {
+                sql += ")";
+            }
             return db.Database.SqlQuery(t_subject, sql, para).Cast<Subject>().ToList();
         }
         #endregion
@@ -240,6 +248,10 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="recheck"></param>
         public void SaveShopRecheckInfo(ReCheck recheck)
         {
             ReCheck findOne = db.ReCheck.Where(x => x.ProjectId == recheck.ProjectId && x.ShopId == recheck.ShopId && x.SubjectId == recheck.SubjectId).FirstOrDefault();
@@ -257,6 +269,36 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ReCheckUserId = recheck.ReCheckUserId;
             }
             db.SaveChanges();
+        }
+        /// <summary>
+        /// 查询还未进行复审的体系信息
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="subjectRecheckTypeId"></param>
+        /// <returns></returns>
+        public List<AnswerDto> GetNotRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId)};
+            string sql = "";
+            Type t = typeof(AnswerDto);
+            sql += @"SELECT A.SubjectId,B.SubjectCode,A.AnswerId
+                    FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
+                    WHERE A.ProjectId = @ProjectId 
+                    AND NOT EXISTS(SELECT 1 FROM Recheck WHERE ProjectId = A.ProjectId 
+                                                        AND ShopId = A.ShopId 
+                                                        AND SubjectId = A.SubjectId )";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId ";
+            }
+            if (!string.IsNullOrEmpty(subjectRecheckTypeId))
+            {
+                sql += "  AND B.SubjectRecheckTypeId = @SubjectRecheckTypeId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
         #endregion 
         #endregion

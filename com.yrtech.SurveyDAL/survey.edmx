@@ -228,7 +228,6 @@
             <PropertyRef Name="RecheckId" />
           </Key>
           <Property Name="RecheckId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="AnswerId" Type="int" />
           <Property Name="ProjectId" Type="int" />
           <Property Name="ShopId" Type="int" Nullable="false" />
           <Property Name="SubjectId" Type="int" Nullable="false" />
@@ -976,9 +975,9 @@
           <EntitySet Name="ReCheckStatus" EntityType="com.yrtech.surveyModel.ReCheckStatus" />
           <EntitySet Name="RecheckStatusDtl" EntityType="com.yrtech.surveyModel.RecheckStatusDtl" />
           <EntitySet Name="SubjectRecheckType" EntityType="com.yrtech.surveyModel.SubjectRecheckType" />
+          <EntitySet Name="RecheckErrorType" EntityType="com.yrtech.surveyModel.RecheckErrorType" />
           <EntitySet Name="AppealFile" EntityType="com.yrtech.surveyModel.AppealFile" />
           <EntitySet Name="ReCheck" EntityType="com.yrtech.surveyModel.ReCheck" />
-          <EntitySet Name="RecheckErrorType" EntityType="com.yrtech.surveyModel.RecheckErrorType" />
         </EntityContainer>
         <EntityType Name="Project">
           <Key>
@@ -1046,6 +1045,19 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="RecheckErrorType">
+          <Key>
+            <PropertyRef Name="RecheckErrorTypeId" />
+          </Key>
+          <Property Name="RecheckErrorTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RecheckErrorName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="UseChk" Type="Boolean" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
         <EntityType Name="AppealFile">
           <Key>
             <PropertyRef Name="FileId" />
@@ -1064,7 +1076,6 @@
             <PropertyRef Name="RecheckId" />
           </Key>
           <Property Name="RecheckId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AnswerId" Type="Int32" />
           <Property Name="ProjectId" Type="Int32" />
           <Property Name="ShopId" Type="Int32" Nullable="false" />
           <Property Name="SubjectId" Type="Int32" Nullable="false" />
@@ -1081,19 +1092,6 @@
           <Property Name="LastConfirmReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="LastConfirmUserId" Type="Int32" />
           <Property Name="LastConfirmDate" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="RecheckErrorType">
-          <Key>
-            <PropertyRef Name="RecheckErrorTypeId" />
-          </Key>
-          <Property Name="RecheckErrorTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RecheckErrorName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="UseChk" Type="Boolean" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1590,6 +1588,20 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="RecheckErrorType">
+            <EntityTypeMapping TypeName="com.yrtech.surveyModel.RecheckErrorType">
+              <MappingFragment StoreEntitySet="RecheckErrorType">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RecheckErrorName" ColumnName="RecheckErrorName" />
+                <ScalarProperty Name="RecheckErrorTypeId" ColumnName="RecheckErrorTypeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="AppealFile">
             <EntityTypeMapping TypeName="com.yrtech.surveyModel.AppealFile">
               <MappingFragment StoreEntitySet="AppealFile">
@@ -1623,22 +1635,7 @@
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
                 <ScalarProperty Name="ShopId" ColumnName="ShopId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
                 <ScalarProperty Name="RecheckId" ColumnName="RecheckId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="RecheckErrorType">
-            <EntityTypeMapping TypeName="com.yrtech.surveyModel.RecheckErrorType">
-              <MappingFragment StoreEntitySet="RecheckErrorType">
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="RecheckErrorName" ColumnName="RecheckErrorName" />
-                <ScalarProperty Name="RecheckErrorTypeId" ColumnName="RecheckErrorTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
