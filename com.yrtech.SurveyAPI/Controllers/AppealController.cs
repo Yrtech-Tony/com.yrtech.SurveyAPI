@@ -34,9 +34,9 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<object> resultList = new List<object>();
-                int total = appealService.GetShopAppealInfoByAll(projectId, businessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr).Count;
+                int total = appealService.GetShopAppealInfoByAll(projectId, businessType, wideArea, bigArea, middleArea, smallArea, shopIdStr,keyword).Count;
                 resultList.Add(total);
-                resultList.Add(appealService.GetShopAppealInfoByPage(projectId, businessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr, pageNum, pageCount));
+                resultList.Add(appealService.GetShopAppealInfoByPage(projectId, businessType, wideArea, bigArea, middleArea, smallArea, shopIdStr,keyword, pageNum, pageCount));
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
             }
             catch (Exception ex)

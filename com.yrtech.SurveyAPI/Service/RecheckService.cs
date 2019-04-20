@@ -39,11 +39,11 @@ namespace com.yrtech.SurveyAPI.Service
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
             {
-                sql += "AND A.ShopId = @ShopId";
+                sql += " AND A.ShopId = @ShopId";
             }
             if (!string.IsNullOrEmpty(statusCode))
             {
-                sql += "AND A.StatusCode = @StatusCode";
+                sql += " AND A.StatusCode = @StatusCode";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDto>().ToList();
         }

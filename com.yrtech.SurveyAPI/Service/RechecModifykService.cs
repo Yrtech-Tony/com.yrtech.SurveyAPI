@@ -13,42 +13,6 @@ namespace com.yrtech.SurveyAPI.Service
     {
         Survey db = new Survey();
         #region 复审修改查询
-        
-        public List<RecheckDto> GetNeedRecheckModifyShop(string projectId, string shopId,string statusCode)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                       ,new SqlParameter("@ShopId", shopId)
-                                                       ,new SqlParameter("@StatusCode", statusCode)};
-            Type t = typeof(RecheckDto);
-            string sql = @"SELECT  A.*, B.ShopCode,B.ShopName,C.SubjectCode,C.[CheckPoint],C.OrderNO
-                                    , D.AccountName AS RecheckUserName,ISNULL(E.AccountName, '') AS AgreeUserName
-                                    , ISNULL(F.AccountName, '') AS LastConfirmUserName
-                          FROM Recheck A INNER JOIN Shop B ON A.ShopId = B.ShopId
-                                         INNER JOIN[Subject] C ON A.ProjectId = C.ProjectId AND A.SubjectId = C.SubjectId
-                                         INNER JOIN UserInfo D ON A.RecheckUserId = D.Id
-                                         LEFT JOIN UserInfo E ON A.AgreeUserId = E.Id
-                                         LEFT JOIN UserInfo F ON A.LastConfirmUserId = F.Id
-                        WHERE A.ProjectId = @ProjectId AND A.PassRecheck=0";
-            if (!string.IsNullOrEmpty(shopId))
-            {
-                sql += " AND A.ShopId = @ShopId";
-            }
-            if (string.IsNullOrEmpty(subjectId))
-            {
-                sql += " AND A.SubjectId = @SubjectId";
-            }
-            // 如果为null 就是查询未进行修改的数据
-            if (agreeCheck == null)
-            {
-                sql += "AND A.AgreeCheck IS NULL";
-            }
-            else if (agreeCheck == "1" || agreeCheck == "0")
-            {
-                sql += "AND A.AgreeCheck = @AgreeCheck";
-            }
-
-            return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
-        }
         /// <summary>
         /// 查询需要进行复审修改的信息
         /// </summary>
@@ -76,14 +40,14 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ShopId = @ShopId";
             }
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId = @SubjectId";
             }
             // 如果为null 就是查询未进行修改的数据
-            if (agreeCheck == null)
+            if (agreeCheck == null||agreeCheck=="")
             {
-                sql += "AND A.AgreeCheck IS NULL";
+                sql += "AND (A.AgreeCheck IS NULL OR AgreeCheck ='')";
             }
             else if (agreeCheck == "1" || agreeCheck=="0")
             {

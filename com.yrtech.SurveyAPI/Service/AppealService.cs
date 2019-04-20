@@ -129,16 +129,16 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(';');
-                sql += " WHERE ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%') AND ShopId IN(";
+                sql += " WHERE ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%') AND ShopId IN('";
                 for (int i = 0; i < shopIdList.Count(); i++)
                 {
                     if (i == shopIdList.Count() - 1)
                     {
-                        sql += shopIdList[i];
+                        sql += shopIdList[i]+"'";
                     }
                     else
                     {
-                        sql += shopIdList[i] + ",";
+                        sql += shopIdList[i] + "','";
                     }
                 }
                 sql += ")";
