@@ -16,6 +16,8 @@ namespace com.yrtech.SurveyAPI.Service
         #region 复审状态
         public List<RecheckStatusDto> GetShopRecheckStauts(string projectId, string shopId, string statusCode)
         {
+            if (shopId == null) shopId = "";
+            if (statusCode == null) statusCode = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@StatusCode", statusCode)};
