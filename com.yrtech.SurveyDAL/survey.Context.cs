@@ -30,7 +30,6 @@ namespace Purchase.DAL
         public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
         public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
@@ -60,5 +59,6 @@ namespace Purchase.DAL
         public virtual DbSet<RecheckErrorType> RecheckErrorType { get; set; }
         public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
     }
 }

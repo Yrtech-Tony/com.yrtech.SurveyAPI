@@ -855,7 +855,7 @@ namespace com.yrtech.SurveyAPI.Service
             foreach (AnswerDto answer in answerList)
             {
                 Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == Convert.ToInt32(brandId)&&x.TenantId==Convert.ToInt32(tenantId))).FirstOrDefault();
-                Subject subject = db.Subject.Where(x => (x.ProjectId == Convert.ToInt32(projectId) && x.SubjectId == Convert.ToInt32(answer.SubjectCode))).FirstOrDefault();
+                Subject subject = db.Subject.Where(x => (x.ProjectId == Convert.ToInt32(projectId) && x.SubjectCode == answer.SubjectCode)).FirstOrDefault();
                 sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime) VALUES(";
                 sql += projectId + ",";
                 sql += subject.SubjectId + ",";

@@ -128,11 +128,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Appeal/AppealFileDelete")]
-        public APIResult AppealFileDelete([FromBody]string fileId)
+        public APIResult AppealFileDelete([FromBody]AppealFile appeal)
         {
             try
             {
-                appealService.AppealFileDelete(Convert.ToInt32(fileId));
+                appealService.AppealFileDelete(Convert.ToInt32(appeal.FileId));
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

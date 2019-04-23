@@ -118,7 +118,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "用户不存在" };
                 }
 
-                return new APIResult() { Status = true, Body = "原密码不正确" };
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
@@ -168,7 +168,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else
                 {
-                    return new APIResult() { Status = true, Body = "用户不存在或者密码不正确" };
+                    return new APIResult() { Status = false, Body = "用户不存在或者密码不正确" };
                 }
             }
             catch (Exception ex)

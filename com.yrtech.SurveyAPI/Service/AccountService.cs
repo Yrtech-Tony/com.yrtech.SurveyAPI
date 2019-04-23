@@ -54,7 +54,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId) };
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,
+            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,
                             ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             LEFT JOIN UserInfoBrand C ON A.Id = C.UserId
@@ -165,9 +165,13 @@ namespace com.yrtech.SurveyAPI.Service
             else if (roleType == "B_Shop")
             {
                 
-                sql = @"SELECT A.* 
+                sql = @"SELECT A.*,C.AreaId
                         FROM Shop A 
+                                    INNER JOIN AreaShop B ON A.ShopId = B.ShopId
+                                    INNER JOIN Area C ON B.AreaId = C.AreaId                                   
 			                        INNER JOIN UserInfoObject H ON A.ShopId = H.ObjectId
+                                    
+                                    
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
