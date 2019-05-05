@@ -28,7 +28,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? AgreeUserId { get; set; }
         public string AgreeUserName { get; set; }
         public DateTime? AgreeDateTime { get; set; }
-        public bool? LastConfirmCheck { get; set; }
+        public string LastConfirmCheck { get; set; }
         public int? LastConfirmUserId { get; set; }
         public string LastConfirmUserName { get; set; }
         public DateTime? LastConfirmDateTime { get; set; }

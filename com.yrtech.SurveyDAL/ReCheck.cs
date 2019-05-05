@@ -27,7 +27,7 @@ namespace Purchase.DAL
         public string AgreeReason { get; set; }
         public Nullable<int> AgreeUserId { get; set; }
         public Nullable<System.DateTime> AgreeDateTime { get; set; }
-        public Nullable<bool> LastConfirmCheck { get; set; }
+        public string LastConfirmCheck { get; set; }
         public string LastConfirmReason { get; set; }
         public Nullable<int> LastConfirmUserId { get; set; }
         public Nullable<System.DateTime> LastConfirmDate { get; set; }

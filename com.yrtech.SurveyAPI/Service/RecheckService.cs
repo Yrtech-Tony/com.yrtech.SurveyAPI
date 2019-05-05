@@ -14,7 +14,14 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
 
         #region 复审状态
-        public List<RecheckStatusDto> GetShopRecheckStauts(string projectId, string shopId, string statusCode)
+        /// <summary>
+        /// 查询当前经销商最新的状态
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="statusCode"></param>
+        /// <returns></returns>
+        public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId, string statusCode)
         {
             if (shopId == null) shopId = "";
             if (statusCode == null) statusCode = "";
@@ -49,27 +56,42 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDto>().ToList();
         }
-        //public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId)
-        //{
-        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-        //                                               new SqlParameter("@ShopId", shopId)};
-        //    Type t = typeof(RecheckStatusDtlDto);
-        //    string sql = "";
-        //    sql = @"SELECT A.ProjectId,B.ProjectCode,B.ProjectName
-        //                 ,A.RecheckTypeId,RecheckTypeName
-        //                 ,InUserId AS RecheckUserId,E.AccountName AS RecheckUserName
-        //            FROM RecheckStatusDtl A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-        //			INNER JOIN Shop C ON A.ShopId = C.ShopId
-        //			INNER JOIN SubjectRecheckType D ON A.RecheckTypeId = D.RecheckTypeId
-        //											AND D.ProjectId = B.ProjectId
-        //			INNER JOIN UserInfo E ON A.InUserId = E.Id
-        //            WHERE A.ProjectId = @ProjectId";
-        //    if (!string.IsNullOrEmpty(shopId))
-        //    {
-        //        sql += "AND A.ShopId = @ShopId";
-        //    }
-        //    return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDtlDto>().ToList();
-        //}
+        public List<RecheckStatusDto> GetShopRecheckStatusLog(string projectId, string shopId,string statusCode)
+        {
+            if (shopId == null) shopId = "";
+            if (statusCode == null) statusCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@StatusCode", statusCode)};
+            Type t = typeof(RecheckStatusDto);
+            string sql = "";
+            sql = @"SELECT [RecheckStatusId]
+                          ,A.[ProjectId]
+                          ,B.ProjectCode,B.ProjectName
+                          ,A.[ShopId],C.ShopCode,C.ShopName
+                          ,A.[StatusCode]
+                          ,A.[InUserId],E.AccountName
+                          ,A.[InDateTime]
+                      FROM [ReCheckStatus] A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+						                    INNER JOIN Shop C ON A.ShopId = C.ShopId
+						                    INNER JOIN UserInfo E ON A.InUserId = E.Id
+                                            WHERE A.ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(statusCode))
+            {
+                sql += " AND A.StatusCode = @StatusCode";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDto>().ToList();
+        }
+        /// <summary>
+        /// 查询经销商复审阶段，各类型的状态详细
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
         public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),

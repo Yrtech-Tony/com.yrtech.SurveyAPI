@@ -58,7 +58,7 @@ namespace Purchase.DAL
         public virtual DbSet<SubjectRecheckType> SubjectRecheckType { get; set; }
         public virtual DbSet<RecheckErrorType> RecheckErrorType { get; set; }
         public virtual DbSet<AppealFile> AppealFile { get; set; }
-        public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
+        public virtual DbSet<ReCheck> ReCheck { get; set; }
     }
 }

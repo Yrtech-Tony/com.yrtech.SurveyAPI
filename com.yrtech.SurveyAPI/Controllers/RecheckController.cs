@@ -14,6 +14,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         RecheckService recheckService = new RecheckService();
         RecheckModifService recheckModifyService = new RecheckModifService();
+        ArbitrationService arbitrationService = new ArbitrationService();
         AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
 
@@ -93,7 +94,27 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStauts(projectId, shopId, statusCode)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatus(projectId, shopId, statusCode)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 获取经销商的复审状态Log
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="statusCode"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Recheck/GetRecheckStatusLog")]
+        public APIResult GetRecheckStatusLog(string projectId, string shopId, string statusCode)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatusLog(projectId, shopId, statusCode)) };
             }
             catch (Exception ex)
             {
@@ -272,11 +293,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Recheck/GetRecheckModifyInfo")]
-        public APIResult GetRecheckModifyInfo(string projectId, string shopId)
+        public APIResult GetNeedRecheckkModifyInfo(string projectId, string shopId,string subjectId)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetNeedRecheckkModifyInfo(projectId, shopId, "", "")) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetNeedRecheckkModifyInfo(projectId, shopId, subjectId, "")) };
             }
             catch (Exception ex)
             {
@@ -294,7 +315,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                recheckModifyService.SaveRecheckModifyInfo(recheck.RecheckId.ToString(), recheck.AgreeCheck, recheck.AgreeReason, recheck.AgreeUserId);
+                List<RecheckStatusDto> statusLogList = recheckService.GetShopRecheckStatusLog(recheck.ProjectId.ToString(), recheck.ShopId.ToString(), "S4");
+                if (statusLogList != null && statusLogList.Count == 0)
+                {
+                    recheckModifyService.SaveRecheckModifyInfo(recheck.RecheckId.ToString(), recheck.AgreeCheck, recheck.AgreeReason, recheck.AgreeUserId);
+                }
+                else {
+                    throw new Exception("该经销商已经复审修改完毕，不能进行修改");
+                }
                 return new APIResult() { Status = true, Body = "保存成功" };
             }
             catch (Exception ex)
@@ -328,6 +356,38 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
+        #region 仲裁
+        [HttpGet]
+        [Route("Recheck/GetArbitrabitionInfo")]
+        public APIResult GetArbitrabitionInfo(string projectId, string shopId, string subjectId)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(arbitrationService.GetNeedArbitrationInfo(projectId, shopId, subjectId)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Recheck/SaveArbitrationInfo")]
+        public APIResult SaveArbitrationInfo([FromBody]ReCheck recheck)
+        {
+            try
+            {
+
+                    arbitrationService.SaveArbitrationInfo(recheck.RecheckId.ToString(), recheck.LastConfirmCheck, recheck.LastConfirmReason,recheck.LastConfirmUserId);
+              
+                return new APIResult() { Status = true, Body = "保存成功" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
         #endregion
     }
 }

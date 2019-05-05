@@ -183,6 +183,7 @@
     <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AnswerService.cs" />
     <Compile Include="Service\AreaService.cs" />
+    <Compile Include="Service\ArbitrationService.cs" />
     <Compile Include="Service\RechecModifykService.cs" />
     <Compile Include="Service\RecheckService.cs" />
     <Compile Include="Service\ShopService.cs" />
