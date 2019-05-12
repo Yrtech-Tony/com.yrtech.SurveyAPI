@@ -30,7 +30,7 @@ namespace com.yrtech.SurveyAPI.Service
 		                        ,A.SubjectId,C.SubjectCode,C.[CheckPoint]
 		                        ,A.ImportScore AS Score,A.ImportLossResult AS LossResult
 		                        ,'' AS AppealReason,null AS AppealUserId,null AS AppealDateTime
-		                        ,null AS FeedBackStatus ,'' AS FeedBackStatus,null AS FeedBackUserId,null AS FeedBackDateTime
+		                        ,null AS FeedBackStatus ,'' AS FeedBackReason,null AS FeedBackUserId,null AS FeedBackDateTime
 		                        ,null AS ShopAcceptStatus,'' AS ShopAcceptReason,null AS ShopAcceptUserId,null AS SHopAcceptDateTime
                          FROM Answer A INNER JOIN Project B ON A.ProjectId = B.ProjectId
 			                           INNER JOIN [Subject] C ON A.SubjectId  = C.SubjectId AND A.ProjectId = C.ProjectId

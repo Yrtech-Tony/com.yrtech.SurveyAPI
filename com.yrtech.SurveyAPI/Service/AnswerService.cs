@@ -851,22 +851,42 @@ namespace com.yrtech.SurveyAPI.Service
         public void ImportAnswerResult(string tenantId,string brandId,string projectId,string userId,List<AnswerDto> answerList)
         {
             string sql = "";
+            SqlParameter[] para = new SqlParameter[] { };
             Type t = typeof(int);
             foreach (AnswerDto answer in answerList)
             {
-                Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == Convert.ToInt32(brandId)&&x.TenantId==Convert.ToInt32(tenantId))).FirstOrDefault();
-                Subject subject = db.Subject.Where(x => (x.ProjectId == Convert.ToInt32(projectId) && x.SubjectCode == answer.SubjectCode)).FirstOrDefault();
-                sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime) VALUES(";
+                int brandIdInt = Convert.ToInt32(brandId);
+                int tenantIdInt = Convert.ToInt32(tenantId);
+                int projectIdInt = Convert.ToInt32(projectId);
+                Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == brandIdInt && x.TenantId== tenantIdInt)).FirstOrDefault();
+                Subject subject = db.Subject.Where(x => (x.ProjectId == projectIdInt && x.SubjectCode == answer.SubjectCode)).FirstOrDefault();
+                sql += "DELETE Answer WHERE ProjectId = " + projectIdInt;
+                sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime,UploadDate,UploadUserId) VALUES(";
                 sql += projectId + ",";
                 sql += subject.SubjectId + ",";
                 sql += shop.ShopId + ",";
-                sql += answer.ImportScore + ",";
-                sql += answer.ImportLossResult + ",";
+                if (answer.ImportScore == null)
+                {
+                    sql += "null,'";
+                }
+                else {
+                    sql += answer.ImportScore+",'";
+                }
+                //sql += answer.ImportScore==null?"":answer.ImportScore+ "','";
+                if (answer.ImportLossResult == null)
+                {
+                    sql += "',";
+                }
+                else {
+                    sql += answer.ImportLossResult + "',";
+                }
+                //sql += answer.ImportLossResult == null ? "" : answer.ImportLossResult + "',";
                 sql += userId + ",GETDATE(),";
                 sql += userId + ",GETDATE())";
-                sql += "/r/n";
+                sql += userId + ",GETDATE())";
+                sql += " ";
             }
-            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
+            db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
     }
