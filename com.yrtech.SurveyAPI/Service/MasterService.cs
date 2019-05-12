@@ -111,8 +111,8 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(UserInfo);
             string sql = "";
 
-            sql = @"SELECT C.Id,C.TenantId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
-                    (SELECT TOP 1 AccountName FROM UserInfo WHERE Id = B.InUserId) AS AccountName,Email,TelNO,HeadPicUrl,
+            sql = @"SELECT C.Id,C.TenantId,A.BrandId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
+                    Email,TelNO,HeadPicUrl,
                     C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
                     FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
 								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
@@ -361,6 +361,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ShopShortName]
                           ,[Province]
                           ,[City]
+                          ,[GroupId]
                           ,[UseChk]
                           ,[InUserId]
                           ,[InDateTime]

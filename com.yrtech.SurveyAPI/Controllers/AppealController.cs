@@ -112,6 +112,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [Route("Appeal/AppealDelete")]
+        public APIResult AppealDelete([FromBody]Appeal appeal)
+        {
+            try
+            {
+                appealService.AppealDelete(appeal.AppealId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        
         [HttpPost]
         [Route("Appeal/AppealFileSave")]
         public APIResult AppealFileSave([FromBody]AppealFile appealFile)

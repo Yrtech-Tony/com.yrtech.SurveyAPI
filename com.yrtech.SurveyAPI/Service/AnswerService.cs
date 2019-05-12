@@ -851,17 +851,19 @@ namespace com.yrtech.SurveyAPI.Service
         public void ImportAnswerResult(string tenantId,string brandId,string projectId,string userId,List<AnswerDto> answerList)
         {
             string sql = "";
+            int brandIdInt = Convert.ToInt32(brandId);
+            int tenantIdInt = Convert.ToInt32(tenantId);
+            int projectIdInt = Convert.ToInt32(projectId);
+            sql += "DELETE Answer WHERE ProjectId = " + projectIdInt;
             SqlParameter[] para = new SqlParameter[] { };
             Type t = typeof(int);
             foreach (AnswerDto answer in answerList)
             {
-                int brandIdInt = Convert.ToInt32(brandId);
-                int tenantIdInt = Convert.ToInt32(tenantId);
-                int projectIdInt = Convert.ToInt32(projectId);
+                
                 Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == brandIdInt && x.TenantId== tenantIdInt)).FirstOrDefault();
                 Subject subject = db.Subject.Where(x => (x.ProjectId == projectIdInt && x.SubjectCode == answer.SubjectCode)).FirstOrDefault();
-                sql += "DELETE Answer WHERE ProjectId = " + projectIdInt;
-                sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime,UploadDate,UploadUserId) VALUES(";
+                
+                sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime,UploadUserId,UploadDate) VALUES(";
                 sql += projectId + ",";
                 sql += subject.SubjectId + ",";
                 sql += shop.ShopId + ",";
@@ -882,7 +884,7 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 //sql += answer.ImportLossResult == null ? "" : answer.ImportLossResult + "',";
                 sql += userId + ",GETDATE(),";
-                sql += userId + ",GETDATE())";
+                sql += userId + ",GETDATE(),";
                 sql += userId + ",GETDATE())";
                 sql += " ";
             }
