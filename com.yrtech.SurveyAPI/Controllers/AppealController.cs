@@ -13,9 +13,9 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AppealService appealService = new AppealService();
 
-        [HttpPost]
+        [HttpGet]
         [Route("Appeal/CreateAppealInfoByProject")]
-        public APIResult CreateAppealInfoByProject([FromBody]string projectId)
+        public APIResult CreateAppealInfoByProject(string projectId)
         {
             try
             {
