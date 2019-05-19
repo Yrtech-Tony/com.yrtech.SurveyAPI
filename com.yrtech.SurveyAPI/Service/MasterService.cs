@@ -44,16 +44,17 @@ namespace com.yrtech.SurveyAPI.Service
 
             sql = @"SELECT [SubjectTypeExamId]
                           ,[SubjectTypeExamName]
+                            ,ProjectId
                           ,[InUserId]
                           ,[InDateTime]
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
                       FROM [SubjectTypeExam] WHERE 1=1 ";
-            if (string.IsNullOrEmpty(projectId))
+            if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND ProjectId = @ProjectId";
             }
-            if (string.IsNullOrEmpty(subjectTypeExamId))
+            if (!string.IsNullOrEmpty(subjectTypeExamId))
             {
                 sql += " AND SubjectTypeExamId = @SubjectTypeExamId";
             }
