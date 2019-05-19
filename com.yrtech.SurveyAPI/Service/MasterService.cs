@@ -34,8 +34,11 @@ namespace com.yrtech.SurveyAPI.Service
         /// 获取体系试卷类型
         /// </summary>
         /// <returns></returns>
-        public List<SubjectTypeExam> GetSubjectTypeExam()
+        public List<SubjectTypeExam> GetSubjectTypeExam(string projectId,string subjectTypeExamId)
         {
+            if (subjectTypeExamId == null) subjectTypeExamId = "";
+             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                    new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)};
             Type t = typeof(SubjectTypeExam);
             string sql = "";
 
@@ -45,9 +48,39 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[InDateTime]
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
-                      FROM [SubjectTypeExam] ";
-            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<SubjectTypeExam>().ToList();
+                      FROM [SubjectTypeExam] WHERE 1=1 ";
+            if (string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND ProjectId = @ProjectId";
+            }
+            if (string.IsNullOrEmpty(subjectTypeExamId))
+            {
+                sql += " AND SubjectTypeExamId = @SubjectTypeExamId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeExam>().ToList();
 
+        }
+        /// <summary>
+        /// 保存体系试卷类型
+        /// </summary>
+        /// <param name="subjectTypeExam"></param>
+        public void SaveSubjectTypeExam(SubjectTypeExam subjectTypeExam)
+        {
+
+            SubjectTypeExam findOne = db.SubjectTypeExam.Where(x => (x.SubjectTypeExamId == subjectTypeExam.SubjectTypeExamId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectTypeExam.InDateTime = DateTime.Now;
+                subjectTypeExam.ModifyDateTime = DateTime.Now;
+                db.SubjectTypeExam.Add(subjectTypeExam);
+            }
+            else
+            {
+                findOne.SubjectTypeExamName = subjectTypeExam.SubjectTypeExamName;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectTypeExam.ModifyUserId;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 查询租户信息
@@ -219,13 +252,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<SubjectRecheckType> GetSubjectRecheckType(string projectId, string recheckTypeId)
         {
+            if (string.IsNullOrEmpty(recheckTypeId)) recheckTypeId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
             Type t = typeof(SubjectRecheckType);
             string sql = "";
 
             sql = @"SELECT [RecheckTypeId]
                   ,[RecheckTypeName]
-                  , BrandId
+                  , ProjectId
                   ,UseChk
                   ,[InUserId]
                   ,[InDateTime]
@@ -236,7 +270,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND RecheckTypeId = @RecheckTypeId";
             }
-            return db.Database.SqlQuery(t, sql, null).Cast<SubjectRecheckType>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectRecheckType>().ToList();
         }
         /// <summary>
         /// 保存期号下的复审类型
@@ -268,7 +302,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+            if (recheckErrorTypeId == null) recheckErrorTypeId = "";
+             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                     , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
             Type t = typeof(RecheckErrorType);
             string sql = "";
@@ -278,12 +313,12 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND RecheckErrorTypeId = @RecheckErrorTypeId";
             }
-            return db.Database.SqlQuery(t, sql, null).Cast<RecheckErrorType>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<RecheckErrorType>().ToList();
         }
         /// <summary>
         /// 保存期号下的复审错误类型
         /// </summary>
-        /// <param name="subjectRecheckType"></param>
+        /// <param name="recheckErrorType"></param>
         public void SaveRecheckErrorType(RecheckErrorType recheckErrorType)
         {
 

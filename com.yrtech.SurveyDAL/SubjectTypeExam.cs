@@ -16,6 +16,7 @@ namespace Purchase.DAL
     {
         public int SubjectTypeExamId { get; set; }
         public string SubjectTypeExamName { get; set; }
+        public Nullable<int> ProjectId { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

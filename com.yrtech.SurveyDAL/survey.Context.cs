@@ -38,13 +38,11 @@ namespace Purchase.DAL
         public virtual DbSet<RoleType> RoleType { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ShopSubjectTypeExam> ShopSubjectTypeExam { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<SubjectFile> SubjectFile { get; set; }
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
         public virtual DbSet<SubjectLink> SubjectLink { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
         public virtual DbSet<SubjectType> SubjectType { get; set; }
-        public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
         public virtual DbSet<SubjectTypeScoreRegion> SubjectTypeScoreRegion { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
@@ -60,5 +58,7 @@ namespace Purchase.DAL
         public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
     }
 }

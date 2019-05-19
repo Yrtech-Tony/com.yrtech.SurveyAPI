@@ -125,6 +125,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    }
         //}
         //#endregion
+        #region 品牌
         /// <summary>
         /// 根据租户信息查询品牌信息
         /// </summary>
@@ -153,6 +154,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetUserInfoByBrandId")]
+        
         public APIResult GetUserInfoByBrandId(string brandId)
         {
             try
@@ -166,6 +168,10 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        #endregion
+        #region 期号
+
+        
         /// <summary>
         /// 获取品牌下期号的信息，也可以获取单个期号的信息
         /// </summary>
@@ -201,6 +207,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
+        #region 体系
+
+        
         /// <summary>
         /// 获取体系的信息
         /// </summary>
@@ -234,65 +244,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 masterService.SaveSubject(subject);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        /// <summary>
-        /// 获取流程类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("Master/GetSubjectLink")]
-        public APIResult GetSubjectLink(string projectId)
-        {
-            try
-            {
-                List<SubjectLink> subjectLinkList = masterService.GetSubjectLink(projectId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectLinkList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        /// <summary>
-        /// 新增或者更新流程类型
-        /// </summary>
-        /// <param name="uploadData"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("Master/SaveSubjectLink")]
-        public APIResult SaveSubjectLink([FromBody]SubjectLink subjectLink)
-        {
-            try
-            {
-                masterService.SaveSubjectLink(subjectLink);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        /// <summary>
-        /// 更新SubjectLinkId
-        /// </summary>
-        /// <param name="uploadData"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("Master/SetSubjectLinkId")]
-        public APIResult SetSubjectLinkId([FromBody]UploadData uploadData)
-        {
-            try
-            {
-                List<SubjectDto> subjectList = CommonHelper.DecodeString<List<SubjectDto>>(uploadData.ListJson);
-                masterService.SetSubjectLinkId(subjectList);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -449,6 +400,71 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
+        #region 流程类型
+        /// <summary>
+        /// 获取流程类型
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetSubjectLink")]
+        public APIResult GetSubjectLink(string projectId)
+        {
+            try
+            {
+                List<SubjectLink> subjectLinkList = masterService.GetSubjectLink(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectLinkList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        /// <summary>
+        /// 新增或者更新流程类型
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SaveSubjectLink")]
+        public APIResult SaveSubjectLink([FromBody]SubjectLink subjectLink)
+        {
+            try
+            {
+                masterService.SaveSubjectLink(subjectLink);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 更新SubjectLinkId
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/SetSubjectLinkId")]
+        public APIResult SetSubjectLinkId([FromBody]UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectDto> subjectList = CommonHelper.DecodeString<List<SubjectDto>>(uploadData.ListJson);
+                masterService.SetSubjectLinkId(subjectList);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 经销商
+
+       
         /// <summary>
         /// 获取经销商信息
         /// </summary>
@@ -513,14 +529,15 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
-
+        #endregion
+        #region 试卷类型
         [HttpGet]
         [Route("Master/GetSubjectTypeExam")]
-        public APIResult GetSubjectTypeExam()
+        public APIResult GetSubjectTypeExam(string projectId,string subjectTypeExamId)
         {
             try
             {
-                List<SubjectTypeExam> examList = masterService.GetSubjectTypeExam();
+                List<SubjectTypeExam> examList = masterService.GetSubjectTypeExam(projectId, subjectTypeExamId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(examList) };
             }
             catch (Exception ex)
@@ -528,7 +545,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
+        [HttpPost]
+        [Route("Master/SaveSubjectTypeExam")]
+        public APIResult SaveSubjectTypeExam([FromBody]SubjectTypeExam subjectTypeExam)
+        {
+            try
+            {
+                masterService.SaveSubjectTypeExam(subjectTypeExam);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 体系类型
         [HttpGet]
         [Route("Master/GetSubjectType")]
         public APIResult GetSubjectType()
@@ -543,6 +575,68 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
+        #region 复审类型
+        [HttpGet]
+        [Route("Master/GetSubjectRecheckType")]
+        public APIResult GetSubjectRecheckType(string projectId, string subjectRecheckTypeId)
+        {
+            try
+            {
+                List<SubjectRecheckType> subjectRecheckTypeList = masterService.GetSubjectRecheckType(projectId, subjectRecheckTypeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectRecheckTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveSubjectRecheckType")]
+        public APIResult SaveSubjectRecheckType([FromBody]SubjectRecheckType subjectRecheckType)
+        {
+            try
+            {
+                masterService.SaveSubjectRecheckType(subjectRecheckType);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 复审错误类型
+        [HttpGet]
+        [Route("Master/GetRecheckErrorType")]
+        public APIResult GetRecheckErrorType(string projectId,string recheckErrorTypeId)
+        {
+            try
+            {
+                List<RecheckErrorType> recheckErrorTypeList = masterService.GetRecheckErrorType(projectId, recheckErrorTypeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckErrorTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveRecheckErrorType")]
+        public APIResult SaveRecheckErrorType([FromBody]RecheckErrorType recheckErrorType)
+        {
+            try
+            {
+                masterService.SaveRecheckErrorType(recheckErrorType);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
 
     }
 }
