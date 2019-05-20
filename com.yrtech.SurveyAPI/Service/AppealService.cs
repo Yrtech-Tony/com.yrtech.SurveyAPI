@@ -57,7 +57,7 @@ namespace com.yrtech.SurveyAPI.Service
             Project findOne = db.Project.Where(x => x.ProjectId == projectId).FirstOrDefault();
             if (findOne != null)
             {
-                if (findOne.DataScore == "01")// 01:系统打分 02：导入
+                if (findOne.DataScore == "系统打分")// 01:系统打分 02：导入
                 {
                     //系统打分的时候，计算总分和失分说明，进行更新
                 }

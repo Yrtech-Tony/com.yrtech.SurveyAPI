@@ -240,6 +240,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
+                findOne.DataScore = project.DataScore;
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;
