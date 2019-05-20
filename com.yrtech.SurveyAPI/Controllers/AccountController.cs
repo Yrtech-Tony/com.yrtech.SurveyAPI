@@ -42,7 +42,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<Brand> brandList = new List<Brand>();
                     foreach (AccountDto ac in accountlist)
                     {
-                        brandList.AddRange(masterService.GetBrand(tenantId, ac.Id.ToString(), ac.BrandId.ToString()));
+                        brandList.AddRange(masterService.GetBrand(tenantId, ac.Id.ToString(),ac.RoleType, ac.BrandId.ToString()));
                     }
                     resultList.Add(brandList);
                     // 期号信息 Project

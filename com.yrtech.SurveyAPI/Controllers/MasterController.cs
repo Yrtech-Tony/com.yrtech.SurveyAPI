@@ -134,11 +134,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetBrand")]
-        public APIResult GetBrand(string tenantId, string userId,string brandId)
+        public APIResult GetBrand(string tenantId, string userId,string roleType,string brandId)
         {
             try
             {
-                List<Brand> brandList = masterService.GetBrand(tenantId, userId, brandId);
+                List<Brand> brandList = masterService.GetBrand(tenantId, userId, roleType, brandId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
             }
             catch (Exception ex)
@@ -147,6 +147,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        [HttpPost]
+        [Route("Master/SaveBrand")]
+        public APIResult SaveBrand(Brand brand)
+        {
+            try
+            {
+                masterService.SaveBrand(brand);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         /// <summary>
         /// 获取品牌下的账号信息
         /// </summary>
@@ -154,7 +168,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetUserInfoByBrandId")]
-        
         public APIResult GetUserInfoByBrandId(string brandId)
         {
             try
