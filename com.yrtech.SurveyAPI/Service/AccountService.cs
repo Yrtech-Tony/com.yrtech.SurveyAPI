@@ -77,6 +77,27 @@ namespace com.yrtech.SurveyAPI.Service
                     WHERE Id = @UserId";
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }
+        public void SaveUserInfo(UserInfo userinfo)
+        {
+            UserInfo findOne = db.UserInfo.Where(x => (x.Id == userinfo.Id)).FirstOrDefault();
+            if (findOne == null)
+            {
+                userinfo.InDateTime = DateTime.Now;
+                userinfo.ModifyDateTime = DateTime.Now;
+                db.UserInfo.Add(userinfo);
+            }
+            else
+            {
+                findOne.Password = userinfo.Password;
+                findOne.AccountName = userinfo.AccountName;
+                findOne.Email = userinfo.Email;
+                findOne.TelNO = userinfo.TelNO;
+                findOne.UseChk = userinfo.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = userinfo.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
         /// <summary>
         ///更新密码
         /// </summary>

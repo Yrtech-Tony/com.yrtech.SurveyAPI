@@ -42,14 +42,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<Brand> brandList = new List<Brand>();
                     foreach (AccountDto ac in accountlist)
                     {
-                        brandList.AddRange(masterService.GetBrand(tenantId, ac.Id.ToString(),ac.RoleType, ac.BrandId.ToString()));
+                        brandList.AddRange(masterService.GetBrand(tenantId, ac.Id.ToString(), ac.RoleType, ac.BrandId.ToString()));
                     }
                     resultList.Add(brandList);
                     // 期号信息 Project
                     List<Project> projectList = new List<Project>();
                     foreach (Brand brand in brandList)
                     {
-                        projectList.AddRange(masterService.GetProject(tenantId, brand.BrandId.ToString(), "",""));
+                        projectList.AddRange(masterService.GetProject(tenantId, brand.BrandId.ToString(), "", ""));
                     }
                     resultList.Add(projectList);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
@@ -93,6 +93,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpPost]
+        [Route("Account/SaveUserInfo")]
+        public APIResult SaveUserInfo([FromBody]UserInfo obj)
+        {
+            try
+            {
+                accountService.SaveUserInfo(obj);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message };
+            }
+        }
         /// <summary>
         /// 修改密码
         /// </summary>
@@ -133,16 +147,16 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Account/LoginForBrand")]
-        public APIResult LoginForBrand(string accountId, string password,string tenantId,string brandId)
+        public APIResult LoginForBrand(string accountId, string password, string tenantId, string brandId)
         {
             try
             {
                 //CommonHelper.log(tenantId + " "+brandId);
                 //List<object> resultList = new List<object>();
-                List<AccountDto> accountlist = accountService.LoginForBrand(accountId, password,tenantId,brandId);
+                List<AccountDto> accountlist = accountService.LoginForBrand(accountId, password, tenantId, brandId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
-                    
+
                     AccountDto account = accountlist[0];
                     string userId = account.Id.ToString();
                     //CommonHelper.log("b" +userId);
