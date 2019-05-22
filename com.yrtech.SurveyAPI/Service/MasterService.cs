@@ -406,12 +406,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<Shop> GetShop(string tenantId, string brandId, string shopId)
+        public List<Shop> GetShop(string tenantId, string brandId, string shopId,string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
-
+            key = key == null ? "" : key;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ShopId", shopId)};
@@ -446,7 +446,37 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ShopId = @ShopId";
             }
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%"+key+"%' OR ShopShortName LIKE '%"+key+"%')";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop"></param>
+        public void SaveShop(Shop shop)
+        {
+            Shop findOne = db.Shop.Where(x => (x.ShopId == shop.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                shop.InDateTime = DateTime.Now;
+                shop.ModifyDateTime = DateTime.Now;
+                db.Shop.Add(shop);
+            }
+            else
+            {
+                findOne.ShopCode = shop.ShopCode;
+                findOne.ShopName = shop.ShopName;
+                findOne.City = shop.City;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = shop.ModifyUserId;
+                findOne.Province = shop.Province;
+                findOne.ShopShortName = shop.ShopShortName;
+                findOne.UseChk = shop.UseChk;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取体系信息
