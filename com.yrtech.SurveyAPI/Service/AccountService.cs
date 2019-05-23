@@ -32,7 +32,7 @@ namespace com.yrtech.SurveyAPI.Service
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
         }
-        public List<AccountDto> LoginForBrand(string accountId, string password,string tenantId,string brandId)
+        public List<AccountDto> LoginForBrand(string accountId, string password, string tenantId, string brandId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password),
@@ -69,14 +69,29 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<UserInfo> GetUserInfo(string userId)
+        public List<UserInfo> GetUserInfo(string tenantId, string userId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId) };
+            if (tenantId == null) tenantId = "";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                        new SqlParameter("@UserId", userId) };
             Type t = typeof(UserInfo);
             string sql = @"SELECT * FROM [UserInfo]
-                    WHERE Id = @UserId";
+                    WHERE 1=1";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND Id = @UserId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }
+        /// <summary>
+        /// 保存账号信息
+        /// </summary>
+        /// <param name="userinfo"></param>
         public void SaveUserInfo(UserInfo userinfo)
         {
             UserInfo findOne = db.UserInfo.Where(x => (x.Id == userinfo.Id)).FirstOrDefault();
@@ -104,15 +119,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool UpdatePassword(string userId,string password)
+        public bool UpdatePassword(string userId, string password)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@Password", password)};
             Type t = typeof(UserInfo);
             string sql = @"UPDATE [UserInfo] SET Password=@Password Where Id = @UserId";
-            return db.Database.ExecuteSqlCommand(sql,para)>0;
+            return db.Database.ExecuteSqlCommand(sql, para) > 0;
         }
-
         /// <summary>
         /// 根据权限和账号查询对应的经销商信息
         /// </summary>
@@ -120,7 +134,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         /// <param name="roleType"></param>
         /// <returns></returns>
-       public List<ShopDto> GetShopListByRole(string brandId,string userId, string roleType)
+        public List<ShopDto> GetShopListByRole(string brandId, string userId, string roleType)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)
                                                         ,new SqlParameter("@UserId", userId) };
@@ -185,7 +199,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Shop")
             {
-                
+
                 sql = @"SELECT A.*,C.AreaId
                         FROM Shop A 
                                     INNER JOIN AreaShop B ON A.ShopId = B.ShopId
@@ -542,6 +556,13 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
         }
+        /// <summary>
+        /// 根据权限查询集团信息
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <param name="userId"></param>
+        /// <param name="roleType"></param>
+        /// <returns></returns>
         public List<GroupDto> GetGroupByRole(string brandId, string userId, string roleType)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)

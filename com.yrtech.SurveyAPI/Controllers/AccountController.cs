@@ -118,7 +118,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfo> userList = accountService.GetUserInfo(obj.UserId);
+                List<UserInfo> userList = accountService.GetUserInfo("",obj.UserId);
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)

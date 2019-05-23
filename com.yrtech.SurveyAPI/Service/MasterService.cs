@@ -251,7 +251,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="project"></param>
         public void SaveProject(Project project)
         {
-            List<UserInfo> userList = accountService.GetUserInfo(project.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -522,7 +522,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
-            List<UserInfo> userList = accountService.GetUserInfo(subject.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");

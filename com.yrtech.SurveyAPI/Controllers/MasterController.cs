@@ -126,7 +126,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         //}
         //#endregion
         #region 权限类型
-        #region 品牌
         /// <summary>
         /// 
         /// </summary>
