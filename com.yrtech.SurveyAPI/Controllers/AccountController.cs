@@ -93,6 +93,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Account/GetUserInfo")]
+        public APIResult GetUserInfo(string tenantId, string userId)
+        {
+            try
+            {
+                List<UserInfo> userinfoList = accountService.GetUserInfo(tenantId, userId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(userinfoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Account/SaveUserInfo")]
         public APIResult SaveUserInfo([FromBody]UserInfo obj)
