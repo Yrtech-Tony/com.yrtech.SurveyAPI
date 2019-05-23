@@ -125,6 +125,28 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    }
         //}
         //#endregion
+        #region 权限类型
+        #region 品牌
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetRoleType")]
+        public APIResult GetRoleType()
+        {
+            try
+            {
+                List<RoleType> roleTypeList = masterService.GetRoleType();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(roleTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 品牌
         /// <summary>
         /// 根据租户信息查询品牌信息

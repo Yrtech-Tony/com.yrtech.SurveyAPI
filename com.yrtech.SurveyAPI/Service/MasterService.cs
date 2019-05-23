@@ -14,6 +14,14 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
         AccountService accountService = new AccountService();
         localhost.Service webService = new localhost.Service();
+        public List<RoleType> GetRoleType()
+        {
+            Type t = typeof(RoleType);
+            string sql = "";
+            sql = @"SELECT *
+                   FROM [RoleType] ";
+            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<RoleType>().ToList();
+        }
         /// <summary>
         /// 获取体系类型
         /// </summary>
