@@ -14,6 +14,14 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
         AccountService accountService = new AccountService();
         localhost.Service webService = new localhost.Service();
+        public List<RoleType> GetRoleType()
+        {
+            Type t = typeof(RoleType);
+            string sql = "";
+            sql = @"SELECT *
+                   FROM [RoleType] ";
+            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<RoleType>().ToList();
+        }
         /// <summary>
         /// 获取体系类型
         /// </summary>
@@ -34,10 +42,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// 获取体系试卷类型
         /// </summary>
         /// <returns></returns>
-        public List<SubjectTypeExam> GetSubjectTypeExam(string projectId,string subjectTypeExamId)
+        public List<SubjectTypeExam> GetSubjectTypeExam(string projectId, string subjectTypeExamId)
         {
             if (subjectTypeExamId == null) subjectTypeExamId = "";
-             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                     new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)};
             Type t = typeof(SubjectTypeExam);
             string sql = "";
@@ -104,12 +112,12 @@ namespace com.yrtech.SurveyAPI.Service
 
         }
         /// <summary>
-        /// 查询品牌信息
+        /// 查询品牌信息,
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<Brand> GetBrand(string tenantId, string userId, string brandId)
+        public List<Brand> GetBrand(string tenantId, string userId, string roleType, string brandId)
         {
             userId = userId == null ? "" : userId;
             brandId = brandId == null ? "" : brandId;
@@ -120,9 +128,13 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
 
             sql = @"SELECT DISTINCT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
-                    FROM Brand A LEFT JOIN UserInfoBrand B ON A.BrandId = B.BrandId
-                    WHERE 1=1 AND A.TenantId = @TenantId ";
-            if (!string.IsNullOrEmpty(userId))
+                    FROM Brand A ";
+            if (roleType != "S_Sysadmin"&& roleType!="S") // 不是租户管理员和系统管理员时按照userId查询，如果时租户管理员查询所有
+            {
+                sql += "INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId";
+            }
+            sql += " WHERE 1=1 AND A.TenantId = @TenantId";
+            if (!string.IsNullOrEmpty(userId) && roleType != "S_Sysadmin" && roleType != "S")
             {
                 sql += " AND B.UserId = @UserId";
             }
@@ -132,6 +144,30 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
 
+        }
+        /// <summary>
+        /// 保存品牌
+        /// </summary>
+        /// <param name="brand"></param>
+        public void SaveBrand(Brand brand)
+        {
+
+            Brand findOne = db.Brand.Where(x => (x.BrandId == brand.BrandId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                brand.InDateTime = DateTime.Now;
+                brand.ModifyDateTime = DateTime.Now;
+                db.Brand.Add(brand);
+            }
+            else
+            {
+                findOne.BrandCode = brand.BrandCode;
+                findOne.BrandName = brand.BrandName;
+                findOne.Remark = brand.Remark;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = brand.ModifyUserId;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 查询品牌下账号信息
@@ -161,7 +197,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<Project> GetProject(string tenantId, string brandId, string projectId,string year)
+        public List<Project> GetProject(string tenantId, string brandId, string projectId, string year)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -216,7 +252,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="project"></param>
         public void SaveProject(Project project)
         {
-            List<UserInfo> userList = accountService.GetUserInfo(project.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -241,6 +277,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
+                findOne.DataScore = project.DataScore;
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;
@@ -304,7 +341,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
         {
             if (recheckErrorTypeId == null) recheckErrorTypeId = "";
-             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                     , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
             Type t = typeof(RecheckErrorType);
             string sql = "";
@@ -378,12 +415,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<Shop> GetShop(string tenantId, string brandId, string shopId)
+        public List<Shop> GetShop(string tenantId, string brandId, string shopId,string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
-
+            key = key == null ? "" : key;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ShopId", shopId)};
@@ -418,7 +455,37 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ShopId = @ShopId";
             }
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%"+key+"%' OR ShopShortName LIKE '%"+key+"%')";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop"></param>
+        public void SaveShop(Shop shop)
+        {
+            Shop findOne = db.Shop.Where(x => (x.ShopId == shop.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                shop.InDateTime = DateTime.Now;
+                shop.ModifyDateTime = DateTime.Now;
+                db.Shop.Add(shop);
+            }
+            else
+            {
+                findOne.ShopCode = shop.ShopCode;
+                findOne.ShopName = shop.ShopName;
+                findOne.City = shop.City;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = shop.ModifyUserId;
+                findOne.Province = shop.Province;
+                findOne.ShopShortName = shop.ShopShortName;
+                findOne.UseChk = shop.UseChk;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取体系信息
@@ -456,13 +523,13 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
-            List<UserInfo> userList = accountService.GetUserInfo(subject.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
             }
             string accountId = userList[0].AccountId;
-            string brandId = GetBrand("1", subject.ModifyUserId.ToString(), "")[0].BrandId.ToString();
+            string brandId = GetBrand("1", subject.ModifyUserId.ToString(),userList[0].RoleType, "")[0].BrandId.ToString();
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             //webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
             //    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())

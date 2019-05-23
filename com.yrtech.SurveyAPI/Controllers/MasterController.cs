@@ -125,6 +125,27 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    }
         //}
         //#endregion
+        #region 权限类型
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetRoleType")]
+        public APIResult GetRoleType()
+        {
+            try
+            {
+                List<RoleType> roleTypeList = masterService.GetRoleType();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(roleTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 品牌
         /// <summary>
         /// 根据租户信息查询品牌信息
@@ -134,11 +155,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetBrand")]
-        public APIResult GetBrand(string tenantId, string userId,string brandId)
+        public APIResult GetBrand(string tenantId, string userId,string roleType,string brandId)
         {
             try
             {
-                List<Brand> brandList = masterService.GetBrand(tenantId, userId, brandId);
+                List<Brand> brandList = masterService.GetBrand(tenantId, userId, roleType, brandId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
             }
             catch (Exception ex)
@@ -147,6 +168,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        [HttpPost]
+        [Route("Master/SaveBrand")]
+        public APIResult SaveBrand(Brand brand)
+        {
+            try
+            {
+                masterService.SaveBrand(brand);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         /// <summary>
         /// 获取品牌下的账号信息
         /// </summary>
@@ -154,7 +189,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetUserInfoByBrandId")]
-        
         public APIResult GetUserInfoByBrandId(string brandId)
         {
             try
@@ -473,11 +507,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetShop")]
-        public APIResult GetShop(string projectId, string shopId)
+        public APIResult GetShop(string brandId, string shopId,string key)
         {
             try
             {
-                List<Shop> shopList = masterService.GetShop("", projectId, shopId);
+                List<Shop> shopList = masterService.GetShop("", brandId, shopId,key);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
             }
             catch (Exception ex)
@@ -485,6 +519,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        [HttpPost]
+        [Route("Master/SaveShop")]
+        public APIResult SaveShop([FromBody]Shop shop)
+        {
+            try
+            {
+                masterService.SaveShop(shop);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         /// <summary>
         /// 获取当前期需要执行的经销商及所属试卷类型

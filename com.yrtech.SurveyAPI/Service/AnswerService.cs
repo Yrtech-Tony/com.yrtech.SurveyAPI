@@ -24,10 +24,10 @@ namespace com.yrtech.SurveyAPI.Service
         {
 
             if (lst == null) return;
-            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
-            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].BrandId.ToString();
+            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"")[0].ShopCode;
+            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"")[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            string accountId = accountService.GetUserInfo("",userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             try
             {
@@ -117,10 +117,10 @@ namespace com.yrtech.SurveyAPI.Service
             //CommonHelper.log("Service" + lst.ToString());
             if (lst == null) return;
             //CommonHelper.log(lst.ToString());
-            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].ShopCode;
-            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString())[0].BrandId.ToString();
+            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"")[0].ShopCode;
+            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"")[0].BrandId.ToString();
             string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
-            string accountId = accountService.GetUserInfo(userId)[0].AccountId;
+            string accountId = accountService.GetUserInfo("",userId)[0].AccountId;
             if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             // 保存数据到原系统
             CommonHelper.log(webService.Url + " " + brandId.ToString());
@@ -166,12 +166,12 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的期号");
             }
-            List<Shop> shopList = masterService.GetShop("", "", lst[0].ShopId.ToString());
+            List<Shop> shopList = masterService.GetShop("", "", lst[0].ShopId.ToString(),"");
             if (shopList == null || shopList.Count == 0)
             {
                 throw new Exception("没有找到对应的经销商");
             }
-            List<UserInfo> userList = accountService.GetUserInfo(userId);
+            List<UserInfo> userList = accountService.GetUserInfo("",userId);
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -496,12 +496,12 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的期号");
             }
-            List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString());
+            List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString(),"");
             if (shopList == null || shopList.Count == 0)
             {
                 throw new Exception("没有找到对应的经销商");
             }
-            List<UserInfo> userList = accountService.GetUserInfo(answerDto.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",answerDto.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -707,12 +707,12 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的期号");
             }
-            List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString());
+            List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString(),"");
             if (shopList == null || shopList.Count == 0)
             {
                 throw new Exception("没有找到对应的经销商");
             }
-            List<UserInfo> userList = accountService.GetUserInfo(shopInfo.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",shopInfo.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -791,12 +791,12 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 throw new Exception("没有找到对应的期号");
             }
-            List<Shop> shopList = masterService.GetShop("", "", consultant.ShopId.ToString());
+            List<Shop> shopList = masterService.GetShop("", "", consultant.ShopId.ToString(),"");
             if (shopList == null || shopList.Count == 0)
             {
                 throw new Exception("没有找到对应的经销商");
             }
-            List<UserInfo> userList = accountService.GetUserInfo(consultant.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",consultant.ModifyUserId.ToString());
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
