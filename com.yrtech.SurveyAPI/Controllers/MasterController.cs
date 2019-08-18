@@ -155,7 +155,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetBrand")]
-        public APIResult GetBrand(string tenantId, string userId,string roleType,string brandId)
+        public APIResult GetBrand(string tenantId, string userId, string roleType, string brandId)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #endregion
         #region 期号
 
-        
+
         /// <summary>
         /// 获取品牌下期号的信息，也可以获取单个期号的信息
         /// </summary>
@@ -214,11 +214,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId, string projectId,string year)
+        public APIResult GetProject(string brandId, string projectId, string year)
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("", brandId, projectId,year);
+                List<Project> projectList = masterService.GetProject("", brandId, projectId, year);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -244,7 +244,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #endregion
         #region 体系
 
-        
+
         /// <summary>
         /// 获取体系的信息
         /// </summary>
@@ -498,7 +498,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #endregion
         #region 经销商
 
-       
+
         /// <summary>
         /// 获取经销商信息
         /// </summary>
@@ -507,11 +507,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetShop")]
-        public APIResult GetShop(string brandId, string shopId,string key)
+        public APIResult GetShop(string brandId, string shopId,string shopCode, string key)
         {
             try
             {
-                List<Shop> shopList = masterService.GetShop("", brandId, shopId,key);
+                List<Shop> shopList = masterService.GetShop("", brandId, shopId,shopCode, key);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
             }
             catch (Exception ex)
@@ -581,7 +581,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 试卷类型
         [HttpGet]
         [Route("Master/GetSubjectTypeExam")]
-        public APIResult GetSubjectTypeExam(string projectId,string subjectTypeExamId)
+        public APIResult GetSubjectTypeExam(string projectId, string subjectTypeExamId)
         {
             try
             {
@@ -657,7 +657,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 复审错误类型
         [HttpGet]
         [Route("Master/GetRecheckErrorType")]
-        public APIResult GetRecheckErrorType(string projectId,string recheckErrorTypeId)
+        public APIResult GetRecheckErrorType(string projectId, string recheckErrorTypeId)
         {
             try
             {

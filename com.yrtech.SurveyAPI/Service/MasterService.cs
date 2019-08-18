@@ -415,15 +415,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<Shop> GetShop(string tenantId, string brandId, string shopId,string key)
+        public List<Shop> GetShop(string tenantId, string brandId, string shopId,string shopCode,string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
+            shopCode = shopCode == null ? "" : shopCode;
             key = key == null ? "" : key;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
-                                                       new SqlParameter("@ShopId", shopId)};
+                                                       new SqlParameter("@ShopId", shopId),
+                                                    new SqlParameter("@ShopCode", shopCode)};
             Type t = typeof(Shop);
             string sql = "";
             sql = @"SELECT [ShopId]
@@ -454,6 +456,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(shopCode))
+            {
+                sql += " AND ShopCode = @ShopCode";
             }
             if (!string.IsNullOrEmpty(key))
             {
