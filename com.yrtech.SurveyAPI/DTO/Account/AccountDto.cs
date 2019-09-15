@@ -13,6 +13,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? BrandId { get; set; }
         public string TenantName { get; set;  }
         public string TenantCode { get; set; }
+        public string MemberType { get; set; }
         public string BrandName { get; set; }
         public string AccountId { get; set; }
         public string AccountName { get; set; }

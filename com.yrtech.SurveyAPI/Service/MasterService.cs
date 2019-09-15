@@ -96,20 +96,43 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="tenantId"></param>
         /// <returns></returns>
-        public List<Tenant> GetTenant(string tenantId)
+        public List<Tenant> GetTenant(string tenantId,string tenantName)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId) };
+            if (tenantId == null) tenantId = "";
+            if (tenantName == null) tenantName = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId)
+                                                    ,new SqlParameter("@TenantName", tenantName) };
             Type t = typeof(Tenant);
             string sql = "";
 
-            sql = @"SELECT TenantId,TenantName,TenantCode,Email,TelNo,InUserid,InDateTime,ModifyUserId,ModifyDateTime
+            sql = @"SELECT *
 	                    FROM Tenant WHERE 1=1 ";
             if (!string.IsNullOrEmpty(tenantId))
             {
                 sql += " AND TenantId = @TenantId";
             }
+            if (!string.IsNullOrEmpty(tenantName))
+            {
+                sql += " AND TenantName = @TenantName";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<Tenant>().ToList();
 
+        }
+        /// <summary>
+        /// 保存租户
+        /// </summary>
+        /// <param name="tenant"></param>
+        public void SaveTenant(Tenant tenant)
+        {
+            Tenant findOne = db.Tenant.Where(x => (x.TenantId == tenant.TenantId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                tenant.InDateTime = DateTime.Now;
+                tenant.ModifyDateTime = DateTime.Now;
+                tenant.MemberType = "Common";
+            }
+            db.Tenant.Add(tenant);
+            db.SaveChanges();
         }
         /// <summary>
         /// 查询品牌信息,
@@ -129,12 +152,12 @@ namespace com.yrtech.SurveyAPI.Service
 
             sql = @"SELECT DISTINCT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
                     FROM Brand A ";
-            if (roleType != "S_Sysadmin"&& roleType!="S") // 不是租户管理员和系统管理员时按照userId查询，如果时租户管理员查询所有
+            if (roleType != "S_Sysadmin") // 租户管理员时查询所有的品牌，不需要JOIN UserInfoBrand
             {
                 sql += "INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId";
             }
             sql += " WHERE 1=1 AND A.TenantId = @TenantId";
-            if (!string.IsNullOrEmpty(userId) && roleType != "S_Sysadmin" && roleType != "S")
+            if (!string.IsNullOrEmpty(userId) && roleType != "S_Sysadmin") //不是租户管理员时按着账号进行品牌查询
             {
                 sql += " AND B.UserId = @UserId";
             }
@@ -252,7 +275,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="project"></param>
         public void SaveProject(Project project)
         {
-            List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString(),"","");
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -529,7 +552,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
-            List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString());
+            List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString(),"","");
             if (userList == null || userList.Count == 0)
             {
                 throw new Exception("没有找到对应的用户");
@@ -792,5 +815,29 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+
+        #region 收费
+        //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)
+        //{
+        //    TenantMemberTypeCharge findOne = db.TenantMemberTypeCharge.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();
+        //    if (findOne == null)
+        //    {
+        //        subjectTypeScoreRegion.InDateTime = DateTime.Now;
+        //        subjectTypeScoreRegion.ModifyDateTime = DateTime.Now;
+        //        db.SubjectTypeScoreRegion.Add(subjectTypeScoreRegion);
+        //    }
+        //    else
+        //    {
+        //        findOne.FullScore = subjectTypeScoreRegion.FullScore;
+        //        findOne.ModifyDateTime = DateTime.Now;
+        //        findOne.ModifyUserId = subjectTypeScoreRegion.ModifyUserId;
+        //        findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
+        //        findOne.LowestScore = subjectTypeScoreRegion.LowestScore;
+        //        findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
+        //        findOne.SubjectTypeId = subjectTypeScoreRegion.SubjectTypeId;
+        //    }
+        //    db.SaveChanges();
+        //}
+        #endregion
     }
 }

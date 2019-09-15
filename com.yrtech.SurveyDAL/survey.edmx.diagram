@@ -25,8 +25,6 @@
         <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectType" Width="1.5" PointX="12.75" PointY="12.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectTypeScoreRegion" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.sysdiagrams" Width="1.5" PointX="14.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Tenant" Width="1.5" PointX="14.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfo" Width="1.5" PointX="14.75" PointY="11.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfoBrand" Width="1.5" PointX="8.75" PointY="15.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfoObject" Width="1.5" PointX="10.75" PointY="15.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.Project" Width="1.5" PointX="3.375" PointY="16.75" />
@@ -40,6 +38,10 @@
         <EntityTypeShape EntityType="com.yrtech.surveyModel.ReCheck" Width="1.5" PointX="5.375" PointY="16.75" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectTypeExam" Width="1.5" PointX="17.375" PointY="10.75" />
         <EntityTypeShape EntityType="com.yrtech.surveyModel.Subject" Width="1.5" PointX="17.375" PointY="14.75" />
+        <EntityTypeShape EntityType="com.yrtech.surveyModel.Tenant" Width="1.5" PointX="19.375" PointY="5.75" />
+        <EntityTypeShape EntityType="com.yrtech.surveyModel.TenantMemberTypeCharge" Width="1.5" PointX="7.375" PointY="19.75" />
+        <EntityTypeShape EntityType="com.yrtech.surveyModel.TenantSimple" Width="1.5" PointX="19.375" PointY="9.75" />
+        <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfo" Width="1.5" PointX="19.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

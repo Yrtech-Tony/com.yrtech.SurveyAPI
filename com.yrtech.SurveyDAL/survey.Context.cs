@@ -45,8 +45,6 @@ namespace Purchase.DAL
         public virtual DbSet<SubjectType> SubjectType { get; set; }
         public virtual DbSet<SubjectTypeScoreRegion> SubjectTypeScoreRegion { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
-        public virtual DbSet<Tenant> Tenant { get; set; }
-        public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
         public virtual DbSet<Project> Project { get; set; }
@@ -60,5 +58,9 @@ namespace Purchase.DAL
         public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<SubjectTypeExam> SubjectTypeExam { get; set; }
         public virtual DbSet<Subject> Subject { get; set; }
+        public virtual DbSet<UserInfo> UserInfo { get; set; }
+        public virtual DbSet<Tenant> Tenant { get; set; }
+        public virtual DbSet<TenantMemberTypeCharge> TenantMemberTypeCharge { get; set; }
+        public virtual DbSet<TenantSimple> TenantSimple { get; set; }
     }
 }

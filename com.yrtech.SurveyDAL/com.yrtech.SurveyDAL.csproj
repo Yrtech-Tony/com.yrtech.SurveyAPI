@@ -167,6 +167,12 @@
     <Compile Include="Tenant.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="TenantMemberTypeCharge.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TenantSimple.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="UserInfo.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -197,7 +203,6 @@
     <Content Include="Survey.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Survey.edmx</DependentUpon>
-      <LastGenOutput>Survey.Context.cs</LastGenOutput>
     </Content>
     <Content Include="Survey.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

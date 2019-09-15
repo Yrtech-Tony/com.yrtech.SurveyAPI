@@ -54,7 +54,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId) };
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,
+            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,B.MemberType
                             ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             LEFT JOIN UserInfoBrand C ON A.Id = C.UserId
@@ -69,12 +69,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<UserInfo> GetUserInfo(string tenantId, string userId)
+        public List<UserInfo> GetUserInfo(string tenantId, string userId,string accountId, string telNO)
         {
             if (tenantId == null) tenantId = "";
             if (userId == null) userId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
-                                                        new SqlParameter("@UserId", userId) };
+                                                        new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@AccountId", accountId),
+                                                        new SqlParameter("@TelNO", telNO)};
             Type t = typeof(UserInfo);
             string sql = @"SELECT * FROM [UserInfo]
                     WHERE 1=1";
@@ -85,6 +87,14 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(userId))
             {
                 sql += " AND Id = @UserId";
+            }
+            if (!string.IsNullOrEmpty(accountId))
+            {
+                sql += " AND AccountId = @AccountId";
+            }
+            if (!string.IsNullOrEmpty(telNO))
+            {
+                sql += " AND TelNO = @TelNO";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }
@@ -103,10 +113,12 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else
             {
+                findOne.AccountId = userinfo.AccountId;
                 findOne.Password = userinfo.Password;
                 findOne.AccountName = userinfo.AccountName;
                 findOne.Email = userinfo.Email;
                 findOne.TelNO = userinfo.TelNO;
+                findOne.HeadPicUrl = userinfo.HeadPicUrl;
                 findOne.UseChk = userinfo.UseChk;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = userinfo.ModifyUserId;
@@ -127,6 +139,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = @"UPDATE [UserInfo] SET Password=@Password Where Id = @UserId";
             return db.Database.ExecuteSqlCommand(sql, para) > 0;
         }
+        #region 厂商使用部分
         /// <summary>
         /// 根据权限和账号查询对应的经销商信息
         /// </summary>
@@ -586,5 +599,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
         }
+        #endregion
     }
 }
