@@ -54,7 +54,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId) };
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,B.MemberType
+            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,B.MemberType,
                             ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             LEFT JOIN UserInfoBrand C ON A.Id = C.UserId
