@@ -203,6 +203,7 @@
     <Content Include="Survey.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Survey.edmx</DependentUpon>
+      <LastGenOutput>Survey.Context1.cs</LastGenOutput>
     </Content>
     <Content Include="Survey.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
