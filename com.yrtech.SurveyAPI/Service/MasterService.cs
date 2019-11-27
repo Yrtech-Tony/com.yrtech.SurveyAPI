@@ -129,7 +129,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 tenant.InDateTime = DateTime.Now;
                 tenant.ModifyDateTime = DateTime.Now;
-                tenant.MemberType = "Common";
+                //tenant.MemberType = "Common";
             }
             db.Tenant.Add(tenant);
             db.SaveChanges();
