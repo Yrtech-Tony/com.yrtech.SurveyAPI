@@ -14,11 +14,12 @@ namespace com.yrtech.SurveyAPI.Common
     public class CommonHelper
     {
         static JsonSerializerSettings defaultJsonSetting = new JsonSerializerSettings
-                {
-                    Formatting = Newtonsoft.Json.Formatting.Indented,
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
-                    NullValueHandling = NullValueHandling.Ignore
-                };
+        {
+            Formatting = Newtonsoft.Json.Formatting.Indented,
+            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore,
+            DateFormatString = "yyyy-MM-dd HH:mm:ss"
+        };
         public static string Encode(object obj)
         {
             string jsonString = string.Empty;
@@ -81,7 +82,7 @@ namespace com.yrtech.SurveyAPI.Common
                 return default(T);
             }
         }
-        public static string FormatterString(string str, int length,bool sign)
+        public static string FormatterString(string str, int length, bool sign)
         {
             decimal data;
             string strData = "-";
@@ -97,11 +98,11 @@ namespace com.yrtech.SurveyAPI.Common
                 }
                 else
                 {
-                    strData =Convert.ToInt32(data).ToString("N0");
+                    strData = Convert.ToInt32(data).ToString("N0");
                 }
                 if (sign)
                 {
-                    strData= strData + "%";
+                    strData = strData + "%";
                 }
             }
             return strData;
