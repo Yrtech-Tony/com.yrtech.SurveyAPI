@@ -4,7 +4,7 @@ using System.Web.Http;
 using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.DTO;
-using Purchase.DAL;
+using com.yrtech.SurveyDAL;
 using com.yrtech.SurveyAPI.DTO.Account;
 
 namespace com.yrtech.SurveyAPI.Controllers

@@ -1,4 +1,4 @@
-﻿using Purchase.DAL;
+﻿using com.yrtech.SurveyDAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;

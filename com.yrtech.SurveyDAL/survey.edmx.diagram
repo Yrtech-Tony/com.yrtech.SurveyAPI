@@ -4,44 +4,45 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="fcabb551800c4472b6bf126845b208b4" Name="Diagram1" ZoomLevel="70">
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Answer" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopConsultant" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopConsultantScore" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopConsultantSubjectLink" Width="1.5" PointX="4.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AnswerShopInfo" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Area" Width="1.5" PointX="2.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AreaShop" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Brand" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Group" Width="1.5" PointX="4.75" PointY="8.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.ProjectShop" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.RoleType" Width="1.5" PointX="10.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Shop" Width="1.5" PointX="10.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.ShopSubjectTypeExam" Width="1.5" PointX="12.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectFile" Width="1.5" PointX="2.75" PointY="12.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectInspectionStandard" Width="1.5" PointX="12.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectLink" Width="1.5" PointX="4.75" PointY="12.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectLossResult" Width="1.5" PointX="12.75" PointY="8.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectType" Width="1.5" PointX="12.75" PointY="12.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectTypeScoreRegion" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.sysdiagrams" Width="1.5" PointX="14.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfoBrand" Width="1.5" PointX="8.75" PointY="15.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfoObject" Width="1.5" PointX="10.75" PointY="15.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Project" Width="1.5" PointX="3.375" PointY="16.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.HiddenCode" Width="1.5" PointX="7.375" PointY="8.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.ReCheckStatus" Width="1.5" PointX="9.375" PointY="12.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.RecheckStatusDtl" Width="1.5" PointX="13.375" PointY="16.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectRecheckType" Width="1.5" PointX="15.375" PointY="16.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.RecheckErrorType" Width="1.5" PointX="0.75" PointY="17.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.AppealFile" Width="1.5" PointX="17.375" PointY="0.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Appeal" Width="1.5" PointX="17.375" PointY="4.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.ReCheck" Width="1.5" PointX="5.375" PointY="16.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.SubjectTypeExam" Width="1.5" PointX="17.375" PointY="10.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Subject" Width="1.5" PointX="17.375" PointY="14.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.TenantMemberTypeCharge" Width="1.5" PointX="7.375" PointY="19.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.TenantSimple" Width="1.5" PointX="19.375" PointY="9.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.UserInfo" Width="1.5" PointX="19.375" PointY="0.75" />
-        <EntityTypeShape EntityType="com.yrtech.surveyModel.Tenant" Width="1.5" PointX="19.375" PointY="5.75" />
+      <Diagram DiagramId="f08083d23c1246a5a7cae9a52c95e220" Name="Diagram1">
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Answer" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopConsultant" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopConsultantScore" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopConsultantSubjectLink" Width="1.5" PointX="4.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopInfo" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppealFile" Width="1.5" PointX="6.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Area" Width="1.5" PointX="2.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AreaShop" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Brand" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Group" Width="1.5" PointX="4.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.HiddenCode" Width="1.5" PointX="6.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Project" Width="1.5" PointX="8.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ProjectShop" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReCheck" Width="1.5" PointX="10.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.RecheckErrorType" Width="1.5" PointX="10.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReCheckStatus" Width="1.5" PointX="12.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.RecheckStatusDtl" Width="1.5" PointX="0.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFile" Width="1.5" PointX="2.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.RoleType" Width="1.5" PointX="12.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Shop" Width="1.5" PointX="4.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ShopSubjectTypeExam" Width="1.5" PointX="12.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Subject" Width="1.5" PointX="10.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectFile" Width="1.5" PointX="12.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectInspectionStandard" Width="1.5" PointX="6.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectLink" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectLossResult" Width="1.5" PointX="14.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectRecheckType" Width="1.5" PointX="14.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectType" Width="1.5" PointX="14.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectTypeExam" Width="1.5" PointX="14.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectTypeScoreRegion" Width="1.5" PointX="16.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.sysdiagrams" Width="1.5" PointX="0.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Tenant" Width="1.5" PointX="16.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.TenantMemberTypeCharge" Width="1.5" PointX="16.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.TenantSimple" Width="1.5" PointX="16.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.UserInfo" Width="1.5" PointX="16.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.UserInfoBrand" Width="1.5" PointX="2.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.UserInfoObject" Width="1.5" PointX="4.75" PointY="17.75" IsExpanded="true" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -12,17 +12,15 @@ namespace com.yrtech.SurveyDAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Area
+    public partial class ReportFile
     {
-        public int AreaId { get; set; }
-        public string AreaCode { get; set; }
-        public string AreaName { get; set; }
-        public string AreaType { get; set; }
-        public Nullable<int> ParentId { get; set; }
-        public Nullable<int> BrandId { get; set; }
+        public int ProjectId { get; set; }
+        public int ShopId { get; set; }
+        public int SeqNO { get; set; }
+        public string ReportFileType { get; set; }
+        public string ReportFileName { get; set; }
+        public string Url_OSS { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
-        public Nullable<int> ModifyUserId { get; set; }
-        public Nullable<System.DateTime> ModifyDateTime { get; set; }
     }
 }

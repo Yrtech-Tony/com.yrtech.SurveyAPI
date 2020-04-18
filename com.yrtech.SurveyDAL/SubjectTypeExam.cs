@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Purchase.DAL
+namespace com.yrtech.SurveyDAL
 {
     using System;
     using System.Collections.Generic;

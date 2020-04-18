@@ -1,6 +1,6 @@
-﻿using com.yrtech.SurveyAPI.Common;
+﻿
 using com.yrtech.SurveyAPI.DTO;
-using Purchase.DAL;
+using com.yrtech.SurveyDAL;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;

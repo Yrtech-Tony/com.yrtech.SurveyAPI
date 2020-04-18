@@ -1,6 +1,6 @@
 ﻿using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.DTO;
-using Purchase.DAL;
+using com.yrtech.SurveyDAL;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -59,7 +59,7 @@ namespace com.yrtech.SurveyAPI.Service
                                  THEN 'SVIP'
                                  WHEN EXISTS (SELECT 1 FROM TenantMemberTypeCharge WHERE TenantId = B.TenantId AND MemberType = 'VIP' AND GETDATE() BETWEEN StartDate AND EndDate )
                                  THEN 'VIP'
-                            ELSE 'COMMON' END AS MemberType
+                            ELSE 'COMMON' END AS MemberType,
                             ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType
                             FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
                                             LEFT JOIN UserInfoBrand C ON A.Id = C.UserId

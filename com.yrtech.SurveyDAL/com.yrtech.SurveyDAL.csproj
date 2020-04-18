@@ -1,18 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AD554284-6875-4E12-936F-9BC7325D3042}</ProjectGuid>
+    <ProjectGuid>{59ED1C9E-783E-48A4-AA8C-71DA912406E8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Purchase.DAL</RootNamespace>
-    <AssemblyName>Purchase.DAL</AssemblyName>
+    <RootNamespace>com.yrtech.SurveyDAL</RootNamespace>
+    <AssemblyName>com.yrtech.SurveyDAL</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +28,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -45,13 +41,13 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +81,7 @@
     <Compile Include="Brand.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="Class1.cs" />
     <Compile Include="Group.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -108,6 +105,9 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="RecheckStatusDtl.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportFile.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="RoleType.cs">
@@ -184,32 +184,32 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.Config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
     <EntityDeploy Include="Survey.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>Survey.Designer.cs</LastGenOutput>
     </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="packages.config" />
     <None Include="Survey.edmx.diagram">
       <DependentUpon>Survey.edmx</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Survey.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Survey.Context.cs</LastGenOutput>
       <DependentUpon>Survey.edmx</DependentUpon>
-      <LastGenOutput>Survey.Context1.cs</LastGenOutput>
     </Content>
     <Content Include="Survey.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Survey.edmx</DependentUpon>
       <LastGenOutput>Survey.cs</LastGenOutput>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

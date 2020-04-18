@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Purchase.DAL
+namespace com.yrtech.SurveyDAL
 {
     using System;
     using System.Collections.Generic;
@@ -16,9 +16,9 @@ namespace Purchase.DAL
     {
         public int SimpleId { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public string MemberType { get; set; }
         public Nullable<int> SimpleCount { get; set; }
         public Nullable<decimal> Charge { get; set; }
-        public string MemberType { get; set; }
         public Nullable<int> PackageId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> InUserId { get; set; }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using com.yrtech.SurveyAPI.DTO;
 using System.Threading;
-using Purchase.DAL;
+using com.yrtech.SurveyDAL;
 using System.Web;
 using System.Net.Http;
 using System.Net;
