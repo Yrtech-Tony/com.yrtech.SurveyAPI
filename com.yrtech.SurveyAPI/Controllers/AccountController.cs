@@ -66,7 +66,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         /// <summary>
-        /// 调研公司网页端登陆
+        /// 调研公司网页端(管理后台登陆
         /// </summary>
         /// <param name="accountId"></param>
         /// <param name="password"></param>

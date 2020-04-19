@@ -19,12 +19,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public List<ReportFileDto> ReportFileListUploadALLSearch(string projectId, string shopId)
+        public List<ReportFileUploadDto> ReportFileListUploadALLSearch(string projectId, string keyword)
         {
             if (projectId == null) projectId = "";
-            if (shopId == null) shopId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@ShopId", shopId) };
-            Type t = typeof(ReportFileDto);
+            if (keyword == null) keyword = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@Keyword", keyword) };
+            Type t = typeof(ReportFileUploadDto);
             string sql = @"
                         SELECT ProjectId,ShopId,ShopCode,ShopName,ShopShortName
 		                        ,SUM(ReportFileCount_File) AS ReportFileCount_File
@@ -41,18 +41,18 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ProjectId = @ProjectId";
             }
-            if (!string.IsNullOrEmpty(shopId))
+            if (!string.IsNullOrEmpty(keyword))
             {
-                sql += " AND A.ShopId = @ShopId";
+                sql += " AND (C.ShopCode LIKE '%'+@Keyword+'%' OR C.ShopName LIKE '%'+@Keyword+'%)'";
             }
             sql += " GROUP BY X.ProjectId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
-            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileDto>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
         }
-        public List<ReportFileDto> ReportFileListUploadALLByPageSearch(string projectId, string shopId, int pageNum, int pageCount)
+        public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string projectId, string keyword, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
            
-            return ReportFileListUploadALLSearch(projectId,shopId).Skip(startIndex).Take(pageCount).ToList();
+            return ReportFileListUploadALLSearch(projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
         /// 查询特定经销商的文件
@@ -120,8 +120,12 @@ namespace com.yrtech.SurveyAPI.Service
         {
             if (seqNO == null||seqNO=="0") seqNO = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@ShopId", shopId), new SqlParameter("@SeqNO", seqNO)};
-            string sql = @"DELETE ReportFile WHERE ProjectId = @ProjectId AND AND ShopId = @ShopId 
+            string sql = @"DELETE ReportFile WHERE ProjectId = @ProjectId   
                         ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND ShopId = @ShopId";
+            }
             if (!string.IsNullOrEmpty(seqNO))
             {
                 sql += " AND SeqNO = @SeqNO ";

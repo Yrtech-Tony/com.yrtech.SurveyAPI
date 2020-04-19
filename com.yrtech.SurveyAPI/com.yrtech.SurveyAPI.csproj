@@ -146,6 +146,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AnswerController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
+    <Compile Include="Controllers\ReportFileController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="DTO\Account\UserInfoDto.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="DTO\Recheck\RecheckDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />
     <Compile Include="DTO\ReportFile\ReportFileDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportFileUploadDto.cs" />
     <Compile Include="DTO\Shop\GroupDto.cs" />
     <Compile Include="DTO\Shop\AreaDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />

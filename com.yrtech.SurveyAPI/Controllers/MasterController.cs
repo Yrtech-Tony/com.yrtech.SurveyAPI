@@ -526,6 +526,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                // 统一租户统一品牌的经销商代码不能重复
                 masterService.SaveShop(shop);
                 return new APIResult() { Status = true, Body = "" };
             }
