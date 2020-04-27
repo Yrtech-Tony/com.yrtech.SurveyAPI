@@ -39,11 +39,11 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE 1=1";
             if (!string.IsNullOrEmpty(projectId))
             {
-                sql += " AND A.ProjectId = @ProjectId";
+                sql += " AND X.ProjectId = @ProjectId";
             }
             if (!string.IsNullOrEmpty(keyword))
             {
-                sql += " AND (C.ShopCode LIKE '%'+@Keyword+'%' OR C.ShopName LIKE '%'+@Keyword+'%)'";
+                sql += " AND (X.ShopCode LIKE '%'+@Keyword+'%' OR X.ShopName LIKE '%'+@Keyword+'%)'";
             }
             sql += " GROUP BY X.ProjectId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
@@ -71,13 +71,12 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE 1=1";
             if (!string.IsNullOrEmpty(projectId))
             {
-                sql += " AND A.ProjectId = @ProjectId";
+                sql += " AND ProjectId = @ProjectId";
             }
             if (!string.IsNullOrEmpty(shopId))
             {
-                sql += " AND A.ShopId = @ShopId";
+                sql += " AND ShopId = @ShopId";
             }
-            sql += " GROUP BY X.ProjectId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFile>().ToList();
         }
         public ReportFile ReportFileSave(ReportFile reportFile)
@@ -131,6 +130,113 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND SeqNO = @SeqNO ";
             }
             db.Database.ExecuteSqlCommand(sql, para);
+        }
+
+        /// <summary>
+        /// 报告下载查询
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="bussinessType"></param>
+        /// <param name="wideArea"></param>
+        /// <param name="bigArea"></param>
+        /// <param name="middleArea"></param>
+        /// <param name="smallArea"></param>
+        /// <param name="shopIdStr"></param>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
+        public List<ReportFileDto> ReportFileDownloadAllSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
+        {
+            if (bussinessType == null) bussinessType = "";
+            if (wideArea == null) wideArea = "";
+            if (bigArea == null) bigArea = "";
+            if (middleArea == null) middleArea = "";
+            if (smallArea == null) smallArea = "";
+            if (shopIdStr == null) shopIdStr = "";
+            if (keyword == null) keyword = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SmallArea", smallArea),
+                                                        new SqlParameter("@MiddleArea", middleArea),
+                                                        new SqlParameter("@BigArea", bigArea),
+                                                        new SqlParameter("@WideArea", wideArea),
+                                                        new SqlParameter("@BusinessType", bussinessType),
+                                                    new SqlParameter("@KeyWord", keyword)};
+            Type t = typeof(ReportFileDto);
+            string sql = "";
+            sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,A.ReportFileType,A.ReportFileName,A.Url_OSS,A.InDateTime
+                    FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId " ;
+            if (!string.IsNullOrEmpty(shopIdStr))
+            {
+                string[] shopIdList = shopIdStr.Split(';');
+                sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%') AND A.ShopId IN('";
+                for (int i = 0; i < shopIdList.Count(); i++)
+                {
+                    if (i == shopIdList.Count() - 1)
+                    {
+                        sql += shopIdList[i] + "'";
+                    }
+                    else
+                    {
+                        sql += shopIdList[i] + "','";
+                    }
+                }
+                sql += ")";
+            }
+            else if (!string.IsNullOrEmpty(smallArea))
+            {
+                sql += @" 
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId -- smallArea
+                    WHERE D.AreaId = @SmallArea AND A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(middleArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                    WHERE A.ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bigArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                    WHERE A.ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(wideArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
+                    WHERE A.ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bussinessType))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
+                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
+                        INNER JOIN Area H ON G.ParentId = H.AreaId --businessType
+                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else
+            {
+                sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileDto>().ToList();
+        }
+        public List<ReportFileDto> ReportFileDownloadAllByPageSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        {
+            int startIndex = (pageNum - 1) * pageCount;
+
+            return ReportFileDownloadAllSearch(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,keyword).Skip(startIndex).Take(pageCount).ToList();
         }
     }
 }

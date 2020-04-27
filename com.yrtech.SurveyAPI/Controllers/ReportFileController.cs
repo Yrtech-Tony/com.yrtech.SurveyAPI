@@ -20,11 +20,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<object> resultList = new List<object>();
-                int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
-                resultList.Add(total);
-                resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
+                //List<object> resultList = new List<object>();
+               // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
+                //resultList.Add(total);
+               // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
+               
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -109,6 +110,24 @@ namespace com.yrtech.SurveyAPI.Controllers
                     reportFileService.ReportFileDelete(reportFile.ProjectId.ToString(), reportFile.ShopId.ToString(), reportFile.SeqNO.ToString());
                 }
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        [HttpGet]
+        [Route("ReportFile/ReportFileListSearch")]
+        public APIResult ReportFileListSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        {
+            try
+            {
+                List<object> resultList = new List<object>();
+                int total = reportFileService.ReportFileDownloadAllSearch(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,keyword).Count;
+                resultList.Add(total);
+                resultList.Add(reportFileService.ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword,pageNum,pageCount));
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
             }
             catch (Exception ex)
             {
