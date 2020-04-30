@@ -91,16 +91,19 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        #region 租户信息
         /// <summary>
         /// 查询租户信息
         /// </summary>
         /// <param name="tenantId"></param>
         /// <returns></returns>
-        public List<Tenant> GetTenant(string tenantId,string tenantName)
+        public List<Tenant> GetTenant(string tenantId, string tenantCode, string tenantName)
         {
             if (tenantId == null) tenantId = "";
+            if (tenantCode == null) tenantCode = "";
             if (tenantName == null) tenantName = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId)
+                                                    ,new SqlParameter("@TenantCode", tenantCode)
                                                     ,new SqlParameter("@TenantName", tenantName) };
             Type t = typeof(Tenant);
             string sql = "";
@@ -110,6 +113,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(tenantId))
             {
                 sql += " AND TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(tenantCode))
+            {
+                sql += " AND TenantCode = @TenantCode";
             }
             if (!string.IsNullOrEmpty(tenantName))
             {
@@ -134,32 +141,29 @@ namespace com.yrtech.SurveyAPI.Service
             db.Tenant.Add(tenant);
             db.SaveChanges();
         }
+        #endregion
+        #region 品牌信息
         /// <summary>
         /// 查询品牌信息,
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<Brand> GetBrand(string tenantId, string userId, string roleType, string brandId)
+        public List<Brand> GetBrand(string tenantId, string brandId)
         {
-            userId = userId == null ? "" : userId;
+            tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
-                                                       new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@BrandId", brandId)};
             Type t = typeof(Brand);
             string sql = "";
 
-            sql = @"SELECT DISTINCT A.BrandId,A.TenantId,A.BrandName,A.BrandCode,A.Remark,A.InUserId,A.InDateTime,A.ModifyUserId,A.ModifyDateTime
+            sql = @"SELECT A.*
                     FROM Brand A ";
-            if (roleType != "S_Sysadmin") // 租户管理员时查询所有的品牌，不需要JOIN UserInfoBrand
+
+            if (!string.IsNullOrEmpty(tenantId))
             {
-                sql += "INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId";
-            }
-            sql += " WHERE 1=1 AND A.TenantId = @TenantId";
-            if (!string.IsNullOrEmpty(userId) && roleType != "S_Sysadmin") //不是租户管理员时按着账号进行品牌查询
-            {
-                sql += " AND B.UserId = @UserId";
+                sql += " AND A.TenantId = @TenantId";
             }
             if (!string.IsNullOrEmpty(brandId))
             {
@@ -192,27 +196,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        /// <summary>
-        /// 查询品牌下账号信息
-        /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public List<UserInfo> GetUserInfoByBrandId(string brandId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId) };
-            Type t = typeof(UserInfo);
-            string sql = "";
-
-            sql = @"SELECT C.Id,C.TenantId,A.BrandId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
-                    Email,TelNO,HeadPicUrl,
-                    C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
-                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
-								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
-
-            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
-
-        }
+        #endregion
+        #region 期号
         /// <summary>
         /// 获取期号
         /// </summary>
@@ -275,17 +260,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="project"></param>
         public void SaveProject(Project project)
         {
-            List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString(),"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
-            string brandId = project.BrandId.ToString();
-            string accountId = userList[0].AccountId;
+            //List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString(),"","");
+            //if (userList == null || userList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的用户");
+            //}
+            //string brandId = project.BrandId.ToString();
+            //string accountId = userList[0].AccountId;
 
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
-            webService.SaveProject('I', project.ProjectCode, project.Year, project.Quarter, Convert.ToInt32(project.OrderNO));
+            //webService.SaveProject('I', project.ProjectCode, project.Year, project.Quarter, Convert.ToInt32(project.OrderNO));
 
             Project findOne = db.Project.Where(x => (x.ProjectId == project.ProjectId)).FirstOrDefault();
             if (findOne == null)
@@ -307,130 +292,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        /// <summary>
-        /// 获取期号下的复审类型
-        /// </summary>
-        /// <returns></returns>
-        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId, string recheckTypeId)
-        {
-            if (string.IsNullOrEmpty(recheckTypeId)) recheckTypeId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
-            Type t = typeof(SubjectRecheckType);
-            string sql = "";
-
-            sql = @"SELECT [RecheckTypeId]
-                  ,[RecheckTypeName]
-                  , ProjectId
-                  ,UseChk
-                  ,[InUserId]
-                  ,[InDateTime]
-                  ,[ModifyUserId]
-                  ,[ModifyDateTime]
-              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
-            if (!string.IsNullOrEmpty(recheckTypeId))
-            {
-                sql += " AND RecheckTypeId = @RecheckTypeId";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectRecheckType>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的复审类型
-        /// </summary>
-        /// <param name="subjectRecheckType"></param>
-        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
-        {
-
-            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectRecheckType.InDateTime = DateTime.Now;
-                subjectRecheckType.ModifyDateTime = DateTime.Now;
-                subjectRecheckType.UseChk = true;
-                db.SubjectRecheckType.Add(subjectRecheckType);
-            }
-            else
-            {
-                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
-                findOne.UseChk = subjectRecheckType.UseChk;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
-        /// 获取期号下的复审错误类型
-        /// </summary>
-        /// <returns></returns>
-        public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
-        {
-            if (recheckErrorTypeId == null) recheckErrorTypeId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                    , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
-            Type t = typeof(RecheckErrorType);
-            string sql = "";
-
-            sql = @"SELECT * FROM RecheckErrorType WHERE ProjectId = @ProjectId";
-            if (!string.IsNullOrEmpty(recheckErrorTypeId))
-            {
-                sql += " AND RecheckErrorTypeId = @RecheckErrorTypeId";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<RecheckErrorType>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的复审错误类型
-        /// </summary>
-        /// <param name="recheckErrorType"></param>
-        public void SaveRecheckErrorType(RecheckErrorType recheckErrorType)
-        {
-
-            RecheckErrorType findOne = db.RecheckErrorType.Where(x => (x.RecheckErrorTypeId == recheckErrorType.RecheckErrorTypeId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                recheckErrorType.InDateTime = DateTime.Now;
-                recheckErrorType.ModifyDateTime = DateTime.Now;
-                recheckErrorType.UseChk = true;
-                db.RecheckErrorType.Add(recheckErrorType);
-            }
-            else
-            {
-                findOne.RecheckErrorName = recheckErrorType.RecheckErrorName;
-                findOne.UseChk = recheckErrorType.UseChk;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = recheckErrorType.ModifyUserId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
-        /// 期号下获取流程类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<SubjectLink> GetSubjectLink(string projectId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t = typeof(SubjectLink);
-            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的流程类型
-        /// </summary>
-        /// <param name="project"></param>
-        public void SaveSubjectLink(SubjectLink subjectLink)
-        {
-            SubjectLink findOne = db.SubjectLink.Where(x => (x.SubjectLinkId == subjectLink.SubjectLinkId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectLink.InDateTime = DateTime.Now;
-                db.SubjectLink.Add(subjectLink);
-            }
-            else
-            {
-                findOne.SubjectLinkCode = subjectLink.SubjectLinkCode;
-                findOne.SubjectLinkName = subjectLink.SubjectLinkName;
-            }
-            db.SaveChanges();
-        }
+        #endregion
+        #region 经销商
         /// <summary>
         /// 获取经销商
         /// </summary>
@@ -438,7 +301,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<Shop> GetShop(string tenantId, string brandId, string shopId,string shopCode,string key)
+        public List<Shop> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -486,7 +349,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(key))
             {
-                sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%"+key+"%' OR ShopShortName LIKE '%"+key+"%')";
+                sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%" + key + "%' OR ShopShortName LIKE '%" + key + "%')";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
         }
@@ -516,6 +379,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        #endregion
+        #region 体系
         /// <summary>
         /// 获取体系信息
         /// </summary>
@@ -552,16 +417,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
-            List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString(),"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
-            string accountId = userList[0].AccountId;
-            string brandId = GetBrand("1", subject.ModifyUserId.ToString(),userList[0].RoleType, "")[0].BrandId.ToString();
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-            //webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
-            //    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())
+            //List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString(),"","");
+            //if (userList == null || userList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的用户");
+            //}
+            //string accountId = userList[0].AccountId;
+            //string brandId = GetBrand("1", subject.ModifyUserId.ToString(),userList[0].RoleType, "")[0].BrandId.ToString();
+            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            ////webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
+            ////    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())
             Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -585,22 +450,6 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.SubjectTypeExamId = subject.SubjectTypeExamId;
             }
             db.SaveChanges();
-        }
-        /// <summary>
-        /// 批量更新SubjectLinkId
-        /// </summary>
-        /// <param name="subjectIdList"></param>
-        /// <param name="subjectLinkId"></param>
-        public void SetSubjectLinkId(List<SubjectDto> subjectList)
-        {
-            Type t = typeof(int);
-            string sql = "";
-            foreach (SubjectDto subject in subjectList)
-            {
-                sql += " UPDATE Subject SET SubjectLinkId =" + subject.SubjectLinkId.ToString() + " WHERE SubjectId = " + subject.SubjectId.ToString() + " ";
-            }
-
-            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
         }
         /// <summary>
         /// 获取标准照片信息
@@ -815,6 +664,171 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        #endregion
+        /// <summary>
+        /// 查询品牌下账号信息
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public List<UserInfo> GetUserInfoByBrandId(string brandId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId) };
+            Type t = typeof(UserInfo);
+            string sql = "";
+
+            sql = @"SELECT C.Id,C.TenantId,A.BrandId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
+                    Email,TelNO,HeadPicUrl,
+                    C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
+                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
+								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
+
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
+
+        }
+        /// <summary>
+        /// 获取期号下的复审类型
+        /// </summary>
+        /// <returns></returns>
+        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId, string recheckTypeId)
+        {
+            if (string.IsNullOrEmpty(recheckTypeId)) recheckTypeId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
+            Type t = typeof(SubjectRecheckType);
+            string sql = "";
+
+            sql = @"SELECT [RecheckTypeId]
+                  ,[RecheckTypeName]
+                  , ProjectId
+                  ,UseChk
+                  ,[InUserId]
+                  ,[InDateTime]
+                  ,[ModifyUserId]
+                  ,[ModifyDateTime]
+              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(recheckTypeId))
+            {
+                sql += " AND RecheckTypeId = @RecheckTypeId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectRecheckType>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的复审类型
+        /// </summary>
+        /// <param name="subjectRecheckType"></param>
+        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
+        {
+
+            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectRecheckType.InDateTime = DateTime.Now;
+                subjectRecheckType.ModifyDateTime = DateTime.Now;
+                subjectRecheckType.UseChk = true;
+                db.SubjectRecheckType.Add(subjectRecheckType);
+            }
+            else
+            {
+                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
+                findOne.UseChk = subjectRecheckType.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 获取期号下的复审错误类型
+        /// </summary>
+        /// <returns></returns>
+        public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
+        {
+            if (recheckErrorTypeId == null) recheckErrorTypeId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                    , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
+            Type t = typeof(RecheckErrorType);
+            string sql = "";
+
+            sql = @"SELECT * FROM RecheckErrorType WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(recheckErrorTypeId))
+            {
+                sql += " AND RecheckErrorTypeId = @RecheckErrorTypeId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<RecheckErrorType>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的复审错误类型
+        /// </summary>
+        /// <param name="recheckErrorType"></param>
+        public void SaveRecheckErrorType(RecheckErrorType recheckErrorType)
+        {
+
+            RecheckErrorType findOne = db.RecheckErrorType.Where(x => (x.RecheckErrorTypeId == recheckErrorType.RecheckErrorTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                recheckErrorType.InDateTime = DateTime.Now;
+                recheckErrorType.ModifyDateTime = DateTime.Now;
+                recheckErrorType.UseChk = true;
+                db.RecheckErrorType.Add(recheckErrorType);
+            }
+            else
+            {
+                findOne.RecheckErrorName = recheckErrorType.RecheckErrorName;
+                findOne.UseChk = recheckErrorType.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = recheckErrorType.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 期号下获取流程类型
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<SubjectLink> GetSubjectLink(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(SubjectLink);
+            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
+        }
+        /// <summary>
+        /// 保存期号下的流程类型
+        /// </summary>
+        /// <param name="project"></param>
+        public void SaveSubjectLink(SubjectLink subjectLink)
+        {
+            SubjectLink findOne = db.SubjectLink.Where(x => (x.SubjectLinkId == subjectLink.SubjectLinkId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                subjectLink.InDateTime = DateTime.Now;
+                db.SubjectLink.Add(subjectLink);
+            }
+            else
+            {
+                findOne.SubjectLinkCode = subjectLink.SubjectLinkCode;
+                findOne.SubjectLinkName = subjectLink.SubjectLinkName;
+            }
+            db.SaveChanges();
+        }
+       
+       
+        /// <summary>
+        /// 批量更新SubjectLinkId
+        /// </summary>
+        /// <param name="subjectIdList"></param>
+        /// <param name="subjectLinkId"></param>
+        public void SetSubjectLinkId(List<SubjectDto> subjectList)
+        {
+            Type t = typeof(int);
+            string sql = "";
+            foreach (SubjectDto subject in subjectList)
+            {
+                sql += " UPDATE Subject SET SubjectLinkId =" + subject.SubjectLinkId.ToString() + " WHERE SubjectId = " + subject.SubjectId.ToString() + " ";
+            }
+
+            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
+        }
+       
 
         #region 收费
         //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)

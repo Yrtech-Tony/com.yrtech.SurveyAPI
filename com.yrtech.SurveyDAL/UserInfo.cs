@@ -22,7 +22,6 @@ namespace com.yrtech.SurveyDAL
         public string UserType { get; set; }
         public string RoleType { get; set; }
         public Nullable<bool> UseChk { get; set; }
-        public Nullable<int> BrandId { get; set; }
         public string Email { get; set; }
         public string TelNO { get; set; }
         public string HeadPicUrl { get; set; }

@@ -21,54 +21,41 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="accountId"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public List<AccountDto> Login(string accountId, string password)
+        public List<AccountDto> Login(string accountId, string password,string tenantId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
-                                                       new SqlParameter("@Password",password)};
+                                                       new SqlParameter("@Password",password),new SqlParameter("@TenantId",tenantId)};
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.BrandId
+            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType
                             FROM UserInfo A
-                            WHERE AccountId = @AccountId AND[Password] = @Password
-                            AND UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
-        }
-        public List<AccountDto> LoginForBrand(string accountId, string password, string tenantId, string brandId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
-                                                       new SqlParameter("@Password",password),
-                                                        new SqlParameter("@TenantId",tenantId),
-                                                        new SqlParameter("@BrandId",brandId)};
-            Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.BrandId
-                            FROM UserInfo A
-                            WHERE AccountId = @AccountId AND [Password] = @Password AND TenantId = @TenantId AND BrandId = @BrandId
+                            WHERE AccountId = @AccountId AND[Password] = @Password AND TenantId = @TenantId
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
         }
         /// <summary>
-        /// Web 登陆时登录成功后获取登录人的租户(品牌)信息
+        /// 
         /// </summary>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        public List<AccountDto> GetLoginInfo(string accountId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId) };
-            Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,
-                            CASE WHEN EXISTS (SELECT 1 FROM TenantMemberTypeCharge WHERE TenantId = B.TenantId AND MemberType = 'SVIP' AND GETDATE() BETWEEN StartDate AND EndDate )
-                                 THEN 'SVIP'
-                                 WHEN EXISTS (SELECT 1 FROM TenantMemberTypeCharge WHERE TenantId = B.TenantId AND MemberType = 'VIP' AND GETDATE() BETWEEN StartDate AND EndDate )
-                                 THEN 'VIP'
-                            ELSE 'COMMON' END AS MemberType,
-                            ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType
-                            FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
-                                            LEFT JOIN UserInfoBrand C ON A.Id = C.UserId
-                                            LEFT JOIN Brand D ON C.BrandId = D.BrandId AND B.TenantId = D.TenantId
-                            WHERE AccountId = @AccountId 
-                            AND UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
+        //public List<AccountDto> GetLoginInfo(string accountId)
+        //{
+        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId) };
+        //    Type t = typeof(AccountDto);
+        //    string sql = @"SELECT A.Id,A.TenantId,C.BrandId,B.TenantCode,B.TenantName,D.BrandName,C.UserId,AccountId,AccountName,
+        //                    CASE WHEN EXISTS (SELECT 1 FROM TenantMemberTypeCharge WHERE TenantId = B.TenantId AND MemberType = 'SVIP' AND GETDATE() BETWEEN StartDate AND EndDate )
+        //                         THEN 'SVIP'
+        //                         WHEN EXISTS (SELECT 1 FROM TenantMemberTypeCharge WHERE TenantId = B.TenantId AND MemberType = 'VIP' AND GETDATE() BETWEEN StartDate AND EndDate )
+        //                         THEN 'VIP'
+        //                    ELSE 'COMMON' END AS MemberType,
+        //                    ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType
+        //                    FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
+        //                                    LEFT JOIN UserInfoBrand C ON A.Id = C.UserId
+        //                                    LEFT JOIN Brand D ON C.BrandId = D.BrandId AND B.TenantId = D.TenantId
+        //                    WHERE AccountId = @AccountId 
+        //                    AND UseChk = 1";
+        //    return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
 
-        }
+        //}
         /// <summary>
         /// 获取登陆人的基本信息
         /// </summary>
@@ -144,7 +131,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = @"UPDATE [UserInfo] SET Password=@Password Where Id = @UserId";
             return db.Database.ExecuteSqlCommand(sql, para) > 0;
         }
-        #region 厂商使用部分
+        #region 根据权限查询基本信息
         /// <summary>
         /// 根据权限和账号查询对应的经销商信息
         /// </summary>
@@ -603,6 +590,35 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
+        }
+        public List<Brand> GetBrandByRole(string tenantId, string userId, string roleType)
+        {
+            tenantId = tenantId == null ? "" : tenantId;
+            userId = userId == null ? "" : userId;
+            roleType = roleType == null ? "" : roleType;
+           // brandId = brandId == null ? "" : brandId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                       new SqlParameter("@UserId", userId)};
+            Type t = typeof(Brand);
+            string sql = "";
+
+            sql = @"SELECT A.*
+                    FROM Brand A ";
+            if (roleType != "S_Sysadmin") // 租户管理员时查询所有的品牌，不需要JOIN UserInfoBrand
+            {
+                sql += "INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId";
+            }
+            sql += " WHERE 1=1 AND A.TenantId = @TenantId";
+            if (!string.IsNullOrEmpty(userId) && roleType != "S_Sysadmin") //不是租户管理员时按着账号进行品牌查询
+            {
+                sql += " AND B.UserId = @UserId";
+            }
+            //if (!string.IsNullOrEmpty(brandId))
+            //{
+            //    sql += " AND A.BrandId = @BrandId";
+            //}
+            return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
+
         }
         #endregion
     }

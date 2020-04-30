@@ -60,8 +60,8 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<TenantMemberTypeCharge> TenantMemberTypeCharge { get; set; }
         public virtual DbSet<TenantSimple> TenantSimple { get; set; }
-        public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
+        public virtual DbSet<UserInfo> UserInfo { get; set; }
     }
 }

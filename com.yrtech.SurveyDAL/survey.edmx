@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="com.yrtech.SurveyDAL.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2005" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="com.yrtech.SurveyDAL.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2005" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Answer">
           <Key>
             <PropertyRef Name="AnswerId" />
@@ -521,7 +521,6 @@
           <Property Name="UserType" Type="nvarchar" MaxLength="50" />
           <Property Name="RoleType" Type="nvarchar" MaxLength="50" />
           <Property Name="UseChk" Type="bit" />
-          <Property Name="BrandId" Type="int" />
           <Property Name="Email" Type="nvarchar" MaxLength="500" />
           <Property Name="TelNO" Type="nvarchar" MaxLength="50" />
           <Property Name="HeadPicUrl" Type="nvarchar" MaxLength="500" />
@@ -592,8 +591,7 @@
           <EntitySet Name="UserInfoBrand" EntityType="Self.UserInfoBrand" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInfoObject" EntityType="Self.UserInfoObject" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="com.yrtech.SurveyDAL" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1101,27 +1099,6 @@
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="InUserId" Type="Int32" />
         </EntityType>
-        <EntityType Name="UserInfo">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="AccountId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="AccountName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="UserType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="RoleType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="UseChk" Type="Boolean" />
-          <Property Name="BrandId" Type="Int32" />
-          <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="TelNO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="HeadPicUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="UserInfoBrand">
           <Key>
             <PropertyRef Name="Id" />
@@ -1180,10 +1157,30 @@
           <EntitySet Name="Tenant" EntityType="Self.Tenant" />
           <EntitySet Name="TenantMemberTypeCharge" EntityType="Self.TenantMemberTypeCharge" />
           <EntitySet Name="TenantSimple" EntityType="Self.TenantSimple" />
-          <EntitySet Name="UserInfo" EntityType="Self.UserInfo" />
           <EntitySet Name="UserInfoBrand" EntityType="Self.UserInfoBrand" />
           <EntitySet Name="UserInfoObject" EntityType="Self.UserInfoObject" />
+          <EntitySet Name="UserInfo" EntityType="com.yrtech.SurveyDAL.UserInfo" />
         </EntityContainer>
+        <EntityType Name="UserInfo">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="AccountId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AccountName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UserType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="RoleType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="UseChk" Type="Boolean" />
+          <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="TelNO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HeadPicUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1727,28 +1724,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="UserInfo">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.UserInfo">
-              <MappingFragment StoreEntitySet="UserInfo">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="AccountId" ColumnName="AccountId" />
-                <ScalarProperty Name="AccountName" ColumnName="AccountName" />
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="UserType" ColumnName="UserType" />
-                <ScalarProperty Name="RoleType" ColumnName="RoleType" />
-                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
-                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="TelNO" ColumnName="TelNO" />
-                <ScalarProperty Name="HeadPicUrl" ColumnName="HeadPicUrl" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="UserInfoBrand">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.UserInfoBrand">
               <MappingFragment StoreEntitySet="UserInfoBrand">
@@ -1770,6 +1745,27 @@
                 <ScalarProperty Name="ObjectId" ColumnName="ObjectId" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserInfo">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.UserInfo">
+              <MappingFragment StoreEntitySet="UserInfo">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="HeadPicUrl" ColumnName="HeadPicUrl" />
+                <ScalarProperty Name="TelNO" ColumnName="TelNO" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="UseChk" ColumnName="UseChk" />
+                <ScalarProperty Name="RoleType" ColumnName="RoleType" />
+                <ScalarProperty Name="UserType" ColumnName="UserType" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="AccountName" ColumnName="AccountName" />
+                <ScalarProperty Name="AccountId" ColumnName="AccountId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
