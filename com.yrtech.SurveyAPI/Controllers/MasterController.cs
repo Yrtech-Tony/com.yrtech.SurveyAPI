@@ -174,6 +174,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<Brand> brandList = masterService.GetBrand(brand.TenantId.ToString(), "", brand.BrandCode);
+                if (brandList != null && brandList.Count > 0 && brandList[0].BrandId != brand.BrandId)
+                {
+                    return new APIResult() { Status = false, Body = "品牌代码重复" };
+                }
                 masterService.SaveBrand(brand);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -205,6 +210,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "");
+                if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].Id != userInfo.Id)
+                {
+                    return new APIResult() { Status = false, Body = "账号重复" };
+                }
                 masterService.SaveUserInfo(userInfo);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -321,6 +331,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<AreaDto> areaList = masterService.GetArea("", area.BrandId.ToString(), area.AreaCode, "", "", "");
+                if (areaList != null && areaList.Count > 0 && areaList[0].AreaId != area.AreaId)
+                {
+                    return new APIResult() { Status = false, Body = "区域代码重复" };
+                }
                 masterService.SaveArea(area);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -395,6 +410,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<Group> groupList = masterService.GetGroup(group.BrandId.ToString(), "", group.GroupCode, "");
+                if (groupList != null && groupList.Count > 0 && groupList[0].GroupId != group.GroupId)
+                {
+                    return new APIResult() { Status = false, Body = "集团代码重复" };
+                }
                 masterService.SaveGroup(group);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -419,7 +439,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("", brandId, projectId, year);
+                List<Project> projectList = masterService.GetProject("", brandId, projectId, year,"");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -434,6 +454,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<Project> projectList = masterService.GetProject("",project.BrandId.ToString(),"",project.ProjectCode,"");
+                if (projectList != null && projectList.Count > 0 && projectList[0].ProjectId != project.ProjectId)
+                {
+                    return new APIResult() { Status = false, Body = "期号代码重复" };
+                }
                 masterService.SaveProject(project);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -745,6 +770,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<ShopDto> shopList = masterService.GetShop("",shop.BrandId.ToString(), "", shop.ShopCode, "");
+                if (shopList != null && shopList.Count > 0 && shopList[0].ShopId != shop.ShopId)
+                {
+                    return new APIResult() { Status = false, Body = "经销商代码重复" };
+                }
                 masterService.SaveShop(shop);
                 return new APIResult() { Status = true, Body = "" };
             }
