@@ -18,6 +18,7 @@ namespace com.yrtech.SurveyDAL
         public Nullable<int> BrandId { get; set; }
         public string GroupName { get; set; }
         public string GroupCode { get; set; }
+        public Nullable<bool> UseChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

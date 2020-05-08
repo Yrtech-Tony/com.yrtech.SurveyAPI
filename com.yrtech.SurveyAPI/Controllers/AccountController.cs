@@ -85,34 +85,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
 
         #endregion
-        [HttpGet]
-        [Route("Account/GetUserInfo")]
-        public APIResult GetUserInfo(string tenantId, string userId)
-        {
-            try
-            {
-                List<UserInfo> userinfoList = accountService.GetUserInfo(tenantId, userId, "", "");
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(userinfoList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpPost]
-        [Route("Account/SaveUserInfo")]
-        public APIResult SaveUserInfo([FromBody]UserInfo obj)
-        {
-            try
-            {
-                accountService.SaveUserInfo(obj);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message };
-            }
-        }
+       
         /// <summary>
         /// 修改密码
         /// </summary>
@@ -124,7 +97,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfo> userList = accountService.GetUserInfo("", obj.UserId, "", "");
+                List<UserInfo> userList = masterService.GetUserInfo("","", obj.UserId, "", "","","","");
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)
@@ -164,7 +137,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode,"");
-                    List<UserInfo> userInfo_TelNO = accountService.GetUserInfo("", "", userInfoList[0].TelNO, ""); // 注册时初始化登陆账号为手机号
+                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "","", userInfoList[0].TelNO, "","","",""); // 注册时初始化登陆账号为手机号
                     if (tenantList_Name != null && tenantList_Name.Count > 0 && tenantList_Name[0].TenantId != userInfoList[0].TenantId)
                     {
                         return new APIResult() { Status = false, Body = "该租户名称已存在,请更换其他租户名称" };
@@ -177,7 +150,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         Tenant tenant = new Tenant();
                         tenant.TenantName = userInfoList[0].TenantName;
-                        tenant.TenantCode = userInfoList[0].TenantCode; // Code没有什么特别的意义，所以用名字代替
+                        tenant.TenantCode = userInfoList[0].TenantCode; 
                         masterService.SaveTenant(tenant);
                         UserInfo userInfo = new UserInfo();
                         userInfo.AccountId = userInfoList[0].TelNO; //注册时初始化登陆账号为手机号
@@ -188,7 +161,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         userInfo.UserType = "租户管理员";
                         userInfo.TenantId = tenantList_Name[0].TenantId;
                         userInfo.UseChk = true;
-                        accountService.SaveUserInfo(userInfo);
+                        masterService.SaveUserInfo(userInfo);
                     }
 
                 }

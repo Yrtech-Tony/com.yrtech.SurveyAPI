@@ -14,13 +14,41 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
         AccountService accountService = new AccountService();
         localhost.Service webService = new localhost.Service();
-        public List<RoleType> GetRoleType()
+        public List<RoleType> GetRoleType(string type)
         {
+
+            if (type == null) type = "";
             Type t = typeof(RoleType);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Type", type) };
             string sql = "";
             sql = @"SELECT *
-                   FROM [RoleType] ";
+                   FROM [RoleType] WHERE 1=1";
+            if (!string.IsNullOrEmpty(type))
+            {
+                sql += " AND Type = @Type";
+            }
             return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<RoleType>().ToList();
+        }
+        public List<HiddenCode> GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
+        {
+
+            if (hiddenCodeGroup == null) hiddenCodeGroup = "";
+            if (hiddenCode == null) hiddenCode = "";
+            Type t = typeof(HiddenCode);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@HiddenCodeGroup", hiddenCodeGroup),
+                                                        new SqlParameter("@HiddenCode", hiddenCode) };
+            string sql = "";
+            sql = @"SELECT *
+                   FROM [HiddenCode] WHERE 1=1";
+            if (!string.IsNullOrEmpty(hiddenCodeGroup))
+            {
+                sql += " AND HiddenCodeGroup = @HiddenCodeGroup";
+            }
+            if (!string.IsNullOrEmpty(hiddenCode))
+            {
+                sql += " AND HiddenCode = @HiddenCode";
+            }
+            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<HiddenCode>().ToList();
         }
         /// <summary>
         /// 获取体系类型
@@ -149,17 +177,19 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="tenantId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<Brand> GetBrand(string tenantId, string brandId)
+        public List<Brand> GetBrand(string tenantId, string brandId, string brandCode)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
+            brandCode = brandCode == null ? "" : brandCode;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
-                                                        new SqlParameter("@BrandId", brandId)};
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@BrandCode", brandCode)};
             Type t = typeof(Brand);
             string sql = "";
 
             sql = @"SELECT A.*
-                    FROM Brand A ";
+                    FROM Brand A WHERE 1=1";
 
             if (!string.IsNullOrEmpty(tenantId))
             {
@@ -168,6 +198,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(brandId))
             {
                 sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(brandCode))
+            {
+                sql += " AND A.BrandCode = @BrandCode";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
 
@@ -193,6 +227,372 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.Remark = brand.Remark;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = brand.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        #endregion
+        #region 用户信息管理
+        /// <summary>
+        /// 获取账号的基本信息
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email)
+        {
+            if (tenantId == null) tenantId = "";
+            if (brandId == null) brandId = "";
+            if (userId == null) userId = "";
+            if (accountId == null) accountId = "";
+            if (accountName == null) accountName = "";
+            if (roleTypeCode == null) roleTypeCode = "";
+            if (telNO == null) telNO = "";
+            if (email == null) email = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@AccountId", accountId),
+                                                        new SqlParameter("@AccountName", accountName),
+                                                        new SqlParameter("@RoleType", roleTypeCode),
+                                                        new SqlParameter("@TelNO", telNO),
+                                                        new SqlParameter("@Email", email)
+                                                        };
+            Type t = typeof(UserInfo);
+            string sql = @"SELECT A.* 
+                            FROM [UserInfo] A 
+                            WHERE 1=1";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND A.TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND A.Id = @UserId";
+            }
+            if (!string.IsNullOrEmpty(accountId))
+            {
+                sql += " AND A.AccountId = @AccountId";
+            }
+            if (!string.IsNullOrEmpty(accountName))
+            {
+                sql += " AND A.AccountName LIKE '%'+@AccountName+'%'";
+            }
+            if (!string.IsNullOrEmpty(roleTypeCode))
+            {
+                sql += " AND A.RoleType = @RoleType";
+            }
+            if (!string.IsNullOrEmpty(telNO))
+            {
+                sql += " AND TelNO = @TelNO";
+            }
+            if (!string.IsNullOrEmpty(email))
+            {
+                sql += " AND Email = @Email";
+            }
+
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
+        }
+        /// <summary>
+        /// 保存账号信息
+        /// </summary>
+        /// <param name="userinfo"></param>
+        public void SaveUserInfo(UserInfo userinfo)
+        {
+            UserInfo findOne = db.UserInfo.Where(x => (x.Id == userinfo.Id)).FirstOrDefault();
+            if (findOne == null)
+            {
+                userinfo.InDateTime = DateTime.Now;
+                userinfo.ModifyDateTime = DateTime.Now;
+                db.UserInfo.Add(userinfo);
+            }
+            else
+            {
+                findOne.AccountId = userinfo.AccountId;
+                findOne.Password = userinfo.Password;
+                findOne.AccountName = userinfo.AccountName;
+                findOne.Email = userinfo.Email;
+                findOne.TelNO = userinfo.TelNO;
+                findOne.HeadPicUrl = userinfo.HeadPicUrl;
+                findOne.UseChk = userinfo.UseChk;
+                findOne.BrandId = userinfo.BrandId;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = userinfo.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        public List<UserInfoBrandDto> GetUserInfoBrand(string tenantId, string userId, string brandId)
+        {
+            if (tenantId == null) tenantId = "";
+            if (brandId == null) brandId = "";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@UserId", userId)
+                                                        };
+            Type t = typeof(UserInfoBrandDto);
+            string sql = @"SELECT A.TenantId,B.UserId,C.BrandCode,C.BrandName
+                            FROM [UserInfo] A INNER JOIN UserInfoBrand B ON A.Id = B.UserId
+                                              INNER JOIN Brand C ON B.BrandId = C.BrandId
+                            WHERE 1=1";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND A.TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND B.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND A.Id = @UserId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfoBrandDto>().ToList();
+        }
+        public void SaveUserInfoBrand(UserInfoBrand userInfoBrand)
+        {
+            UserInfoBrand findOne = db.UserInfoBrand.Where(x => (x.UserId == userInfoBrand.UserId && x.BrandId == userInfoBrand.BrandId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                userInfoBrand.InDateTime = DateTime.Now;
+                userInfoBrand.ModifyDateTime = DateTime.Now;
+                db.UserInfoBrand.Add(userInfoBrand);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteUserInfoBrand(int userInfoBrandId)
+        {
+            UserInfoBrand findone = db.UserInfoBrand.Where(x => x.Id == userInfoBrandId).FirstOrDefault();
+            db.UserInfoBrand.Remove(findone);
+            db.SaveChanges();
+            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
+            //Type t = typeof(int);
+            //string sql = @"DELETE [AppealFile] WHERE FileId = @FileId";
+            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
+        }
+        public List<UserInfoObjectDto> GetUserInfoObject(string tenantId, string userId, string objectId,string roleTypeCode)
+        {
+            if (tenantId == null) tenantId = "";
+            if (objectId == null) objectId = "";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                        new SqlParameter("@ObjectId", objectId),
+                                                        new SqlParameter("@UserId", userId)
+                                                        };
+            Type t = typeof(UserInfoObjectDto);
+
+            string sql = "";
+            if (roleTypeCode == "B_B_Bussiness")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='Business'
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_WideArea")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='WideArea'
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_BigArea")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='BigArea'
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_MiddleArea")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='MiddleArea'
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_SmallArea")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='SmallArea'
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_Group")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.GroupCode AS ObjectCode,C.GroupName AS ObjectName，C.GroupId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Group C ON B.ObjectId = C.GroupId
+                          WHERE 1=1";
+            }
+            else if (roleTypeCode == "B_Shop")
+            {
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName，C.Shop AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                              INNER JOIN Shop C ON B.ObjectId = C.ShopId
+                          WHERE 1=1";
+            }
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND A.TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(objectId))
+            {
+                sql += " AND B.ObjectId = @ObjectId";
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND A.Id = @UserId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfoObjectDto>().ToList();
+        }
+        public void SaveUserInfoObject(UserInfoObject userInfoObject)
+        {
+            UserInfoObject findOne = db.UserInfoObject.Where(x => (x.UserId == userInfoObject.UserId && x.ObjectId == userInfoObject.ObjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                userInfoObject.InDateTime = DateTime.Now;
+                db.UserInfoObject.Add(userInfoObject);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteUserInfoObject(int userInfoObjectId)
+        {
+            UserInfoObject findone = db.UserInfoObject.Where(x => x.Id == userInfoObjectId).FirstOrDefault();
+            db.UserInfoObject.Remove(findone);
+            db.SaveChanges();
+            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
+        }
+        #endregion
+        #region 区域管理
+        public List<AreaDto> GetArea(string areaId,string brandId, string areaCode, string areaName, string areaType,string parentId)
+        {
+            areaId = areaId == null ? "" : areaId;
+            areaCode = areaCode == null ? "" : areaCode;
+            brandId = brandId == null ? "" : brandId;
+            areaName = areaName == null ? "" : areaName;
+            areaType = areaType == null ? "" : areaType;
+            parentId = parentId == null ? "" : parentId;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@AreaCode", areaCode),
+                                                        new SqlParameter("@AreaName", areaName),
+                                                        new SqlParameter("@AreaType", areaType),
+                                                        new SqlParameter("@ParentId", parentId),
+                                                        new SqlParameter("@AreaId", areaId)};
+            Type t = typeof(AreaDto);
+            string sql = "";
+
+            sql = @"SELECT A.*,
+                       
+                        (SELECT TOP 1 AreaCode FROM Area X WHERE X.AreaId = A.ParentId) AS ParentCode,
+                        (SELECT TOP 1 AreaName FROM Area Y WHERE X.AreaId = A.ParentId) AS ParentName
+                        (SELECT TOP 1 HiddenName FROM HiddenCode WHERE X.HiddenCode = A.AreaType AND X.HiddenCodeGroup = '区域类型') AS AreaTypeName
+                    FROM Area A WHERE 1=1";
+
+            if (!string.IsNullOrEmpty(areaId))
+            {
+                sql += " AND A.AreaId = @AreaId";
+            }
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(areaCode))
+            {
+                sql += " AND A.AreaCode = @AreaCode";
+            }
+            if (!string.IsNullOrEmpty(areaType))
+            {
+                sql += " AND A.AreaType = @AreaType";
+            }
+            if (!string.IsNullOrEmpty(areaName))
+            {
+                sql += " AND A.AreaName LIKE '%'+ @AreaName+'%'";
+            }
+            if (!string.IsNullOrEmpty(parentId))
+            {
+                sql += " AND A.ParentId = @ParentId'";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+
+        }
+        public void SaveArea(Area area)
+        {
+            Area findOne = db.Area.Where(x => (x.AreaId == area.AreaId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                area.InDateTime = DateTime.Now;
+                area.ModifyDateTime = DateTime.Now;
+                db.Area.Add(area);
+            }
+            else
+            {
+                findOne.AreaCode = area.AreaCode;
+                findOne.AreaName = area.AreaName;
+                findOne.AreaType = area.AreaType;
+                findOne.ParentId = area.ParentId;
+                findOne.UseChk = area.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = area.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        #endregion
+        #region 集团管理
+        public List<Group> GetGroup(string brandId, string groupId,string groupCode, string groupName)
+        {
+            groupCode = groupCode == null ? "" : groupCode;
+            brandId = brandId == null ? "" : brandId;
+            groupName = groupName == null ? "" : groupName;
+            groupId = groupId == null ? "" : groupId;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@GroupId", groupId),
+                                                        new SqlParameter("@GroupCode", groupCode),
+                                                        new SqlParameter("@GroupName", groupName)};
+            Type t = typeof(Group);
+            string sql = "";
+
+            sql = @"SELECT A.*
+                    FROM Group A WHERE 1=1";
+
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(groupId))
+            {
+                sql += " AND A.GroupId = @GroupId";
+            }
+            if (!string.IsNullOrEmpty(groupCode))
+            {
+                sql += " AND A.GroupCode = @GroupCode";
+            }
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                sql += " AND A.GroupName LIKE '%'+ @GroupName+'%'";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Group>().ToList();
+
+        }
+        public void SaveGroup(Group group)
+        {
+            Group findOne = db.Group.Where(x => (x.GroupId == group.GroupId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                group.InDateTime = DateTime.Now;
+                group.ModifyDateTime = DateTime.Now;
+                db.Group.Add(group);
+            }
+            else
+            {
+                findOne.GroupCode = group.GroupCode;
+                findOne.GroupName = group.GroupName;
+                findOne.UseChk = group.UseChk;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = group.ModifyUserId;
             }
             db.SaveChanges();
         }
@@ -377,6 +777,60 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ShopShortName = shop.ShopShortName;
                 findOne.UseChk = shop.UseChk;
             }
+            db.SaveChanges();
+        }
+        #endregion
+        #region 经销商区域设置
+        public List<ShopDto> GetAreaShop(string tenantId, string brandId, string shopId, string areaId)
+        {
+            tenantId = tenantId == null ? "" : tenantId;
+            brandId = brandId == null ? "" : brandId;
+            shopId = shopId == null ? "" : shopId;
+            areaId = areaId == null ? "" : areaId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
+                                                        new SqlParameter("@BrandId", brandId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                    new SqlParameter("@AreaId", areaId)};
+            Type t = typeof(ShopDto);
+            string sql = "";
+            sql = @"SELECT A.*,C.AreaCode,C.AreaName,C.AreaId,B.AreaShopId
+                      FROM [Shop] A INNER JOIN AreaShop B ON A.ShopId = B.ShopId 
+                                    INNER JOIN Area C ON B.AreaId = C.AreaId
+                    WHERE  1=1 
+                    ";
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                sql += " AND A.TenantId = @TenantId";
+            }
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(areaId))
+            {
+                sql += " AND C.AreaId = @AreaId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
+        }
+        public void SaveAreaShop(AreaShop areaShop)
+        {
+            AreaShop findOne = db.AreaShop.Where(x => (x.ShopId == areaShop.ShopId&&x.AreaId==areaShop.AreaId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                areaShop.InDateTime = DateTime.Now;
+                areaShop.ModifyDateTime = DateTime.Now;
+                db.AreaShop.Add(areaShop);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteAreaShop(int areaShopId)
+        {
+            AreaShop findone = db.AreaShop.Where(x => x.AreaShopId == areaShopId).FirstOrDefault();
+            db.AreaShop.Remove(findone);
             db.SaveChanges();
         }
         #endregion
@@ -665,27 +1119,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
-        /// <summary>
-        /// 查询品牌下账号信息
-        /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public List<UserInfo> GetUserInfoByBrandId(string brandId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId) };
-            Type t = typeof(UserInfo);
-            string sql = "";
 
-            sql = @"SELECT C.Id,C.TenantId,A.BrandId,C.AccountId,C.AccountName,C.Password,C.UserType,C.RoleType,ISNULL(C.UseChk,0) AS UseChk,
-                    Email,TelNO,HeadPicUrl,
-                    C.InUserId,C.InDateTime,C.ModifyUserId,C.ModifyDateTime
-                    FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId AND A.BrandId = @BrandId
-								 INNER JOIN UserInfo C ON B.UserId = C.Id ";
-
-            return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
-
-        }
         /// <summary>
         /// 获取期号下的复审类型
         /// </summary>
@@ -810,8 +1244,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-       
-       
+
+
         /// <summary>
         /// 批量更新SubjectLinkId
         /// </summary>
@@ -828,7 +1262,7 @@ namespace com.yrtech.SurveyAPI.Service
 
             db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
         }
-       
+
 
         #region 收费
         //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)

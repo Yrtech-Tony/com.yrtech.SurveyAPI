@@ -149,6 +149,8 @@
     <Compile Include="Controllers\ReportFileController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="DTO\Account\UserInfoObjectDto.cs" />
+    <Compile Include="DTO\Account\UserInfoBrandDto.cs" />
     <Compile Include="DTO\Account\UserInfoDto.cs" />
     <Compile Include="DTO\Account\AccountDto.cs" />
     <Compile Include="DTO\Account\ChangePasswordDto.cs" />

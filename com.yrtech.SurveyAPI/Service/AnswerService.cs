@@ -24,60 +24,60 @@ namespace com.yrtech.SurveyAPI.Service
         {
 
             if (lst == null) return;
-            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].ShopCode;
-            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
-            string accountId = accountService.GetUserInfo("",userId,"","")[0].AccountId;
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-            try
-            {
-                /// 保存得分信息
-                foreach (Answer answer in lst)
-                {
-                    string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
-                    webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
-                        answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
-                    List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
-                    List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
-                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-                    List<ShopConsultantResultDto> shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
-                    //CommonHelper.log(answer.ShopConsultantResult.ToString());
-                    if (inspectionList != null)
-                    {
-                        foreach (InspectionStandardResultDto inspection in inspectionList)
-                        {
-                            webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, "");
-                        }
-                    }
-                    if (fileList != null)
-                    {
-                        foreach (FileResultDto file in fileList)
-                        {
-                            webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
-                        }
-                    }
-                    if (lossResultList != null)
-                    {
-                        foreach (LossResultDto loss in lossResultList)
-                        {
-                            webService.SaveAnswerDtl3(projectCode, subjectCode, shopCode, Convert.ToInt32(loss.LossId), loss.LossDesc, loss.LossFileNameUrl);
-                        }
-                    }
-                    if (shopConsultantList != null)
-                    {
-                        foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
-                        {
-                            CommonHelper.log(shopConsult.ConsultantScore.ToString());
-                            // System.Threading.Thread.Sleep(500);
-                            webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CommonHelper.log(ex.ToString());
-            }
+            //string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].ShopCode;
+            //string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].BrandId.ToString();
+            //string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
+            //string accountId = accountService.GetUserInfo("",userId,"","")[0].AccountId;
+           // if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //try
+            //{
+            //    /// 保存得分信息
+            //    foreach (Answer answer in lst)
+            //    {
+            //        string subjectCode = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString())[0].SubjectCode;
+            //        webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
+            //            answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
+            //        List<InspectionStandardResultDto> inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
+            //        List<FileResultDto> fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+            //        List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+            //        List<ShopConsultantResultDto> shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
+            //        //CommonHelper.log(answer.ShopConsultantResult.ToString());
+            //        if (inspectionList != null)
+            //        {
+            //            foreach (InspectionStandardResultDto inspection in inspectionList)
+            //            {
+            //                webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, "");
+            //            }
+            //        }
+            //        if (fileList != null)
+            //        {
+            //            foreach (FileResultDto file in fileList)
+            //            {
+            //                webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId, "", null, "", file.FileName);
+            //            }
+            //        }
+            //        if (lossResultList != null)
+            //        {
+            //            foreach (LossResultDto loss in lossResultList)
+            //            {
+            //                webService.SaveAnswerDtl3(projectCode, subjectCode, shopCode, Convert.ToInt32(loss.LossId), loss.LossDesc, loss.LossFileNameUrl);
+            //            }
+            //        }
+            //        if (shopConsultantList != null)
+            //        {
+            //            foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
+            //            {
+            //                CommonHelper.log(shopConsult.ConsultantScore.ToString());
+            //                // System.Threading.Thread.Sleep(500);
+            //                webService.SaveSalesConsultant_Upload(projectCode, shopCode, subjectCode, shopConsult.ConsultantName, shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc, accountId, shopConsult.ConsultantType);
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    CommonHelper.log(ex.ToString());
+            //}
 
             foreach (Answer answer in lst)
             {
@@ -114,21 +114,21 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public void SaveAnswerShopInfoList(List<AnswerShopInfo> lst, string userId)
         {
-            //CommonHelper.log("Service" + lst.ToString());
-            if (lst == null) return;
-            //CommonHelper.log(lst.ToString());
-            string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].ShopCode;
-            string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].BrandId.ToString();
-            string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
-            string accountId = accountService.GetUserInfo("",userId,"","")[0].AccountId;
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-            // 保存数据到原系统
-            CommonHelper.log(webService.Url + " " + brandId.ToString());
+            ////CommonHelper.log("Service" + lst.ToString());
+            //if (lst == null) return;
+            ////CommonHelper.log(lst.ToString());
+            //string shopCode = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].ShopCode;
+            //string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].BrandId.ToString();
+            //string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
+            //string accountId = accountService.GetUserInfo("",userId,"","")[0].AccountId;
+            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //// 保存数据到原系统
+            //CommonHelper.log(webService.Url + " " + brandId.ToString());
 
-            foreach (AnswerShopInfo answerShopInfo in lst)
-            {
-                webService.AnswerStartInfoSave(projectCode, shopCode, answerShopInfo.TeamLeaderName, accountId, Convert.ToDateTime(answerShopInfo.StartDate).ToString("yyyy-MM-dd HH:mm:ss"));
-            }
+            //foreach (AnswerShopInfo answerShopInfo in lst)
+            //{
+            //    webService.AnswerStartInfoSave(projectCode, shopCode, answerShopInfo.TeamLeaderName, accountId, Convert.ToDateTime(answerShopInfo.StartDate).ToString("yyyy-MM-dd HH:mm:ss"));
+            //}
             foreach (AnswerShopInfo answerShopInfo in lst)
             {
                 answerShopInfo.UploadDateTime = DateTime.Now;
@@ -161,30 +161,30 @@ namespace com.yrtech.SurveyAPI.Service
         {
 
             if (lst == null || lst.Count == 0) return;
-            List<Project> projectList = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"");
-            if (projectList == null || projectList.Count == 0)
-            {
-                throw new Exception("没有找到对应的期号");
-            }
-            List<Shop> shopList = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","");
-            if (shopList == null || shopList.Count == 0)
-            {
-                throw new Exception("没有找到对应的经销商");
-            }
-            List<UserInfo> userList = accountService.GetUserInfo("",userId,"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
+            //List<Project> projectList = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"");
+            //if (projectList == null || projectList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的期号");
+            //}
+            //List<Shop> shopList = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","");
+            //if (shopList == null || shopList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的经销商");
+            //}
+            //List<UserInfo> userList = accountService.GetUserInfo("",userId,"","");
+            //if (userList == null || userList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的用户");
+            //}
 
-            string shopCode = shopList[0].ShopCode;
-            string projectCode = projectList[0].ProjectCode;
-            string accountId = userList[0].AccountId;
-            foreach (AnswerShopConsultant item in lst)
-            {
-                // 不需要了，在保存分数的时候一块保存了
-                // webService.SaveSaleContantInfo(projectCode, shopCode, item.SeqNO.ToString(), item.ConsultantName, item.ConsultantType);
-            }
+            //string shopCode = shopList[0].ShopCode;
+            //string projectCode = projectList[0].ProjectCode;
+            //string accountId = userList[0].AccountId;
+            //foreach (AnswerShopConsultant item in lst)
+            //{
+            //    // 不需要了，在保存分数的时候一块保存了
+            //    // webService.SaveSaleContantInfo(projectCode, shopCode, item.SeqNO.ToString(), item.ConsultantName, item.ConsultantType);
+            //}
             foreach (AnswerShopConsultant item in lst)
             {
                 item.UploadDateTime = DateTime.Now;
@@ -490,33 +490,33 @@ namespace com.yrtech.SurveyAPI.Service
             answer.ModifyUserId = Convert.ToInt32(answerDto.ModifyUserId);
             answer.UploadDate = DateTime.Now;
             answer.UploadUserId = Convert.ToInt32(answerDto.ModifyUserId);
-            // 保存打分信息
-            List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(),"");
-            if (projectList == null || projectList.Count == 0)
-            {
-                throw new Exception("没有找到对应的期号");
-            }
-            List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString(),"","");
-            if (shopList == null || shopList.Count == 0)
-            {
-                throw new Exception("没有找到对应的经销商");
-            }
-            List<UserInfo> userList = accountService.GetUserInfo("",answerDto.ModifyUserId.ToString(),"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
-            List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString());
-            if (subjectList == null || subjectList.Count == 0)
-            {
-                throw new Exception("没有找到对应的体系");
-            }
-            string projectCode = projectList[0].ProjectCode;
-            string shopCode = shopList[0].ShopCode;
-            string brandId = shopList[0].BrandId.ToString();
-            string accountId = userList[0].AccountId;
-            string subjectCode = subjectList[0].SubjectCode;
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            // // 保存打分信息
+            // List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(),"");
+            // if (projectList == null || projectList.Count == 0)
+            // {
+            //     throw new Exception("没有找到对应的期号");
+            // }
+            // List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString(),"","");
+            // if (shopList == null || shopList.Count == 0)
+            // {
+            //     throw new Exception("没有找到对应的经销商");
+            // }
+            // List<UserInfo> userList = accountService.GetUserInfo("",answerDto.ModifyUserId.ToString(),"","");
+            // if (userList == null || userList.Count == 0)
+            // {
+            //     throw new Exception("没有找到对应的用户");
+            // }
+            // List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString());
+            // if (subjectList == null || subjectList.Count == 0)
+            // {
+            //     throw new Exception("没有找到对应的体系");
+            // }
+            // string projectCode = projectList[0].ProjectCode;
+            // string shopCode = shopList[0].ShopCode;
+            // string brandId = shopList[0].BrandId.ToString();
+            // string accountId = userList[0].AccountId;
+            // string subjectCode = subjectList[0].SubjectCode;
+            // if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             List<InspectionStandardResultDto> inspectionList = new List<InspectionStandardResultDto>();
             List<FileResultDto> fileList = new List<FileResultDto>();
             List<LossResultDto> lossResultList = new List<LossResultDto>();
@@ -527,67 +527,67 @@ namespace com.yrtech.SurveyAPI.Service
             lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
             shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
 
-           // CommonHelper.log(answer.ShopConsultantResult.ToString());
-            webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
-                        answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
-           
-            if (inspectionList != null)
-            {
-                foreach (InspectionStandardResultDto inspection in inspectionList)
-                {
+            //// CommonHelper.log(answer.ShopConsultantResult.ToString());
+            // webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
+            //             answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
 
-                    if (!string.IsNullOrEmpty(inspection.ModifyType))
-                    { webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, ""); }
-                    inspection.ModifyType = null;
-                }
-            }
-            answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
-            if (fileList != null)
-            {
-                foreach (FileResultDto file in fileList)
-                {
-                    if (!string.IsNullOrEmpty(file.ModifyType))
-                        webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId,file.AnswerResult, null, "", file.FileName);
-                    file.ModifyType = null;
-                }
-            }
-            answer.FileResult = CommonHelper.Encode(fileList);
-            if (lossResultList != null)
-            {
-                foreach (LossResultDto loss in lossResultList)
-                {
-                    char type = 'N';
-                    if (loss.ModifyType == "U")
-                    { type = 'U'; }
-                    else if (loss.ModifyType == "D")
-                    {
-                        type = 'D';
-                    }
-                    webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
-                    loss.ModifyType = null;
-                }
-            }
-            answer.LossResult = CommonHelper.Encode(lossResultList);
-            if (shopConsultantList != null)
-            {
-                foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
-                {
-                   // CommonHelper.log(shopConsult.ConsultantLossDesc);
-                    char type = 'N';
-                    if (shopConsult.ModifyType == "U")
-                    { type = 'U'; }
-                    else if (shopConsult.ModifyType == "D")
-                    {
-                        type = 'D';
-                    }
-                    webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName,
-                        shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc,
-                        accountId, type, shopConsult.ConsultantType);
-                    webService.UpdateSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantLossDesc);
-                    shopConsult.ModifyType = null;
-                }
-            }
-            CommonHelper.log(answer.LossResult);
+            // if (inspectionList != null)
+            // {
+            //     foreach (InspectionStandardResultDto inspection in inspectionList)
+            //     {
+
+            //         if (!string.IsNullOrEmpty(inspection.ModifyType))
+            //         { webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, ""); }
+            //         inspection.ModifyType = null;
+            //     }
+            // }
+            // answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
+            // if (fileList != null)
+            // {
+            //     foreach (FileResultDto file in fileList)
+            //     {
+            //         if (!string.IsNullOrEmpty(file.ModifyType))
+            //             webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId,file.AnswerResult, null, "", file.FileName);
+            //         file.ModifyType = null;
+            //     }
+            // }
+            // answer.FileResult = CommonHelper.Encode(fileList);
+            // if (lossResultList != null)
+            // {
+            //     foreach (LossResultDto loss in lossResultList)
+            //     {
+            //         char type = 'N';
+            //         if (loss.ModifyType == "U")
+            //         { type = 'U'; }
+            //         else if (loss.ModifyType == "D")
+            //         {
+            //             type = 'D';
+            //         }
+            //         webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
+            //         loss.ModifyType = null;
+            //     }
+            // }
+            // answer.LossResult = CommonHelper.Encode(lossResultList);
+            // if (shopConsultantList != null)
+            // {
+            //     foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
+            //     {
+            //        // CommonHelper.log(shopConsult.ConsultantLossDesc);
+            //         char type = 'N';
+            //         if (shopConsult.ModifyType == "U")
+            //         { type = 'U'; }
+            //         else if (shopConsult.ModifyType == "D")
+            //         {
+            //             type = 'D';
+            //         }
+            //         webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName,
+            //             shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc,
+            //             accountId, type, shopConsult.ConsultantType);
+            //         webService.UpdateSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantLossDesc);
+            //         shopConsult.ModifyType = null;
+            //     }
+            // }
+            // CommonHelper.log(answer.LossResult);
             answer.LossResult = CommonHelper.Encode(lossResultList);
             answer.FileResult = CommonHelper.Encode(fileList);
             answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
@@ -702,29 +702,29 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerShopInfo(AnswerShopInfo shopInfo)
         {
-            List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString(),"");
-            if (projectList == null || projectList.Count == 0)
-            {
-                throw new Exception("没有找到对应的期号");
-            }
-            List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString(),"","");
-            if (shopList == null || shopList.Count == 0)
-            {
-                throw new Exception("没有找到对应的经销商");
-            }
-            List<UserInfo> userList = accountService.GetUserInfo("",shopInfo.ModifyUserId.ToString(),"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
-            string projectCode = projectList[0].ProjectCode;
-            string shopCode = shopList[0].ShopCode;
-            string brandId = shopList[0].BrandId.ToString();
-            string accountId = userList[0].AccountId;
+            //List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString(),"");
+            //if (projectList == null || projectList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的期号");
+            //}
+            //List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString(),"","");
+            //if (shopList == null || shopList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的经销商");
+            //}
+            //List<UserInfo> userList = accountService.GetUserInfo("",shopInfo.ModifyUserId.ToString(),"","");
+            //if (userList == null || userList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的用户");
+            //}
+            //string projectCode = projectList[0].ProjectCode;
+            //string shopCode = shopList[0].ShopCode;
+            //string brandId = shopList[0].BrandId.ToString();
+            //string accountId = userList[0].AccountId;
 
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
-            webService.AnswerStartInfoSave(projectCode, shopCode, shopInfo.TeamLeaderName, accountId, shopInfo.StartDate.ToString());
+            //webService.AnswerStartInfoSave(projectCode, shopCode, shopInfo.TeamLeaderName, accountId, shopInfo.StartDate.ToString());
 
             AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == shopInfo.ProjectId && x.ShopId == shopInfo.ShopId)).FirstOrDefault();
             if (findOne == null)
@@ -786,29 +786,29 @@ namespace com.yrtech.SurveyAPI.Service
             consultant.SeqNO = consultantDto.SeqNO;
             consultant.ShopId = consultantDto.ShopId;
             consultant.UseChk = consultantDto.UseChk;
-            List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString(),"");
-            if (projectList == null || projectList.Count == 0)
-            {
-                throw new Exception("没有找到对应的期号");
-            }
-            List<Shop> shopList = masterService.GetShop("", "", consultant.ShopId.ToString(),"","");
-            if (shopList == null || shopList.Count == 0)
-            {
-                throw new Exception("没有找到对应的经销商");
-            }
-            List<UserInfo> userList = accountService.GetUserInfo("",consultant.ModifyUserId.ToString(),"","");
-            if (userList == null || userList.Count == 0)
-            {
-                throw new Exception("没有找到对应的用户");
-            }
-            string shopCode = shopList[0].ShopCode;
-            string brandId = shopList[0].BrandId.ToString();
-            string projectCode = projectList[0].ProjectCode;
-            string accountId = userList[0].AccountId;
+            //List<Project> projectList = masterService.GetProject("", "", consultant.ProjectId.ToString(),"");
+            //if (projectList == null || projectList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的期号");
+            //}
+            //List<Shop> shopList = masterService.GetShop("", "", consultant.ShopId.ToString(),"","");
+            //if (shopList == null || shopList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的经销商");
+            //}
+            //List<UserInfo> userList = accountService.GetUserInfo("",consultant.ModifyUserId.ToString(),"","");
+            //if (userList == null || userList.Count == 0)
+            //{
+            //    throw new Exception("没有找到对应的用户");
+            //}
+            //string shopCode = shopList[0].ShopCode;
+            //string brandId = shopList[0].BrandId.ToString();
+            //string projectCode = projectList[0].ProjectCode;
+            //string accountId = userList[0].AccountId;
 
-            if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
 
-            webService.SaveSaleContantInfo(projectCode, shopCode, consultant.SeqNO.ToString(), consultant.ConsultantName, consultant.ConsultantType);
+            //webService.SaveSaleContantInfo(projectCode, shopCode, consultant.SeqNO.ToString(), consultant.ConsultantName, consultant.ConsultantType);
 
             AnswerShopConsultant findOne = db.AnswerShopConsultant.Where(x => (x.ProjectId == consultant.ProjectId && x.ShopId == consultant.ShopId && x.SeqNO == consultant.SeqNO)).FirstOrDefault();
             if (findOne == null)

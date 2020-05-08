@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyDAL
         public int RoleTypeId { get; set; }
         public string RoleTypeCode { get; set; }
         public string RoleTypeName { get; set; }
+        public string Type { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

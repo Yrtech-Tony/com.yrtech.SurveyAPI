@@ -16,6 +16,7 @@ namespace com.yrtech.SurveyDAL
     {
         public int Id { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public Nullable<int> BrandId { get; set; }
         public string AccountId { get; set; }
         public string AccountName { get; set; }
         public string Password { get; set; }

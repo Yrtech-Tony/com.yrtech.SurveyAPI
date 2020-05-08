@@ -20,6 +20,7 @@ namespace com.yrtech.SurveyDAL
         public string AreaType { get; set; }
         public Nullable<int> ParentId { get; set; }
         public Nullable<int> BrandId { get; set; }
+        public Nullable<bool> UseChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

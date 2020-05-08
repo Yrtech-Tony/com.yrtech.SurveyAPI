@@ -132,11 +132,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetRoleType")]
-        public APIResult GetRoleType()
+        public APIResult GetRoleType(string type)
         {
             try
             {
-                List<RoleType> roleTypeList = masterService.GetRoleType();
+                List<RoleType> roleTypeList = masterService.GetRoleType(type);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(roleTypeList) };
             }
             catch (Exception ex)
@@ -155,11 +155,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetBrand")]
-        public APIResult GetBrand(string tenantId, string brandId)
+        public APIResult GetBrand(string tenantId, string brandId,string brandCode)
         {
             try
             {
-                List<Brand> brandList = masterService.GetBrand(tenantId,brandId);
+                List<Brand> brandList = masterService.GetBrand(tenantId,brandId,brandCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
             }
             catch (Exception ex)
@@ -182,18 +182,44 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        /// <summary>
-        /// 获取品牌下的账号信息
-        /// </summary>
-        /// <param name="brandId"></param>
-        /// <returns></returns>
+        #endregion
+        #region 账号信息管理
         [HttpGet]
-        [Route("Master/GetUserInfoByBrandId")]
-        public APIResult GetUserInfoByBrandId(string brandId)
+        [Route("Master/GetUserInfo")]
+        public APIResult GetUserInfo(string tenantId, string brandId,string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email)
         {
             try
             {
-                List<UserInfo> userInfoBrandList = masterService.GetUserInfoByBrandId(brandId);
+                List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, userId, accountId, accountName, roleTypeCode, telNO, email);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveUserInfo")]
+        public APIResult SaveUserInfo(UserInfo userInfo)
+        {
+            try
+            {
+                masterService.SaveUserInfo(userInfo);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetUserInfoBrand")]
+        public APIResult GetUserInfoBrand(string tenantId, string brandId, string userId)
+        {
+            try
+            {
+                List<UserInfoBrandDto> userInfoBrandList = masterService.GetUserInfoBrand(tenantId, brandId, userId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoBrandList) };
             }
             catch (Exception ex)
@@ -201,6 +227,181 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        [HttpPost]
+        [Route("Master/SaveUserInfoBrand")]
+        public APIResult SaveUserInfoBrand(UserInfoBrand userInfoBrand)
+        {
+            try
+            {
+                masterService.SaveUserInfoBrand(userInfoBrand);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/DeleteUserInfoBrand")]
+        public APIResult DeleteUserInfoBrand(UserInfoBrand userInfoBrand)
+        {
+            try
+            {
+                masterService.DeleteUserInfoBrand(userInfoBrand.Id);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetUserInfoObject")]
+        public APIResult GetUserInfoObject(string tenantId,  string userId,string objectId,string roleTypeCode)
+        {
+            try
+            {
+                List<UserInfoObjectDto> userInfoObjectList = masterService.GetUserInfoObject(tenantId,userId,objectId,roleTypeCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoObjectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveUserInfoObject")]
+        public APIResult SaveUserInfoObject(UserInfoObject userInfoObject)
+        {
+            try
+            {
+                masterService.SaveUserInfoObject(userInfoObject);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/DeleteUserInfoObject")]
+        public APIResult DeleteUserInfoObject(UserInfoObject userInfoObject)
+        {
+            try
+            {
+                masterService.DeleteUserInfoObject(userInfoObject.Id);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 区域管理
+        [HttpGet]
+        [Route("Master/GetArea")]
+        public APIResult GetArea(string brandId, string areaId,string areaCode,string areaName,string areaType,string parentId)
+        {
+            try
+            {
+                List<AreaDto> areaList = masterService.GetArea(areaId,brandId, areaCode, areaName, areaType,parentId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(areaList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveArea")]
+        public APIResult SaveArea(Area area)
+        {
+            try
+            {
+                masterService.SaveArea(area);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 区域经销商管理
+        [HttpGet]
+        [Route("Master/GetAreaShop")]
+        public APIResult GetAreaShop(string tenantId,string brandId, string areaId, string shopId)
+        {
+            try
+            {
+                List<ShopDto> areaShopList = masterService.GetAreaShop(tenantId,brandId,shopId,areaId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(areaShopList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveAreaShop")]
+        public APIResult SaveAreaShop(AreaShop areaShop)
+        {
+            try
+            {
+                masterService.SaveAreaShop(areaShop);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/DeleteAreaShop")]
+        public APIResult DeleteAreaShop(AreaShop areaShop)
+        {
+            try
+            {
+                masterService.DeleteAreaShop(areaShop.AreaShopId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 集团管理
+        [HttpGet]
+        [Route("Master/GetGroup")]
+        public APIResult GetGroup(string brandId, string groupId,string groupCode, string groupName)
+        {
+            try
+            {
+                List<Group> groupList = masterService.GetGroup(brandId,groupId,groupCode,groupName);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(groupList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveGroup")]
+        public APIResult SaveGroup(Group group)
+        {
+            try
+            {
+                masterService.SaveGroup(group);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         #endregion
         #region 期号
@@ -435,6 +636,22 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #region HiddenCode
+        [HttpGet]
+        [Route("Master/GetHiddenCode")]
+        public APIResult GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
+        {
+            try
+            {
+                List<HiddenCode> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup,hiddenCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(hiddenCodeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
         #region 流程类型
         /// <summary>
         /// 获取流程类型
@@ -500,10 +717,12 @@ namespace com.yrtech.SurveyAPI.Controllers
 
 
         /// <summary>
-        /// 获取经销商信息
+        /// 
         /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="subjectId"></param>
+        /// <param name="brandId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="shopCode"></param>
+        /// <param name="key"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetShop")]
