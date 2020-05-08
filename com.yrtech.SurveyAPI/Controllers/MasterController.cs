@@ -730,7 +730,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Shop> shopList = masterService.GetShop("", brandId, shopId,shopCode, key);
+                List<ShopDto> shopList = masterService.GetShop("", brandId, shopId,shopCode, key);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
             }
             catch (Exception ex)
@@ -741,11 +741,10 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Master/SaveShop")]
-        public APIResult SaveShop([FromBody]Shop shop)
+        public APIResult SaveShop(Shop shop)
         {
             try
             {
-                // 统一租户统一品牌的经销商代码不能重复
                 masterService.SaveShop(shop);
                 return new APIResult() { Status = true, Body = "" };
             }

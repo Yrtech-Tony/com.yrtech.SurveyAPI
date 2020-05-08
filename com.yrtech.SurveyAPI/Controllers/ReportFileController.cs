@@ -24,7 +24,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
                 //resultList.Add(total);
                // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
-               
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
@@ -55,7 +54,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ReportFileDto> list = CommonHelper.DecodeString<List<ReportFileDto>>(upload.ListJson);
                 foreach (ReportFileDto reportFileDto in list)
                 {
-                    List<Shop> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
                     if (shopList == null || shopList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "上传的文件中存在未知的经销商代码，请确认命名" };
@@ -65,7 +64,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ReportFile reportFile = new ReportFile();
                     reportFile.ProjectId = reportFileDto.ProjectId;
-                    List<Shop> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
                     if (shopList != null && shopList.Count > 0)
                     {
                         reportFile.ShopId = shopList[0].ShopId;

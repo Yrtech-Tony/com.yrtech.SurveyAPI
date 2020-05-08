@@ -701,7 +701,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<Shop> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key)
+        public List<ShopDto> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -712,7 +712,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ShopId", shopId),
                                                     new SqlParameter("@ShopCode", shopCode)};
-            Type t = typeof(Shop);
+            Type t = typeof(ShopDto);
             string sql = "";
             sql = @"SELECT [ShopId]
                           ,[TenantId]
@@ -723,12 +723,14 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[Province]
                           ,[City]
                           ,[GroupId]
+                           ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId)
+                            ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId)
                           ,[UseChk]
                           ,[InUserId]
                           ,[InDateTime]
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
-                      FROM [Shop]
+                      FROM [Shop] A
                     WHERE  1=1 
                     ";
             if (!string.IsNullOrEmpty(tenantId))
@@ -751,7 +753,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%" + key + "%' OR ShopShortName LIKE '%" + key + "%')";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<Shop>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
         }
         /// <summary>
         /// 
