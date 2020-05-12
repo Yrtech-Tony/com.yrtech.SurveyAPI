@@ -10,8 +10,8 @@ namespace com.yrtech.SurveyAPI.DTO
     {
         public int Id { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public string UserId { get; set; }
-        public string BrandId { get; set; }
+        public int UserId { get; set; }
+        public int BrandId { get; set; }
         public string BrandCode { get; set; }
         public string BrandName { get; set; }
         public Nullable<int> InUserId { get; set; }

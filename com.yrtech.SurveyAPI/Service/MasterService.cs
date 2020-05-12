@@ -27,19 +27,19 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND Type = @Type";
             }
-            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<RoleType>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<RoleType>().ToList();
         }
-        public List<HiddenCode> GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
+        public List<HiddenColumn> GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
         {
 
             if (hiddenCodeGroup == null) hiddenCodeGroup = "";
             if (hiddenCode == null) hiddenCode = "";
-            Type t = typeof(HiddenCode);
+            Type t = typeof(HiddenColumn);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@HiddenCodeGroup", hiddenCodeGroup),
                                                         new SqlParameter("@HiddenCode", hiddenCode) };
             string sql = "";
             sql = @"SELECT *
-                   FROM [HiddenCode] WHERE 1=1";
+                   FROM [HiddenColumn] WHERE 1=1";
             if (!string.IsNullOrEmpty(hiddenCodeGroup))
             {
                 sql += " AND HiddenCodeGroup = @HiddenCodeGroup";
@@ -48,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND HiddenCode = @HiddenCode";
             }
-            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<HiddenCode>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<HiddenColumn>().ToList();
         }
         /// <summary>
         /// 获取体系类型
@@ -333,7 +333,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@UserId", userId)
                                                         };
             Type t = typeof(UserInfoBrandDto);
-            string sql = @"SELECT A.TenantId,B.UserId,C.BrandCode,C.BrandName
+            string sql = @"SELECT A.TenantId,B.UserId,C.BrandCode,C.BrandName,C.BrandId
                             FROM [UserInfo] A INNER JOIN UserInfoBrand B ON A.Id = B.UserId
                                               INNER JOIN Brand C ON B.BrandId = C.BrandId
                             WHERE 1=1";
@@ -386,49 +386,49 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleTypeCode == "B_B_Bussiness")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='Business'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_WideArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='WideArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_BigArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='BigArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_MiddleArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='MiddleArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_SmallArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName，C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='SmallArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_Group")
             {
-                sql = @"SELECT B.Id,B.UserId,C.GroupCode AS ObjectCode,C.GroupName AS ObjectName，C.GroupId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.GroupCode AS ObjectCode,C.GroupName AS ObjectName,C.GroupId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
-                                              INNER JOIN Group C ON B.ObjectId = C.GroupId
+                                              INNER JOIN [Group] C ON B.ObjectId = C.GroupId
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_Shop")
             {
-                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName，C.Shop AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Shop C ON B.ObjectId = C.ShopId
                           WHERE 1=1";
@@ -485,10 +485,9 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
 
             sql = @"SELECT A.*,
-                       
                         (SELECT TOP 1 AreaCode FROM Area X WHERE X.AreaId = A.ParentId) AS ParentCode,
-                        (SELECT TOP 1 AreaName FROM Area Y WHERE X.AreaId = A.ParentId) AS ParentName
-                        (SELECT TOP 1 HiddenName FROM HiddenCode WHERE X.HiddenCode = A.AreaType AND X.HiddenCodeGroup = '区域类型') AS AreaTypeName
+                        (SELECT TOP 1 AreaName FROM Area Y WHERE Y.AreaId = A.ParentId) AS ParentName,
+                        (SELECT TOP 1 HiddenName FROM HiddenColumn Z WHERE Z.HiddenCode = A.AreaType AND Z.HiddenCodeGroup = '区域类型') AS AreaTypeName
                     FROM Area A WHERE 1=1";
 
             if (!string.IsNullOrEmpty(areaId))
@@ -556,7 +555,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
 
             sql = @"SELECT A.*
-                    FROM Group A WHERE 1=1";
+                    FROM [Group] A WHERE 1=1";
 
             if (!string.IsNullOrEmpty(brandId))
             {
@@ -605,7 +604,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<Project> GetProject(string tenantId, string brandId, string projectId, string projectCode,string year)
+        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode,string year)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -617,22 +616,10 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ProjectCode", projectCode),
                                                     new SqlParameter("@Year", year)};
-            Type t = typeof(Project);
+            Type t = typeof(ProjectDto);
             string sql = "";
-            sql = @"SELECT [ProjectId]
-                          ,[TenantId]
-                          ,[BrandId]
-                          ,[ProjectCode]
-                          ,[ProjectName]
-                          ,[Year]
-                          ,[Quarter]
-                          ,[DataScore]
-                          ,AppealStartDate
-                          ,[OrderNO]
-                          ,[InUserId]
-                          ,[InDateTime]
-                          ,[ModifyUserId]
-                          ,[ModifyDateTime]
+            sql = @"SELECT *,CASE WHEN GETDATE()<ReportDeployDate  OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
+                             ELSE CAST(1 AS BIT) END AS ReportDeployChk
                     FROM [Project]
                     WHERE 1=1   
                     ";
@@ -657,7 +644,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND Year = @Year";
             }
             sql += " ORDER BY OrderNO";
-            return db.Database.SqlQuery(t, sql, para).Cast<Project>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
 
         }
         /// <summary>
@@ -692,6 +679,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
                 findOne.DataScore = project.DataScore;
+                findOne.AppealStartDate = project.AppealStartDate;
+                findOne.ReportDeployDate= project.ReportDeployDate;// 报告发布时间
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;

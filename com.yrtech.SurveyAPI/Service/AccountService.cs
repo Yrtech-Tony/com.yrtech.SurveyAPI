@@ -135,7 +135,7 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN UserInfoObject H ON A.ShopId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
-            sql += "A.UseChk = 1";
+            sql += " AND A.UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
         }
         /// <summary>
@@ -596,7 +596,7 @@ namespace com.yrtech.SurveyAPI.Service
             else
             {
                 sql = @"SELECT A.* FROM Brand A INNER JOIN UserInfo B ON A.BrandId = B.BrandId
-                      WHERE B.UserId = @UserId";
+                      WHERE B.Id = @UserId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
 

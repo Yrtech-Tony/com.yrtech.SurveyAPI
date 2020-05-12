@@ -33,8 +33,8 @@ namespace com.yrtech.SurveyAPI.Service
 		                        SELECT A.ProjectId,A.ShopId,C.ShopCode,C.ShopName,C.ShopShortName,
 				                        CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
 				                        CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
-		                        FROM ReportFile A INNER JOIN ProjectShop B ON A.ProjectId = B.ProjectId AND A.ShopId = B.ShopId
-				                                 INNER JOIN Shop C ON B.ShopId = C.ShopId
+		                        FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+				                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
 				                            ) X
                         WHERE 1=1";
             if (!string.IsNullOrEmpty(projectId))
@@ -46,6 +46,25 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND (X.ShopCode LIKE '%'+@Keyword+'%' OR X.ShopName LIKE '%'+@Keyword+'%)'";
             }
             sql += " GROUP BY X.ProjectId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
+        }
+        public List<ReportFileUploadDto> ReportFileCountYear()
+        {
+            SqlParameter[] para = new SqlParameter[] {  };
+            Type t = typeof(ReportFileUploadDto);
+            string sql = @"
+                        SELECT ProjectId,ProjectCode,ProjectName
+                                        ,SUM(ReportFileCount_File) AS ReportFileCount_File
+                                        ,SUM(ReportFileCount_Video) AS ReportFileCount_Video
+                        FROM(
+                                SELECT A.ProjectId,B.ProjectCode,B.ProjectName,
+                                        CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
+                                        CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
+                                FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId AND B.[Year] = YEAR(GETDATE())
+                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
+                                            ) X
+                        WHERE 1=1
+                        GROUP BY X.ProjectId,X.ProjectCode,X.ProjectName";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
         }
         public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string projectId, string keyword, int pageNum, int pageCount)

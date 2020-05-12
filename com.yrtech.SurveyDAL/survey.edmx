@@ -184,7 +184,7 @@
           <Property Name="ModifyUserId" Type="int" />
           <Property Name="ModifyDateTime" Type="datetime" />
         </EntityType>
-        <EntityType Name="HiddenCode">
+        <EntityType Name="HiddenColumn">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
@@ -210,6 +210,7 @@
           <Property Name="OrderNO" Type="int" />
           <Property Name="DataScore" Type="nvarchar" MaxLength="50" />
           <Property Name="AppealStartDate" Type="datetime" />
+          <Property Name="ReportDeployDate" Type="datetime" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
@@ -567,7 +568,7 @@
           <EntitySet Name="AreaShop" EntityType="Self.AreaShop" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Group" EntityType="Self.Group" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="HiddenCode" EntityType="Self.HiddenCode" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HiddenColumn" EntityType="Self.HiddenColumn" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Project" EntityType="Self.Project" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReCheck" EntityType="Self.ReCheck" Schema="dbo" store:Type="Tables" />
@@ -743,37 +744,6 @@
           <Property Name="BrandCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="BrandName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Remark" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="HiddenCode">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="HiddenCodeGroup" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="HiddenCode1" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="HiddenName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="Project">
-          <Key>
-            <PropertyRef Name="ProjectId" />
-          </Key>
-          <Property Name="ProjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="BrandId" Type="Int32" />
-          <Property Name="ProjectCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="ProjectName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Year" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Quarter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="OrderNO" Type="Int32" />
-          <Property Name="DataScore" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="AppealStartDate" Type="DateTime" Precision="3" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -1094,8 +1064,6 @@
           <EntitySet Name="AppealFile" EntityType="Self.AppealFile" />
           <EntitySet Name="AreaShop" EntityType="Self.AreaShop" />
           <EntitySet Name="Brand" EntityType="Self.Brand" />
-          <EntitySet Name="HiddenCode" EntityType="Self.HiddenCode" />
-          <EntitySet Name="Project" EntityType="Self.Project" />
           <EntitySet Name="ProjectShop" EntityType="Self.ProjectShop" />
           <EntitySet Name="ReCheck" EntityType="Self.ReCheck" />
           <EntitySet Name="RecheckErrorType" EntityType="Self.RecheckErrorType" />
@@ -1123,6 +1091,8 @@
           <EntitySet Name="RoleType" EntityType="com.yrtech.SurveyDAL.RoleType" />
           <EntitySet Name="Area" EntityType="com.yrtech.SurveyDAL.Area" />
           <EntitySet Name="Group" EntityType="com.yrtech.SurveyDAL.Group" />
+          <EntitySet Name="Project" EntityType="com.yrtech.SurveyDAL.Project" />
+          <EntitySet Name="HiddenColumn" EntityType="com.yrtech.SurveyDAL.HiddenColumn" />
         </EntityContainer>
         <EntityType Name="UserInfo">
           <Key>
@@ -1188,6 +1158,38 @@
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Project">
+          <Key>
+            <PropertyRef Name="ProjectId" />
+          </Key>
+          <Property Name="ProjectId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="BrandId" Type="Int32" />
+          <Property Name="ProjectCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectName" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Year" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Quarter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNO" Type="Int32" />
+          <Property Name="DataScore" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AppealStartDate" Type="DateTime" Precision="3" />
+          <Property Name="ReportDeployDate" Type="DateTime" Precision="3" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="HiddenColumn">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HiddenCodeGroup" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HiddenCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HiddenName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1346,39 +1348,6 @@
                 <ScalarProperty Name="BrandCode" ColumnName="BrandCode" />
                 <ScalarProperty Name="BrandName" ColumnName="BrandName" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="HiddenCode">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.HiddenCode">
-              <MappingFragment StoreEntitySet="HiddenCode">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="HiddenCodeGroup" ColumnName="HiddenCodeGroup" />
-                <ScalarProperty Name="HiddenCode1" ColumnName="HiddenCode" />
-                <ScalarProperty Name="HiddenName" ColumnName="HiddenName" />
-                <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Project">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Project">
-              <MappingFragment StoreEntitySet="Project">
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
-                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
-                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
-                <ScalarProperty Name="Year" ColumnName="Year" />
-                <ScalarProperty Name="Quarter" ColumnName="Quarter" />
-                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
-                <ScalarProperty Name="DataScore" ColumnName="DataScore" />
-                <ScalarProperty Name="AppealStartDate" ColumnName="AppealStartDate" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
                 <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
@@ -1778,6 +1747,40 @@
                 <ScalarProperty Name="GroupName" ColumnName="GroupName" />
                 <ScalarProperty Name="BrandId" ColumnName="BrandId" />
                 <ScalarProperty Name="GroupId" ColumnName="GroupId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Project">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Project">
+              <MappingFragment StoreEntitySet="Project">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ReportDeployDate" ColumnName="ReportDeployDate" />
+                <ScalarProperty Name="AppealStartDate" ColumnName="AppealStartDate" />
+                <ScalarProperty Name="DataScore" ColumnName="DataScore" />
+                <ScalarProperty Name="OrderNO" ColumnName="OrderNO" />
+                <ScalarProperty Name="Quarter" ColumnName="Quarter" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
+                <ScalarProperty Name="BrandId" ColumnName="BrandId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HiddenColumn">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.HiddenColumn">
+              <MappingFragment StoreEntitySet="HiddenColumn">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="HiddenName" ColumnName="HiddenName" />
+                <ScalarProperty Name="HiddenCode" ColumnName="HiddenCode" />
+                <ScalarProperty Name="HiddenCodeGroup" ColumnName="HiddenCodeGroup" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

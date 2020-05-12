@@ -85,7 +85,7 @@
     <Compile Include="Group.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="HiddenCode.cs">
+    <Compile Include="HiddenColumn.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Project.cs">

@@ -229,7 +229,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfoBrandDto> userInfoBrandList = masterService.GetUserInfoBrand(tenantId, brandId, userId);
+                List<UserInfoBrandDto> userInfoBrandList = masterService.GetUserInfoBrand(tenantId, userId, brandId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoBrandList) };
             }
             catch (Exception ex)
@@ -439,7 +439,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("", brandId, projectId, year,"");
+                List<ProjectDto> projectList = masterService.GetProject("", brandId, projectId,"", year);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -454,7 +454,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Project> projectList = masterService.GetProject("",project.BrandId.ToString(),"",project.ProjectCode,"");
+                List<ProjectDto> projectList = masterService.GetProject("",project.BrandId.ToString(),"",project.ProjectCode,"");
                 if (projectList != null && projectList.Count > 0 && projectList[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "期号代码重复" };
@@ -668,7 +668,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<HiddenCode> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup,hiddenCode);
+                List<HiddenColumn> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup,hiddenCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(hiddenCodeList) };
             }
             catch (Exception ex)

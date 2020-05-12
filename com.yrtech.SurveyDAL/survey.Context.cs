@@ -34,8 +34,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
-        public virtual DbSet<HiddenCode> HiddenCode { get; set; }
-        public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ProjectShop> ProjectShop { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<RecheckErrorType> RecheckErrorType { get; set; }
@@ -63,5 +61,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<RoleType> RoleType { get; set; }
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<Group> Group { get; set; }
+        public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
     }
 }

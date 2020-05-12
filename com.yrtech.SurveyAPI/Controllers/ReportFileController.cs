@@ -12,8 +12,9 @@ namespace com.yrtech.SurveyAPI.Controllers
     public class ReportFileController : ApiController
     {
         ReportFileService reportFileService = new ReportFileService();
+        MasterService masterService = new MasterService();
 
-
+        #region 文件上传
         [HttpGet]
         [Route("ReportFile/ReportFileListUploadSearch")]
         public APIResult ReportFileListUploadSearch(string projectId, string keyword, int pageNum, int pageCount)
@@ -21,9 +22,9 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 //List<object> resultList = new List<object>();
-               // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
+                // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
                 //resultList.Add(total);
-               // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
+                // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
@@ -116,22 +117,43 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
 
+        #endregion
+        #region 文件下载
         [HttpGet]
         [Route("ReportFile/ReportFileListSearch")]
         public APIResult ReportFileListSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
         {
             try
             {
-                List<object> resultList = new List<object>();
-                int total = reportFileService.ReportFileDownloadAllSearch(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,keyword).Count;
-                resultList.Add(total);
-                resultList.Add(reportFileService.ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword,pageNum,pageCount));
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
+
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "");
+                if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
+                {
+                    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
+        #region 首页统计
+        [HttpGet]
+        [Route("ReportFile/ReportFileCountYear")]
+        public APIResult ReportFileCountYear()
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileCountYear()) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
     }
 }
