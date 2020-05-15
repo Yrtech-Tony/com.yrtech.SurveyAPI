@@ -512,7 +512,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(parentId))
             {
-                sql += " AND A.ParentId = @ParentId'";
+                sql += " AND A.ParentId = @ParentId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
 
@@ -718,8 +718,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[Province]
                           ,[City]
                           ,[GroupId]
-                           ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId)
-                            ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId)
+                           ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId) AS GroupName
+                            ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId) AS GroupCode
                           ,[UseChk]
                           ,[InUserId]
                           ,[InDateTime]
@@ -767,6 +767,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 findOne.ShopCode = shop.ShopCode;
                 findOne.ShopName = shop.ShopName;
+                findOne.GroupId = shop.GroupId;
                 findOne.City = shop.City;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = shop.ModifyUserId;
