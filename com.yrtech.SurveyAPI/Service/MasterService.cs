@@ -257,7 +257,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@Email", email)
                                                         };
             Type t = typeof(UserInfo);
-            string sql = @"SELECT A.* 
+            string sql = @"SELECT A.*
                             FROM [UserInfo] A 
                             WHERE 1=1";
             if (!string.IsNullOrEmpty(tenantId))
@@ -388,7 +388,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
-                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='Business'
+                                              INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='Bussiness'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_WideArea")

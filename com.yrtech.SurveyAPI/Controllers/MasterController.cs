@@ -218,6 +218,18 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(userInfo.AccountId.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "账号不能为空" };
+                }
+                if (string.IsNullOrEmpty(userInfo.AccountName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "姓名不能为空" };
+                }
+                if (string.IsNullOrEmpty(userInfo.RoleType.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "权限不能为空" };
+                }
                 List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "");
                 if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].Id != userInfo.Id)
                 {

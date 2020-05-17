@@ -19,6 +19,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> BrandId { get; set; }
         public string UserType { get; set; }
         public string RoleType { get; set; }
+        public string RoleTypeName { get; set; }
         public Nullable<bool> UseChk { get; set; }
         public string Email { get; set; }
         public string TelNO { get; set; }

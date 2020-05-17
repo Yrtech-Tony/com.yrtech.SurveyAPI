@@ -159,45 +159,45 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
-                        INNER JOIN Area D ON C.AreaId = D.AreaId -- smallArea
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
                     WHERE D.AreaId = @SmallArea AND ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(middleArea))
             {
                 sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
-                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
-                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
                     WHERE ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(bigArea))
             {
                 sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
-                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
-                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
-                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
                     WHERE ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(wideArea))
             {
                 sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
-                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
-                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
-                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
-                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+                        INNER JOIN Area G ON F.ParentId = G.AreaId 
                     WHERE ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(bussinessType))
             {
                 sql += @"INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
-                        INNER JOIN Area D ON C.AreaId = D.AreaId --smallArea
-                        INNER JOIN Area E ON D.ParentId = E.AreaId -- middleArea
-                        INNER JOIN Area F ON E.ParentId = F.AreaId --bigArea
-                        INNER JOIN Area G ON F.ParentId = G.AreaId --WideArea
-                        INNER JOIN Area H ON G.ParentId = H.AreaId --businessType
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+                        INNER JOIN Area G ON F.ParentId = G.AreaId 
+                        INNER JOIN Area H ON G.ParentId = H.AreaId 
                     WHERE ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else

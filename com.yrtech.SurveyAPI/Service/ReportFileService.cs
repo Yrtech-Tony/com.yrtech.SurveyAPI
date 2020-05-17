@@ -195,7 +195,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@MiddleArea", middleArea),
                                                         new SqlParameter("@BigArea", bigArea),
                                                         new SqlParameter("@WideArea", wideArea),
-                                                        new SqlParameter("@BusinessType", bussinessType),
+                                                        new SqlParameter("@BussinessType", bussinessType),
                                                     new SqlParameter("@KeyWord", keyword), new SqlParameter("@ReportFileType", reportFileType)};
             Type t = typeof(ReportFileDto);
             string sql = "";
@@ -261,7 +261,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
                         INNER JOIN Area G ON F.ParentId = G.AreaId 
                         INNER JOIN Area H ON G.ParentId = H.AreaId 
-                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BussinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else
             {

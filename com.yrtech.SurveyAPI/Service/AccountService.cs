@@ -154,63 +154,63 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- Business
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND A.AreaType = 'Bussiness' ";
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- Business
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness '";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A --Business
-			                        INNER JOIN Area B ON B.ParentId = A.AreaId -- WideArea
+                        FROM Area A 
+			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A --Business
-			                        INNER JOIN Area B ON B.ParentId = A.AreaId -- WideArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- BigArea
+                        FROM Area A 
+			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness'";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A --Business
-			                        INNER JOIN Area B ON B.ParentId = A.AreaId -- WideArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- BigArea
-                                    INNER JOIN Area D ON D.ParentId = C.AreaId --MiddleArea
+                        FROM Area A 
+			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
+                                    INNER JOIN Area D ON D.ParentId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A --Business
-			                        INNER JOIN Area B ON B.ParentId = A.AreaId -- WideArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- BigArea
-                                    INNER JOIN Area D ON D.ParentId = C.AreaId --MiddleArea
-                                    INNER JOIN Area E ON E.ParentId = D.AreaId -- SmallArea
+                        FROM Area A 
+			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
+                                    INNER JOIN Area D ON D.ParentId = C.AreaId 
+                                    INNER JOIN Area E ON E.ParentId = D.AreaId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
             }
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A --Business
-			                        INNER JOIN Area B ON B.ParentId = A.AreaId -- WideArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- BigArea
-                                    INNER JOIN Area D ON D.ParentId = C.AreaId --MiddleArea
-                                    INNER JOIN Area E ON E.ParentId = D.AreaId -- SmallArea
+                        FROM Area A 
+			                        INNER JOIN Area B ON B.ParentId = A.AreaId
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
+                                    INNER JOIN Area D ON D.ParentId = C.AreaId 
+                                    INNER JOIN Area E ON E.ParentId = D.AreaId 
                                     INNER JOIN AreaShop F ON E.AreaId = F.AreaId
                                     INNER JOIN Shop G ON F.ShopId = G.ShopId
 			                        INNER JOIN UserInfoObject H ON G.ShopId = H.ObjectId
@@ -235,60 +235,60 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --Business
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --Business
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId -- BigArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --BigArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- MiddleArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --BigArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- MiddleArea
-                                    INNER JOIN Area D ON D.ParentId = C.AreaId -- SmallArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
+                                    INNER JOIN Area D ON D.ParentId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- WideArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --BigArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- MiddleArea
-                                    INNER JOIN Area D ON D.ParentId = C.AreaId -- SmallArea
+                        FROM Area A a
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
+                                    INNER JOIN Area D ON D.ParentId = C.AreaId 
                                     INNER JOIN AreaShop E ON D.AreaId = E.AreaId
                                     INNER JOIN Shop F ON E.ShopId = F.ShopId
 			                        INNER JOIN UserInfoObject H ON F.ShopId = H.ObjectId
@@ -313,59 +313,59 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --WideArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BusinessArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --WideArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BusinessArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --WideArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --middleArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --MiddleArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- SmallArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- BigArea
-                                    INNER JOIN Area B ON B.ParentId = A.AreaId --MiddleArea
-                                    INNER JOIN Area C ON C.ParentId = B.AreaId -- SmallArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.ParentId = A.AreaId 
+                                    INNER JOIN Area C ON C.ParentId = B.AreaId 
                                     INNER JOIN AreaShop D ON C.AreaId = D.AreaId
                                     INNER JOIN Shop E ON D.ShopId = E.ShopId
 			                        INNER JOIN UserInfoObject H ON E.ShopId = H.ObjectId
@@ -390,51 +390,51 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleType == "B_Brand")
             {
                  sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --BigArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --WideArea
-                                    INNER JOIN Area D ON D.AreaId = C.ParentId -- BusinessArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
+                                    INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --BigArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --WideArea
-                                    INNER JOIN Area D ON D.AreaId = C.ParentId -- BusinessArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
+                                    INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --BigArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --WideArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --BigArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
+                        FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
@@ -442,7 +442,7 @@ namespace com.yrtech.SurveyAPI.Service
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- MiddleArea
+                        FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId
                                     INNER JOIN AreaShop C ON B.AreaId = C.AreaId
                                     INNER JOIN Shop D ON C.ShopId = D.ShopId
@@ -468,63 +468,63 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --MiddleArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BigArea
-                                    INNER JOIN Area D ON D.AreaId = C.ParentId -- WideArea
-                                    INNER JOIN Area E ON E.AreaId = D.ParentId -- Business
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
+                                    INNER JOIN Area D ON D.AreaId = C.ParentId 
+                                    INNER JOIN Area E ON E.AreaId = D.ParentId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --MiddleArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BigArea
-                                    INNER JOIN Area D ON D.AreaId = C.ParentId -- WideArea
-                                    INNER JOIN Area E ON E.AreaId = D.ParentId -- Business
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
+                                    INNER JOIN Area D ON D.AreaId = C.ParentId 
+                                    INNER JOIN Area E ON E.AreaId = D.ParentId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --MiddleArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BigArea
-                                    INNER JOIN Area D ON D.AreaId = C.ParentId -- WideArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
+                                    INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --MiddleArea
-                                    INNER JOIN Area C ON C.AreaId = B.ParentId --BigArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
+                                    INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
-                                    INNER JOIN Area B ON B.AreaId = A.ParentId --MiddleArea
+                        FROM Area A 
+                                    INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
+                        FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A -- SmallArea
+                        FROM Area A a
                                     INNER JOIN AreaShop B ON A.AreaId = B.AreaId
                                     INNER JOIN Shop C ON B.ShopId = C.ShopId
 			                        INNER JOIN UserInfoObject H ON C.ShopId = H.ObjectId
