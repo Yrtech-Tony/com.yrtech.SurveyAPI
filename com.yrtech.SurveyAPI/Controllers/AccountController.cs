@@ -75,7 +75,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 account.MiddleAreaList = accountService.GetMiddleAreaByRole(brandId, userId, roleType);
                 account.BigAreaList = accountService.GetBigAreaByRole(brandId, userId, roleType);
                 account.WideAreaList = accountService.GetWideAreaByRole(brandId, userId, roleType);
-                account.BusinessAreaList = accountService.GetBussnessListByRole(brandId, userId, roleType);
+                account.BussinessAreaList = accountService.GetBussinessListByRole(brandId, userId, roleType);
+
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
             }
             catch (Exception ex)

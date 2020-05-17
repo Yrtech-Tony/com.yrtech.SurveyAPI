@@ -31,7 +31,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<AreaDto> MiddleAreaList { get; set; }
         public List<AreaDto> BigAreaList { get; set; }
         public List<AreaDto> WideAreaList { get; set; }
-        public List<AreaDto> BusinessAreaList { get; set; }
+        public List<AreaDto> BussinessAreaList { get; set; }
         public List<GroupDto> GroupList { get; set; }
     }
 }

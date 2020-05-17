@@ -17,7 +17,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 文件上传
         [HttpGet]
         [Route("ReportFile/ReportFileListUploadSearch")]
-        public APIResult ReportFileListUploadSearch(string brandId,string projectId, string keyword, int pageNum, int pageCount)
+        public APIResult ReportFileListUploadSearch(string brandId, string projectId, string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
                 //resultList.Add(total);
                 // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId,projectId, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -34,11 +34,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileSearch")]
-        public APIResult ReportFileSearch(string projectId, string shopId)
+        public APIResult ReportFileSearch(string projectId, string shopId, string reportFileType)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch(projectId, shopId)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch(projectId, shopId, reportFileType)) };
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
                     if (shopList == null || shopList.Count == 0)
                     {
-                        return new APIResult() { Status = false, Body = "上传的文件中存在未知的经销商代码，请确认命名" };
+                        return new APIResult() { Status = false, Body = "上传的文件中存在未知的经销商代码，请确认品牌和经销商代码" };
                     }
                 }
                 foreach (ReportFileDto reportFileDto in list)
@@ -99,16 +99,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
         [Route("ReportFile/ReportFileDelete")]
-        public APIResult ReportFileDelete(UploadData upload)
+        public APIResult ReportFileDelete(string projectId, string shopId, string seqNO)
         {
             try
             {
-                List<ReportFile> list = CommonHelper.DecodeString<List<ReportFile>>(upload.ListJson);
-                foreach (ReportFile reportFile in list)
-                {
-                    reportFileService.ReportFileDelete(reportFile.ProjectId.ToString(), reportFile.ShopId.ToString(), reportFile.SeqNO.ToString());
-                }
+                reportFileService.ReportFileDelete(projectId.ToString(), shopId.ToString(), seqNO.ToString());
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -121,17 +118,34 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 文件下载
         [HttpGet]
         [Route("ReportFile/ReportFileListSearch")]
-        public APIResult ReportFileListSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        public APIResult ReportFileListSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
             try
             {
-
                 List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportFileDownLoad")]
+        public APIResult ReportFileDownLoad(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
+        {
+            try
+            {
+                string downloadPath = reportFileService.ReportFileDownLoad(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownLoad(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {

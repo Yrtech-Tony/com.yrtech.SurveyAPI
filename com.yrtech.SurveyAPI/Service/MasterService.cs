@@ -333,7 +333,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@UserId", userId)
                                                         };
             Type t = typeof(UserInfoBrandDto);
-            string sql = @"SELECT A.TenantId,B.UserId,C.BrandCode,C.BrandName,C.BrandId
+            string sql = @"SELECT A.TenantId,B.UserId,C.BrandCode,C.BrandName,C.BrandId,B.Id
                             FROM [UserInfo] A INNER JOIN UserInfoBrand B ON A.Id = B.UserId
                                               INNER JOIN Brand C ON B.BrandId = C.BrandId
                             WHERE 1=1";
@@ -384,7 +384,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(UserInfoObjectDto);
 
             string sql = "";
-            if (roleTypeCode == "B_B_Bussiness")
+            if (roleTypeCode == "B_Bussiness")
             {
                 sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId

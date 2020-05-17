@@ -145,7 +145,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         /// <param name="roleType"></param>
         /// <returns></returns>
-        public List<AreaDto> GetBussnessListByRole(string brandId, string userId, string roleType)
+        public List<AreaDto> GetBussinessListByRole(string brandId, string userId, string roleType)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)
                                                         ,new SqlParameter("@UserId", userId) };

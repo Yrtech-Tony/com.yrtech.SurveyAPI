@@ -174,6 +174,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(brand.BrandCode.Replace(" ","").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "品牌代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(brand.BrandName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "品牌名称不能为空" };
+                }
                 List<Brand> brandList = masterService.GetBrand(brand.TenantId.ToString(), "", brand.BrandCode);
                 if (brandList != null && brandList.Count > 0 && brandList[0].BrandId != brand.BrandId)
                 {
@@ -331,6 +339,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(area.AreaCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "区域代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(area.AreaName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "区域名称不能为空" };
+                }
                 List<AreaDto> areaList = masterService.GetArea("", area.BrandId.ToString(), area.AreaCode, "", "", "");
                 if (areaList != null && areaList.Count > 0 && areaList[0].AreaId != area.AreaId)
                 {
@@ -410,6 +426,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(group.GroupCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "集团代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(group.GroupName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "集团名称不能为空" };
+                }
                 List<Group> groupList = masterService.GetGroup(group.BrandId.ToString(), "", group.GroupCode, "");
                 if (groupList != null && groupList.Count > 0 && groupList[0].GroupId != group.GroupId)
                 {
@@ -770,6 +794,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(shop.ShopCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "经销商代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(shop.ShopName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "经销商名称不能为空" };
+                }
                 List<ShopDto> shopList = masterService.GetShop("",shop.BrandId.ToString(), "", shop.ShopCode, "");
                 if (shopList != null && shopList.Count > 0 && shopList[0].ShopId != shop.ShopId)
                 {
