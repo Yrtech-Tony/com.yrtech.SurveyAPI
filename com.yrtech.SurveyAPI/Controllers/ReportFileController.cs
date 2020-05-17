@@ -105,7 +105,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                reportFileService.ReportFileDelete(projectId.ToString(), shopId.ToString(), seqNO.ToString());
+                reportFileService.ReportFileDelete(projectId, shopId, seqNO);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
