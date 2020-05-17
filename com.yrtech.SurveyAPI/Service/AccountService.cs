@@ -72,11 +72,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
-			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
-			                        INNER JOIN Area E ON D.ParentId = E.AreaId -- bigArea
-			                        INNER JOIN Area F ON E.ParentId = F.AreaId -- WideArea
-			                        INNER JOIN Area G ON F.ParentId = G.AreaId -- bussinessArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
+			                        INNER JOIN Area D ON C.ParentId = D.AreaId
+			                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+			                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+			                        INNER JOIN Area G ON F.ParentId = G.AreaId 
 			                        INNER JOIN UserInfoObject H ON G.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
@@ -84,10 +84,10 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
-			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
-			                        INNER JOIN Area E ON D.ParentId = E.AreaId -- bigArea
-			                        INNER JOIN Area F ON E.ParentId = F.AreaId -- WideArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
+			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
+			                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+			                        INNER JOIN Area F ON E.ParentId = F.AreaId 
 			                        INNER JOIN UserInfoObject H ON F.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
@@ -95,9 +95,9 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
-			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
-			                        INNER JOIN Area E ON D.ParentId = E.AreaId -- bigArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
+			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
+			                        INNER JOIN Area E ON D.ParentId = E.AreaId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
@@ -105,8 +105,8 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
-			                        INNER JOIN Area D ON C.ParentId = D.AreaId -- middleArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
+			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
             }
@@ -114,7 +114,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId";
             }
@@ -285,7 +285,7 @@ namespace com.yrtech.SurveyAPI.Service
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A a
+                        FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
                                     INNER JOIN Area D ON D.ParentId = C.AreaId 
@@ -524,7 +524,7 @@ namespace com.yrtech.SurveyAPI.Service
             else if (roleType == "B_Shop")
             {
                 sql = @"SELECT A.* 
-                        FROM Area A a
+                        FROM Area A 
                                     INNER JOIN AreaShop B ON A.AreaId = B.AreaId
                                     INNER JOIN Shop C ON B.ShopId = C.ShopId
 			                        INNER JOIN UserInfoObject H ON C.ShopId = H.ObjectId
