@@ -298,6 +298,21 @@
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
         </EntityType>
+        <!--生成过程中发现错误:
+警告 6002: 表/视图“com.yrtech.survey_QA.dbo.ReportFileActionLog”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+        <EntityType Name="ReportFileActionLog">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Action" Type="nvarchar" MaxLength="500" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="AccountId" Type="nvarchar" MaxLength="50" />
+          <Property Name="AccountName" Type="nvarchar" MaxLength="50" />
+          <Property Name="ProjectCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="ProjectName" Type="nvarchar" MaxLength="50" />
+          <Property Name="ReportFileName" Type="nvarchar(max)" />
+        </EntityType>
         <EntityType Name="RoleType">
           <Key>
             <PropertyRef Name="RoleTypeId" />
@@ -595,6 +610,18 @@
           <EntitySet Name="UserInfo" EntityType="Self.UserInfo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInfoBrand" EntityType="Self.UserInfoBrand" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInfoObject" EntityType="Self.UserInfoObject" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ReportFileActionLog" EntityType="Self.ReportFileActionLog" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [ReportFileActionLog].[LogId] AS [LogId], 
+    [ReportFileActionLog].[Action] AS [Action], 
+    [ReportFileActionLog].[InDateTime] AS [InDateTime], 
+    [ReportFileActionLog].[AccountId] AS [AccountId], 
+    [ReportFileActionLog].[AccountName] AS [AccountName], 
+    [ReportFileActionLog].[ProjectCode] AS [ProjectCode], 
+    [ReportFileActionLog].[ProjectName] AS [ProjectName], 
+    [ReportFileActionLog].[ReportFileName] AS [ReportFileName]
+    FROM [dbo].[ReportFileActionLog] AS [ReportFileActionLog]</DefiningQuery>
+          </EntitySet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -1093,6 +1120,7 @@
           <EntitySet Name="Group" EntityType="com.yrtech.SurveyDAL.Group" />
           <EntitySet Name="Project" EntityType="com.yrtech.SurveyDAL.Project" />
           <EntitySet Name="HiddenColumn" EntityType="com.yrtech.SurveyDAL.HiddenColumn" />
+          <EntitySet Name="ReportFileActionLog" EntityType="com.yrtech.SurveyDAL.ReportFileActionLog" />
         </EntityContainer>
         <EntityType Name="UserInfo">
           <Key>
@@ -1190,6 +1218,19 @@
           <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ReportFileActionLog">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Action" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="AccountId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AccountName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ReportFileName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1781,6 +1822,20 @@
                 <ScalarProperty Name="HiddenCode" ColumnName="HiddenCode" />
                 <ScalarProperty Name="HiddenCodeGroup" ColumnName="HiddenCodeGroup" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReportFileActionLog">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.ReportFileActionLog">
+              <MappingFragment StoreEntitySet="ReportFileActionLog">
+                <ScalarProperty Name="ReportFileName" ColumnName="ReportFileName" />
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
+                <ScalarProperty Name="AccountName" ColumnName="AccountName" />
+                <ScalarProperty Name="AccountId" ColumnName="AccountId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="Action" ColumnName="Action" />
+                <ScalarProperty Name="LogId" ColumnName="LogId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

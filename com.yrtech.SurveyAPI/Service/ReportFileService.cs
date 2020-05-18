@@ -58,6 +58,25 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
         }
+        /// <summary>
+        /// 按页码查询
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <param name="projectId"></param>
+        /// <param name="keyword"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="pageCount"></param>
+        /// <returns></returns>
+        public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string brandId, string projectId, string keyword, int pageNum, int pageCount)
+        {
+            int startIndex = (pageNum - 1) * pageCount;
+
+            return ReportFileListUploadALLSearch(brandId, projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
+        }
+        /// <summary>
+        /// 首页报告统计查询
+        /// </summary>
+        /// <returns></returns>
         public List<ReportFileUploadDto> ReportFileCountYear()
         {
             SqlParameter[] para = new SqlParameter[] { };
@@ -77,12 +96,7 @@ namespace com.yrtech.SurveyAPI.Service
                         GROUP BY X.ProjectId,X.ProjectCode,X.ProjectName";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
         }
-        public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string brandId, string projectId, string keyword, int pageNum, int pageCount)
-        {
-            int startIndex = (pageNum - 1) * pageCount;
 
-            return ReportFileListUploadALLSearch(brandId, projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
-        }
         /// <summary>
         /// 查询特定经销商的文件
         /// </summary>
@@ -114,6 +128,11 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFile>().ToList();
         }
+        /// <summary>
+        /// 报告文件保存
+        /// </summary>
+        /// <param name="reportFile"></param>
+        /// <returns></returns>
         public ReportFile ReportFileSave(ReportFile reportFile)
         {
             if (reportFile.SeqNO == 0)
@@ -150,6 +169,12 @@ namespace com.yrtech.SurveyAPI.Service
             return reportFile;
 
         }
+        /// <summary>
+        /// 报告文件删除
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="seqNO"></param>
         public void ReportFileDelete(string projectId, string shopId, string seqNO)
         {
             if (seqNO == null || seqNO == "0") seqNO = "";
@@ -203,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Service
                     FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId ";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
-                string[] shopIdList = shopIdStr.Split(';');
+                string[] shopIdList = shopIdStr.Split(',');
                 sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%') AND A.ShopId IN('";
                 for (int i = 0; i < shopIdList.Count(); i++)
                 {
@@ -274,18 +299,48 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileDto>().ToList();
         }
-        public List<ReportFileDto> ReportFileDownloadAllByPageSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword,string reportFileType, int pageNum, int pageCount)
+        /// <summary>
+        /// 按分页查询
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="bussinessType"></param>
+        /// <param name="wideArea"></param>
+        /// <param name="bigArea"></param>
+        /// <param name="middleArea"></param>
+        /// <param name="smallArea"></param>
+        /// <param name="shopIdStr"></param>
+        /// <param name="keyword"></param>
+        /// <param name="reportFileType"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="pageCount"></param>
+        /// <returns></returns>
+        public List<ReportFileDto> ReportFileDownloadAllByPageSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
 
             return ReportFileDownloadAllSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType).Skip(startIndex).Take(pageCount).ToList();
         }
+        /// <summary>
+        /// 打包下载文件
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="bussinessType"></param>
+        /// <param name="wideArea"></param>
+        /// <param name="bigArea"></param>
+        /// <param name="middleArea"></param>
+        /// <param name="smallArea"></param>
+        /// <param name="shopIdStr"></param>
+        /// <param name="keyword"></param>
+        /// <param name="reportFileType"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="pageCount"></param>
+        /// <returns></returns>
         public string ReportFileDownLoad(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
 
-            List<ReportFileDto> list = ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum,pageCount);
+            List<ReportFileDto> list = ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
             if (list == null || list.Count == 0) return "";
-            string basePath = HostingEnvironment.MapPath(@"~/")+"DownLoadFile";//根目录
+            string basePath = HostingEnvironment.MapPath(@"~/") + "DownLoadFile";//根目录
             string downLoadfolder = DateTime.Now.ToString("yyyyMMddHHmmssfff");//文件下载的文件夹
             string folder = basePath + @"\" + downLoadfolder;// 文件下载的路径
             string downLoadPath = basePath + @"\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".zip";//打包后的文件名
@@ -304,15 +359,25 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     File.Delete(folder + @"\" + reportFile.ReportFileName);
                 }
-                try {
-                    OSSClientHelper.GetObject("yrsurvey",reportFile.Url_OSS, folder + @"\" + reportFile.ReportFileName);
+                try
+                {
+                    OSSClientHelper.GetObject("yrsurvey", reportFile.Url_OSS, folder + @"\" + reportFile.ReportFileName);
                 }
-                catch(Exception ex){ }
+                catch (Exception ex) { }
             }
             // 打包文件
             if (!ZipInForFiles(list, downLoadfolder, basePath, downLoadPath, 9)) return "";
             return downLoadPath;
         }
+        /// <summary>
+        /// 压缩文件
+        /// </summary>
+        /// <param name="fileNames"></param>
+        /// <param name="foler"></param>
+        /// <param name="folderToZip"></param>
+        /// <param name="zipedFile"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
         private static bool ZipInForFiles(List<ReportFileDto> fileNames, string foler, string folderToZip, string zipedFile, int level)
         {
             bool isSuccess = true;
@@ -370,6 +435,51 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return isSuccess;
         }
+        /// <summary>
+        /// 报告文件操作记录
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="account"></param>
+        /// <param name="project"></param>
+        /// <param name="reportFileName"></param>
+        /// <returns></returns>
+        public List<ReportFileActionLog> ReportFileActionLogSearch(string action, string account, string project, string reportFileName)
+        {
+            if (action == null) action = "";
+            if (account == null) account = "";
+            if (project == null) project = "";
+            if (reportFileName == null) reportFileName = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Action", action),
+                                                        new SqlParameter("@Account", account),
+                                                        new SqlParameter("@Project", project),
+                                                        new SqlParameter("@ReportFileName", reportFileName)};
+            Type t = typeof(ReportFileActionLog);
+            string sql = @" SELECT * FROM ReportFileActionLog WHERE 1=1";
+            if (!string.IsNullOrEmpty(action))
+            {
+                sql += " AND Action = @Action";
+            }
+            if (!string.IsNullOrEmpty(account))
+            {
+                sql += " AND (AccountId LIKE '%'+@Account+'%' OR AccountName LIKE '%'+@Account+'%')";
+            }
+            if (!string.IsNullOrEmpty(project))
+            {
+                sql += " AND (ProjectCode LIKE '%'+@Project+'%' OR ProjectName LIKE '%'+@Project+'%')";
+            }
+            if (!string.IsNullOrEmpty(reportFileName))
+            {
+                sql += " AND ReportFileName LIKE '%'+@ReportFileName+'%'";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileActionLog>().ToList();
 
+        }
+        public void ReportFileActionLogSave(ReportFileActionLog reportFileActionLog)
+        {
+            reportFileActionLog.InDateTime = DateTime.Now;
+            db.ReportFileActionLog.Add(reportFileActionLog);
+            db.SaveChanges();
+
+        }
     }
 }

@@ -87,7 +87,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         [Route("ReportFile/ReportFileSave")]
         public APIResult ReportFileSave(ReportFile reportFile)
         {
-            MasterService masterservice = new MasterService();
             try
             {
                 reportFileService.ReportFileSave(reportFile);
@@ -161,6 +160,35 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileCountYear()) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 报告上传下载记录
+        [HttpPost]
+        [Route("ReportFile/ReportFileActionLogSave")]
+        public APIResult ReportFileActionLogSave(ReportFileActionLog reportFileActionLog)
+        {
+            try
+            {
+                reportFileService.ReportFileActionLogSave(reportFileActionLog);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportFileActionLogSearch")]
+        public APIResult ReportFileActionLogSearch(string action, string account, string project,string reportFileName)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(action,account,project,reportFileName)) };
             }
             catch (Exception ex)
             {

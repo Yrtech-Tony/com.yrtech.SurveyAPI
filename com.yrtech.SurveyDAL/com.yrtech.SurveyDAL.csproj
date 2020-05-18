@@ -110,6 +110,9 @@
     <Compile Include="ReportFile.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReportFileActionLog.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="RoleType.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

@@ -63,5 +63,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Group> Group { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
+        public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
     }
 }

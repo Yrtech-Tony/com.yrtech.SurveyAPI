@@ -13,9 +13,9 @@ namespace com.yrtech.SurveyAPI.Common
     {
         protected const string accessid = "LTAI4FknXd6u5KvkU9EGgoxP";
         protected const string accessKey = "RtWE4s9G0dNFCPDcaNvs5k4arOMHCo";
-        //protected const string endpoin = "http://yrsurvey.oss-cn-beijing-internal.aliyuncs.com";
+        protected const string endpoin = "http://oss-cn-beijing-internal.aliyuncs.com";
        
-        protected const string endpoin = "http://oss-cn-beijing.aliyuncs.com";
+       // protected const string endpoin = "http://oss-cn-beijing.aliyuncs.com";
         protected const string bucket = "yrsurvey";
 
         public static bool UploadOSSFile(string key, Stream fileStream,long length)

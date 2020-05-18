@@ -63,14 +63,14 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.*,C.AreaId
+                sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
                         WHERE A.BrandId = @BrandId ";
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.*,C.AreaId
+                sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId
@@ -82,7 +82,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.*,C.AreaId
+                sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
@@ -93,7 +93,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.*,C.AreaId 
+                sql = @"SELECT DISTINCT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
@@ -103,7 +103,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.*,C.AreaId 
+                sql = @"SELECT DISTINCT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
@@ -112,7 +112,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.*,C.AreaId 
+                sql = @"SELECT DISTINCT A.*,C.AreaId 
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
@@ -120,7 +120,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Group")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Shop A INNER JOIN [Group] B ON A.GroupId = B.GroupId
 			                        INNER JOIN UserInfoObject H ON B.GroupId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
@@ -128,7 +128,7 @@ namespace com.yrtech.SurveyAPI.Service
             else if (roleType == "B_Shop")
             {
 
-                sql = @"SELECT A.*,C.AreaId
+                sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A 
                                     INNER JOIN AreaShop B ON A.ShopId = B.ShopId
                                     INNER JOIN Area C ON B.AreaId = C.AreaId                                   
@@ -153,21 +153,21 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND A.AreaType = 'Bussiness' ";
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness '";
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -175,7 +175,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -184,7 +184,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -194,7 +194,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -205,7 +205,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -234,7 +234,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -242,7 +242,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -250,14 +250,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -265,7 +265,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -274,7 +274,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -284,7 +284,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -312,7 +312,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -321,7 +321,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -330,7 +330,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -338,14 +338,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -353,7 +353,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -362,7 +362,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
@@ -389,7 +389,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                 sql = @"SELECT A.* 
+                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -399,7 +399,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -409,7 +409,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -418,7 +418,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -426,14 +426,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -441,7 +441,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId
                                     INNER JOIN AreaShop C ON B.AreaId = C.AreaId
@@ -467,7 +467,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -478,7 +478,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_Bussiness")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -489,7 +489,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_WideArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -499,7 +499,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_BigArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -508,7 +508,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_MiddleArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
@@ -516,14 +516,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleType == "B_SmallArea")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN AreaShop B ON A.AreaId = B.AreaId
                                     INNER JOIN Shop C ON B.ShopId = C.ShopId
@@ -548,20 +548,20 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             if (roleType == "B_Brand")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
                         WHERE A.BrandId = @BrandId ";
             }
             else if (roleType == "B_Group")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
 			                        INNER JOIN UserInfoObject H ON A.GroupId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId";
             }
             else if (roleType == "B_Shop")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
                                     INNER JOIN Shop B ON A.GroupId = B.GroupId
 			                        INNER JOIN UserInfoObject H ON B.ShopId = H.ObjectId
@@ -583,19 +583,19 @@ namespace com.yrtech.SurveyAPI.Service
 
             if (roleType == "S_Sysadmin")
             {
-                sql = @"SELECT A.* FROM Brand A";
+                sql = @"SELECT DISTINCT A.* FROM Brand A";
             }
             else if (roleType == "S_BrandSysadmin" ||
                 roleType == "S_Execute" ||
                 roleType == "S_Recheck")
             {
-                sql = @"SELECT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId 
                         WHERE A.TenantId = @TenantId AND B.UserId = @UserId";
             }
             else
             {
-                sql = @"SELECT A.* FROM Brand A INNER JOIN UserInfo B ON A.BrandId = B.BrandId
+                sql = @"SELECT DISTINCT A.* FROM Brand A INNER JOIN UserInfo B ON A.BrandId = B.BrandId
                       WHERE B.Id = @UserId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
