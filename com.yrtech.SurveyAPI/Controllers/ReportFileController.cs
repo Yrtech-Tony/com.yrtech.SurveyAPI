@@ -45,6 +45,34 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("ReportFile/ReportFileListSaveCheck")]
+        public APIResult ReportFileListSaveCheck(UploadData upload)
+        {
+            MasterService masterservice = new MasterService();
+            try
+            {
+                List<ReportFileDto> list = CommonHelper.DecodeString<List<ReportFileDto>>(upload.ListJson);
+                foreach (ReportFileDto reportFileDto in list)
+                {
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        reportFileDto.ShopCodeCheck = true;
+                    }
+                    else
+                    {
+                        reportFileDto.ShopCodeCheck = false;
+                    }
+
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("ReportFile/ReportFileListSave")]
         public APIResult ReportFileListSave(UploadData upload)
@@ -69,12 +97,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                     if (shopList != null && shopList.Count > 0)
                     {
                         reportFile.ShopId = shopList[0].ShopId;
+                        reportFile.InUserId = reportFileDto.InUserId;
+                        reportFile.ReportFileName = reportFileDto.ReportFileName;
+                        reportFile.ReportFileType = reportFileDto.ReportFileType;
+                        reportFile.Url_OSS = reportFileDto.Url_OSS;
+                        reportFileService.ReportFileSave(reportFile);
                     }
-                    reportFile.InUserId = reportFileDto.InUserId;
-                    reportFile.ReportFileName = reportFileDto.ReportFileName;
-                    reportFile.ReportFileType = reportFileDto.ReportFileType;
-                    reportFile.Url_OSS = reportFileDto.Url_OSS;
-                    reportFileService.ReportFileSave(reportFile);
+                   
                 }
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -135,16 +164,17 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileDownLoad")]
-        public APIResult ReportFileDownLoad(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
+        public APIResult ReportFileDownLoad(string userId,string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
             try
             {
-                string downloadPath = reportFileService.ReportFileDownLoad(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
+                string downloadPath = reportFileService.ReportFileDownLoad(userId,projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
                 if (string.IsNullOrEmpty(downloadPath))
                 {
                     return new APIResult() { Status = false, Body = "没有可下载文件" };
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownLoad(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount)) };
+                
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {
@@ -184,11 +214,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileActionLogSearch")]
-        public APIResult ReportFileActionLogSearch(string action, string account, string project,string reportFileName)
+        public APIResult ReportFileActionLogSearch(string userId,string action, string account, string project,string reportFileName,string startDate,string endDate)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(action,account,project,reportFileName)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(userId,action,account,project,reportFileName,startDate,endDate)) };
             }
             catch (Exception ex)
             {

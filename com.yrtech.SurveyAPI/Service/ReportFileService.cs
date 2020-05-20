@@ -335,11 +335,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public string ReportFileDownLoad(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
+        public string ReportFileDownLoad(string userId,string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
 
             List<ReportFileDto> list = ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
             if (list == null || list.Count == 0) return "";
+            string fileStr = "";
             string basePath = HostingEnvironment.MapPath(@"~/") + "DownLoadFile";//根目录
             string downLoadfolder = DateTime.Now.ToString("yyyyMMddHHmmssfff");//文件下载的文件夹
             string folder = basePath + @"\" + downLoadfolder;// 文件下载的路径
@@ -355,6 +356,7 @@ namespace com.yrtech.SurveyAPI.Service
             // 从OSS把文件下载到服务器
             foreach (ReportFileDto reportFile in list)
             {
+                fileStr += reportFile.ReportFileName + ";";
                 if (File.Exists(folder + @"\" + reportFile.ReportFileName))
                 {
                     File.Delete(folder + @"\" + reportFile.ReportFileName);
@@ -367,6 +369,16 @@ namespace com.yrtech.SurveyAPI.Service
             }
             // 打包文件
             if (!ZipInForFiles(list, downLoadfolder, basePath, downLoadPath, 9)) return "";
+            // 保存下载记录
+            if (!string.IsNullOrEmpty(fileStr))
+            {
+                ReportFileActionLog log = new ReportFileActionLog();
+                log.Action = "批量下载";
+                log.InUserId = Convert.ToInt32(userId);
+                log.ProjectId = Convert.ToInt32(projectId);
+                log.ReportFileName = fileStr;
+                ReportFileActionLogSave(log);
+            }
             return downLoadPath;
         }
         /// <summary>
@@ -443,35 +455,48 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="project"></param>
         /// <param name="reportFileName"></param>
         /// <returns></returns>
-        public List<ReportFileActionLog> ReportFileActionLogSearch(string action, string account, string project, string reportFileName)
+        public List<ReportFileActionLogDto> ReportFileActionLogSearch(string userId,string action, string account, string project, string reportFileName,string startDate,string endDate)
         {
             if (action == null) action = "";
             if (account == null) account = "";
             if (project == null) project = "";
             if (reportFileName == null) reportFileName = "";
+            if (userId == null) userId = "";
+            endDate = endDate + " 23:59:59 000";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Action", action),
+                                                        new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@Account", account),
                                                         new SqlParameter("@Project", project),
-                                                        new SqlParameter("@ReportFileName", reportFileName)};
-            Type t = typeof(ReportFileActionLog);
-            string sql = @" SELECT * FROM ReportFileActionLog WHERE 1=1";
+                                                        new SqlParameter("@ReportFileName", reportFileName),
+                                                        new SqlParameter("@StartDate", startDate),
+                                                        new SqlParameter("@EndDate", endDate)};
+            Type t = typeof(ReportFileActionLogDto);
+            string sql = @" SELECT A.*,B.AccountId,B.AccountName,C.ProjectCode,C.ProjectName
+                            FROM ReportFileActionLog A INNER JOIN UserInfo B ON A.Id = B.InUserId
+                                                       INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                            WHERE 1=1";
             if (!string.IsNullOrEmpty(action))
             {
                 sql += " AND Action = @Action";
             }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND A.InUserId = @UserId";
+            }
             if (!string.IsNullOrEmpty(account))
             {
-                sql += " AND (AccountId LIKE '%'+@Account+'%' OR AccountName LIKE '%'+@Account+'%')";
+                sql += " AND (B.AccountId LIKE '%'+@Account+'%' OR B.AccountName LIKE '%'+@Account+'%')";
             }
             if (!string.IsNullOrEmpty(project))
             {
-                sql += " AND (ProjectCode LIKE '%'+@Project+'%' OR ProjectName LIKE '%'+@Project+'%')";
+                sql += " AND (C.ProjectCode LIKE '%'+@Project+'%' OR C.ProjectName LIKE '%'+@Project+'%')";
             }
             if (!string.IsNullOrEmpty(reportFileName))
             {
-                sql += " AND ReportFileName LIKE '%'+@ReportFileName+'%'";
+                sql += " AND A.ReportFileName LIKE '%'+@ReportFileName+'%'";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileActionLog>().ToList();
+            sql += " AND InDateTime BETWEEN @StartDate AND @EndDate";
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileActionLogDto>().ToList();
 
         }
         public void ReportFileActionLogSave(ReportFileActionLog reportFileActionLog)
