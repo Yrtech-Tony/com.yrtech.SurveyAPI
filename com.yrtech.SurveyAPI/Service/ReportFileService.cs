@@ -341,7 +341,8 @@ namespace com.yrtech.SurveyAPI.Service
             List<ReportFileDto> list = ReportFileDownloadAllByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
             if (list == null || list.Count == 0) return "";
             string fileStr = "";
-            string basePath = HostingEnvironment.MapPath(@"~/") + "DownLoadFile";//根目录
+            string defaultPath = HostingEnvironment.MapPath(@"~/");
+            string basePath = defaultPath + "DownLoadFile";//根目录
             string downLoadfolder = DateTime.Now.ToString("yyyyMMddHHmmssfff");//文件下载的文件夹
             string folder = basePath + @"\" + downLoadfolder;// 文件下载的路径
             string downLoadPath = basePath + @"\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".zip";//打包后的文件名
@@ -363,7 +364,7 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 try
                 {
-                    OSSClientHelper.GetObject("yrsurvey", reportFile.Url_OSS, folder + @"\" + reportFile.ReportFileName);
+                    OSSClientHelper.GetObject(reportFile.Url_OSS, folder + @"\" + reportFile.ReportFileName);
                 }
                 catch (Exception ex) { }
             }
@@ -379,7 +380,7 @@ namespace com.yrtech.SurveyAPI.Service
                 log.ReportFileName = fileStr;
                 ReportFileActionLogSave(log);
             }
-            return downLoadPath;
+            return downLoadPath.Replace(defaultPath,"");
         }
         /// <summary>
         /// 压缩文件
@@ -462,7 +463,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (project == null) project = "";
             if (reportFileName == null) reportFileName = "";
             if (userId == null) userId = "";
-            endDate = endDate + " 23:59:59 000";
+            endDate = endDate + " 23:59:59";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Action", action),
                                                         new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@Account", account),
@@ -472,7 +473,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@EndDate", endDate)};
             Type t = typeof(ReportFileActionLogDto);
             string sql = @" SELECT A.*,B.AccountId,B.AccountName,C.ProjectCode,C.ProjectName
-                            FROM ReportFileActionLog A INNER JOIN UserInfo B ON A.Id = B.InUserId
+                            FROM ReportFileActionLog A INNER JOIN UserInfo B ON A.InUserId = B.Id
                                                        INNER JOIN Project C ON A.ProjectId = C.ProjectId
                             WHERE 1=1";
             if (!string.IsNullOrEmpty(action))
@@ -495,7 +496,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ReportFileName LIKE '%'+@ReportFileName+'%'";
             }
-            sql += " AND InDateTime BETWEEN @StartDate AND @EndDate";
+            sql += " AND A.InDateTime BETWEEN @StartDate AND @EndDate";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportFileActionLogDto>().ToList();
 
         }

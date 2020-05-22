@@ -45,7 +45,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpGet]
+        [HttpPost]
         [Route("ReportFile/ReportFileListSaveCheck")]
         public APIResult ReportFileListSaveCheck(UploadData upload)
         {

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 
 namespace com.yrtech.SurveyAPI.Common
 {
@@ -16,7 +17,7 @@ namespace com.yrtech.SurveyAPI.Common
         protected const string endpoin = "http://oss-cn-beijing-internal.aliyuncs.com";
        
        // protected const string endpoin = "http://oss-cn-beijing.aliyuncs.com";
-        protected const string bucket = "yrsurvey";
+        //protected const string bucket = WebConfigurationManager.AppSettings["OSSBucket"];
 
         public static bool UploadOSSFile(string key, Stream fileStream,long length)
         {
@@ -29,7 +30,7 @@ namespace com.yrtech.SurveyAPI.Common
                 };
 
                 OssClient ossClient = new OssClient(endpoin, accessid, accessKey);
-                var result = ossClient.PutObject(bucket, key, fileStream, objectMetadata);
+                var result = ossClient.PutObject(WebConfigurationManager.AppSettings["OSSBucket"], key, fileStream, objectMetadata);
                 return true;
             }
             catch (Exception ex)
@@ -78,10 +79,10 @@ namespace com.yrtech.SurveyAPI.Common
             }
             var completeResult = ossClient.CompleteMultipartUpload(completeMultipartUploadRequest);
         }
-        public static void GetObject(String bucketName, string key, string fileToDownload)
+        public static void GetObject(string key, string fileToDownload)
         {
             OssClient ossClient = new OssClient(endpoin, accessid, accessKey);
-            var o = ossClient.GetObject(bucketName, key);
+            var o = ossClient.GetObject(WebConfigurationManager.AppSettings["OSSBucket"], key);
             using (var requestStream = o.Content)
             {
                 byte[] buf = new byte[1024];
@@ -95,10 +96,10 @@ namespace com.yrtech.SurveyAPI.Common
             }
         }
 
-        public static void DeleteObject(String bucketName, string key)
+        public static void DeleteObject(string key)
         {
             OssClient ossClient = new OssClient(endpoin, accessid, accessKey);
-            ossClient.DeleteObject(bucketName, key);
+            ossClient.DeleteObject(WebConfigurationManager.AppSettings["OSSBucket"], key);
         }
     }
 }
