@@ -17,7 +17,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 文件上传
         [HttpGet]
         [Route("ReportFile/ReportFileListUploadSearch")]
-        public APIResult ReportFileListUploadSearch(string brandId, string projectId, string keyword, int pageNum, int pageCount)
+        public APIResult ReportFileListUploadSearch(string brandId, string projectId, string bussinessTypeId,string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
                 //resultList.Add(total);
                 // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, bussinessTypeId,keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -93,6 +93,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ReportFile reportFile = new ReportFile();
                     reportFile.ProjectId = reportFileDto.ProjectId;
+                    reportFile.BussinessTypeId = reportFileDto.BussinessTypeId;
                     List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
                     if (shopList != null && shopList.Count > 0)
                     {

@@ -24,29 +24,32 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public List<ReportFileUploadDto> ReportFileListUploadALLSearch(string brandId, string projectId, string keyword)
+        public List<ReportFileUploadDto> ReportFileListUploadALLSearch(string brandId, string projectId, string bussinessTypeId,string keyword)
         {
             if (brandId == null) brandId = "";
             if (projectId == null) projectId = "";
             if (keyword == null) keyword = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@Keyword", keyword), new SqlParameter("@BrandId", brandId) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@Keyword", keyword)
+                                                        , new SqlParameter("@BrandId", brandId)
+                                                        , new SqlParameter("@BussinessTypeId", bussinessTypeId)};
             Type t = typeof(ReportFileUploadDto);
             string sql = @"
-                        SELECT ProjectId,ShopId,ShopCode,ShopName,ShopShortName
+                        SELECT ProjectId,BussinessTypeId,ShopId,ShopCode,ShopName,ShopShortName
 		                        ,SUM(ReportFileCount_File) AS ReportFileCount_File
 		                        ,SUM(ReportFileCount_Video) AS ReportFileCount_Video INTO #T
                             FROM(
-		                        SELECT A.ProjectId,A.ShopId,C.ShopCode,C.ShopName,C.ShopShortName,
+		                        SELECT A.ProjectId,BussinessTypeId,A.ShopId,C.ShopCode,C.ShopName,C.ShopShortName,
 				                        CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
 				                        CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
 		                        FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId
 				                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
 				                            ) X
                         WHERE 1=1
-                        GROUP BY X.ProjectId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
+                        GROUP BY X.ProjectId,BussinessTypeId,X.ShopId,X.ShopCode,X.ShopName,X.ShopShortName";
             sql += @" SELECT ShopId,ShopCode,ShopName,ShopShortName
-                       ,ISNULL((SELECT ReportFileCount_File FROM #T WHERE ShopId = A.ShopId AND ProjectId = @ProjectId),0) AS ReportFileCount_File,
-                        ISNULL((SELECT ReportFileCount_Video FROM #T WHERE ShopId = A.ShopId AND ProjectId = @ProjectId),0) ReportFileCount_Video
+                       ,ISNULL((SELECT ReportFileCount_File FROM #T WHERE ShopId = A.ShopId AND ProjectId = @ProjectId AND BussinessTypeId = @BussinessTypeId),0) AS ReportFileCount_File,
+                        ISNULL((SELECT ReportFileCount_Video FROM #T WHERE ShopId = A.ShopId AND ProjectId = @ProjectId AND BussinessTypeId = @BussinessTypeId),0) ReportFileCount_Video
                       FROM Shop A WHERE 1=1 ";
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -67,11 +70,11 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string brandId, string projectId, string keyword, int pageNum, int pageCount)
+        public List<ReportFileUploadDto> ReportFileListUploadALLByPageSearch(string brandId, string projectId, string bussinessTypeId,string keyword, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
 
-            return ReportFileListUploadALLSearch(brandId, projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
+            return ReportFileListUploadALLSearch(brandId, projectId, bussinessTypeId, keyword).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
         /// 首页报告统计查询
@@ -225,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportFileDto);
             string sql = "";
             sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,A.ReportFileType,A.ReportFileName,A.Url_OSS,A.InDateTime
-                    FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId ";
+                    FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId AND A.BussinessTypeId = @BussinessTypeId";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(',');

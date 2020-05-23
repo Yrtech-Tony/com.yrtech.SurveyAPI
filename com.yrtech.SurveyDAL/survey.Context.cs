@@ -39,7 +39,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<RecheckErrorType> RecheckErrorType { get; set; }
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<RecheckStatusDtl> RecheckStatusDtl { get; set; }
-        public virtual DbSet<ReportFile> ReportFile { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ShopSubjectTypeExam> ShopSubjectTypeExam { get; set; }
         public virtual DbSet<Subject> Subject { get; set; }
@@ -64,5 +63,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
+        public virtual DbSet<ReportFile> ReportFile { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyDAL
         public int ProjectId { get; set; }
         public int ShopId { get; set; }
         public int SeqNO { get; set; }
+        public Nullable<int> BussinessTypeId { get; set; }
         public string ReportFileType { get; set; }
         public string ReportFileName { get; set; }
         public string Url_OSS { get; set; }
