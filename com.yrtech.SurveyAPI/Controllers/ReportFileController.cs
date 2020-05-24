@@ -55,10 +55,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ReportFileDto> list = CommonHelper.DecodeString<List<ReportFileDto>>(upload.ListJson);
                 foreach (ReportFileDto reportFileDto in list)
                 {
-                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
-                    if (shopList != null && shopList.Count > 0)
+                    if (!string.IsNullOrEmpty(reportFileDto.ShopCode))
                     {
-                        reportFileDto.ShopCodeCheck = true;
+                        List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                        if (shopList != null && shopList.Count > 0)
+                        {
+                            reportFileDto.ShopCodeCheck = true;
+                        }
+                        else
+                        {
+                            reportFileDto.ShopCodeCheck = false;
+                        }
                     }
                     else
                     {

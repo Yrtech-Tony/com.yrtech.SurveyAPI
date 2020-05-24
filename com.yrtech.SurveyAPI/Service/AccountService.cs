@@ -61,12 +61,14 @@ namespace com.yrtech.SurveyAPI.Service
                                                         ,new SqlParameter("@UserId", userId) };
             Type t = typeof(ShopDto);
             string sql = "";
+            List<ShopDto> list = new List<ShopDto>();
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
-                        WHERE A.BrandId = @BrandId ";
+                        WHERE A.BrandId = @BrandId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_Bussiness")
             {
@@ -78,7 +80,8 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN Area F ON E.ParentId = F.AreaId 
 			                        INNER JOIN Area G ON F.ParentId = G.AreaId 
 			                        INNER JOIN UserInfoObject H ON G.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId  AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_WideArea")
             {
@@ -89,7 +92,8 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN Area E ON D.ParentId = E.AreaId 
 			                        INNER JOIN Area F ON E.ParentId = F.AreaId 
 			                        INNER JOIN UserInfoObject H ON F.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_BigArea")
             {
@@ -99,7 +103,8 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
 			                        INNER JOIN Area E ON D.ParentId = E.AreaId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_MiddleArea")
             {
@@ -108,7 +113,8 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN Area D ON C.ParentId = D.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_SmallArea")
             {
@@ -116,14 +122,16 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
 			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_Group")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Shop A INNER JOIN [Group] B ON A.GroupId = B.GroupId
 			                        INNER JOIN UserInfoObject H ON B.GroupId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
             else if (roleType == "B_Shop")
             {
@@ -133,10 +141,10 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop B ON A.ShopId = B.ShopId
                                     INNER JOIN Area C ON B.AreaId = C.AreaId                                   
 			                        INNER JOIN UserInfoObject H ON A.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
+            return list;
         }
         /// <summary>
         /// 根据权限和账号查询对应的业务类型
@@ -150,20 +158,23 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@BrandId", brandId)
                                                         ,new SqlParameter("@UserId", userId) };
             Type t = typeof(AreaDto);
+            List<AreaDto> list = new List<AreaDto>();
             string sql = "";
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND A.AreaType = 'Bussiness' ";
+                        WHERE A.BrandId = @BrandId AND A.AreaType = 'Bussiness' AND A.UseChk = 1 ";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_Bussiness")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness '";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness 'AND A.UseChk = 1 ";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_WideArea")
             {
@@ -171,7 +182,8 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' AND A.UseChk = 1 ";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_BigArea")
             {
@@ -180,7 +192,8 @@ namespace com.yrtech.SurveyAPI.Service
 			                        INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_MiddleArea")
             {
@@ -190,7 +203,8 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
                                     INNER JOIN Area D ON D.ParentId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_SmallArea")
             {
@@ -201,7 +215,8 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area D ON D.ParentId = C.AreaId 
                                     INNER JOIN Area E ON E.ParentId = D.AreaId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
             else if (roleType == "B_Shop")
             {
@@ -214,10 +229,10 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop F ON E.AreaId = F.AreaId
                                     INNER JOIN Shop G ON F.ShopId = G.ShopId
 			                        INNER JOIN UserInfoObject H ON G.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'Bussiness' AND A.UseChk = 1";
+                list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            return list;
         }
         /// <summary>
         /// 根据权限和账号查询对应的广域区域
@@ -238,7 +253,7 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
             {
@@ -246,14 +261,14 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_WideArea")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_BigArea")
             {
@@ -261,7 +276,7 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_MiddleArea")
             {
@@ -270,7 +285,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_SmallArea")
             {
@@ -280,7 +295,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
                                     INNER JOIN Area D ON D.ParentId = C.AreaId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Shop")
             {
@@ -292,10 +307,16 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop E ON D.AreaId = E.AreaId
                                     INNER JOIN Shop F ON E.ShopId = F.ShopId
 			                        INNER JOIN UserInfoObject H ON F.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            if (string.IsNullOrEmpty(sql))
+            {
+                return new List<AreaDto>();
+            }
+            else
+            {
+                return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            }
         }
         /// <summary>
         /// 根据权限和账号查询对应的大区区域
@@ -317,7 +338,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
             {
@@ -326,7 +347,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_WideArea")
             {
@@ -334,14 +355,14 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_BigArea")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_MiddleArea")
             {
@@ -349,7 +370,7 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_SmallArea")
             {
@@ -358,7 +379,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.ParentId = A.AreaId 
                                     INNER JOIN Area C ON C.ParentId = B.AreaId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Shop")
             {
@@ -369,10 +390,12 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop D ON C.AreaId = D.AreaId
                                     INNER JOIN Shop E ON D.ShopId = E.ShopId
 			                        INNER JOIN UserInfoObject H ON E.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            if (string.IsNullOrEmpty(sql))
+            { return new List<AreaDto>(); }
+            else { return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList(); }
+            
         }
         /// <summary>
         /// 根据权限和账号查询对应的中区区域
@@ -395,7 +418,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
             {
@@ -405,7 +428,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_WideArea")
             {
@@ -414,7 +437,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_BigArea")
             {
@@ -422,14 +445,14 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_MiddleArea")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_SmallArea")
             {
@@ -437,7 +460,7 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.ParentId = A.AreaId
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Shop")
             {
@@ -447,10 +470,11 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop C ON B.AreaId = C.AreaId
                                     INNER JOIN Shop D ON C.ShopId = D.ShopId
 			                        INNER JOIN UserInfoObject H ON D.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            if (string.IsNullOrEmpty(sql))
+            { return new List<AreaDto>(); }
+            else { return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList(); }
         }
         /// <summary>
         /// 根据权限和账号查询对应的小区区域
@@ -474,7 +498,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
                                     INNER JOIN Area E ON E.AreaId = D.ParentId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId  AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
             {
@@ -485,7 +509,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
                                     INNER JOIN Area E ON E.AreaId = D.ParentId 
 			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_WideArea")
             {
@@ -495,7 +519,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
 			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_BigArea")
             {
@@ -504,7 +528,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
 			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_MiddleArea")
             {
@@ -512,14 +536,14 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
 			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_SmallArea")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
 			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Shop")
             {
@@ -528,10 +552,11 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop B ON A.AreaId = B.AreaId
                                     INNER JOIN Shop C ON B.ShopId = C.ShopId
 			                        INNER JOIN UserInfoObject H ON C.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea'";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+            if (string.IsNullOrEmpty(sql))
+            { return new List<AreaDto>(); }
+            else { return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList(); }
         }
         /// <summary>
         /// 根据权限查询集团信息
@@ -546,18 +571,21 @@ namespace com.yrtech.SurveyAPI.Service
                                                         ,new SqlParameter("@UserId", userId) };
             Type t = typeof(GroupDto);
             string sql = "";
+            List<GroupDto> list = new List<GroupDto>();
             if (roleType == "B_Brand")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
-                        WHERE A.BrandId = @BrandId ";
+                        WHERE A.BrandId = @BrandId AND A.UseChk = 1";
+                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
             else if (roleType == "B_Group")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
 			                        INNER JOIN UserInfoObject H ON A.GroupId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
             else if (roleType == "B_Shop")
             {
@@ -565,10 +593,11 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM [Group] A 
                                     INNER JOIN Shop B ON A.GroupId = B.GroupId
 			                        INNER JOIN UserInfoObject H ON B.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId ";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
+                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
-            sql += " AND A.UseChk = 1";
-            return db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
+            return list;
+           
         }
         public List<Brand> GetBrandByRole(string tenantId, string userId, string roleType)
         {
@@ -598,7 +627,10 @@ namespace com.yrtech.SurveyAPI.Service
                 sql = @"SELECT DISTINCT A.* FROM Brand A INNER JOIN UserInfo B ON A.BrandId = B.BrandId
                       WHERE B.Id = @UserId";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
+            if (string.IsNullOrEmpty(sql))
+            { return new List<Brand>(); }
+            else { return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList(); }
+           
 
         }
         #endregion

@@ -30,8 +30,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
         public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
-        public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<AreaShop> AreaShop { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
         public virtual DbSet<ProjectShop> ProjectShop { get; set; }
@@ -64,5 +62,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
         public virtual DbSet<ReportFile> ReportFile { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
+        public virtual DbSet<AppealFile> AppealFile { get; set; }
     }
 }

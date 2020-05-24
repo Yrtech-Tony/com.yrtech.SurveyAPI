@@ -10,8 +10,6 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopConsultantScore" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopConsultantSubjectLink" Width="1.5" PointX="4.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerShopInfo" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppealFile" Width="1.5" PointX="6.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AreaShop" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Brand" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ProjectShop" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
@@ -38,12 +36,14 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.UserInfoObject" Width="1.5" PointX="4.75" PointY="17.75" IsExpanded="true" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.UserInfo" Width="1.5" PointX="7.375" PointY="17.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.RoleType" Width="1.5" PointX="9.375" PointY="17.75" />
-        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Area" Width="1.5" PointX="3.375" PointY="7.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Area" Width="1.5" PointX="3" PointY="6.5" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Group" Width="1.5" PointX="11.375" PointY="17.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Project" Width="1.5" PointX="17.375" PointY="16.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.HiddenColumn" Width="1.5" PointX="5.375" PointY="8.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFileActionLog" Width="1.5" PointX="7.375" PointY="8.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFile" Width="1.5" PointX="13.375" PointY="18.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="0.875" PointY="5.875" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppealFile" Width="1.5" PointX="19.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

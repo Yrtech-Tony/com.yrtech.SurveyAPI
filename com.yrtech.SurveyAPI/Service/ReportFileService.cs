@@ -53,7 +53,7 @@ namespace com.yrtech.SurveyAPI.Service
                       FROM Shop A WHERE 1=1 ";
             if (!string.IsNullOrEmpty(keyword))
             {
-                sql += " AND (A.ShopCode LIKE '%'+@Keyword+'%' OR A.ShopName LIKE '%'+@Keyword+'%)";
+                sql += " AND (A.ShopCode LIKE '%'+@Keyword+'%' OR A.ShopName LIKE '%'+@Keyword+'%')";
             }
             if (!string.IsNullOrEmpty(brandId))
             {
@@ -223,7 +223,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@MiddleArea", middleArea),
                                                         new SqlParameter("@BigArea", bigArea),
                                                         new SqlParameter("@WideArea", wideArea),
-                                                        new SqlParameter("@BussinessType", bussinessType),
+                                                        new SqlParameter("@BussinessTypeId", bussinessType),
                                                     new SqlParameter("@KeyWord", keyword), new SqlParameter("@ReportFileType", reportFileType)};
             Type t = typeof(ReportFileDto);
             string sql = "";

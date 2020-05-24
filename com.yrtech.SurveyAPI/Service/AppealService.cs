@@ -102,12 +102,12 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(AppealDto);
             string sql = "";
             sql = @"SELECT [AppealId]
-                                  ,[ProjectId]
-                                  ,[ProjectCode]
-                                  ,[ProjectName]
+                                  ,A.[ProjectId]
+                                  ,X.[ProjectCode]
+                                  ,X.[ProjectName]
                                   ,A.[ShopId]
-                                  ,A.[ShopCode]
-                                  ,A.[ShopName]
+                                  ,B.[ShopCode]
+                                  ,B.[ShopName]
                                   ,[SubjectId]
                                   ,[SubjectCode]
                                   ,[CheckPoint]
@@ -137,11 +137,12 @@ namespace com.yrtech.SurveyAPI.Service
                                    ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [ShopAcceptUserId]),'') AS [ShopAcceptUserName]
                                   ,[ShopAcceptUserId]
                                   ,CONVERT(VARCHAR(19),[ShopAcceptDateTime],120) AS ShopAcceptDateTime
-                              FROM [Appeal] A  ";
+                              FROM [Appeal] A  INNER JOIN Project X ON A.ProjectId = X.ProjectId";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
+                sql += " INNER JOIN Shop B ON A.ShopId = B.ShopId";
                 string[] shopIdList = shopIdStr.Split(',');
-                sql += " WHERE ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%') AND ShopId IN('";
+                sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%') AND A.ShopId IN('";
                 for (int i = 0; i < shopIdList.Count(); i++)
                 {
                     if (i == shopIdList.Count() - 1)
@@ -160,7 +161,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += @" INNER JOIN Shop B ON A.ShopId = B.ShopId
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
-                    WHERE D.AreaId = @SmallArea AND ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE D.AreaId = @SmallArea AND A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(middleArea))
             {
@@ -168,7 +169,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
-                    WHERE ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE A.ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(bigArea))
             {
@@ -177,7 +178,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
-                    WHERE ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE A.ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(wideArea))
             {
@@ -187,7 +188,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
                         INNER JOIN Area G ON F.ParentId = G.AreaId 
-                    WHERE ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+                    WHERE A.ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
             }
             else if (!string.IsNullOrEmpty(bussinessType))
             {
@@ -198,12 +199,16 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
                         INNER JOIN Area G ON F.ParentId = G.AreaId 
                         INNER JOIN Area H ON G.ParentId = H.AreaId 
-                    WHERE ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             else
             {
-                sql += " WHERE ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%')";
+                sql += " WHERE 1=2"; // 业务类型也没有选择的情况下什么都不查询，
             }
+            //else
+            //{
+            //    sql += " WHERE A.ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%')";
+            //}
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
@@ -273,13 +278,6 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.AppealDateTime = DateTime.Now;
             }
             db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
-            //                                            new SqlParameter("@AppealReason", appealReason),
-            //                                            new SqlParameter("@AppealUserId", appealUserId)};
-            //Type t = typeof(int);
-            //string sql = @"UPDATE Appeal SET AppealReason = @AppealReason,AppealUserId = @AppealUserId,AppealDateTime = GETDATE() 
-            //               WHERE AppealId = @AppealId";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
         }
         /// <summary>
         /// 申诉反馈
