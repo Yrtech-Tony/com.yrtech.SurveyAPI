@@ -66,7 +66,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT DISTINCT A.*,C.AreaId
                         FROM Shop A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
-			                        INNER JOIN Area C ON B.AreaId = C.AreaId -- smallArea
+			                        INNER JOIN Area C ON B.AreaId = C.AreaId 
                         WHERE A.BrandId = @BrandId AND A.UseChk = 1";
                 list = db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
             }
@@ -164,7 +164,6 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
-			                        INNER JOIN UserInfoObject H ON A.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND A.AreaType = 'Bussiness' AND A.UseChk = 1 ";
                 list = db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
             }
@@ -252,7 +251,6 @@ namespace com.yrtech.SurveyAPI.Service
                 sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
-			                        INNER JOIN UserInfoObject H ON B.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'WideArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
@@ -337,7 +335,6 @@ namespace com.yrtech.SurveyAPI.Service
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
-			                        INNER JOIN UserInfoObject H ON C.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'BigArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
@@ -417,7 +414,6 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
-			                        INNER JOIN UserInfoObject H ON D.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'MiddleArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")
@@ -497,7 +493,6 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
                                     INNER JOIN Area D ON D.AreaId = C.ParentId 
                                     INNER JOIN Area E ON E.AreaId = D.ParentId 
-			                        INNER JOIN UserInfoObject H ON E.AreaId = H.ObjectId
                         WHERE A.BrandId = @BrandId  AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
             }
             else if (roleType == "B_Bussiness")

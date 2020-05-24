@@ -20,7 +20,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<ShopDto> ShopImport(string ossPath)
         {
             // 从OSS下载文件
-            string downLoadFilePath = basePath + @"Content\Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
             Worksheet sheet = book.Worksheets[0];
@@ -51,7 +51,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AreaDto> AreaImport(string ossPath)
         {
             // 从OSS下载文件
-            string downLoadFilePath = basePath + @"Content\Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
             Worksheet sheet = book.Worksheets[0];
@@ -80,7 +80,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<ShopDto> AreaShopImport(string ossPath)
         {
             // 从OSS下载文件
-            string downLoadFilePath = basePath + @"Content\Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
             Worksheet sheet = book.Worksheets[0];
@@ -88,7 +88,7 @@ namespace com.yrtech.SurveyAPI.Service
             for (int i = 0; i < 100000; i++)
             {
                 string areaCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
-                string shopCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                string shopCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 if (string.IsNullOrEmpty(areaCode)|| string.IsNullOrEmpty(shopCode)) break;
                 ShopDto areaShop = new ShopDto();
                 areaShop.AreaCode = areaCode;

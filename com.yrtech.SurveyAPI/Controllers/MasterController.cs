@@ -420,35 +420,51 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 更新上级区域之前先验证上级区域是否存在
                 foreach (AreaDto areaDto in list)
                 {
-                    List<AreaDto> areaList = masterService.GetArea("", brandId, areaDto.ParentCode, "", areaDto.AreaType, "");
-                    if (areaList == null || areaList.Count == 0)
+                    if (areaDto.AreaType != "Bussiness")// 业务类型不验证上级区域
                     {
-                        return new APIResult() { Status = false, Body = "区域导入成功，但上级区域导入失败,请确认上级区域代码" };
+                        string parentAreaType = "";
+                        if (areaDto.AreaType == "WideArea") { parentAreaType = "Bussiness"; }
+                        else if(areaDto.AreaType == "BigArea") { parentAreaType = "WideArea"; }
+                        else if (areaDto.AreaType == "MiddleArea") { parentAreaType = "BigArea"; }
+                        else if (areaDto.AreaType == "SmallArea") { parentAreaType = "MiddleArea"; }
+                        List<AreaDto> areaList = masterService.GetArea("", brandId, areaDto.ParentCode, "", parentAreaType, "");
+                        if (areaList == null || areaList.Count == 0)
+                        {
+                            return new APIResult() { Status = false, Body = "区域导入成功，但上级区域导入失败,请确认上级区域代码" };
+                        }
                     }
                 }
                 //更新区域的上级区域
                 foreach (AreaDto areaDto in list)
                 {
-                    Area area = new Area();
-                    List<AreaDto> areaList = masterService.GetArea("", brandId, areaDto.AreaCode, "", areaDto.AreaType, "");
-                    if (areaList != null && areaList.Count > 0)
+                    if (areaDto.AreaType != "Bussiness") // 业务类型不需要更新上级区域
                     {
-                        area.AreaId = areaList[0].AreaId;
-                    }
-                    area.BrandId = Convert.ToInt32(brandId);
-                    area.AreaCode = areaDto.AreaCode;
-                    area.AreaName = areaDto.AreaName;
-                    area.AreaType = areaDto.AreaType;
-                    List<AreaDto> areaList_Parent = masterService.GetArea("", brandId, areaDto.ParentCode, "", areaDto.AreaType, "");
-                    if (areaList_Parent != null && areaList_Parent.Count > 0)
-                    {
-                        area.ParentId = areaList_Parent[0].AreaId;
-                    }
-                    area.InUserId = Convert.ToInt32(userId);
-                    area.ModifyUserId = Convert.ToInt32(userId);
-                    area.UseChk = areaDto.UseChk;
+                        Area area = new Area();
+                        List<AreaDto> areaList = masterService.GetArea("", brandId, areaDto.AreaCode, "", areaDto.AreaType, "");
+                        if (areaList != null && areaList.Count > 0)
+                        {
+                            area.AreaId = areaList[0].AreaId;
+                        }
+                        area.BrandId = Convert.ToInt32(brandId);
+                        area.AreaCode = areaDto.AreaCode;
+                        area.AreaName = areaDto.AreaName;
+                        area.AreaType = areaDto.AreaType;
+                        string parentAreaType = "";
+                        if (areaDto.AreaType == "WideArea") { parentAreaType = "Bussiness"; }
+                        else if (areaDto.AreaType == "BigArea") { parentAreaType = "WideArea"; }
+                        else if (areaDto.AreaType == "MiddleArea") { parentAreaType = "BigArea"; }
+                        else if (areaDto.AreaType == "SmallArea") { parentAreaType = "MiddleArea"; }
+                        List<AreaDto> areaList_Parent = masterService.GetArea("", brandId, areaDto.ParentCode, "", parentAreaType, "");
+                        if (areaList_Parent != null && areaList_Parent.Count > 0)
+                        {
+                            area.ParentId = areaList_Parent[0].AreaId;
+                        }
+                        area.InUserId = Convert.ToInt32(userId);
+                        area.ModifyUserId = Convert.ToInt32(userId);
+                        area.UseChk = areaDto.UseChk;
 
-                    masterService.SaveArea(area);
+                        masterService.SaveArea(area);
+                    }
                 }
                 return new APIResult() { Status = true, Body = "" };
             }
