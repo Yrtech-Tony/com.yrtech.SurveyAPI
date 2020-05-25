@@ -7,3 +7,4 @@
 /com.yrtech.SurveyAPI.v12.suo
 /com.yrtech.SurveyAPI/com.yrtech.SurveyAPI.csproj.user
 packages/
+/com.yrtech.SurveyAPI/Common/OSSClientHelper.cs

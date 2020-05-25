@@ -91,13 +91,9 @@
           <Key>
             <PropertyRef Name="AppealId" />
           </Key>
-          <Property Name="AppealId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AppealId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" />
-          <Property Name="ProjectCode" Type="nvarchar" MaxLength="500" />
-          <Property Name="ProjectName" Type="nvarchar" MaxLength="500" />
           <Property Name="ShopId" Type="int" />
-          <Property Name="ShopCode" Type="nvarchar" MaxLength="500" />
-          <Property Name="ShopName" Type="nvarchar" MaxLength="500" />
           <Property Name="SubjectId" Type="int" />
           <Property Name="SubjectCode" Type="nchar" MaxLength="10" />
           <Property Name="CheckPoint" Type="nvarchar(max)" />
@@ -110,10 +106,6 @@
           <Property Name="FeedBackReason" Type="nvarchar(max)" />
           <Property Name="FeedBackUserId" Type="int" />
           <Property Name="FeedBackDateTime" Type="datetime" />
-          <Property Name="ShopAcceptStatus" Type="bit" />
-          <Property Name="ShopAcceptReason" Type="nvarchar(max)" />
-          <Property Name="ShopAcceptUserId" Type="int" />
-          <Property Name="ShopAcceptDateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="AppealFile">
           <Key>
@@ -1049,8 +1041,8 @@
           <EntitySet Name="HiddenColumn" EntityType="com.yrtech.SurveyDAL.HiddenColumn" />
           <EntitySet Name="ReportFileActionLog" EntityType="com.yrtech.SurveyDAL.ReportFileActionLog" />
           <EntitySet Name="ReportFile" EntityType="com.yrtech.SurveyDAL.ReportFile" />
-          <EntitySet Name="Appeal" EntityType="com.yrtech.SurveyDAL.Appeal" />
           <EntitySet Name="AppealFile" EntityType="com.yrtech.SurveyDAL.AppealFile" />
+          <EntitySet Name="Appeal" EntityType="com.yrtech.SurveyDAL.Appeal" />
         </EntityContainer>
         <EntityType Name="UserInfo">
           <Key>
@@ -1176,34 +1168,6 @@
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="Appeal">
-          <Key>
-            <PropertyRef Name="AppealId" />
-          </Key>
-          <Property Name="AppealId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="ProjectCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ProjectName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ShopId" Type="Int32" />
-          <Property Name="ShopCode" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ShopName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="SubjectId" Type="Int32" />
-          <Property Name="SubjectCode" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
-          <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Score" Type="Decimal" Precision="19" Scale="2" />
-          <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AppealReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AppealUserId" Type="Int32" />
-          <Property Name="AppealDateTime" Type="DateTime" Precision="3" />
-          <Property Name="FeedBackStatus" Type="Boolean" />
-          <Property Name="FeedBackReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="FeedBackUserId" Type="Int32" />
-          <Property Name="FeedBackDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ShopAcceptStatus" Type="Boolean" />
-          <Property Name="ShopAcceptReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ShopAcceptUserId" Type="Int32" />
-          <Property Name="ShopAcceptDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="AppealFile">
           <Key>
             <PropertyRef Name="FileId" />
@@ -1216,6 +1180,26 @@
           <Property Name="ServerFileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Appeal">
+          <Key>
+            <PropertyRef Name="AppealId" />
+          </Key>
+          <Property Name="AppealId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="SubjectId" Type="Int32" />
+          <Property Name="SubjectCode" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="CheckPoint" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Score" Type="Decimal" Precision="19" Scale="2" />
+          <Property Name="LossResult" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppealReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppealUserId" Type="Int32" />
+          <Property Name="AppealDateTime" Type="DateTime" Precision="3" />
+          <Property Name="FeedBackStatus" Type="Boolean" />
+          <Property Name="FeedBackReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FeedBackUserId" Type="Int32" />
+          <Property Name="FeedBackDateTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1780,13 +1764,23 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="AppealFile">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AppealFile">
+              <MappingFragment StoreEntitySet="AppealFile">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ServerFileName" ColumnName="ServerFileName" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
+                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
+                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Appeal">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Appeal">
               <MappingFragment StoreEntitySet="Appeal">
-                <ScalarProperty Name="ShopAcceptDateTime" ColumnName="ShopAcceptDateTime" />
-                <ScalarProperty Name="ShopAcceptUserId" ColumnName="ShopAcceptUserId" />
-                <ScalarProperty Name="ShopAcceptReason" ColumnName="ShopAcceptReason" />
-                <ScalarProperty Name="ShopAcceptStatus" ColumnName="ShopAcceptStatus" />
                 <ScalarProperty Name="FeedBackDateTime" ColumnName="FeedBackDateTime" />
                 <ScalarProperty Name="FeedBackUserId" ColumnName="FeedBackUserId" />
                 <ScalarProperty Name="FeedBackReason" ColumnName="FeedBackReason" />
@@ -1799,27 +1793,9 @@
                 <ScalarProperty Name="CheckPoint" ColumnName="CheckPoint" />
                 <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-                <ScalarProperty Name="ShopName" ColumnName="ShopName" />
-                <ScalarProperty Name="ShopCode" ColumnName="ShopCode" />
                 <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
-                <ScalarProperty Name="ProjectCode" ColumnName="ProjectCode" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="AppealId" ColumnName="AppealId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="AppealFile">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AppealFile">
-              <MappingFragment StoreEntitySet="AppealFile">
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="ServerFileName" ColumnName="ServerFileName" />
-                <ScalarProperty Name="FileName" ColumnName="FileName" />
-                <ScalarProperty Name="FileType" ColumnName="FileType" />
-                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
-                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
-                <ScalarProperty Name="FileId" ColumnName="FileId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

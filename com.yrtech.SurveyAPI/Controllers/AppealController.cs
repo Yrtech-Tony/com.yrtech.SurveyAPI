@@ -19,7 +19,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                appealService.CreateAppealInfoByProject(Convert.ToInt32(projectId));
+               // appealService.CreateAppealInfoByProject(Convert.ToInt32(projectId));
                 return new APIResult() { Status = true, Body = "申诉阶段开始成功" };
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                appealService.AppealApply(appeal.AppealId, appeal.AppealReason, appeal.AppealUserId);
+               // appealService.AppealApply(appeal.AppealId, appeal.AppealReason, appeal.AppealUserId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                appealService.AppealFeedBack(appeal.AppealId, appeal.FeedBackStatus, appeal.FeedBackReason, appeal.FeedBackUserId);
+               // appealService.AppealFeedBack(appeal.AppealId, appeal.FeedBackStatus, appeal.FeedBackReason, appeal.FeedBackUserId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                appealService.AppealShopAccept(appeal.AppealId, appeal.ShopAcceptStatus, appeal.ShopAcceptReason, appeal.ShopAcceptUserId);
+               // appealService.AppealShopAccept(appeal.AppealId, appeal.ShopAcceptStatus, appeal.ShopAcceptReason, appeal.ShopAcceptUserId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -117,7 +117,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                appealService.AppealDelete(appeal.AppealId);
+                //appealService.AppealDelete(appeal.AppealId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

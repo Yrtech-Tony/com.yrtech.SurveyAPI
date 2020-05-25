@@ -19,53 +19,53 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public void CreateAppealInfoByProject(int projectId)
-        {
+        //public void CreateAppealInfoByProject(int projectId)
+        //{
 
-            // 生成申诉的基本信息
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t = typeof(AppealDto);
-            string sql = @"SELECT A.ProjectId,B.ProjectCode,B.ProjectName
-		                        ,A.ShopId,D.ShopCode,D.ShopName
-		                        ,A.SubjectId,C.SubjectCode,C.[CheckPoint]
-		                        ,A.ImportScore AS Score,A.ImportLossResult AS LossResult
-		                       -- ,'' AS AppealReason,null AS AppealUserId,null AS AppealDateTime
-		                       -- ,null AS FeedBackStatus ,'' AS FeedBackReason,null AS FeedBackUserId,null AS FeedBackDateTime
-		                       -- ,null AS ShopAcceptStatus,'' AS ShopAcceptReason,null AS ShopAcceptUserId,null AS ShopAcceptDateTime
-                         FROM Answer A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-			                           INNER JOIN [Subject] C ON A.SubjectId  = C.SubjectId AND A.ProjectId = C.ProjectId
-			                           INNER JOIN Shop D ON A.ShopId = D.ShopId
-                            WHERE A.ProjectId = @ProjectId ";
-            List<AppealDto> appealList = db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
-            foreach (AppealDto appealDto in appealList)
-            {
-                Appeal appeal = new Appeal();
-                appeal.ProjectId = appealDto.ProjectId;
-                appeal.ProjectCode = appealDto.ProjectCode;
-                appeal.ProjectName = appealDto.ProjectName;
-                appeal.ShopId = appealDto.ShopId;
-                appeal.ShopCode = appealDto.ShopCode;
-                appeal.ShopName = appealDto.ShopName;
-                appeal.SubjectId = appealDto.SubjectId;
-                appeal.SubjectCode = appealDto.SubjectCode;
-                appeal.CheckPoint = appealDto.CheckPoint;
-                appeal.Score = appealDto.Score;
-                appeal.LossResult = appealDto.LossResult;
-                db.Appeal.Add(appeal);
-            }
-            // 判断是导入的还是系统打分
-            Project findOne = db.Project.Where(x => x.ProjectId == projectId).FirstOrDefault();
-            if (findOne != null)
-            {
-                if (findOne.DataScore == "系统打分")// 01:系统打分 02：导入
-                {
-                    //系统打分的时候，计算总分和失分说明，进行更新
-                }
-                // 更新申诉开始时间。
-                findOne.AppealStartDate = DateTime.Now;
-            }
-            db.SaveChanges();
-        }
+        //    // 生成申诉的基本信息
+        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+        //    Type t = typeof(AppealDto);
+        //    string sql = @"SELECT A.ProjectId,B.ProjectCode,B.ProjectName
+		      //                  ,A.ShopId,D.ShopCode,D.ShopName
+		      //                  ,A.SubjectId,C.SubjectCode,C.[CheckPoint]
+		      //                  ,A.ImportScore AS Score,A.ImportLossResult AS LossResult
+		      //                 -- ,'' AS AppealReason,null AS AppealUserId,null AS AppealDateTime
+		      //                 -- ,null AS FeedBackStatus ,'' AS FeedBackReason,null AS FeedBackUserId,null AS FeedBackDateTime
+		      //                 -- ,null AS ShopAcceptStatus,'' AS ShopAcceptReason,null AS ShopAcceptUserId,null AS ShopAcceptDateTime
+        //                 FROM Answer A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+			     //                      INNER JOIN [Subject] C ON A.SubjectId  = C.SubjectId AND A.ProjectId = C.ProjectId
+			     //                      INNER JOIN Shop D ON A.ShopId = D.ShopId
+        //                    WHERE A.ProjectId = @ProjectId ";
+        //    List<AppealDto> appealList = db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
+        //    foreach (AppealDto appealDto in appealList)
+        //    {
+        //        Appeal appeal = new Appeal();
+        //        appeal.ProjectId = appealDto.ProjectId;
+        //        appeal.ProjectCode = appealDto.ProjectCode;
+        //        appeal.ProjectName = appealDto.ProjectName;
+        //        appeal.ShopId = appealDto.ShopId;
+        //        appeal.ShopCode = appealDto.ShopCode;
+        //        appeal.ShopName = appealDto.ShopName;
+        //        appeal.SubjectId = appealDto.SubjectId;
+        //        appeal.SubjectCode = appealDto.SubjectCode;
+        //        appeal.CheckPoint = appealDto.CheckPoint;
+        //        appeal.Score = appealDto.Score;
+        //        appeal.LossResult = appealDto.LossResult;
+        //        db.Appeal.Add(appeal);
+        //    }
+        //    // 判断是导入的还是系统打分
+        //    Project findOne = db.Project.Where(x => x.ProjectId == projectId).FirstOrDefault();
+        //    if (findOne != null)
+        //    {
+        //        if (findOne.DataScore == "系统打分")// 01:系统打分 02：导入
+        //        {
+        //            //系统打分的时候，计算总分和失分说明，进行更新
+        //        }
+        //        // 更新申诉开始时间。
+        //        findOne.AppealStartDate = DateTime.Now;
+        //    }
+        //    db.SaveChanges();
+        //}
         /// <summary>
         /// 查询经销商申诉列表_按页码
         /// </summary>
@@ -137,7 +137,7 @@ namespace com.yrtech.SurveyAPI.Service
                                    ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [ShopAcceptUserId]),'') AS [ShopAcceptUserName]
                                   ,[ShopAcceptUserId]
                                   ,CONVERT(VARCHAR(19),[ShopAcceptDateTime],120) AS ShopAcceptDateTime
-                              FROM [Appeal] A  INNER JOIN Project X ON A.ProjectId = X.ProjectId";
+                              FROM [Appeal] A  INNER JOIN Project X ON A.ProjectId = X.ProjectId " ;
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 sql += " INNER JOIN Shop B ON A.ShopId = B.ShopId";
@@ -268,14 +268,23 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="appealId"></param>
         /// <param name="appealReason"></param>
         /// <param name="appealUserId"></param>
-        public void AppealApply(int appealId, string appealReason, int? appealUserId)
+        public void AppealApply(Appeal appeal)
         {
-            Appeal findOne = db.Appeal.Where(x => (x.AppealId == appealId)).FirstOrDefault();
-            if (findOne != null)
+            Appeal findOne = db.Appeal.Where(x => (x.AppealId == appeal.AppealId)).FirstOrDefault();
+            if (findOne == null)
             {
-                findOne.AppealReason = appealReason;
-                findOne.AppealUserId = appealUserId;
                 findOne.AppealDateTime = DateTime.Now;
+            }
+            else {
+                findOne.AppealReason = appeal.AppealReason;
+                findOne.AppealUserId = appeal.AppealUserId;
+                findOne.CheckPoint = appeal.CheckPoint;
+                findOne.LossResult = appeal.LossResult;
+                findOne.ProjectId = appeal.ProjectId;
+                findOne.Score = appeal.Score;
+                findOne.ShopId = appeal.ShopId;
+                findOne.SubjectCode = appeal.SubjectCode;
+                findOne.SubjectId = appeal.SubjectId;
             }
             db.SaveChanges();
         }
@@ -296,43 +305,6 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.FeedBackDateTime = DateTime.Now;
             }
             db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
-            //                                            new SqlParameter("@FeedBackStatus", feedbackStatus),
-            //                                            new SqlParameter("@FeedBackReason", feedbackReason),
-            //                                            new SqlParameter("@FeedBackUserId", feedbackUserId)};
-            //Type t = typeof(int);
-            //string sql = @"UPDATE Appeal SET FeedBackStatus = @FeedBackStatus,FeedBackReason = @FeedBackReason,
-            //                    FeedBackUserId = @FeedBackUserId,FeedBackDateTime = GETDATE() 
-            //               WHERE AppealId = @AppealId";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
-        }
-        /// <summary>
-        /// 经销商接受情况
-        /// </summary>
-        /// <param name="appealId"></param>
-        /// <param name="shopAcceptStatus"></param>
-        /// <param name="shopAcceptReason"></param>
-        /// <param name="shopAcceptUserId"></param>
-        public void AppealShopAccept(int appealId, bool? shopAcceptStatus, string shopAcceptReason, int? shopAcceptUserId)
-        {
-            Appeal findOne = db.Appeal.Where(x => (x.AppealId == appealId)).FirstOrDefault();
-            if (findOne != null)
-            {
-                findOne.ShopAcceptStatus = shopAcceptStatus;
-                findOne.ShopAcceptReason = shopAcceptReason;
-                findOne.ShopAcceptUserId = shopAcceptUserId;
-                findOne.ShopAcceptDateTime = DateTime.Now;
-            }
-            db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
-            //                                            new SqlParameter("@ShopAcceptStatus", shopAcceptStatus),
-            //                                            new SqlParameter("@ShopAcceptReason", shopAcceptReason),
-            //                                            new SqlParameter("@ShopAcceptUserId", shopAcceptUserId)};
-            //Type t = typeof(int);
-            //string sql = @"UPDATE Appeal SET ShopAcceptStatus = @ShopAcceptStatus,ShopAcceptReason = @ShopAcceptReason,
-            //                    ShopAcceptUserId = @ShopAcceptUserId,ShopAcceptDateTime = GETDATE() 
-            //               WHERE AppealId = @AppealId";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
         }
         /// <summary>
         /// 申诉删除
@@ -343,10 +315,6 @@ namespace com.yrtech.SurveyAPI.Service
             Appeal findone = db.Appeal.Where(x => x.AppealId == appealId).FirstOrDefault();
             db.Appeal.Remove(findone);
             db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
-            //Type t = typeof(int);
-            //string sql = @"DELETE [AppealFile] WHERE FileId = @FileId";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
         }
         /// <summary>
         /// 查询申诉附件信息

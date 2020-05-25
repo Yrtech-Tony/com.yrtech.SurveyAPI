@@ -62,7 +62,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
         public virtual DbSet<ReportFile> ReportFile { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealFile> AppealFile { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
     }
 }

@@ -42,8 +42,8 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.HiddenColumn" Width="1.5" PointX="5.375" PointY="8.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFileActionLog" Width="1.5" PointX="7.375" PointY="8.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFile" Width="1.5" PointX="13.375" PointY="18.75" />
-        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="0.875" PointY="5.875" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppealFile" Width="1.5" PointX="19.75" PointY="0.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="19.375" PointY="4.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

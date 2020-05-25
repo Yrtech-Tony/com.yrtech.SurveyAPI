@@ -14,13 +14,9 @@ namespace com.yrtech.SurveyDAL
     
     public partial class Appeal
     {
-        public int AppealId { get; set; }
+        public long AppealId { get; set; }
         public Nullable<int> ProjectId { get; set; }
-        public string ProjectCode { get; set; }
-        public string ProjectName { get; set; }
         public Nullable<int> ShopId { get; set; }
-        public string ShopCode { get; set; }
-        public string ShopName { get; set; }
         public Nullable<int> SubjectId { get; set; }
         public string SubjectCode { get; set; }
         public string CheckPoint { get; set; }
@@ -33,9 +29,5 @@ namespace com.yrtech.SurveyDAL
         public string FeedBackReason { get; set; }
         public Nullable<int> FeedBackUserId { get; set; }
         public Nullable<System.DateTime> FeedBackDateTime { get; set; }
-        public Nullable<bool> ShopAcceptStatus { get; set; }
-        public string ShopAcceptReason { get; set; }
-        public Nullable<int> ShopAcceptUserId { get; set; }
-        public Nullable<System.DateTime> ShopAcceptDateTime { get; set; }
     }
 }
