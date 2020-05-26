@@ -78,7 +78,7 @@ namespace com.yrtech.SurveyAPI.Service
             return GetShopAppealInfoByAll(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
-        /// 查询所有的申诉列表
+        /// 查询所有的申诉列表_厂商
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopIdStr"></param>
@@ -108,14 +108,14 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,A.[ShopId]
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
-                                  ,[SubjectId]
-                                  ,[SubjectCode]
-                                  ,[CheckPoint]
-                                  ,[Score]
-                                  ,[LossResult]
-                                  ,[AppealReason]
+                                  ,A.[SubjectId]
+                                  ,A.[SubjectCode]
+                                  ,A.[CheckPoint]
+                                  ,A.[Score]
+                                  ,A.[LossResult]
+                                  ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
-                                  ,AppealUserId
+                                  ,A.AppealUserId
                                   ,CONVERT(VARCHAR(19),[AppealDateTime],120) AS AppealDateTime
                                   ,Case 
 		                          WHEN [FeedBackStatus]  = 1 THEN '同意'
@@ -127,22 +127,12 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
-                                  ,Case 
-		                              WHEN ShopAcceptStatus  = 1 THEN '接受'
-		                              WHEN ShopAcceptStatus = 0 THEN '不接受'
-		                              ELSE ''
-	                            END AS ShopAcceptStatusStr
-                                  ,[ShopAcceptStatus]
-                                  ,[ShopAcceptReason]
-                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [ShopAcceptUserId]),'') AS [ShopAcceptUserName]
-                                  ,[ShopAcceptUserId]
-                                  ,CONVERT(VARCHAR(19),[ShopAcceptDateTime],120) AS ShopAcceptDateTime
-                              FROM [Appeal] A  INNER JOIN Project X ON A.ProjectId = X.ProjectId " ;
+                              FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
-                sql += " INNER JOIN Shop B ON A.ShopId = B.ShopId";
                 string[] shopIdList = shopIdStr.Split(',');
-                sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%') AND A.ShopId IN('";
+                sql += " WHERE A.ShopId IN('";
                 for (int i = 0; i < shopIdList.Count(); i++)
                 {
                     if (i == shopIdList.Count() - 1)
@@ -158,10 +148,10 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (!string.IsNullOrEmpty(smallArea))
             {
-                sql += @" INNER JOIN Shop B ON A.ShopId = B.ShopId
+                sql += @" 
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
-                    WHERE D.AreaId = @SmallArea AND A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE D.AreaId = @SmallArea ";
             }
             else if (!string.IsNullOrEmpty(middleArea))
             {
@@ -169,7 +159,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN AreaShop C ON B.ShopId = C.ShopId
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
-                    WHERE A.ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE E.AreaId = @MiddleArea ";
             }
             else if (!string.IsNullOrEmpty(bigArea))
             {
@@ -178,7 +168,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
-                    WHERE A.ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE F.AreaId = @BigArea ";
             }
             else if (!string.IsNullOrEmpty(wideArea))
             {
@@ -188,7 +178,7 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area E ON D.ParentId = E.AreaId 
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
                         INNER JOIN Area G ON F.ParentId = G.AreaId 
-                    WHERE A.ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName '%'+@KeyWord+'%')";
+                    WHERE  G.AreaId = @WideArea ";
             }
             else if (!string.IsNullOrEmpty(bussinessType))
             {
@@ -199,16 +189,49 @@ namespace com.yrtech.SurveyAPI.Service
                         INNER JOIN Area F ON E.ParentId = F.AreaId 
                         INNER JOIN Area G ON F.ParentId = G.AreaId 
                         INNER JOIN Area H ON G.ParentId = H.AreaId 
-                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BusinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+                    WHERE  H.AreaId = @BusinessType ";
             }
             else
             {
                 sql += " WHERE 1=2"; // 业务类型也没有选择的情况下什么都不查询，
             }
-            //else
-            //{
-            //    sql += " WHERE A.ProjectId = @ProjectId AND (A.ShopCode LIKE '%'+@KeyWord+'%' OR A.ShopName LIKE '%'+@KeyWord+'%')";
-            //}
+            return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
+        }
+        public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword)
+        {
+            if (keyword == null) keyword = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                    new SqlParameter("@KeyWord", keyword)};
+            Type t = typeof(AppealDto);
+            string sql = "";
+            sql = @"SELECT [AppealId]
+                                  ,A.[ProjectId]
+                                  ,X.[ProjectCode]
+                                  ,X.[ProjectName]
+                                  ,A.[ShopId]
+                                  ,B.[ShopCode]
+                                  ,B.[ShopName]
+                                  ,A.[SubjectId]
+                                  ,A.[SubjectCode]
+                                  ,A.[CheckPoint]
+                                  ,A.[Score]
+                                  ,A.[LossResult]
+                                  ,A.[AppealReason]
+                                  ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
+                                  ,A.AppealUserId
+                                  ,CONVERT(VARCHAR(19),[AppealDateTime],120) AS AppealDateTime
+                                  ,Case 
+		                          WHEN [FeedBackStatus]  = 1 THEN '同意'
+		                          WHEN [FeedBackStatus] = 0 THEN '不同意'
+		                          ELSE ''
+	                               END AS FeedBackStatusStr
+                                  ,[FeedBackStatus]
+                                  ,[FeedBackReason]
+                                  ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
+                                  ,[FeedBackUserId]
+                                  ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
+                              FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
