@@ -1,4 +1,5 @@
-﻿using System;
+﻿using com.yrtech.SurveyDAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -36,5 +37,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopAcceptUserName { get; set; }
         public int? ShopAcceptUserId { get; set; }
         public string ShopAcceptDateTime { get; set; }
+        public List<AppealFile> AppealFileList { get; set; }
     }
 }

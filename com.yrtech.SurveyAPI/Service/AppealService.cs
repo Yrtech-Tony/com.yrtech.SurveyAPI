@@ -75,7 +75,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AppealDto> GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string keyword, string shopIdStr, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
-            return GetShopAppealInfoByAll(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, keyword, shopIdStr).Skip(startIndex).Take(pageCount).ToList();
+            return GetShopAppealInfoByAll(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
         /// 查询所有的申诉列表_厂商
@@ -197,6 +197,25 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
+        /// <summary>
+        /// 查询反馈信息_后台系统
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="keyword"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="pageCount"></param>
+        /// <returns></returns>
+        public List<AppealDto> GetFeedBackInfoByPage(string projectId,string keyword, int pageNum, int pageCount)
+        {
+            int startIndex = (pageNum - 1) * pageCount;
+            return GetFeedBackInfoByAll(projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
+        }
+        /// <summary>
+        /// 查询反馈信息_后台系统
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
         public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword)
         {
             if (keyword == null) keyword = "";
@@ -234,6 +253,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
+       
         /// <summary>
         /// 查询申诉详细
         /// </summary>
@@ -247,11 +267,11 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
                                   ,[ProjectId]
-                                  ,[ProjectCode]
-                                  ,[ProjectName]
+                                  ,C.[ProjectCode]
+                                  ,C.[ProjectName]
                                   ,[ShopId]
-                                  ,[ShopCode]
-                                  ,[ShopName]
+                                  ,B.[ShopCode]
+                                  ,B.[ShopName]
                                   ,[SubjectId]
                                   ,[SubjectCode]
                                   ,[CheckPoint]
@@ -271,17 +291,8 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
-                                  ,Case 
-		                              WHEN ShopAcceptStatus  = 1 THEN '接受'
-		                              WHEN ShopAcceptStatus = 0 THEN '不接受'
-		                              ELSE ''
-	                            END AS ShopAcceptStatusStr
-                                  ,[ShopAcceptStatus]
-                                  ,[ShopAcceptReason]
-                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [ShopAcceptUserId]),'') AS [ShopAcceptUserName]
-                                  ,[ShopAcceptUserId]
-                                  ,CONVERT(VARCHAR(19),[ShopAcceptDateTime],120) AS ShopAcceptDateTime
-                              FROM [Appeal]
+                              FROM [Appeal] A INNER JOIN Shop B ON A.ShopId = B.ShopId
+                                              INNER JOIN Project C ON A.ProjectId = C.ProjectId
                               WHERE AppealId = @AppealId";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
@@ -291,12 +302,13 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="appealId"></param>
         /// <param name="appealReason"></param>
         /// <param name="appealUserId"></param>
-        public void AppealApply(Appeal appeal)
+        public Appeal AppealApply(Appeal appeal)
         {
             Appeal findOne = db.Appeal.Where(x => (x.AppealId == appeal.AppealId)).FirstOrDefault();
             if (findOne == null)
             {
-                findOne.AppealDateTime = DateTime.Now;
+                appeal.AppealDateTime = DateTime.Now;
+                db.Appeal.Add(appeal);
             }
             else {
                 findOne.AppealReason = appeal.AppealReason;
@@ -308,8 +320,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ShopId = appeal.ShopId;
                 findOne.SubjectCode = appeal.SubjectCode;
                 findOne.SubjectId = appeal.SubjectId;
+                appeal = findOne;
             }
             db.SaveChanges();
+            return appeal;
         }
         /// <summary>
         /// 申诉反馈
@@ -364,49 +378,39 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealFileDto>().ToList();
         }
-        public void AppealFileSave(int appealId, string fileType, string fileName, string serverFileName, int userId)
+        public void AppealFileSave(AppealFile appealFile)
         {
-            int seqNo = 1;
-            //int MaxSeqNO= Convert.ToInt32(db.Database.SqlQuery(t_max, sql_Max, paraMax).Cast<int>());
-            int MaxSeqNO = db.AppealFile.Where(x => x.AppealId.Value == appealId).OrderByDescending(x => x.SeqNO).Select(x => x.SeqNO).FirstOrDefault();
-            if (MaxSeqNO!=0)
+            if (appealFile.SeqNO == 0)
             {
-              seqNo = MaxSeqNO + 1;
-            }
+                AppealFile findOneMax = db.AppealFile.Where(x => (x.AppealId == appealFile.AppealId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    appealFile.SeqNO = 1;
+                }
+                else
+                {
+                    appealFile.SeqNO = findOneMax.SeqNO + 1;
+                }
+                appealFile.InDateTime = DateTime.Now;
+                db.AppealFile.Add(appealFile);
 
-            AppealFile findOne = new AppealFile();
-            findOne.AppealId = appealId;
-            findOne.InDateTime = DateTime.Now;
-            findOne.InUserId = userId;
-            findOne.SeqNO = seqNo;
-            findOne.ServerFileName = serverFileName;
-            findOne.FileName = fileName;
-            findOne.FileType = fileType;
-            db.AppealFile.Add(findOne);
+            }
+            else
+            {
+                
+            }
             db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId),
-            //                                                new SqlParameter("@SeqNO", seqNo),
-            //                                                new SqlParameter("@FileType", fileType),
-            //                                                new SqlParameter("@FileName", fileName),
-            //                                                new SqlParameter("@ServerFileName", serverFileName),
-            //                                                new SqlParameter("@InUserId]", userId)};
-            //Type t = typeof(int);
-            //string sql = @"INSERT INTO [AppealFile]
-            //                   ([AppealId],SeqNO,[FileType],[FileName],[ServerFileName],[InUserId],[InDateTime])
-            //                    VALUES
-            //                   (@AppealId,@SeqNO, @FileType, @FileName, @ServerFileName, @UserId, GETDATE())";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
 
         }
-        public void AppealFileDelete(int fileId)
+        public void AppealFileDelete(string fileId)
         {
-            AppealFile findone = db.AppealFile.Where(x => x.FileId == fileId).FirstOrDefault();
-            db.AppealFile.Remove(findone);
-            db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
-            //Type t = typeof(int);
-            //string sql = @"DELETE [AppealFile] WHERE FileId = @FileId";
-            //db.Database.SqlQuery(t, sql, para).Cast<int>().ToList();
+            //AppealFile findone = db.AppealFile.Where(x => x.FileId == fileId).FirstOrDefault();
+            //db.AppealFile.Remove(findone);
+            //db.SaveChanges();
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
+            string sql = @"DELETE AppealFile WHERE FileId = @FileId
+                        ";
+            db.Database.ExecuteSqlCommand(sql, para);
         }
     }
 }

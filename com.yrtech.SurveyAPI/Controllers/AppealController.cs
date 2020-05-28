@@ -19,7 +19,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-               // appealService.CreateAppealInfoByProject(Convert.ToInt32(projectId));
+                // appealService.CreateAppealInfoByProject(Convert.ToInt32(projectId));
                 return new APIResult() { Status = true, Body = "申诉阶段开始成功" };
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopAppealInfoByPage")]
-        public APIResult GetShopAppealInfoByPage(string projectId,string businessType,string wideArea,string bigArea,string middleArea,string smallArea,string shopIdStr,string keyword, int pageNum, int pageCount)
+        public APIResult GetShopAppealInfoByPage(string projectId, string businessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetFeedBackInfoByPage")]
-        public APIResult GetFeedBackInfoByPage(string projectId,  string keyword, int pageNum, int pageCount)
+        public APIResult GetFeedBackInfoByPage(string projectId, string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -68,11 +68,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/AppealFileSearch")]
-        public APIResult AppealFileSearch(string appealId,string fileType)
+        public APIResult AppealFileSearch(string appealId, string fileType)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.AppealFileSearch(appealId, fileType)) };
+                List<AppealFileDto> list = appealService.AppealFileSearch(appealId, fileType);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
             {
@@ -81,11 +82,32 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Appeal/AppealApply")]
-        public APIResult AppealApply([FromBody]Appeal appeal)
+        public APIResult AppealApply(UploadData uploadData)
         {
             try
             {
-               // appealService.AppealApply(appeal.AppealId, appeal.AppealReason, appeal.AppealUserId);
+                List<AppealDto> list = CommonHelper.DecodeString<List<AppealDto>>(uploadData.ListJson);
+                foreach (AppealDto appealDto in list)
+                {
+                    Appeal appeal = new Appeal();
+                    appeal.AppealId = appealDto.AppealId;
+                    appeal.AppealReason = appealDto.AppealReason;
+                    appeal.AppealUserId = appealDto.AppealUserId;
+                    appeal.CheckPoint = appealDto.CheckPoint;
+                    appeal.LossResult = appealDto.LossResult;
+                    appeal.ProjectId = appealDto.ProjectId;
+                    appeal.Score = appealDto.Score;
+                    appeal.ShopId = appealDto.ShopId;
+                    appeal.SubjectCode = appealDto.SubjectCode;
+                    appeal.SubjectId = appealDto.SubjectId;
+                    appeal = appealService.AppealApply(appeal);
+                    foreach (AppealFile appealFile in appealDto.AppealFileList)
+                    {
+                        appealFile.AppealId = appealDto.AppealId;
+                        appealService.AppealFileSave(appealFile);
+                    }
+
+                }
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -95,11 +117,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Appeal/AppealFeedBack")]
-        public APIResult AppealFeedBack([FromBody]Appeal appeal)
+        public APIResult AppealFeedBack(Appeal appeal)
         {
             try
             {
-               // appealService.AppealFeedBack(appeal.AppealId, appeal.FeedBackStatus, appeal.FeedBackReason, appeal.FeedBackUserId);
+                // appealService.AppealFeedBack(appeal.AppealId, appeal.FeedBackStatus, appeal.FeedBackReason, appeal.FeedBackUserId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -113,7 +135,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-               // appealService.AppealShopAccept(appeal.AppealId, appeal.ShopAcceptStatus, appeal.ShopAcceptReason, appeal.ShopAcceptUserId);
+                // appealService.AppealShopAccept(appeal.AppealId, appeal.ShopAcceptStatus, appeal.ShopAcceptReason, appeal.ShopAcceptUserId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -122,7 +144,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         [Route("Appeal/AppealDelete")]
-        public APIResult AppealDelete([FromBody]Appeal appeal)
+        public APIResult AppealDelete(Appeal appeal)
         {
             try
             {
@@ -134,28 +156,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        
-        [HttpPost]
-        [Route("Appeal/AppealFileSave")]
-        public APIResult AppealFileSave([FromBody]AppealFile appealFile)
-        {
-            try
-            {
-                appealService.AppealFileSave(Convert.ToInt32(appealFile.AppealId),appealFile.FileType,appealFile.FileName,appealFile.ServerFileName,Convert.ToInt32(appealFile.InUserId));
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
+
         [HttpPost]
         [Route("Appeal/AppealFileDelete")]
-        public APIResult AppealFileDelete([FromBody]AppealFile appeal)
+        public APIResult AppealFileDelete(AppealFile appealFile)
         {
             try
             {
-                appealService.AppealFileDelete(Convert.ToInt32(appeal.FileId));
+                appealService.AppealDelete(appealFile.FileId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

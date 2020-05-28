@@ -16,6 +16,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? ParentId { get; set; }
         public string ParentCode { get; set; }
         public string ParentName { get; set; }
+        public bool ImportChk { get; set; }
+        public string ImportRemark { get; set; }
         public bool? UseChk { get; set; }
         public int InUserId { get; set; }
         public DateTime InDateTime { get; set; }
