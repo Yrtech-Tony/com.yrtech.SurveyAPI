@@ -13,7 +13,6 @@ namespace com.yrtech.SurveyAPI.Service
     {
         Survey db = new Survey();
         AccountService accountService = new AccountService();
-        localhost.Service webService = new localhost.Service();
         public List<RoleType> GetRoleType(string type)
         {
 
@@ -49,75 +48,6 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND HiddenCode = @HiddenCode";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<HiddenColumn>().ToList();
-        }
-        /// <summary>
-        /// 获取体系类型
-        /// </summary>
-        /// <returns></returns>
-        public List<SubjectType> GetSubjectType()
-        {
-            Type t = typeof(SubjectType);
-            string sql = "";
-            sql = @"SELECT [SubjectTypeId]
-                          ,[SubjectTypeName]
-                          ,[InUserId]
-                          ,[InDateTime]
-                   FROM [SubjectType] ";
-            return db.Database.SqlQuery(t, sql, new SqlParameter[] { }).Cast<SubjectType>().ToList();
-
-        }
-        /// <summary>
-        /// 获取体系试卷类型
-        /// </summary>
-        /// <returns></returns>
-        public List<SubjectTypeExam> GetSubjectTypeExam(string projectId, string subjectTypeExamId)
-        {
-            if (subjectTypeExamId == null) subjectTypeExamId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                    new SqlParameter("@SubjectTypeExamId", subjectTypeExamId)};
-            Type t = typeof(SubjectTypeExam);
-            string sql = "";
-
-            sql = @"SELECT [SubjectTypeExamId]
-                          ,[SubjectTypeExamName]
-                            ,ProjectId
-                          ,[InUserId]
-                          ,[InDateTime]
-                          ,[ModifyUserId]
-                          ,[ModifyDateTime]
-                      FROM [SubjectTypeExam] WHERE 1=1 ";
-            if (!string.IsNullOrEmpty(projectId))
-            {
-                sql += " AND ProjectId = @ProjectId";
-            }
-            if (!string.IsNullOrEmpty(subjectTypeExamId))
-            {
-                sql += " AND SubjectTypeExamId = @SubjectTypeExamId";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeExam>().ToList();
-
-        }
-        /// <summary>
-        /// 保存体系试卷类型
-        /// </summary>
-        /// <param name="subjectTypeExam"></param>
-        public void SaveSubjectTypeExam(SubjectTypeExam subjectTypeExam)
-        {
-
-            SubjectTypeExam findOne = db.SubjectTypeExam.Where(x => (x.SubjectTypeExamId == subjectTypeExam.SubjectTypeExamId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectTypeExam.InDateTime = DateTime.Now;
-                subjectTypeExam.ModifyDateTime = DateTime.Now;
-                db.SubjectTypeExam.Add(subjectTypeExam);
-            }
-            else
-            {
-                findOne.SubjectTypeExamName = subjectTypeExam.SubjectTypeExamName;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectTypeExam.ModifyUserId;
-            }
-            db.SaveChanges();
         }
         #region 租户信息
         /// <summary>
@@ -832,7 +762,8 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
-        #region 体系
+        #region 体系管理
+
         /// <summary>
         /// 获取体系信息
         /// </summary>
@@ -888,7 +819,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else
             {
-                findOne.AdditionalDesc = subject.AdditionalDesc;
+               // findOne.AdditionalDesc = subject.AdditionalDesc;
                 findOne.CheckPoint = subject.CheckPoint;
                 findOne.Desc = subject.Desc;
                 findOne.Implementation = subject.Implementation;
@@ -898,8 +829,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.OrderNO = subject.OrderNO;
                 findOne.Remark = subject.Remark;
                 findOne.SubjectCode = subject.SubjectCode;
-                findOne.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
-                findOne.SubjectTypeExamId = subject.SubjectTypeExamId;
+                //findOne.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
+               // findOne.SubjectTypeExamId = subject.SubjectTypeExamId;
             }
             db.SaveChanges();
         }
@@ -930,23 +861,23 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectFile"></param>
         public void SaveSubjectFile(SubjectFile subjectFile)
         {
-            SubjectFile findOne = db.SubjectFile.Where(x => (x.FileId == subjectFile.FileId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectFile.InDateTime = DateTime.Now;
-                subjectFile.ModifyDateTime = DateTime.Now;
-                db.SubjectFile.Add(subjectFile);
-            }
-            else
-            {
-                findOne.FileName = subjectFile.FileName;
-                findOne.FileType = subjectFile.FileType;
-                findOne.SubjectId = subjectFile.SubjectId;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectFile.ModifyUserId;
-                findOne.SeqNO = subjectFile.SeqNO;
-            }
-            db.SaveChanges();
+            //SubjectFile findOne = db.SubjectFile.Where(x => (x.FileId == subjectFile.FileId)).FirstOrDefault();
+            //if (findOne == null)
+            //{
+            //    subjectFile.InDateTime = DateTime.Now;
+            //    subjectFile.ModifyDateTime = DateTime.Now;
+            //    db.SubjectFile.Add(subjectFile);
+            //}
+            //else
+            //{
+            //    findOne.FileName = subjectFile.FileName;
+            //    findOne.FileType = subjectFile.FileType;
+            //    findOne.SubjectId = subjectFile.SubjectId;
+            //    findOne.ModifyDateTime = DateTime.Now;
+            //    findOne.ModifyUserId = subjectFile.ModifyUserId;
+            //    findOne.SeqNO = subjectFile.SeqNO;
+            //}
+            //db.SaveChanges();
         }
         /// <summary>
         /// 获取检查标准信息
@@ -973,22 +904,22 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="SubjectInspectionStandard"></param>
         public void SaveSubjectInspectionStandard(SubjectInspectionStandard subjectInspectionStandard)
         {
-            SubjectInspectionStandard findOne = db.SubjectInspectionStandard.Where(x => (x.InspectionStandardId == subjectInspectionStandard.InspectionStandardId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectInspectionStandard.InDateTime = DateTime.Now;
-                subjectInspectionStandard.ModifyDateTime = DateTime.Now;
-                db.SubjectInspectionStandard.Add(subjectInspectionStandard);
-            }
-            else
-            {
-                findOne.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectInspectionStandard.ModifyUserId;
-                findOne.SeqNO = subjectInspectionStandard.SeqNO;
-                findOne.SubjectId = subjectInspectionStandard.SubjectId;
-            }
-            db.SaveChanges();
+            //SubjectInspectionStandard findOne = db.SubjectInspectionStandard.Where(x => (x.InspectionStandardId == subjectInspectionStandard.InspectionStandardId)).FirstOrDefault();
+            //if (findOne == null)
+            //{
+            //    subjectInspectionStandard.InDateTime = DateTime.Now;
+            //    subjectInspectionStandard.ModifyDateTime = DateTime.Now;
+            //    db.SubjectInspectionStandard.Add(subjectInspectionStandard);
+            //}
+            //else
+            //{
+            //    findOne.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
+            //    findOne.ModifyDateTime = DateTime.Now;
+            //    findOne.ModifyUserId = subjectInspectionStandard.ModifyUserId;
+            //    findOne.SeqNO = subjectInspectionStandard.SeqNO;
+            //    findOne.SubjectId = subjectInspectionStandard.SubjectId;
+            //}
+            //db.SaveChanges();
         }
         /// <summary>
         /// 获取失分说明
@@ -1015,253 +946,66 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectLossResult"></param>
         public void SaveSubjectLossResult(SubjectLossResult subjectLossResult)
         {
-            SubjectLossResult findOne = db.SubjectLossResult.Where(x => (x.LossResultId == subjectLossResult.LossResultId)).FirstOrDefault();
+            //SubjectLossResult findOne = db.SubjectLossResult.Where(x => (x.LossResultId == subjectLossResult.LossResultId)).FirstOrDefault();
+            //if (findOne == null)
+            //{
+            //    subjectLossResult.InDateTime = DateTime.Now;
+            //    subjectLossResult.ModifyDateTime = DateTime.Now;
+            //    db.SubjectLossResult.Add(subjectLossResult);
+            //}
+            //else
+            //{
+            //    findOne.LossResultName = subjectLossResult.LossResultName;
+            //    findOne.ModifyDateTime = DateTime.Now;
+            //    findOne.ModifyUserId = subjectLossResult.ModifyUserId;
+            //    findOne.SeqNO = subjectLossResult.SeqNO;
+            //    findOne.SubjectId = subjectLossResult.SubjectId;
+            //}
+            //db.SaveChanges();
+        }
+        #endregion
+        #region 标签管理
+        public List<Label> GetLabel(string brandId,string labelType,bool? useChk,string labelCode)
+        {
+            if (labelCode == null) labelCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@LabelType", labelType),
+                                                        new SqlParameter("@BrandId", brandId),
+                                                         new SqlParameter("@LabelCode", labelCode),
+                                                        new SqlParameter("@UseChk", useChk)};
+            Type t = typeof(Label);
+            string sql = "";
+            sql = @"SELECT * 
+                      FROM [Label] A
+                    WHERE  LabelType = @LabelType AND BrandId = @BrandId AND 1=1
+                    ";
+            if (useChk != null)
+            {
+                sql += " AND UseChk = @UseChk";
+            }
+            if (!string.IsNullOrEmpty(labelCode))
+            {
+                sql += " AND LabelCode = @LabelCode";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
+        }
+        public void SaveLabel(Label label)
+        {
+            Label findOne = db.Label.Where(x => (x.LabelId == label.LabelId)).FirstOrDefault();
             if (findOne == null)
             {
-                subjectLossResult.InDateTime = DateTime.Now;
-                subjectLossResult.ModifyDateTime = DateTime.Now;
-                db.SubjectLossResult.Add(subjectLossResult);
+                label.InDateTime = DateTime.Now;
+                db.Label.Add(label);
             }
             else
             {
-                findOne.LossResultName = subjectLossResult.LossResultName;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectLossResult.ModifyUserId;
-                findOne.SeqNO = subjectLossResult.SeqNO;
-                findOne.SubjectId = subjectLossResult.SubjectId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
-        /// 获取体系类型打分范围信息
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<SubjectTypeScoreRegion> GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
-        {
-            projectId = projectId == null ? "" : projectId;
-            subjectId = subjectId == null ? "" : subjectId;
-            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
-            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                        , new SqlParameter("@SubjectId", subjectId)
-                                                        , new SqlParameter("@SubjectTypeId", subjectTypeId) };
-            Type t = typeof(SubjectTypeScoreRegion);
-            string sql = "";
-            sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
-                  " FROM SubjectTypeScoreRegion str,Subject s  WHERE str.SubjectId=s.SubjectId";
-
-            if (!string.IsNullOrEmpty(projectId))
-            {
-                sql += " AND S.ProjectId = @ProjectId";
-            }
-            if (!string.IsNullOrEmpty(subjectId))
-            {
-                sql += " AND S.SubjectId = @SubjectId";
-            }
-            if (!string.IsNullOrEmpty(subjectTypeId))
-            {
-                sql += " AND str.SubjectTypeId = @SubjectTypeId";
-            }
-            List<SubjectTypeScoreRegion> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegion>().ToList();
-            return list;
-        }
-        public List<SubjectTypeScoreRegionDto> GetSubjectTypeScoreRegionDto(string projectId, string subjectId, string subjectTypeId)
-        {
-            projectId = projectId == null ? "" : projectId;
-            subjectId = subjectId == null ? "" : subjectId;
-            subjectTypeId = subjectTypeId == null ? "" : subjectTypeId;
-            //CommonHelper.log(projectId + " " + subjectId+" " + subjectTypeId);
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                        , new SqlParameter("@SubjectId", subjectId)
-                                                        , new SqlParameter("@SubjectTypeId", subjectTypeId) };
-            Type t = typeof(SubjectTypeScoreRegionDto);
-            string sql = "";
-            sql = @"SELECT str.Id,str.SubjectId,str.SubjectTypeId,st.SubjectTypeName,str.LowestScore,str.FullScore,str.InUserId,str.InDateTime,str.ModifyUserId,str.ModifyDateTime" +
-                  " FROM SubjectTypeScoreRegion str,Subject s,SubjectType st  WHERE str.SubjectId=s.SubjectId  and st.SubjectTypeId = str.SubjectTypeId";
-
-            if (!string.IsNullOrEmpty(projectId))
-            {
-                sql += " AND S.ProjectId = @ProjectId";
-            }
-            if (!string.IsNullOrEmpty(subjectId))
-            {
-                sql += " AND S.SubjectId = @SubjectId";
-            }
-            if (!string.IsNullOrEmpty(subjectTypeId))
-            {
-                sql += " AND str.SubjectTypeId = @SubjectTypeId";
-            }
-            List<SubjectTypeScoreRegionDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectTypeScoreRegionDto>().ToList();
-            return list;
-        }
-        public void SaveSubjectTypeScoreRegion(SubjectTypeScoreRegion subjectTypeScoreRegion)
-        {
-            SubjectTypeScoreRegion findOne = db.SubjectTypeScoreRegion.Where(x => (x.Id == subjectTypeScoreRegion.Id)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectTypeScoreRegion.InDateTime = DateTime.Now;
-                subjectTypeScoreRegion.ModifyDateTime = DateTime.Now;
-                db.SubjectTypeScoreRegion.Add(subjectTypeScoreRegion);
-            }
-            else
-            {
-                findOne.FullScore = subjectTypeScoreRegion.FullScore;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectTypeScoreRegion.ModifyUserId;
-                findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
-                findOne.LowestScore = subjectTypeScoreRegion.LowestScore;
-                findOne.SubjectId = subjectTypeScoreRegion.SubjectId;
-                findOne.SubjectTypeId = subjectTypeScoreRegion.SubjectTypeId;
+                findOne.LabelCode = label.LabelCode;
+                findOne.LabelName = label.LabelName;
+                findOne.Remark = label.Remark;
+                findOne.UseChk = label.UseChk;
             }
             db.SaveChanges();
         }
         #endregion
-
-        /// <summary>
-        /// 获取期号下的复审类型
-        /// </summary>
-        /// <returns></returns>
-        public List<SubjectRecheckType> GetSubjectRecheckType(string projectId, string recheckTypeId)
-        {
-            if (string.IsNullOrEmpty(recheckTypeId)) recheckTypeId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@RecheckTypeId", recheckTypeId) };
-            Type t = typeof(SubjectRecheckType);
-            string sql = "";
-
-            sql = @"SELECT [RecheckTypeId]
-                  ,[RecheckTypeName]
-                  , ProjectId
-                  ,UseChk
-                  ,[InUserId]
-                  ,[InDateTime]
-                  ,[ModifyUserId]
-                  ,[ModifyDateTime]
-              FROM [SubjectRecheckType] WHERE ProjectId = @ProjectId";
-            if (!string.IsNullOrEmpty(recheckTypeId))
-            {
-                sql += " AND RecheckTypeId = @RecheckTypeId";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectRecheckType>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的复审类型
-        /// </summary>
-        /// <param name="subjectRecheckType"></param>
-        public void SaveSubjectRecheckType(SubjectRecheckType subjectRecheckType)
-        {
-
-            SubjectRecheckType findOne = db.SubjectRecheckType.Where(x => (x.RecheckTypeId == subjectRecheckType.RecheckTypeId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectRecheckType.InDateTime = DateTime.Now;
-                subjectRecheckType.ModifyDateTime = DateTime.Now;
-                subjectRecheckType.UseChk = true;
-                db.SubjectRecheckType.Add(subjectRecheckType);
-            }
-            else
-            {
-                findOne.RecheckTypeName = subjectRecheckType.RecheckTypeName;
-                findOne.UseChk = subjectRecheckType.UseChk;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = subjectRecheckType.ModifyUserId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
-        /// 获取期号下的复审错误类型
-        /// </summary>
-        /// <returns></returns>
-        public List<RecheckErrorType> GetRecheckErrorType(string projectId, string recheckErrorTypeId)
-        {
-            if (recheckErrorTypeId == null) recheckErrorTypeId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                    , new SqlParameter("@RecheckErrorTypeId", recheckErrorTypeId) };
-            Type t = typeof(RecheckErrorType);
-            string sql = "";
-
-            sql = @"SELECT * FROM RecheckErrorType WHERE ProjectId = @ProjectId";
-            if (!string.IsNullOrEmpty(recheckErrorTypeId))
-            {
-                sql += " AND RecheckErrorTypeId = @RecheckErrorTypeId";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<RecheckErrorType>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的复审错误类型
-        /// </summary>
-        /// <param name="recheckErrorType"></param>
-        public void SaveRecheckErrorType(RecheckErrorType recheckErrorType)
-        {
-
-            RecheckErrorType findOne = db.RecheckErrorType.Where(x => (x.RecheckErrorTypeId == recheckErrorType.RecheckErrorTypeId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                recheckErrorType.InDateTime = DateTime.Now;
-                recheckErrorType.ModifyDateTime = DateTime.Now;
-                recheckErrorType.UseChk = true;
-                db.RecheckErrorType.Add(recheckErrorType);
-            }
-            else
-            {
-                findOne.RecheckErrorName = recheckErrorType.RecheckErrorName;
-                findOne.UseChk = recheckErrorType.UseChk;
-                findOne.ModifyDateTime = DateTime.Now;
-                findOne.ModifyUserId = recheckErrorType.ModifyUserId;
-            }
-            db.SaveChanges();
-        }
-        /// <summary>
-        /// 期号下获取流程类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<SubjectLink> GetSubjectLink(string projectId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t = typeof(SubjectLink);
-            string sql = @"SELECT * FROM [SubjectLink] WHERE ProjectId = @ProjectId";
-            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLink>().ToList();
-        }
-        /// <summary>
-        /// 保存期号下的流程类型
-        /// </summary>
-        /// <param name="project"></param>
-        public void SaveSubjectLink(SubjectLink subjectLink)
-        {
-            SubjectLink findOne = db.SubjectLink.Where(x => (x.SubjectLinkId == subjectLink.SubjectLinkId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                subjectLink.InDateTime = DateTime.Now;
-                db.SubjectLink.Add(subjectLink);
-            }
-            else
-            {
-                findOne.SubjectLinkCode = subjectLink.SubjectLinkCode;
-                findOne.SubjectLinkName = subjectLink.SubjectLinkName;
-            }
-            db.SaveChanges();
-        }
-
-
-        /// <summary>
-        /// 批量更新SubjectLinkId
-        /// </summary>
-        /// <param name="subjectIdList"></param>
-        /// <param name="subjectLinkId"></param>
-        public void SetSubjectLinkId(List<SubjectDto> subjectList)
-        {
-            Type t = typeof(int);
-            string sql = "";
-            foreach (SubjectDto subject in subjectList)
-            {
-                sql += " UPDATE Subject SET SubjectLinkId =" + subject.SubjectLinkId.ToString() + " WHERE SubjectId = " + subject.SubjectId.ToString() + " ";
-            }
-
-            db.Database.SqlQuery(t, sql, null).Cast<int>().ToList();
-        }
-
-
         #region 收费
         //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)
         //{

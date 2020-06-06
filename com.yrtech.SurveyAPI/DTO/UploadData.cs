@@ -16,6 +16,5 @@ namespace com.yrtech.SurveyAPI.DTO
 
         public List<AnswerDto> AnswerList{get;set;}
         public List<AnswerShopInfo> AnswerShopInfoList { get; set; }
-        public List<AnswerShopConsultant> AnswerShopConsultantList { get; set; }
     }
 }

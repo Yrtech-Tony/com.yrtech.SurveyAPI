@@ -48,15 +48,15 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveArbitrationInfo(string recheckId,string lastConfirm,string lastConfirmReason,int? lastConfirmUserId)
         {
-            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
-            if (findOne!=null)
-            {
-                findOne.LastConfirmCheck = lastConfirm;
-                findOne.LastConfirmDate = DateTime.Now;
-                findOne.LastConfirmReason = lastConfirmReason;
-                findOne.LastConfirmUserId = lastConfirmUserId;
-            }
-            db.SaveChanges();
+            //ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            //if (findOne!=null)
+            //{
+            //    findOne.LastConfirmCheck = lastConfirm;
+            //    findOne.LastConfirmDate = DateTime.Now;
+            //    findOne.LastConfirmReason = lastConfirmReason;
+            //    findOne.LastConfirmUserId = lastConfirmUserId;
+            //}
+            //db.SaveChanges();
         }
         #endregion
     }

@@ -80,6 +80,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        ///  统计申诉和反馈数量
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Appeal/AppealCountSearch")]
+        public APIResult AppealCountSearch(string projectId)
+        {
+            try
+            {
+                List<AppealCountDto> list = appealService.AppealCountByShop(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Appeal/AppealApply")]
         public APIResult AppealApply(UploadData uploadData)
@@ -117,53 +136,54 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Appeal/AppealFeedBack")]
-        public APIResult AppealFeedBack(Appeal appeal)
+        public APIResult AppealFeedBack(UploadData uploadData)
         {
             try
             {
-                // appealService.AppealFeedBack(appeal.AppealId, appeal.FeedBackStatus, appeal.FeedBackReason, appeal.FeedBackUserId);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpPost]
-        [Route("Appeal/AppealShopAccept")]
-        public APIResult AppealShopAccept([FromBody]Appeal appeal)
-        {
-            try
-            {
-                // appealService.AppealShopAccept(appeal.AppealId, appeal.ShopAcceptStatus, appeal.ShopAcceptReason, appeal.ShopAcceptUserId);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [Route("Appeal/AppealDelete")]
-        public APIResult AppealDelete(Appeal appeal)
-        {
-            try
-            {
-                //appealService.AppealDelete(appeal.AppealId);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
+                List<AppealDto> list = CommonHelper.DecodeString<List<AppealDto>>(uploadData.ListJson);
+                foreach (AppealDto appealDto in list)
+                {
+                    Appeal appeal = new Appeal();
+                    appeal.AppealId = appealDto.AppealId;
+                    appeal.FeedBackReason = appealDto.FeedBackReason;
+                    appeal.FeedBackStatus = appealDto.FeedBackStatus;
+                    appeal.FeedBackUserId = appealDto.FeedBackUserId;
+                     appealService.AppealFeedBack(appeal);
+                    foreach (AppealFile appealFile in appealDto.AppealFileList)
+                    {
+                        appealFile.AppealId = appealDto.AppealId;
+                        appealService.AppealFileSave(appealFile);
+                    }
 
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Appeal/AppealFileDelete")]
         public APIResult AppealFileDelete(AppealFile appealFile)
         {
             try
             {
-                appealService.AppealDelete(appealFile.FileId);
+                appealService.AppealFileDelete(appealFile.FileId.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/AppealDelete")]
+        public APIResult AppealDelete(Appeal appeal)
+        {
+            try
+            {
+                appealService.AppealDelete(appeal.AppealId.ToString());
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

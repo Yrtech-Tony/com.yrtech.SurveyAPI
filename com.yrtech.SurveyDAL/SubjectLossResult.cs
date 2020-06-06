@@ -14,9 +14,8 @@ namespace com.yrtech.SurveyDAL
     
     public partial class SubjectLossResult
     {
-        public long LossResultId { get; set; }
-        public Nullable<long> SubjectId { get; set; }
-        public Nullable<int> SeqNO { get; set; }
+        public long SubjectId { get; set; }
+        public int SeqNO { get; set; }
         public string LossResultName { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

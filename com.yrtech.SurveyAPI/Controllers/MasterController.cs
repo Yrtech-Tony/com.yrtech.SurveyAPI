@@ -20,7 +20,6 @@ namespace com.yrtech.SurveyAPI.Controllers
     [RoutePrefix("survey/api")]
     public class MasterController : ApiController
     {
-        AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
         ShopService shopService = new ShopService();
         ExcelDataService excelDataService = new ExcelDataService();
@@ -126,6 +125,27 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    }
         //}
         //#endregion
+        #region 租户管理
+        [HttpGet]
+        [Route("Master/GetTenant")]
+        public APIResult GetTenant(string tenantId,string tenantCode,string tenantName)
+        {
+            try
+            {
+                List<Tenant> tenantList = masterService.GetTenant("", tenantCode, "");
+                if (tenantList == null || tenantList.Count == 0)
+                {
+                    return new APIResult() { Status = false, Body = "租户代码不存在" };
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(tenantList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 权限类型
         /// <summary>
         /// 
@@ -145,6 +165,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        #endregion
+        #region HiddenCode
+        [HttpGet]
+        [Route("Master/GetHiddenCode")]
+        public APIResult GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
+        {
+            try
+            {
+                List<HiddenColumn> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup, hiddenCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(hiddenCodeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         #endregion
         #region 品牌
@@ -540,6 +576,198 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         #endregion
+        #region 经销商
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="shopCode"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetShop")]
+        public APIResult GetShop(string brandId, string shopId, string shopCode, string key)
+        {
+            try
+            {
+                List<ShopDto> shopList = masterService.GetShop("", brandId, shopId, shopCode, key);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveShop")]
+        public APIResult SaveShop(Shop shop)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(shop.ShopCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "经销商代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(shop.ShopName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "经销商名称不能为空" };
+                }
+                List<ShopDto> shopList = masterService.GetShop("", shop.BrandId.ToString(), "", shop.ShopCode, "");
+                if (shopList != null && shopList.Count > 0 && shopList[0].ShopId != shop.ShopId)
+                {
+                    return new APIResult() { Status = false, Body = "经销商代码重复" };
+                }
+                masterService.SaveShop(shop);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 获取当前期需要执行的经销商及所属试卷类型
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Master/GetShopByProjectId")]
+        public APIResult GetShopByProjectId(string projectId)
+        {
+            try
+            {
+                List<ShopDto> projectShopList = new List<ShopDto>();
+                List<Shop> shopList = shopService.GetShopByProjectId(projectId);
+                List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId, "");
+                foreach (Shop shop in shopList)
+                {
+                    ShopDto shopDto = new ShopDto();
+                    shopDto.ProjectId = Convert.ToInt32(projectId);
+                    shopDto.ShopId = shop.ShopId;
+                    shopDto.ShopCode = shop.ShopCode;
+                    shopDto.ShopName = shop.ShopName;
+                    shopDto.Province = shop.Province;
+                    shopDto.City = shop.City;
+                    shopDto.ShopShortName = shop.ShopShortName;
+
+                    ShopSubjectTypeExamDto exam = subjectTypeExamList.Where(x => x.ShopId == shop.ShopId).FirstOrDefault();
+                    if (exam != null)
+                    {
+                        shopDto.SubjectTypeExamId = Convert.ToInt32(exam.ShopSubjectTypeExamId);
+                        shopDto.SubjectTypeExamName = exam.SubjectTypeExamName;
+                    }
+
+                    projectShopList.Add(shopDto);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectShopList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/ShopExcelAnalysis")]
+        public APIResult ShopExcelAnalysist(string brandId, string ossPath)
+        {
+            try
+            {
+                List<ShopDto> list = excelDataService.ShopImport(ossPath);
+                //验证Excel是否有重复的经销商代码
+                foreach (ShopDto shop in list)
+                {
+                    shop.ImportChk = true;
+                    shop.ImportRemark = "";
+                    foreach (ShopDto shop1 in list)
+                    {
+                        if (shop != shop1 && shop.ShopCode == shop1.ShopCode)
+                        {
+                            shop.ImportChk = false;
+                            shop.ImportRemark += "表格中存在重复的经销商代码" + ";";
+                        }
+                    }
+                    // 验证Excel中的集团信息是否已经登记
+                    List<Group> groupList = masterService.GetGroup(brandId, "", shop.GroupCode, "");
+                    if (groupList == null || groupList.Count == 0)
+                    {
+                        shop.ImportChk = false;
+                        shop.ImportRemark += "集团代码在系统中不存在" + ";";
+                    }
+                }
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/ShopImport")]
+        public APIResult ShopImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ShopDto> list = CommonHelper.DecodeString<List<ShopDto>>(uploadData.ListJson);
+                //验证Excel是否有重复的经销商代码
+                foreach (ShopDto shop in list)
+                {
+                    foreach (ShopDto shop1 in list)
+                    {
+                        if (shop != shop1 && shop.ShopCode == shop1.ShopCode)
+                        {
+                            return new APIResult() { Status = false, Body = "导入失败,文件中存在重复的经销商代码，请检查文件" };
+                        }
+                    }
+                    // 验证Excel中的集团信息是否已经登记
+                    List<Group> groupList = masterService.GetGroup(shop.BrandId.ToString(), "", shop.GroupCode, "");
+                    if (groupList == null || groupList.Count == 0)
+                    {
+                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的集团代码，请检查文件" };
+                    }
+                }
+                foreach (ShopDto shopDto in list)
+                {
+                    Shop shop = new Shop();
+                    List<Group> groupList = masterService.GetGroup(shopDto.BrandId.ToString(), "", shopDto.GroupCode, "");
+                    if (groupList != null && groupList.Count > 0)
+                    {
+                        shop.GroupId = groupList[0].GroupId;
+                    }
+                    // 如果经销商代码在系统已经存在就进行更新操作，可以进行导入的批量更新
+                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "", shopDto.ShopCode, "");
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        shop.ShopId = shopList[0].ShopId;
+                    }
+                    shop.BrandId = shopDto.BrandId;
+                    shop.City = shopDto.City;
+                    shop.InUserId = shopDto.InUserId;
+                    shop.ModifyUserId = shopDto.ModifyUserId;
+                    shop.Province = shopDto.Province;
+                    shop.ShopCode = shopDto.ShopCode;
+                    shop.ShopName = shopDto.ShopName;
+                    shop.ShopShortName = shopDto.ShopShortName;
+                    shop.TenantId = shopDto.TenantId;
+                    shop.UseChk = shopDto.UseChk;
+                    masterService.SaveShop(shop);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 区域经销商管理
         [HttpGet]
         [Route("Master/GetAreaShop")]
@@ -569,7 +797,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpPost]
+        [HttpGet]
         [Route("Master/AreaShopExcelAnalysis")]
         public APIResult AreaShopExcelAnalysis(string tenantId,string brandId,string ossPath)
         {
@@ -601,7 +829,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpGet]
+        [HttpPost]
         [Route("Master/AreaShopImport")]
         public APIResult AreaShopImport(UploadData uploadData)
         {
@@ -741,6 +969,49 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "期号代码重复" };
                 }
                 masterService.SaveProject(project);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 标签管理
+        [HttpGet]
+        [Route("Master/GetLabel")]
+        public APIResult GetLabel(string brandId,string labelType,bool? useChk)
+        {
+            try
+            {
+                List<Label> labelList = masterService.GetLabel(brandId, labelType, useChk, "");
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(labelList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/SaveLabel")]
+        public APIResult SaveLabel(Label label)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(label.LabelCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "标签代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(label.LabelName.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "标签名称不能为空" };
+                }
+                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(),label.LabelType,null,label.LabelCode);
+                if (labelList != null && labelList.Count > 0 && labelList[0].LabelId != label.LabelId)
+                {
+                    return new APIResult() { Status = false, Body = "标签代码重复" };
+                }
+                masterService.SaveLabel(label);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -912,411 +1183,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpGet]
-        [Route("Master/GetSubjectTypeScoreRegion")]
-        public APIResult GetSubjectTypeScoreRegion(string projectId, string subjectId, string subjectTypeId)
-        {
-            try
-            {
-                List<SubjectTypeScoreRegionDto> lossResultList = masterService.GetSubjectTypeScoreRegionDto(projectId, subjectId, subjectTypeId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(lossResultList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        [HttpPost]
-        [Route("Master/SaveSubjectTypeScoreRegion")]
-        public APIResult SaveSubjectTypeScoreRegion([FromBody]SubjectTypeScoreRegion subjectTypeScoreRegion)
-        {
-            try
-            {
-                masterService.SaveSubjectTypeScoreRegion(subjectTypeScoreRegion);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
         #endregion
-        #region HiddenCode
-        [HttpGet]
-        [Route("Master/GetHiddenCode")]
-        public APIResult GetHiddenCode(string hiddenCodeGroup, string hiddenCode)
-        {
-            try
-            {
-                List<HiddenColumn> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup, hiddenCode);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(hiddenCodeList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
-        #region 流程类型
-        /// <summary>
-        /// 获取流程类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("Master/GetSubjectLink")]
-        public APIResult GetSubjectLink(string projectId)
-        {
-            try
-            {
-                List<SubjectLink> subjectLinkList = masterService.GetSubjectLink(projectId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectLinkList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
+       
+       
 
-        }
-        /// <summary>
-        /// 新增或者更新流程类型
-        /// </summary>
-        /// <param name="uploadData"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("Master/SaveSubjectLink")]
-        public APIResult SaveSubjectLink([FromBody]SubjectLink subjectLink)
-        {
-            try
-            {
-                masterService.SaveSubjectLink(subjectLink);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        /// <summary>
-        /// 更新SubjectLinkId
-        /// </summary>
-        /// <param name="uploadData"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("Master/SetSubjectLinkId")]
-        public APIResult SetSubjectLinkId([FromBody]UploadData uploadData)
-        {
-            try
-            {
-                List<SubjectDto> subjectList = CommonHelper.DecodeString<List<SubjectDto>>(uploadData.ListJson);
-                masterService.SetSubjectLinkId(subjectList);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
-        #region 经销商
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="brandId"></param>
-        /// <param name="shopId"></param>
-        /// <param name="shopCode"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("Master/GetShop")]
-        public APIResult GetShop(string brandId, string shopId, string shopCode, string key)
-        {
-            try
-            {
-                List<ShopDto> shopList = masterService.GetShop("", brandId, shopId, shopCode, key);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(shopList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        [HttpPost]
-        [Route("Master/SaveShop")]
-        public APIResult SaveShop(Shop shop)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(shop.ShopCode.Replace(" ", "").ToString()))
-                {
-                    return new APIResult() { Status = false, Body = "经销商代码不能为空" };
-                }
-                if (string.IsNullOrEmpty(shop.ShopName.Replace(" ", "").ToString()))
-                {
-                    return new APIResult() { Status = false, Body = "经销商名称不能为空" };
-                }
-                List<ShopDto> shopList = masterService.GetShop("", shop.BrandId.ToString(), "", shop.ShopCode, "");
-                if (shopList != null && shopList.Count > 0 && shopList[0].ShopId != shop.ShopId)
-                {
-                    return new APIResult() { Status = false, Body = "经销商代码重复" };
-                }
-                masterService.SaveShop(shop);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        /// <summary>
-        /// 获取当前期需要执行的经销商及所属试卷类型
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="subjectId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("Master/GetShopByProjectId")]
-        public APIResult GetShopByProjectId(string projectId)
-        {
-            try
-            {
-                List<ShopDto> projectShopList = new List<ShopDto>();
-                List<Shop> shopList = shopService.GetShopByProjectId(projectId);
-                List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId, "");
-                foreach (Shop shop in shopList)
-                {
-                    ShopDto shopDto = new ShopDto();
-                    shopDto.ProjectId = Convert.ToInt32(projectId);
-                    shopDto.ShopId = shop.ShopId;
-                    shopDto.ShopCode = shop.ShopCode;
-                    shopDto.ShopName = shop.ShopName;
-                    shopDto.Province = shop.Province;
-                    shopDto.City = shop.City;
-                    shopDto.ShopShortName = shop.ShopShortName;
-
-                    ShopSubjectTypeExamDto exam = subjectTypeExamList.Where(x => x.ShopId == shop.ShopId).FirstOrDefault();
-                    if (exam != null)
-                    {
-                        shopDto.SubjectTypeExamId = Convert.ToInt32(exam.ShopSubjectTypeExamId);
-                        shopDto.SubjectTypeExamName = exam.SubjectTypeExamName;
-                    }
-
-                    projectShopList.Add(shopDto);
-                }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectShopList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        [HttpGet]
-        [Route("Master/ShopExcelAnalysis")]
-        public APIResult ShopExcelAnalysist(string brandId,string ossPath)
-        {
-            try
-            {
-                List<ShopDto> list = excelDataService.ShopImport(ossPath);
-                //验证Excel是否有重复的经销商代码
-                foreach (ShopDto shop in list)
-                {
-                    shop.ImportChk = true;
-                    shop.ImportRemark = "";
-                    foreach (ShopDto shop1 in list)
-                    {
-                        if (shop != shop1 && shop.ShopCode == shop1.ShopCode)
-                        {
-                            shop.ImportChk = false;
-                            shop.ImportRemark += "表格中存在重复的经销商代码"+";";
-                        }
-                    }
-                    // 验证Excel中的集团信息是否已经登记
-                    List<Group> groupList = masterService.GetGroup(brandId, "", shop.GroupCode, "");
-                    if (groupList == null || groupList.Count == 0)
-                    {
-                        shop.ImportChk = false;
-                        shop.ImportRemark += "集团代码在系统中不存在"+";";
-                    }
-                }
-               
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        [HttpPost]
-        [Route("Master/ShopImport")]
-        public APIResult ShopImport(UploadData uploadData)
-        {
-            try
-            {
-                List<ShopDto> list = CommonHelper.DecodeString<List<ShopDto>>(uploadData.ListJson);
-                //验证Excel是否有重复的经销商代码
-                foreach (ShopDto shop in list)
-                {
-                    foreach (ShopDto shop1 in list)
-                    {
-                        if (shop != shop1 && shop.ShopCode == shop1.ShopCode)
-                        {
-                            return new APIResult() { Status = false, Body = "导入失败,文件中存在重复的经销商代码，请检查文件" };
-                        }
-                    }
-                    // 验证Excel中的集团信息是否已经登记
-                    List<Group> groupList = masterService.GetGroup(shop.BrandId.ToString(), "", shop.GroupCode, "");
-                    if (groupList == null || groupList.Count == 0)
-                    {
-                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的集团代码，请检查文件" };
-                    }
-                }
-                foreach (ShopDto shopDto in list)
-                {
-                    Shop shop = new Shop();
-                    List<Group> groupList = masterService.GetGroup(shopDto.BrandId.ToString(), "", shopDto.GroupCode, "");
-                    if (groupList != null && groupList.Count > 0)
-                    {
-                        shop.GroupId = groupList[0].GroupId;
-                    }
-                    // 如果经销商代码在系统已经存在就进行更新操作，可以进行导入的批量更新
-                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "", shopDto.ShopCode, "");
-                    if (shopList != null && shopList.Count > 0)
-                    {
-                        shop.ShopId = shopList[0].ShopId;
-                    }
-                    shop.BrandId = shopDto.BrandId;
-                    shop.City = shopDto.City;
-                    shop.InUserId = shopDto.InUserId;
-                    shop.ModifyUserId = shopDto.ModifyUserId;
-                    shop.Province = shopDto.Province;
-                    shop.ShopCode = shopDto.ShopCode;
-                    shop.ShopName = shopDto.ShopName;
-                    shop.ShopShortName = shopDto.ShopShortName;
-                    shop.TenantId = shopDto.TenantId;
-                    shop.UseChk = shopDto.UseChk;
-                    masterService.SaveShop(shop);
-                }
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-
-        }
-        #endregion
-        #region 试卷类型
-        [HttpGet]
-        [Route("Master/GetSubjectTypeExam")]
-        public APIResult GetSubjectTypeExam(string projectId, string subjectTypeExamId)
-        {
-            try
-            {
-                List<SubjectTypeExam> examList = masterService.GetSubjectTypeExam(projectId, subjectTypeExamId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(examList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpPost]
-        [Route("Master/SaveSubjectTypeExam")]
-        public APIResult SaveSubjectTypeExam([FromBody]SubjectTypeExam subjectTypeExam)
-        {
-            try
-            {
-                masterService.SaveSubjectTypeExam(subjectTypeExam);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
-        #region 体系类型
-        [HttpGet]
-        [Route("Master/GetSubjectType")]
-        public APIResult GetSubjectType()
-        {
-            try
-            {
-                List<SubjectType> examList = masterService.GetSubjectType();
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(examList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
-        #region 复审类型
-        [HttpGet]
-        [Route("Master/GetSubjectRecheckType")]
-        public APIResult GetSubjectRecheckType(string projectId, string subjectRecheckTypeId)
-        {
-            try
-            {
-                List<SubjectRecheckType> subjectRecheckTypeList = masterService.GetSubjectRecheckType(projectId, subjectRecheckTypeId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectRecheckTypeList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpPost]
-        [Route("Master/SaveSubjectRecheckType")]
-        public APIResult SaveSubjectRecheckType([FromBody]SubjectRecheckType subjectRecheckType)
-        {
-            try
-            {
-                masterService.SaveSubjectRecheckType(subjectRecheckType);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
-        #region 复审错误类型
-        [HttpGet]
-        [Route("Master/GetRecheckErrorType")]
-        public APIResult GetRecheckErrorType(string projectId, string recheckErrorTypeId)
-        {
-            try
-            {
-                List<RecheckErrorType> recheckErrorTypeList = masterService.GetRecheckErrorType(projectId, recheckErrorTypeId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckErrorTypeList) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpPost]
-        [Route("Master/SaveRecheckErrorType")]
-        public APIResult SaveRecheckErrorType([FromBody]RecheckErrorType recheckErrorType)
-        {
-            try
-            {
-                masterService.SaveRecheckErrorType(recheckErrorType);
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        #endregion
 
 
     }

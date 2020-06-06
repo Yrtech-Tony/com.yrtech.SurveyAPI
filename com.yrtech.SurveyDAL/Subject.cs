@@ -14,18 +14,18 @@ namespace com.yrtech.SurveyDAL
     
     public partial class Subject
     {
-        public int SubjectId { get; set; }
+        public long SubjectId { get; set; }
         public string SubjectCode { get; set; }
         public Nullable<int> ProjectId { get; set; }
-        public Nullable<int> SubjectTypeExamId { get; set; }
-        public Nullable<int> SubjectRecheckTypeId { get; set; }
-        public Nullable<int> SubjectLinkId { get; set; }
+        public Nullable<int> ExamTypeId { get; set; }
+        public Nullable<int> RecheckTypeId { get; set; }
         public Nullable<int> OrderNO { get; set; }
-        public string Implementation { get; set; }
+        public Nullable<decimal> FullScore { get; set; }
+        public Nullable<decimal> LowScore { get; set; }
         public string CheckPoint { get; set; }
-        public string Desc { get; set; }
-        public string AdditionalDesc { get; set; }
+        public string Implementation { get; set; }
         public string InspectionDesc { get; set; }
+        public string Desc { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

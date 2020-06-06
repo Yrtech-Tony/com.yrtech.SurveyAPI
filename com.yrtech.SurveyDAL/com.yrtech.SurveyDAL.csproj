@@ -51,18 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Answer.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AnswerShopConsultant.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AnswerShopConsultantScore.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AnswerShopConsultantSubjectLink.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
     <Compile Include="AnswerShopInfo.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -88,19 +76,13 @@
     <Compile Include="HiddenColumn.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="Label.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Project.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="ProjectShop.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReCheck.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="RecheckErrorType.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
     <Compile Include="ReCheckStatus.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -119,9 +101,6 @@
     <Compile Include="Shop.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="ShopSubjectTypeExam.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
     <Compile Include="Subject.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -131,22 +110,7 @@
     <Compile Include="SubjectInspectionStandard.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
-    <Compile Include="SubjectLink.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
     <Compile Include="SubjectLossResult.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="SubjectRecheckType.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="SubjectType.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="SubjectTypeExam.cs">
-      <DependentUpon>Survey.tt</DependentUpon>
-    </Compile>
-    <Compile Include="SubjectTypeScoreRegion.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Survey.Context.cs">
