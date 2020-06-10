@@ -32,6 +32,7 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectInspectionStandard" Width="1.5" PointX="11.625" PointY="8.25" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectLossResult" Width="2.625" PointX="5" PointY="6.625" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Label" Width="1.5" PointX="13.375" PointY="11.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.LabelObject" Width="1.5" PointX="0.75" PointY="13.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

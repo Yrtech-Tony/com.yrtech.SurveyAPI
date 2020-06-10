@@ -79,6 +79,9 @@
     <Compile Include="Label.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="LabelObject.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Project.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

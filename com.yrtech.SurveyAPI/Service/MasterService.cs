@@ -707,6 +707,25 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        public void ImportShop(List<Shop> shopList)
+        {
+            string sql = "";
+            foreach (Shop shop in shopList)
+            {
+                sql += " INSERT INTO Shop VALUES('"+shop.TenantId.ToString()+"','";
+                sql += shop.BrandId.ToString() + "','";
+                sql += shop.ShopCode + "','";
+                sql += shop.ShopName + "','";
+                sql += shop.ShopShortName + "','";
+                sql += shop.Province + "','";
+                sql += shop.City + "','";
+                sql += shop.GroupId + "','";
+                sql += shop.InUserId + "','";
+                sql += DateTime.Now.ToString() + "','";
+                sql += shop.ModifyUserId + "','";
+                sql += DateTime.Now.ToString() + ",')";
+            }
+        }
         #endregion
         #region 经销商区域设置
         public List<ShopDto> GetAreaShop(string tenantId, string brandId, string shopId, string areaId)
@@ -968,6 +987,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<Label> GetLabel(string brandId,string labelType,bool? useChk,string labelCode)
         {
             if (labelCode == null) labelCode = "";
+            if (labelType == null) labelType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@LabelType", labelType),
                                                         new SqlParameter("@BrandId", brandId),
                                                          new SqlParameter("@LabelCode", labelCode),
@@ -976,7 +996,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT * 
                       FROM [Label] A
-                    WHERE  LabelType = @LabelType AND BrandId = @BrandId AND 1=1
+                    WHERE  BrandId = @BrandId AND 1=1
                     ";
             if (useChk != null)
             {
@@ -985,6 +1005,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(labelCode))
             {
                 sql += " AND LabelCode = @LabelCode";
+            }
+            if (!string.IsNullOrEmpty(labelType))
+            {
+                sql += " AND LabelType = @LabelType";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
         }
@@ -1005,6 +1029,36 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        //public List<LabelObject> GetLabelObject(string Id,string labelId,string objectId,string objectType)
+        //{
+        //    if (Id == null) Id = "";
+        //    if (labelId == null) labelId = "";
+        //    if (objectId == null) objectId = "";
+        //    if (objectType == null) objectType = "";
+        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Id", Id),
+        //                                                new SqlParameter("@LabelId", labelId),
+        //                                                 new SqlParameter("@ObjectId", objectId),
+        //                                                new SqlParameter("@ObjectType", objectType)};
+        //    Type t = typeof(Label);
+        //    string sql = "";
+        //    sql = @"SELECT * 
+        //              FROM [Label] A
+        //            WHERE  BrandId = @BrandId AND 1=1
+        //            ";
+        //    if (useChk != null)
+        //    {
+        //        sql += " AND UseChk = @UseChk";
+        //    }
+        //    if (!string.IsNullOrEmpty(labelCode))
+        //    {
+        //        sql += " AND LabelCode = @LabelCode";
+        //    }
+        //    if (!string.IsNullOrEmpty(labelType))
+        //    {
+        //        sql += " AND LabelType = @LabelType";
+        //    }
+        //    return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
+        //}
         #endregion
         #region 收费
         //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)

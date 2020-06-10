@@ -3,6 +3,7 @@ using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
 using Infragistics.Documents.Excel;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 
@@ -44,6 +45,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { shop.UseChk = false; }
                 list.Add(shop);
             }
+            list = (from shop in list orderby shop.ImportChk select shop).ToList();
             return list;
 
         }
@@ -73,7 +75,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { area.UseChk = false; }
                 list.Add(area);
             }
-            return list;
+            return list = (from area in list orderby area.ImportChk select area).ToList(); ;
 
         }
         //设置小区下经销商
@@ -95,7 +97,7 @@ namespace com.yrtech.SurveyAPI.Service
                 areaShop.ShopCode = shopCode;
                 list.Add(areaShop);
             }
-            return list;
+            return list = (from shop in list orderby shop.ImportChk select shop).ToList(); ;
 
         }
 

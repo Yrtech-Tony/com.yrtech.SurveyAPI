@@ -128,7 +128,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 租户管理
         [HttpGet]
         [Route("Master/GetTenant")]
-        public APIResult GetTenant(string tenantId,string tenantCode,string tenantName)
+        public APIResult GetTenant(string tenantId, string tenantCode, string tenantName)
         {
             try
             {
@@ -428,7 +428,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                        area.AreaType != "SmalllArea")
                     {
                         area.ImportChk = false;
-                        area.ImportRemark += "区域类型填写错误"+";";
+                        area.ImportRemark += "区域类型填写错误" + ";";
                     }
                     bool parentAreaCodeChk_DB = true;// 数据库中是否有对应的上级区域代码
                     bool parentAreaCodeChk_Excel = false;//Excel中是否有对应的上级区域代码
@@ -451,10 +451,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                         if (area != area1 && area.AreaCode == area1.AreaCode)
                         {
                             area.ImportChk = false;
-                            area.ImportRemark += "表格中有重复的区域代码"+";";
+                            area.ImportRemark += "表格中有重复的区域代码" + ";";
                         }
                         // 验证上级区域代码在表格中是否存在，如果表格中和DB中都不存在提示错误
-                        if (area.AreaType != "Bussiness"&& area != area1&&area.ParentCode==area1.AreaCode)
+                        if (area.AreaType != "Bussiness" && area != area1 && area.ParentCode == area1.AreaCode)
                         {
                             parentAreaCodeChk_Excel = true;
                         }
@@ -464,7 +464,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         area.ImportChk = false;
                         area.ImportRemark += "上级区域代码在系统和表格中均不存在" + ";";
                     }
-                   
+
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
@@ -525,7 +525,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         string parentAreaType = "";
                         if (areaDto.AreaType == "WideArea") { parentAreaType = "Bussiness"; }
-                        else if(areaDto.AreaType == "BigArea") { parentAreaType = "WideArea"; }
+                        else if (areaDto.AreaType == "BigArea") { parentAreaType = "WideArea"; }
                         else if (areaDto.AreaType == "MiddleArea") { parentAreaType = "BigArea"; }
                         else if (areaDto.AreaType == "SmallArea") { parentAreaType = "MiddleArea"; }
                         List<AreaDto> areaList = masterService.GetArea("", areaDto.BrandId.ToString(), areaDto.ParentCode, "", parentAreaType, "");
@@ -733,10 +733,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的集团代码，请检查文件" };
                     }
                 }
+                List<Shop> importShopList = new List<Shop>();
                 foreach (ShopDto shopDto in list)
                 {
                     Shop shop = new Shop();
-                    List<Group> groupList = masterService.GetGroup(shopDto.BrandId.ToString(), "", shopDto.GroupCode, "");
+                    List<Group> groupList = new List<Group>();
+                    if (string.IsNullOrEmpty(shopDto.GroupCode))
+                    { groupList = masterService.GetGroup(shopDto.BrandId.ToString(), "", shopDto.GroupCode, ""); }
                     if (groupList != null && groupList.Count > 0)
                     {
                         shop.GroupId = groupList[0].GroupId;
@@ -758,7 +761,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                     shop.TenantId = shopDto.TenantId;
                     shop.UseChk = shopDto.UseChk;
                     masterService.SaveShop(shop);
+                    //importShopList.Add(shop);
                 }
+               // masterService.ImportShop(importShopList);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -799,7 +804,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Master/AreaShopExcelAnalysis")]
-        public APIResult AreaShopExcelAnalysis(string tenantId,string brandId,string ossPath)
+        public APIResult AreaShopExcelAnalysis(string tenantId, string brandId, string ossPath)
         {
             try
             {
@@ -812,7 +817,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     if (shopList == null || shopList.Count == 0)
                     {
                         shopDto.ImportChk = false;
-                        shopDto.ImportRemark += "经销商代码在系统中不存在"+ ";";
+                        shopDto.ImportRemark += "经销商代码在系统中不存在" + ";";
                     }
                     List<AreaDto> areaList = masterService.GetArea("", brandId, shopDto.AreaCode, "", "SmallArea", "");
                     if (areaList == null || areaList.Count == 0)
@@ -844,7 +849,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的经销商代码，请检查文件" };
                     }
-                    List<AreaDto> areaList = masterService.GetArea("", shopDto.BrandId.ToString(), shopDto.AreaCode,"","SmallArea","");
+                    List<AreaDto> areaList = masterService.GetArea("", shopDto.BrandId.ToString(), shopDto.AreaCode, "", "SmallArea", "");
                     if (areaList == null || areaList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的小区代码，请检查文件" };
@@ -860,7 +865,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     areashop.InUserId = shopDto.InUserId;
                     areashop.ModifyUserId = shopDto.ModifyUserId;
-                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "",shopDto.ShopCode,"");
+                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "", shopDto.ShopCode, "");
                     if (shopList != null && shopList.Count > 0)
                     {
                         areashop.ShopId = shopList[0].ShopId;
@@ -980,7 +985,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 标签管理
         [HttpGet]
         [Route("Master/GetLabel")]
-        public APIResult GetLabel(string brandId,string labelType,bool? useChk)
+        public APIResult GetLabel(string brandId, string labelType, bool? useChk)
         {
             try
             {
@@ -1006,7 +1011,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "标签名称不能为空" };
                 }
-                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(),label.LabelType,null,label.LabelCode);
+                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(), label.LabelType, null, label.LabelCode);
                 if (labelList != null && labelList.Count > 0 && labelList[0].LabelId != label.LabelId)
                 {
                     return new APIResult() { Status = false, Body = "标签代码重复" };
@@ -1184,8 +1189,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-       
-       
+
+
 
 
 

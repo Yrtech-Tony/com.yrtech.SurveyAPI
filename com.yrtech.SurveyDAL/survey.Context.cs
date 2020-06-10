@@ -52,5 +52,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
         public virtual DbSet<Label> Label { get; set; }
+        public virtual DbSet<LabelObject> LabelObject { get; set; }
     }
 }

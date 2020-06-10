@@ -169,6 +169,7 @@
     <Compile Include="DTO\Appeal\AppealCountDto.cs" />
     <Compile Include="DTO\Appeal\AppealFileDto.cs" />
     <Compile Include="DTO\Appeal\AppealDto.cs" />
+    <Compile Include="DTO\Master\LabelObjectDto.cs" />
     <Compile Include="DTO\Master\ProjectDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Master\SubjectTypeScoreRegionDto.cs" />
