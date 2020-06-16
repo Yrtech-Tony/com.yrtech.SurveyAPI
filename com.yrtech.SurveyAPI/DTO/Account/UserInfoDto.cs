@@ -16,6 +16,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public string AccountId { get; set; }
         public string AccountName { get; set; }
         public string Password { get; set; }
+        public bool? ImportChk { get; set; }
+        public string ImportRemark { get; set; }
         public Nullable<int> BrandId { get; set; }
         public string UserType { get; set; }
         public string RoleType { get; set; }

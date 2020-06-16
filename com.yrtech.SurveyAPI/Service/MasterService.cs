@@ -13,18 +13,30 @@ namespace com.yrtech.SurveyAPI.Service
     {
         Survey db = new Survey();
         AccountService accountService = new AccountService();
-        public List<RoleType> GetRoleType(string type)
+        public List<RoleType> GetRoleType(string type,string roleTypeCode,string roleTypeName)
         {
 
             if (type == null) type = "";
+            if (roleTypeCode == null) roleTypeCode = "";
+            if (roleTypeName == null) roleTypeName = "";
             Type t = typeof(RoleType);
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Type", type) };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Type", type)
+                                                    ,new SqlParameter("@RoleTypeCode", roleTypeCode)
+                                                    , new SqlParameter("@RoleTypeName", roleTypeName) };
             string sql = "";
             sql = @"SELECT *
                    FROM [RoleType] WHERE 1=1";
             if (!string.IsNullOrEmpty(type))
             {
                 sql += " AND Type = @Type";
+            }
+            if (!string.IsNullOrEmpty(roleTypeCode))
+            {
+                sql += " AND RoleTypeCode = @RoleTypeCode";
+            }
+            if (!string.IsNullOrEmpty(roleTypeName))
+            {
+                sql += " AND RoleTypeName = @RoleTypeName";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RoleType>().ToList();
         }
@@ -396,7 +408,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 区域管理
-        public List<AreaDto> GetArea(string areaId,string brandId, string areaCode, string areaName, string areaType,string parentId)
+        public List<AreaDto> GetArea(string areaId,string brandId, string areaCode, string areaName, string areaType,string parentId,bool? useChk)
         {
             areaId = areaId == null ? "" : areaId;
             areaCode = areaCode == null ? "" : areaCode;
@@ -443,6 +455,11 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(parentId))
             {
                 sql += " AND A.ParentId = @ParentId";
+            }
+            if (useChk.HasValue)
+            {
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
+                sql += " AND A.UseChk = @UseChk";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
 

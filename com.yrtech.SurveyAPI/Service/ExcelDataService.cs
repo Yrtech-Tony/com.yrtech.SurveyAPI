@@ -45,7 +45,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { shop.UseChk = false; }
                 list.Add(shop);
             }
-            list = (from shop in list orderby shop.ImportChk select shop).ToList();
+            
             return list;
 
         }
@@ -75,7 +75,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { area.UseChk = false; }
                 list.Add(area);
             }
-            return list = (from area in list orderby area.ImportChk select area).ToList(); ;
+            return list;
 
         }
         //设置小区下经销商
@@ -97,7 +97,59 @@ namespace com.yrtech.SurveyAPI.Service
                 areaShop.ShopCode = shopCode;
                 list.Add(areaShop);
             }
-            return list = (from shop in list orderby shop.ImportChk select shop).ToList(); ;
+            return list ;
+
+        }
+        // 导入账号信息
+        public List<UserInfoDto> UserInfoImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<UserInfoDto> list = new List<UserInfoDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string accountId = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(accountId)) break;
+                UserInfoDto userInfo = new UserInfoDto();
+                userInfo.AccountId = accountId; ;
+                userInfo.AccountName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                userInfo.Password = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
+                userInfo.RoleTypeName = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+                userInfo.Email = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
+                userInfo.TelNO = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
+                string useChk = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                if (useChk == "1")
+                {
+                    userInfo.UseChk = true;
+                }
+                else { userInfo.UseChk = false; }
+                list.Add(userInfo);
+            }
+            return list;
+
+        }
+        // 导入所属信息
+        public List<UserInfoObjectDto> UserInfoObjectImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<UserInfoObjectDto> list = new List<UserInfoObjectDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string accountId = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(accountId)) break;
+                UserInfoObjectDto userInfoObject = new UserInfoObjectDto();
+                userInfoObject.AccountId = accountId;
+                userInfoObject.ObjectCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(userInfoObject);
+            }
+            return list;
 
         }
 
