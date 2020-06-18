@@ -153,5 +153,61 @@ namespace com.yrtech.SurveyAPI.Service
 
         }
 
+        // 导出账号
+        public string UserInfoExport(string tenantId, string brandId)
+        {
+            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "");
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "UserInfo.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+
+            foreach (UserInfo item in list)
+            {
+                //账号
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.AccountId;
+                //姓名
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.AccountName;
+                //密码
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.Password;
+                //权限
+                string roleTypeName = "";
+                if (item.RoleType == "B_Brand") roleTypeName = "厂商";
+                else if(item.RoleType=="B_Bussiness") roleTypeName = "业务";
+                else if (item.RoleType == "B_WideArea") roleTypeName = "广域区域";
+                else if (item.RoleType == "B_BigArea") roleTypeName = "大区";
+                else if (item.RoleType == "B_MiddleArea") roleTypeName = "中区";
+                else if (item.RoleType == "B_SmallArea") roleTypeName = "小区";
+                else if (item.RoleType == "B_Shop") roleTypeName = "经销商";
+                else if(item.RoleType=="B_Group") roleTypeName = "集团";
+                sheet.GetCell("D" + (rowIndex + 2)).Value = roleTypeName;
+                //Email
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.Email;
+                //Tel
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.TelNO;
+                // useChk
+                if (item.UseChk == true)
+                {
+                    sheet.GetCell("G" + (rowIndex + 2)).Value = "Y";
+                }
+                else { sheet.GetCell("G" + (rowIndex + 2)).Value = "N"; }
+               
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "账号" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+
     }
 }

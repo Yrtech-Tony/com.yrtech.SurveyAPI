@@ -577,6 +577,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        [HttpGet]
+        [Route("Master/UserInfoExport")]
+        public APIResult UserInfoExport(string tenantId, string brandId)
+        {
+            try
+            {
+                string downloadPath = excelDataService.UserInfoExport(tenantId,brandId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 区域管理
         [HttpGet]
