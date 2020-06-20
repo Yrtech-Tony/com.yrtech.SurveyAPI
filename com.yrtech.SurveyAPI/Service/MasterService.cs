@@ -590,7 +590,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND Year = @Year";
             }
-            sql += " ORDER BY OrderNO";
+            sql += " ORDER BY OrderNO DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
 
         }

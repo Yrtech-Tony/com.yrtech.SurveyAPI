@@ -202,7 +202,6 @@ namespace com.yrtech.SurveyAPI.Service
                                                INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
-       
         /// <summary>
         /// 查询申诉详细
         /// </summary>

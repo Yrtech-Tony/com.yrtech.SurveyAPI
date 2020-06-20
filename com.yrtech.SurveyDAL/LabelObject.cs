@@ -17,7 +17,6 @@ namespace com.yrtech.SurveyDAL
         public long Id { get; set; }
         public Nullable<int> LabelId { get; set; }
         public Nullable<int> ObjectId { get; set; }
-        public string ObjectType { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
     }

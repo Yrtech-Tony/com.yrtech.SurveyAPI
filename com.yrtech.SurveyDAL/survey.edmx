@@ -143,7 +143,6 @@
           <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="LabelId" Type="int" />
           <Property Name="ObjectId" Type="int" />
-          <Property Name="ObjectType" Type="nvarchar" MaxLength="50" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
         </EntityType>
@@ -857,7 +856,6 @@
           <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="LabelId" Type="Int32" />
           <Property Name="ObjectId" Type="Int32" />
-          <Property Name="ObjectType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
@@ -1279,7 +1277,6 @@
               <MappingFragment StoreEntitySet="LabelObject">
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="ObjectType" ColumnName="ObjectType" />
                 <ScalarProperty Name="ObjectId" ColumnName="ObjectId" />
                 <ScalarProperty Name="LabelId" ColumnName="LabelId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />

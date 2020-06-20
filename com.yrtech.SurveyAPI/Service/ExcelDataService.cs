@@ -16,7 +16,7 @@ namespace com.yrtech.SurveyAPI.Service
         string basePath = HostingEnvironment.MapPath(@"~/");
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
-
+        #region 导入
         // 导入经销商
         public List<ShopDto> ShopImport(string ossPath)
         {
@@ -78,7 +78,7 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-        //设置小区下经销商
+        //导入小区下经销商
         public List<ShopDto> AreaShopImport(string ossPath)
         {
             // 从OSS下载文件
@@ -152,7 +152,8 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-
+        #endregion
+        #region 导出
         // 导出账号
         public string UserInfoExport(string tenantId, string brandId)
         {
@@ -208,6 +209,6 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
-
+        #endregion
     }
 }

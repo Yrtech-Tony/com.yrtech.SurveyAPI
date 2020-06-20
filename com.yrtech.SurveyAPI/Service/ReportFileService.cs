@@ -16,6 +16,32 @@ namespace com.yrtech.SurveyAPI.Service
     public class ReportFileService
     {
         Survey db = new Survey();
+        #region 首页
+        /// <summary>
+        /// 首页报告统计查询
+        /// </summary>
+        /// <returns></returns>
+        public List<ReportFileUploadDto> ReportFileCountYear()
+        {
+            SqlParameter[] para = new SqlParameter[] { };
+            Type t = typeof(ReportFileUploadDto);
+            string sql = @"
+                        SELECT ProjectId,ProjectCode,ProjectName
+                                        ,SUM(ReportFileCount_File) AS ReportFileCount_File
+                                        ,SUM(ReportFileCount_Video) AS ReportFileCount_Video
+                        FROM(
+                                SELECT A.ProjectId,B.ProjectCode,B.ProjectName,
+                                        CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
+                                        CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
+                                FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId AND B.[Year] = YEAR(GETDATE())
+                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
+                                            ) X
+                        WHERE 1=1
+                        GROUP BY X.ProjectId,X.ProjectCode,X.ProjectName";
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
+        }
+        #endregion
+        #region 报告上传
         /// <summary>
         /// 文件上传查询
         /// </summary>
@@ -76,29 +102,7 @@ namespace com.yrtech.SurveyAPI.Service
 
             return ReportFileListUploadALLSearch(brandId, projectId, bussinessTypeId, keyword).Skip(startIndex).Take(pageCount).ToList();
         }
-        /// <summary>
-        /// 首页报告统计查询
-        /// </summary>
-        /// <returns></returns>
-        public List<ReportFileUploadDto> ReportFileCountYear()
-        {
-            SqlParameter[] para = new SqlParameter[] { };
-            Type t = typeof(ReportFileUploadDto);
-            string sql = @"
-                        SELECT ProjectId,ProjectCode,ProjectName
-                                        ,SUM(ReportFileCount_File) AS ReportFileCount_File
-                                        ,SUM(ReportFileCount_Video) AS ReportFileCount_Video
-                        FROM(
-                                SELECT A.ProjectId,B.ProjectCode,B.ProjectName,
-                                        CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
-                                        CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
-                                FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId AND B.[Year] = YEAR(GETDATE())
-                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
-                                            ) X
-                        WHERE 1=1
-                        GROUP BY X.ProjectId,X.ProjectCode,X.ProjectName";
-            return db.Database.SqlQuery(t, sql, para).Cast<ReportFileUploadDto>().ToList();
-        }
+        
 
         /// <summary>
         /// 查询特定经销商的文件
@@ -195,7 +199,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.Database.ExecuteSqlCommand(sql, para);
         }
-
+        #endregion
+        #region 报告下载
         /// <summary>
         /// 报告下载查询
         /// </summary>
@@ -451,6 +456,8 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return isSuccess;
         }
+        #endregion
+        #region 报告下载日志
         /// <summary>
         /// 报告文件操作记录
         /// </summary>
@@ -510,5 +517,6 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
 
         }
+        #endregion
     }
 }
