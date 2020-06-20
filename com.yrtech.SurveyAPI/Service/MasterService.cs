@@ -812,12 +812,8 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.SubjectId,A.[SubjectCode],A.[ProjectId],A.[SubjectTypeExamId],B.SubjectTypeExamName,A.[SubjectRecheckTypeId]
-                          ,A.[SubjectLinkId],C.SubjectLinkName,A.[OrderNO],A.[Implementation],A.[CheckPoint],A.[Desc]
-                          ,A.[AdditionalDesc],A.[InspectionDesc],A.InUserId,A.InDateTime,
-                          A.ModifyUserId,A.ModifyDateTime
-                    FROM Subject A INNER JOIN SubjectTypeExam B ON A.SubjectTypeExamId = B.SubjectTypeExamId
-				                   INNER JOIN SubjectLink C ON A.SubjectLinkId= C.SubjectLinkId
+            sql = @"SELECT A.*
+                    FROM Subject A 
                     WHERE 1=1 ";
             if (!string.IsNullOrEmpty(projectId))
             {
@@ -836,16 +832,6 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subject"></param>
         public void SaveSubject(Subject subject)
         {
-            //List<UserInfo> userList = accountService.GetUserInfo("",subject.ModifyUserId.ToString(),"","");
-            //if (userList == null || userList.Count == 0)
-            //{
-            //    throw new Exception("没有找到对应的用户");
-            //}
-            //string accountId = userList[0].AccountId;
-            //string brandId = GetBrand("1", subject.ModifyUserId.ToString(),userList[0].RoleType, "")[0].BrandId.ToString();
-            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-            ////webService.SaveSubject("U",GetProject("1","",subject.ProjectId.ToString())[0].ProjectCode,subject.SubjectCode,subject.Implementation,subject.CheckPoint,subject.Desc,subject.AdditionalDesc,subject.InspectionDesc
-            ////    ,subject.Remark,subject.OrderNO,"",null,true,GetSubjectType())
             Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -855,18 +841,17 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else
             {
-               // findOne.AdditionalDesc = subject.AdditionalDesc;
                 findOne.CheckPoint = subject.CheckPoint;
                 findOne.Desc = subject.Desc;
+                findOne.FullScore = subject.FullScore;
                 findOne.Implementation = subject.Implementation;
                 findOne.InspectionDesc = subject.InspectionDesc;
+                findOne.LowScore = subject.LowScore;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = subject.ModifyUserId;
                 findOne.OrderNO = subject.OrderNO;
                 findOne.Remark = subject.Remark;
                 findOne.SubjectCode = subject.SubjectCode;
-                //findOne.SubjectRecheckTypeId = subject.SubjectRecheckTypeId;
-               // findOne.SubjectTypeExamId = subject.SubjectTypeExamId;
             }
             db.SaveChanges();
         }
@@ -881,15 +866,15 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectFile);
             string sql = "";
-            sql = @"SELECT sf.FileId,sf.SubjectId,sf.SeqNO,sf.FileName,sf.FileType,sf.InUserId,sf.InDateTime,sf.ModifyUserId,sf.ModifyDateTime
-                   FROM SubjectFile sf,Subject s 
-                   WHERE sf.SubjectId=s.SubjectId AND ProjectId = @ProjectId";
+            sql = @"SELECT A.*
+                   FROM SubjectFile INNER JOIN Subject B ON A.SubjectId = B.SubjectId
+                  WHERE B.ProjectId = @ProjectId ";
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND S.SubjectId = @SubjectId";
+                sql += " AND A.SubjectId = @SubjectId";
             }
-            List<SubjectFile> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
-            return list;
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectFile>().ToList();
+            
         }
         /// <summary>
         /// 保存标准照片
@@ -897,23 +882,37 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectFile"></param>
         public void SaveSubjectFile(SubjectFile subjectFile)
         {
-            //SubjectFile findOne = db.SubjectFile.Where(x => (x.FileId == subjectFile.FileId)).FirstOrDefault();
-            //if (findOne == null)
-            //{
-            //    subjectFile.InDateTime = DateTime.Now;
-            //    subjectFile.ModifyDateTime = DateTime.Now;
-            //    db.SubjectFile.Add(subjectFile);
-            //}
-            //else
-            //{
-            //    findOne.FileName = subjectFile.FileName;
-            //    findOne.FileType = subjectFile.FileType;
-            //    findOne.SubjectId = subjectFile.SubjectId;
-            //    findOne.ModifyDateTime = DateTime.Now;
-            //    findOne.ModifyUserId = subjectFile.ModifyUserId;
-            //    findOne.SeqNO = subjectFile.SeqNO;
-            //}
-            //db.SaveChanges();
+            if (subjectFile.SeqNO == 0)
+            {
+                SubjectFile findOneMax = db.SubjectFile.Where(x => (x.SubjectId==subjectFile.SubjectId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    subjectFile.SeqNO = 1;
+                }
+                else
+                {
+                    subjectFile.SeqNO = findOneMax.SeqNO + 1;
+                }
+                subjectFile.InDateTime = DateTime.Now;
+                db.SubjectFile.Add(subjectFile);
+
+            }
+            else
+            {
+                SubjectFile findOne = db.SubjectFile.Where(x => (x.SubjectId==subjectFile.SubjectId&& x.SeqNO == subjectFile.SeqNO)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    subjectFile.InDateTime = DateTime.Now;
+                    db.SubjectFile.Add(subjectFile);
+                }
+                else
+                {
+                    findOne.FileName = subjectFile.FileName;
+                    findOne.ModifyDateTime = DateTime.Now;
+                    findOne.ModifyUserId = subjectFile.ModifyUserId;
+                }
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取检查标准信息
@@ -925,14 +924,14 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectInspectionStandard);
             string sql = "";
-            sql = @"SELECT sis.InspectionStandardId,sis.InspectionStandardName,sis.SubjectId,sis.SeqNO,sis.InUserId,sis.InDateTime,sis.ModifyUserId,sis.ModifyDateTime" +
-                  " FROM SubjectInspectionStandard sis,Subject s WHERE sis.SubjectId=s.SubjectId and ProjectId = @ProjectId";
+            sql = @"SELECT A.* 
+                   FROM SubjectInspectionStandard A INNER JOIN Subject B ON A.SubjectId = B.SubjectId
+                   WHERE B.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND S.SubjectId = @SubjectId";
+                sql += " AND A.SubjectId = @SubjectId";
             }
-            List<SubjectInspectionStandard> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
-            return list;
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectInspectionStandard>().ToList();
         }
         /// <summary>
         /// 保存检查标准
@@ -940,22 +939,37 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="SubjectInspectionStandard"></param>
         public void SaveSubjectInspectionStandard(SubjectInspectionStandard subjectInspectionStandard)
         {
-            //SubjectInspectionStandard findOne = db.SubjectInspectionStandard.Where(x => (x.InspectionStandardId == subjectInspectionStandard.InspectionStandardId)).FirstOrDefault();
-            //if (findOne == null)
-            //{
-            //    subjectInspectionStandard.InDateTime = DateTime.Now;
-            //    subjectInspectionStandard.ModifyDateTime = DateTime.Now;
-            //    db.SubjectInspectionStandard.Add(subjectInspectionStandard);
-            //}
-            //else
-            //{
-            //    findOne.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
-            //    findOne.ModifyDateTime = DateTime.Now;
-            //    findOne.ModifyUserId = subjectInspectionStandard.ModifyUserId;
-            //    findOne.SeqNO = subjectInspectionStandard.SeqNO;
-            //    findOne.SubjectId = subjectInspectionStandard.SubjectId;
-            //}
-            //db.SaveChanges();
+            if (subjectInspectionStandard.SeqNO == 0)
+            {
+                SubjectInspectionStandard findOneMax = db.SubjectInspectionStandard.Where(x => (x.SubjectId == subjectInspectionStandard.SubjectId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    subjectInspectionStandard.SeqNO = 1;
+                }
+                else
+                {
+                    subjectInspectionStandard.SeqNO = findOneMax.SeqNO + 1;
+                }
+                subjectInspectionStandard.InDateTime = DateTime.Now;
+                db.SubjectInspectionStandard.Add(subjectInspectionStandard);
+
+            }
+            else
+            {
+                SubjectInspectionStandard findOne = db.SubjectInspectionStandard.Where(x => (x.SubjectId == subjectInspectionStandard.SubjectId && x.SeqNO == subjectInspectionStandard.SeqNO)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    subjectInspectionStandard.InDateTime = DateTime.Now;
+                    db.SubjectInspectionStandard.Add(subjectInspectionStandard);
+                }
+                else
+                {
+                    findOne.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
+                    findOne.ModifyDateTime = DateTime.Now;
+                    findOne.ModifyUserId = subjectInspectionStandard.ModifyUserId;
+                }
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 获取失分说明
@@ -967,14 +981,14 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@SubjectId", subjectId) };
             Type t = typeof(SubjectLossResult);
             string sql = "";
-            sql = @"SELECT slr.LossResultId,slr.SubjectId,slr.SeqNO,slr.LossResultName,slr.InUserId,slr.InDateTime,slr.ModifyUserId,slr.ModifyDateTime" +
-                  " FROM SubjectLossResult slr,Subject s WHERE slr.SubjectId=s.SubjectId and s.ProjectId = @ProjectId";
+            sql = @"SELECT A.*
+                  FROM SubjectLossResult A INNER JOIN Subject B ON A.SubjectId = B.SubjectId
+                  WHERE B.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND S.SubjectId = @SubjectId";
+                sql += " AND A.SubjectId = @SubjectId";
             }
-            List<SubjectLossResult> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
-            return list;
+            return db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
         }
         /// <summary>
         /// 保存失分说明
@@ -982,22 +996,37 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectLossResult"></param>
         public void SaveSubjectLossResult(SubjectLossResult subjectLossResult)
         {
-            //SubjectLossResult findOne = db.SubjectLossResult.Where(x => (x.LossResultId == subjectLossResult.LossResultId)).FirstOrDefault();
-            //if (findOne == null)
-            //{
-            //    subjectLossResult.InDateTime = DateTime.Now;
-            //    subjectLossResult.ModifyDateTime = DateTime.Now;
-            //    db.SubjectLossResult.Add(subjectLossResult);
-            //}
-            //else
-            //{
-            //    findOne.LossResultName = subjectLossResult.LossResultName;
-            //    findOne.ModifyDateTime = DateTime.Now;
-            //    findOne.ModifyUserId = subjectLossResult.ModifyUserId;
-            //    findOne.SeqNO = subjectLossResult.SeqNO;
-            //    findOne.SubjectId = subjectLossResult.SubjectId;
-            //}
-            //db.SaveChanges();
+            if (subjectLossResult.SeqNO == 0)
+            {
+                SubjectLossResult findOneMax = db.SubjectLossResult.Where(x => (x.SubjectId == subjectLossResult.SubjectId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    subjectLossResult.SeqNO = 1;
+                }
+                else
+                {
+                    subjectLossResult.SeqNO = findOneMax.SeqNO + 1;
+                }
+                subjectLossResult.InDateTime = DateTime.Now;
+                db.SubjectLossResult.Add(subjectLossResult);
+
+            }
+            else
+            {
+                SubjectLossResult findOne = db.SubjectLossResult.Where(x => (x.SubjectId == subjectLossResult.SubjectId && x.SeqNO == subjectLossResult.SeqNO)).FirstOrDefault();
+                if (findOne == null)
+                {
+                    subjectLossResult.InDateTime = DateTime.Now;
+                    db.SubjectLossResult.Add(subjectLossResult);
+                }
+                else
+                {
+                    findOne.LossResultName = subjectLossResult.LossResultName;
+                    findOne.ModifyDateTime = DateTime.Now;
+                    findOne.ModifyUserId = subjectLossResult.ModifyUserId;
+                }
+            }
+            db.SaveChanges();
         }
         #endregion
         #region 标签管理
@@ -1046,36 +1075,54 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        //public List<LabelObject> GetLabelObject(string Id,string labelId,string objectId,string objectType)
-        //{
-        //    if (Id == null) Id = "";
-        //    if (labelId == null) labelId = "";
-        //    if (objectId == null) objectId = "";
-        //    if (objectType == null) objectType = "";
-        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Id", Id),
-        //                                                new SqlParameter("@LabelId", labelId),
-        //                                                 new SqlParameter("@ObjectId", objectId),
-        //                                                new SqlParameter("@ObjectType", objectType)};
-        //    Type t = typeof(Label);
-        //    string sql = "";
-        //    sql = @"SELECT * 
-        //              FROM [Label] A
-        //            WHERE  BrandId = @BrandId AND 1=1
-        //            ";
-        //    if (useChk != null)
-        //    {
-        //        sql += " AND UseChk = @UseChk";
-        //    }
-        //    if (!string.IsNullOrEmpty(labelCode))
-        //    {
-        //        sql += " AND LabelCode = @LabelCode";
-        //    }
-        //    if (!string.IsNullOrEmpty(labelType))
-        //    {
-        //        sql += " AND LabelType = @LabelType";
-        //    }
-        //    return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
-        //}
+        /// <summary>
+        /// 根据不同业务传不同的labelTye
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="labelId"></param>
+        /// <param name="objectId"></param>
+        /// <param name="labelType"></param>
+        /// <returns></returns>
+        public List<LabelObjectDto> GetLabelObject(string Id, string labelId, string objectId,string labelType)
+        {
+            if (Id == null) Id = "";
+            if (labelId == null) labelId = "";
+            if (objectId == null) objectId = "";
+            if (labelType == null) labelType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Id", Id),
+                                                       new SqlParameter("@LabelId", labelId),
+                                                       new SqlParameter("@ObjectId", objectId),
+                                                       new SqlParameter("@LabelType", labelType)};
+            Type t = typeof(LabelObjectDto);
+            string sql = "";
+            sql = @"SELECT * 
+                      FROM [Label] A
+                    WHERE  BrandId = @BrandId AND 1=1
+                    ";
+            if (useChk != null)
+            {
+                sql += " AND UseChk = @UseChk";
+            }
+            if (!string.IsNullOrEmpty(labelCode))
+            {
+                sql += " AND LabelCode = @LabelCode";
+            }
+            if (!string.IsNullOrEmpty(labelType))
+            {
+                sql += " AND LabelType = @LabelType";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
+        }
+        public void SaveLabelObject(LabelObject labelObject)
+        {
+            LabelObject findOne = db.LabelObject.Where(x => (x.LabelId == labelObject.LabelId&&x.ObjectId==labelObject.ObjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                labelObject.InDateTime = DateTime.Now;
+                db.LabelObject.Add(labelObject);
+            }
+            db.SaveChanges();
+        }
         #endregion
         #region 收费
         //public void SaveTenantMemberTypeCharge(TenantMemberTypeCharge tenantMemberTypeCharge)

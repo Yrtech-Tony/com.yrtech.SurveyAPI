@@ -17,8 +17,6 @@ namespace com.yrtech.SurveyDAL
         public long SubjectId { get; set; }
         public string SubjectCode { get; set; }
         public Nullable<int> ProjectId { get; set; }
-        public Nullable<int> ExamTypeId { get; set; }
-        public Nullable<int> RecheckTypeId { get; set; }
         public Nullable<int> OrderNO { get; set; }
         public Nullable<decimal> FullScore { get; set; }
         public Nullable<decimal> LowScore { get; set; }

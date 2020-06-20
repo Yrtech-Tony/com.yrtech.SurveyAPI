@@ -27,12 +27,12 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ReportFile" Width="1.5" PointX="13.375" PointY="18.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppealFile" Width="1.5" PointX="12.125" PointY="0.875" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Appeal" Width="1.5" PointX="12" PointY="3.625" />
-        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Subject" Width="1.5" PointX="6.5" PointY="9.625" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectFile" Width="1.5" PointX="8.375" PointY="9.25" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectInspectionStandard" Width="1.5" PointX="11.625" PointY="8.25" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.SubjectLossResult" Width="2.625" PointX="5" PointY="6.625" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Label" Width="1.5" PointX="13.375" PointY="11.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.LabelObject" Width="1.5" PointX="10.875" PointY="13.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Subject" Width="1.5" PointX="14.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
