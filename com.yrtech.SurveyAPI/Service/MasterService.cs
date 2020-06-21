@@ -1030,13 +1030,15 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 标签管理
-        public List<Label> GetLabel(string brandId,string labelType,bool? useChk,string labelCode)
+        public List<Label> GetLabel(string brandId,string labelId,string labelType,bool? useChk,string labelCode)
         {
             if (labelCode == null) labelCode = "";
             if (labelType == null) labelType = "";
+            if (labelId == null) labelId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@LabelType", labelType),
                                                         new SqlParameter("@BrandId", brandId),
                                                          new SqlParameter("@LabelCode", labelCode),
+                                                        new SqlParameter("@LabelId", labelId),
                                                         new SqlParameter("@UseChk", useChk)};
             Type t = typeof(Label);
             string sql = "";
@@ -1056,6 +1058,10 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND LabelType = @LabelType";
             }
+            if (!string.IsNullOrEmpty(labelId))
+            {
+                sql += " AND LabelId = @LabelId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
         }
         public void SaveLabel(Label label)
@@ -1064,6 +1070,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (findOne == null)
             {
                 label.InDateTime = DateTime.Now;
+                label.ModifyDateTime = DateTime.Now;
                 db.Label.Add(label);
             }
             else
@@ -1072,6 +1079,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.LabelName = label.LabelName;
                 findOne.Remark = label.Remark;
                 findOne.UseChk = label.UseChk;
+                findOne.ModifyUserId = label.ModifyUserId;
+                findOne.ModifyDateTime = DateTime.Now;
             }
             db.SaveChanges();
         }

@@ -23,5 +23,7 @@ namespace com.yrtech.SurveyDAL
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
+        public Nullable<int> ModifyUserId { get; set; }
+        public Nullable<System.DateTime> ModifyDateTime { get; set; }
     }
 }

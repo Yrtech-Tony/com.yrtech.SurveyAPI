@@ -1210,11 +1210,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 标签管理
         [HttpGet]
         [Route("Master/GetLabel")]
-        public APIResult GetLabel(string brandId, string labelType, bool? useChk)
+        public APIResult GetLabel(string brandId,string labelId, string labelType, bool? useChk)
         {
             try
             {
-                List<Label> labelList = masterService.GetLabel(brandId, labelType, useChk, "");
+                List<Label> labelList = masterService.GetLabel(brandId, labelId,labelType, useChk, "");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(labelList) };
             }
             catch (Exception ex)
@@ -1236,7 +1236,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "标签名称不能为空" };
                 }
-                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(), label.LabelType, null, label.LabelCode);
+                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(),"", label.LabelType, null, label.LabelCode);
                 if (labelList != null && labelList.Count > 0 && labelList[0].LabelId != label.LabelId)
                 {
                     return new APIResult() { Status = false, Body = "标签代码重复" };
@@ -1251,7 +1251,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         #region 体系
-
 
         /// <summary>
         /// 获取体系的信息
@@ -1281,7 +1280,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveSubject")]
-        public APIResult SaveSubject([FromBody]Subject subject)
+        public APIResult SaveSubject(Subject subject)
         {
             try
             {
