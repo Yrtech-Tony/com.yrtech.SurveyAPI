@@ -918,11 +918,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                     // 验证Excel中的集团信息是否已经登记
-                    List<Group> groupList = masterService.GetGroup(brandId, "", shop.GroupCode, "");
-                    if (groupList == null || groupList.Count == 0)
+                    if (!string.IsNullOrEmpty(shop.GroupCode.Trim()))
                     {
-                        shop.ImportChk = false;
-                        shop.ImportRemark += "集团代码在系统中不存在" + ";";
+                        List<Group> groupList = masterService.GetGroup(brandId, "", shop.GroupCode, "");
+                        if (groupList == null || groupList.Count == 0)
+                        {
+                            shop.ImportChk = false;
+                            shop.ImportRemark += "集团代码在系统中不存在" + ";";
+                        }
                     }
                 }
                 list = (from shop in list orderby shop.ImportChk select shop).ToList();
@@ -952,10 +955,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                     // 验证Excel中的集团信息是否已经登记
-                    List<Group> groupList = masterService.GetGroup(shop.BrandId.ToString(), "", shop.GroupCode, "");
-                    if (groupList == null || groupList.Count == 0)
+                    if (!string.IsNullOrEmpty(shop.GroupCode.Trim()))
                     {
-                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的集团代码，请检查文件" };
+                        List<Group> groupList = masterService.GetGroup(shop.BrandId.ToString(), "", shop.GroupCode, "");
+                        if (groupList == null || groupList.Count == 0)
+                        {
+                            return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的集团代码，请检查文件" };
+                        }
                     }
                 }
                 List<Shop> importShopList = new List<Shop>();

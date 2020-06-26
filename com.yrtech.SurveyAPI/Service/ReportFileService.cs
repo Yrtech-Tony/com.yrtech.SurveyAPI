@@ -110,12 +110,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<ReportFile> ReportFileSearch(string projectId, string shopId, string reportFileType)
+        public List<ReportFile> ReportFileSearch(string projectId, string bussinessTypeId,string shopId, string reportFileType)
         {
             if (projectId == null) projectId = "";
             if (shopId == null || shopId == "0") shopId = "";
             if (reportFileType == null) reportFileType = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@ShopId", shopId)
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@ShopId", shopId)
+                                                        , new SqlParameter("@BussinessTypeId", bussinessTypeId)
                                                      , new SqlParameter("@ReportFileType", reportFileType)};
             Type t = typeof(ReportFile);
             string sql = @"
@@ -124,6 +126,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(bussinessTypeId))
+            {
+                sql += " AND BussinessTypeId = @BussinessTypeId";
             }
             if (!string.IsNullOrEmpty(shopId))
             {

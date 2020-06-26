@@ -34,11 +34,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileSearch")]
-        public APIResult ReportFileSearch(string projectId, string shopId, string reportFileType)
+        public APIResult ReportFileSearch(string projectId, string bussinessTypeId,string shopId, string reportFileType)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch(projectId, shopId, reportFileType)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch(projectId, bussinessTypeId, shopId, reportFileType)) };
             }
             catch (Exception ex)
             {

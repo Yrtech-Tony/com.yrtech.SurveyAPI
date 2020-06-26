@@ -76,7 +76,34 @@ namespace com.yrtech.SurveyAPI.Controllers
                 account.BigAreaList = accountService.GetBigAreaByRole(brandId, userId, roleType);
                 account.WideAreaList = accountService.GetWideAreaByRole(brandId, userId, roleType);
                 account.BussinessAreaList = accountService.GetBussinessListByRole(brandId, userId, roleType);
-
+                if (roleType == "B_Shop" && (account.ShopList == null ||account.ShopList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无经销商信息" };
+                }
+                if (roleType == "B_Group" && (account.GroupList == null || account.GroupList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无集团信息" };
+                }
+                if (roleType == "B_SmallArea" && (account.SmallAreaList == null || account.SmallAreaList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无小区信息" };
+                }
+                if (roleType == "B_MiddleArea" && (account.MiddleAreaList == null || account.MiddleAreaList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无中区信息" };
+                }
+                if (roleType == "B_BigArea" && (account.BigAreaList == null || account.BigAreaList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无大区信息" };
+                }
+                if (roleType == "B_WideArea" && (account.WideAreaList == null || account.WideAreaList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无广域区域信息" };
+                }
+                if (roleType == "B_Bussiness" && (account.BussinessAreaList == null || account.BussinessAreaList.Count == 0))
+                {
+                    return new APIResult() { Status = false, Body = "此用户无业务类型信息" };
+                }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
             }
             catch (Exception ex)
@@ -85,8 +112,30 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// 刷新品牌信息时使用
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="userId"></param>
+        /// <param name="roleType"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/LoginBrandInfo")]
+        public APIResult LoginBrandInfo(string tenantId, string userId, string roleType)
+        {
+            try
+            {
+                List<Brand> brandList = accountService.GetBrandByRole(tenantId, userId, roleType);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(brandList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
         #endregion
-       
+
         /// <summary>
         /// 修改密码
         /// </summary>
@@ -98,7 +147,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfo> userList = masterService.GetUserInfo("","", obj.UserId, "", "","","","");
+                List<UserInfo> userList = masterService.GetUserInfo("", "", obj.UserId, "", "", "", "", "");
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)
@@ -137,8 +186,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<UserInfoDto> userInfoList = CommonHelper.DecodeString<List<UserInfoDto>>(uploadData.AnswerListJson);
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
-                    List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode,"");
-                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "","", userInfoList[0].TelNO, "","","",""); // 注册时初始化登陆账号为手机号
+                    List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode, "");
+                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "", "", userInfoList[0].TelNO, "", "", "", ""); // 注册时初始化登陆账号为手机号
                     if (tenantList_Name != null && tenantList_Name.Count > 0 && tenantList_Name[0].TenantId != userInfoList[0].TenantId)
                     {
                         return new APIResult() { Status = false, Body = "该租户名称已存在,请更换其他租户名称" };
@@ -151,7 +200,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         Tenant tenant = new Tenant();
                         tenant.TenantName = userInfoList[0].TenantName;
-                        tenant.TenantCode = userInfoList[0].TenantCode; 
+                        tenant.TenantCode = userInfoList[0].TenantCode;
                         masterService.SaveTenant(tenant);
                         UserInfo userInfo = new UserInfo();
                         userInfo.AccountId = userInfoList[0].TelNO; //注册时初始化登陆账号为手机号

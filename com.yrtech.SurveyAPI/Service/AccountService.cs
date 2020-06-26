@@ -547,7 +547,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     INNER JOIN AreaShop B ON A.AreaId = B.AreaId
                                     INNER JOIN Shop C ON B.ShopId = C.ShopId
 			                        INNER JOIN UserInfoObject H ON C.ShopId = H.ObjectId
-                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1";
+                        WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.AreaType = 'SmallArea' AND A.UseChk = 1 AND C.UseChk = 1";
             }
             if (string.IsNullOrEmpty(sql))
             { return new List<AreaDto>(); }

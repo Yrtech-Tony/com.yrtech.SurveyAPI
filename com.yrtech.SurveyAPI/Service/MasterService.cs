@@ -145,6 +145,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.BrandCode = @BrandCode";
             }
+            sql += " ORDER BY BrandId DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
 
         }
@@ -1092,36 +1093,36 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="objectId"></param>
         /// <param name="labelType"></param>
         /// <returns></returns>
-        public List<LabelObjectDto> GetLabelObject(string Id, string labelId, string objectId,string labelType)
-        {
-            if (Id == null) Id = "";
-            if (labelId == null) labelId = "";
-            if (objectId == null) objectId = "";
-            if (labelType == null) labelType = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Id", Id),
-                                                       new SqlParameter("@LabelId", labelId),
-                                                       new SqlParameter("@ObjectId", objectId),
-                                                       new SqlParameter("@LabelType", labelType)};
-            Type t = typeof(LabelObjectDto);
-            string sql = "";
-            sql = @"SELECT * 
-                      FROM [Label] A
-                    WHERE  BrandId = @BrandId AND 1=1
-                    ";
-            if (useChk != null)
-            {
-                sql += " AND UseChk = @UseChk";
-            }
-            if (!string.IsNullOrEmpty(labelCode))
-            {
-                sql += " AND LabelCode = @LabelCode";
-            }
-            if (!string.IsNullOrEmpty(labelType))
-            {
-                sql += " AND LabelType = @LabelType";
-            }
-            return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
-        }
+        //public List<LabelObjectDto> GetLabelObject(string Id, string labelId, string objectId,string labelType)
+        //{
+        //    if (Id == null) Id = "";
+        //    if (labelId == null) labelId = "";
+        //    if (objectId == null) objectId = "";
+        //    if (labelType == null) labelType = "";
+        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Id", Id),
+        //                                               new SqlParameter("@LabelId", labelId),
+        //                                               new SqlParameter("@ObjectId", objectId),
+        //                                               new SqlParameter("@LabelType", labelType)};
+        //    Type t = typeof(LabelObjectDto);
+        //    string sql = "";
+        //    sql = @"SELECT * 
+        //              FROM [Label] A
+        //            WHERE  BrandId = @BrandId AND 1=1
+        //            ";
+        //    if (useChk != null)
+        //    {
+        //        sql += " AND UseChk = @UseChk";
+        //    }
+        //    if (!string.IsNullOrEmpty(labelCode))
+        //    {
+        //        sql += " AND LabelCode = @LabelCode";
+        //    }
+        //    if (!string.IsNullOrEmpty(labelType))
+        //    {
+        //        sql += " AND LabelType = @LabelType";
+        //    }
+        //    return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
+        //}
         public void SaveLabelObject(LabelObject labelObject)
         {
             LabelObject findOne = db.LabelObject.Where(x => (x.LabelId == labelObject.LabelId&&x.ObjectId==labelObject.ObjectId)).FirstOrDefault();
