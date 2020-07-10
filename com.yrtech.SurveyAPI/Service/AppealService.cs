@@ -21,7 +21,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<AppealDto> GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string keyword, string shopIdStr, int pageNum, int pageCount)
+        public List<AppealDto> GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr,string keyword, int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
             return GetShopAppealInfoByAll(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword).Skip(startIndex).Take(pageCount).ToList();
@@ -214,10 +214,10 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealId", appealId) };
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
-                                  ,[ProjectId]
+                                  ,A.[ProjectId]
                                   ,C.[ProjectCode]
                                   ,C.[ProjectName]
-                                  ,[ShopId]
+                                  ,A.[ShopId]
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
                                   ,[SubjectId]
@@ -374,7 +374,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AppealCountDto> AppealCountByShop(string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            Type t = typeof(AppealFileDto);
+            Type t = typeof(AppealCountDto);
             string sql = @"SELECT ShopId,ShopCode,ShopName,ISNULL(SUM(ApplyCount),0) AS ApplyCount,ISNULL(SUM(FeedBackCount),0) AS FeedBackCount
                            FROM 
                         (SELECT A.ShopId,B.ShopCode,B.ShopName,

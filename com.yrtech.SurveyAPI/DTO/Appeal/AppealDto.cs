@@ -8,7 +8,7 @@ namespace com.yrtech.SurveyAPI.DTO
 {
     public class AppealDto
     {
-        public int AppealId { get; set; }
+        public long AppealId { get; set; }
         public int ProjectId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }

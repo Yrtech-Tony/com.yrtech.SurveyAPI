@@ -46,7 +46,7 @@
             <PropertyRef Name="FileId" />
           </Key>
           <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="AppealId" Type="int" />
+          <Property Name="AppealId" Type="bigint" />
           <Property Name="SeqNO" Type="int" Nullable="false" />
           <Property Name="FileType" Type="nvarchar" MaxLength="50" />
           <Property Name="FileName" Type="nvarchar" MaxLength="500" />
@@ -608,7 +608,6 @@
           <EntitySet Name="HiddenColumn" EntityType="com.yrtech.SurveyDAL.HiddenColumn" />
           <EntitySet Name="ReportFileActionLog" EntityType="com.yrtech.SurveyDAL.ReportFileActionLog" />
           <EntitySet Name="ReportFile" EntityType="com.yrtech.SurveyDAL.ReportFile" />
-          <EntitySet Name="AppealFile" EntityType="com.yrtech.SurveyDAL.AppealFile" />
           <EntitySet Name="Appeal" EntityType="com.yrtech.SurveyDAL.Appeal" />
           <EntitySet Name="SubjectFile" EntityType="com.yrtech.SurveyDAL.SubjectFile" />
           <EntitySet Name="SubjectInspectionStandard" EntityType="com.yrtech.SurveyDAL.SubjectInspectionStandard" />
@@ -616,6 +615,7 @@
           <EntitySet Name="LabelObject" EntityType="com.yrtech.SurveyDAL.LabelObject" />
           <EntitySet Name="Subject" EntityType="com.yrtech.SurveyDAL.Subject" />
           <EntitySet Name="Label" EntityType="com.yrtech.SurveyDAL.Label" />
+          <EntitySet Name="AppealFile" EntityType="com.yrtech.SurveyDAL.AppealFile" />
         </EntityContainer>
         <EntityType Name="UserInfo">
           <Key>
@@ -741,19 +741,6 @@
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="AppealFile">
-          <Key>
-            <PropertyRef Name="FileId" />
-          </Key>
-          <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AppealId" Type="Int32" />
-          <Property Name="SeqNO" Type="Int32" Nullable="false" />
-          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="FileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ServerFileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="Appeal">
           <Key>
             <PropertyRef Name="AppealId" />
@@ -858,6 +845,19 @@
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="AppealFile">
+          <Key>
+            <PropertyRef Name="FileId" />
+          </Key>
+          <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AppealId" Type="Int64" />
+          <Property Name="SeqNO" Type="Int32" Nullable="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ServerFileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1160,20 +1160,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AppealFile">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AppealFile">
-              <MappingFragment StoreEntitySet="AppealFile">
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="ServerFileName" ColumnName="ServerFileName" />
-                <ScalarProperty Name="FileName" ColumnName="FileName" />
-                <ScalarProperty Name="FileType" ColumnName="FileType" />
-                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
-                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
-                <ScalarProperty Name="FileId" ColumnName="FileId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Appeal">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Appeal">
               <MappingFragment StoreEntitySet="Appeal">
@@ -1280,6 +1266,20 @@
                 <ScalarProperty Name="LabelCode" ColumnName="LabelCode" />
                 <ScalarProperty Name="BrandId" ColumnName="BrandId" />
                 <ScalarProperty Name="LabelId" ColumnName="LabelId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AppealFile">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AppealFile">
+              <MappingFragment StoreEntitySet="AppealFile">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ServerFileName" ColumnName="ServerFileName" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
+                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
+                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

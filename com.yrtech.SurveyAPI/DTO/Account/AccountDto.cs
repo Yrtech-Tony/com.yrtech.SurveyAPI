@@ -33,5 +33,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<AreaDto> WideAreaList { get; set; }
         public List<AreaDto> BussinessAreaList { get; set; }
         public List<GroupDto> GroupList { get; set; }
+      public List<HiddenColumn> OSSInfo { get; set; }
     }
 }

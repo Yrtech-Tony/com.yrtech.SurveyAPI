@@ -15,7 +15,7 @@ namespace com.yrtech.SurveyDAL
     public partial class AppealFile
     {
         public int FileId { get; set; }
-        public Nullable<int> AppealId { get; set; }
+        public Nullable<long> AppealId { get; set; }
         public int SeqNO { get; set; }
         public string FileType { get; set; }
         public string FileName { get; set; }

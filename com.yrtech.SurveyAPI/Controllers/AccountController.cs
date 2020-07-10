@@ -43,6 +43,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     AccountDto account = accountlist[0];
                     account.TenantList = tenantList;
                     account.BrandList = accountService.GetBrandByRole(tenantId, account.Id.ToString(), account.RoleType.ToString());
+                    account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
+
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
                 }
                 else

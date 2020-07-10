@@ -29,11 +29,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopAppealInfoByPage")]
-        public APIResult GetShopAppealInfoByPage(string projectId, string businessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        public APIResult GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopAppealInfoByPage(projectId, businessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopAppealInfoByPage(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -119,11 +119,18 @@ namespace com.yrtech.SurveyAPI.Controllers
                     appeal.ShopId = appealDto.ShopId;
                     appeal.SubjectCode = appealDto.SubjectCode;
                     appeal.SubjectId = appealDto.SubjectId;
-                    appeal = appealService.AppealApply(appeal);
-                    foreach (AppealFile appealFile in appealDto.AppealFileList)
+                    if (appeal.AppealId == 0)// 申诉新增时，文件也进行保存
                     {
-                        appealFile.AppealId = appealDto.AppealId;
-                        appealService.AppealFileSave(appealFile);
+                        appeal = appealService.AppealApply(appeal);
+                        foreach (AppealFile appealFile in appealDto.AppealFileList)
+                        {
+                            appealFile.AppealId = appeal.AppealId;
+                            appealService.AppealFileSave(appealFile);
+                        }
+                    }
+                    else// 申诉编辑时只保存申诉信息，文件信息在上传时会进行保存
+                    {
+                        appeal = appealService.AppealApply(appeal);
                     }
 
                 }
@@ -149,11 +156,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                     appeal.FeedBackStatus = appealDto.FeedBackStatus;
                     appeal.FeedBackUserId = appealDto.FeedBackUserId;
                      appealService.AppealFeedBack(appeal);
-                    foreach (AppealFile appealFile in appealDto.AppealFileList)
-                    {
-                        appealFile.AppealId = appealDto.AppealId;
-                        appealService.AppealFileSave(appealFile);
-                    }
+                    //foreach (AppealFile appealFile in appealDto.AppealFileList)
+                    //{
+                    //    appealFile.AppealId = appealDto.AppealId;
+                    //    appealService.AppealFileSave(appealFile);
+                    //}
 
                 }
                 return new APIResult() { Status = true, Body = "" };
@@ -170,6 +177,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 appealService.AppealFileDelete(appealFile.FileId.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/AppealFileSave")]
+        public APIResult AppealFileSave(AppealFile appealFile)
+        {
+            try
+            {
+                appealService.AppealFileSave(appealFile);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
