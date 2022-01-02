@@ -147,9 +147,11 @@
     <Compile Include="Common\APIResult.cs" />
     <Compile Include="Common\CommonHelper.cs" />
     <Compile Include="Common\OSSClientHelper.cs" />
+    <Compile Include="Controllers\AnswerController.cs" />
     <Compile Include="Controllers\AppealController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
+    <Compile Include="Controllers\RecheckController.cs" />
     <Compile Include="Controllers\ReportFileController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
@@ -181,8 +183,8 @@
     <Compile Include="DTO\ReportFile\ReportFileUploadDto.cs" />
     <Compile Include="DTO\Shop\GroupDto.cs" />
     <Compile Include="DTO\Shop\AreaDto.cs" />
+    <Compile Include="DTO\Shop\ProjectShopExamTypeDto.cs" />
     <Compile Include="DTO\Shop\ShopDto.cs" />
-    <Compile Include="DTO\Shop\ShopSubjectTypeExamDto.cs" />
     <Compile Include="DTO\UploadData.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -193,7 +195,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Service\AnswerService.cs" />
     <Compile Include="Service\ExcelDataService.cs" />
+    <Compile Include="Service\RecheckService.cs" />
     <Compile Include="Service\ReportFileService.cs" />
     <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AreaService.cs" />

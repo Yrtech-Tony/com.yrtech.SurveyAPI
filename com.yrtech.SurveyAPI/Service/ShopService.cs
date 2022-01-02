@@ -12,75 +12,59 @@ namespace com.yrtech.SurveyAPI.Service
     public class ShopService
     {
         Survey db = new Survey();
-        //#region 不联网时使用
-        ///// <summary>
-        ///// 获取当前期下的经销商
-        ///// </summary>
-        ///// <param name="projectId"></param>
-        ///// <returns></returns>
-        //public List<ProjectShop> GetProjectShop(string projectId)
-        //{
-        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-        //    Type t = typeof(ProjectShop);
-        //    string sql = "";
-        //    sql = @"SELECT Id,A.ProjectId,A.ShopId,A.InUserId,A.InDateTime
-        //            FROM ProjectShop A 
-        //            WHERE ProjectId = @ProjectId 
-        //            ";
-        //    List<ProjectShop> list = db.Database.SqlQuery(t, sql, para).Cast<ProjectShop>().ToList();
-        //    return list;
-        //}
-        ///// <summary>
-        ///// 获取经销商试卷信息
-        ///// </summary>
-        ///// <param name="projectId"></param>
-        ///// <returns></returns>
-        //public List<ShopSubjectTypeExam> GetShopSubjectTypeExam(string projectId)
-        //{
-        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-        //    Type t = typeof(ShopSubjectTypeExam);
-        //    string sql = "";
-        //    sql = @"SELECT Id,ProjectId,ShopId,ShopSubjectTypeExamId,InUserId,InDateTime,ModifyUserId,ModifyDateTime FROM ShopSubjectTypeExam WHERE ProjectId = @ProjectId";
-        //    List<ShopSubjectTypeExam> list = db.Database.SqlQuery(t, sql, para).Cast<ShopSubjectTypeExam>().ToList();
-        //    return list;
-        //}
-        //#endregion
-        #region App 使用
-        /// <summary>
-        /// 获取当前期下的经销商
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<Shop> GetShopByProjectId(string projectId)
-        {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
-            string sql = "SELECT B.* FROM ProjectShop A" +
-                        " INNER JOIN Shop B ON A.ShopId = B.ShopId" +
-                        " WHERE A.ProjectId =@ProjectId";
-            List<Shop> list = db.Database.SqlQuery<Shop>(sql, para).ToList();
-            return list;
-        }
         /// <summary>
         /// 获取经销商试卷信息
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<ShopSubjectTypeExamDto> GetShopSubjectTypeExam(string projectId, string shopId)
+        public List<ProjectShopExamTypeDto> GetProjectShopExamType(string brandId,string projectId, string shopId)
         {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
             SqlParameter[] para = new SqlParameter[] {
+                                            new SqlParameter("@BrandId", brandId),
                                             new SqlParameter("@ProjectId", projectId),
                                             new SqlParameter("@ShopId", shopId) };
-            string sql = "SELECT A.ShopSubjectTypeExamId,B.SubjectTypeExamName,A.ShopId,A.ProjectId FROM ShopSubjectTypeExam A " +
-                        " INNER JOIN SubjectTypeExam B ON ShopSubjectTypeExamId = B.SubjectTypeExamId" +
-                        " WHERE A.ProjectId =@ProjectId ";
+            Type t = typeof(ProjectShopExamTypeDto);
+            string sql = @"SELECT A.ShopId,ShopCode,ShopName,ShopshortName,
+                                    CASE WHEN B.ProjectId IS NULL THEN ''
+                                         ELSE(SELECT TOP 1 ProjectCode FROM Project WHERE ProjectId = @ProjectId)
+                                    END AS ProjectCode,
+                                    CASE WHEN B.ExamTypeId IS NULL THEN ''
+                                         ELSE(SELECT TOP 1 LabelCode FROM Label WHERE BrandId = @BrandId AND LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
+                                    END AS ExamTypeCode,
+                                    CASE WHEN B.ExamTypeId IS NULL THEN ''
+                                         ELSE(SELECT TOP 1 LabelName FROM Label WHERE BrandId = @BrandId AND LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
+                                    END AS ExamTypeName,
+                                    B.InDateTime,B.ModifyDateTime
+                            FROM Shop A  LEFT JOIN  ProjectShopExamType B ON A.ShopId = B.ShopId AND B.ProjectId = @ProjectId
+                            WHERE A.BrandId = @BrandId";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId =@ShopId";
             }
-            List<ShopSubjectTypeExamDto> list = db.Database.SqlQuery<ShopSubjectTypeExamDto>(sql, para).ToList();
-            
-            return list;
+            return db.Database.SqlQuery(t, sql, para).Cast<ProjectShopExamTypeDto>().ToList();
         }
-        #endregion
+        /// <summary>
+        /// 保存经销商试卷类型
+        /// </summary>
+        /// <param name="projectShopExamType"></param>
+        public void SaveProjectShopExamType(ProjectShopExamType projectShopExamType)
+        {
+            ProjectShopExamType findOne = db.ProjectShopExamType.Where(x => (x.ProjectId == projectShopExamType.ProjectId&&x.ShopId== projectShopExamType.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                projectShopExamType.InDateTime = DateTime.Now;
+                projectShopExamType.ModifyDateTime = DateTime.Now;
+                db.ProjectShopExamType.Add(projectShopExamType);
+            }
+            else
+            {
+                findOne.ExamTypeId = projectShopExamType.ExamTypeId;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = projectShopExamType.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
     }
 }

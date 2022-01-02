@@ -8,13 +8,15 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class FileResultDto
     {
-        public int FileId { get; set; }
+        public string ProjectId { get; set; }
+        public string ShopId { get; set; }
+        public string SubjectId { get; set; }
         public int SeqNO { get; set; }
-        public string FileName { get; set;  }
-        public string FileType { get; set; }
-        public string AnswerResult { get; set; }
+        public string FileName { get; set; }
         public string Url { get; set; }
-        public DateTime LastTime { get; set; }
-        public string ModifyType { get; set; }//"U"：修改；"D":删除; 
+        public DateTime InDateTime { get; set; }
+        public int InUserId { get; set; }
+        public DateTime ModifyDateTime { get; set; }
+        public int ModifyUserId { get; set; }
     }
 }

@@ -14,16 +14,14 @@ namespace com.yrtech.SurveyDAL
     
     public partial class AnswerShopInfo
     {
-        public long Id { get; set; }
-        public Nullable<int> ProjectId { get; set; }
+        public int ProjectId { get; set; }
         public int ShopId { get; set; }
-        public string TeamLeaderName { get; set; }
+        public string TeamLeader { get; set; }
         public Nullable<System.DateTime> StartDate { get; set; }
-        public Nullable<int> InUserId { get; set; }
+        public string PhotoUrl { get; set; }
+        public Nullable<int> InUseriId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public Nullable<System.DateTime> UploadDateTime { get; set; }
-        public Nullable<int> UploadUserId { get; set; }
     }
 }

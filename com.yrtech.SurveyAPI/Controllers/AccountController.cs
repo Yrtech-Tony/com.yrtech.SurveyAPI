@@ -22,10 +22,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="accountId"></param>
         /// <param name="password"></param>
         /// <param name="tenantCode"></param>
+        /// <param name="platformType">A:管理平台 B：品牌使用平台</param>
         /// <returns></returns>
         [HttpGet]
         [Route("Account/Login")]
-        public APIResult Login(string accountId, string password, string tenantCode)
+        public APIResult Login(string accountId, string password, string tenantCode,string platformType)
         {
             try
             {
@@ -37,14 +38,18 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "租户代码不存在" };
                 }
                 tenantId = tenantList[0].TenantId.ToString();
+               
                 List<AccountDto> accountlist = accountService.Login(accountId, password, tenantId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
                     AccountDto account = accountlist[0];
+                    if (!platformTypeCheck(platformType, account.RoleType))
+                    {
+                        return new APIResult() { Status = false, Body = "该用户无此平台权限" };
+                    }
                     account.TenantList = tenantList;
                     account.BrandList = accountService.GetBrandByRole(tenantId, account.Id.ToString(), account.RoleType.ToString());
                     account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
-
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
                 }
                 else
@@ -113,7 +118,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         /// <summary>
         /// 刷新品牌信息时使用
         /// </summary>
@@ -171,6 +175,19 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
 
+        public bool platformTypeCheck(string platform, string roleTypeCode)
+        {
+            bool platformCheck = false;
+            List<RoleType> roleTypeList = masterService.GetRoleType(platform, "", "");// 通过平台类型获取对应的权限
+            foreach (RoleType roleType in roleTypeList)
+            {
+                if (roleType.RoleTypeCode == roleTypeCode) {
+                    platformCheck = true;
+                    break;
+                }
+            }
+            return platformCheck;
+        }
         #region 租户注册
         /// <summary>
         /// 注册时需要填写的信息

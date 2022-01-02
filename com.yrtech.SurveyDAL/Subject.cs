@@ -24,6 +24,7 @@ namespace com.yrtech.SurveyDAL
         public string Implementation { get; set; }
         public string InspectionDesc { get; set; }
         public string Desc { get; set; }
+        public Nullable<int> ExamTypeId { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

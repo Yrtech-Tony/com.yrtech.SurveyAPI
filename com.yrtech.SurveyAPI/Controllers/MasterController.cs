@@ -125,6 +125,9 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    }
         //}
         //#endregion
+        #region OSS Info
+
+        #endregion
         #region 租户管理
         [HttpGet]
         [Route("Master/GetTenant")]
@@ -866,30 +869,30 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ShopDto> projectShopList = new List<ShopDto>();
-                List<Shop> shopList = shopService.GetShopByProjectId(projectId);
-                List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId, "");
-                foreach (Shop shop in shopList)
-                {
-                    ShopDto shopDto = new ShopDto();
-                    shopDto.ProjectId = Convert.ToInt32(projectId);
-                    shopDto.ShopId = shop.ShopId;
-                    shopDto.ShopCode = shop.ShopCode;
-                    shopDto.ShopName = shop.ShopName;
-                    shopDto.Province = shop.Province;
-                    shopDto.City = shop.City;
-                    shopDto.ShopShortName = shop.ShopShortName;
+            //    List<ShopDto> projectShopList = new List<ShopDto>();
+            //    List<Shop> shopList = shopService.GetShopByProjectId(projectId);
+            //    List<ShopSubjectTypeExamDto> subjectTypeExamList = shopService.GetShopSubjectTypeExam(projectId, "");
+            //    foreach (Shop shop in shopList)
+            //    {
+            //        ShopDto shopDto = new ShopDto();
+            //        shopDto.ProjectId = Convert.ToInt32(projectId);
+            //        shopDto.ShopId = shop.ShopId;
+            //        shopDto.ShopCode = shop.ShopCode;
+            //        shopDto.ShopName = shop.ShopName;
+            //        shopDto.Province = shop.Province;
+            //        shopDto.City = shop.City;
+            //        shopDto.ShopShortName = shop.ShopShortName;
 
-                    ShopSubjectTypeExamDto exam = subjectTypeExamList.Where(x => x.ShopId == shop.ShopId).FirstOrDefault();
-                    if (exam != null)
-                    {
-                        shopDto.SubjectTypeExamId = Convert.ToInt32(exam.ShopSubjectTypeExamId);
-                        shopDto.SubjectTypeExamName = exam.SubjectTypeExamName;
-                    }
+            //        ShopSubjectTypeExamDto exam = subjectTypeExamList.Where(x => x.ShopId == shop.ShopId).FirstOrDefault();
+            //        if (exam != null)
+            //        {
+            //            shopDto.SubjectTypeExamId = Convert.ToInt32(exam.ShopSubjectTypeExamId);
+            //            shopDto.SubjectTypeExamName = exam.SubjectTypeExamName;
+            //        }
 
-                    projectShopList.Add(shopDto);
-                }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectShopList) };
+            //        projectShopList.Add(shopDto);
+                //}
+                return new APIResult() { Status = true, Body = CommonHelper.Encode("") };
             }
             catch (Exception ex)
             {
@@ -1044,7 +1047,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     shopDto.ImportChk = true;
                     shopDto.ImportRemark = "";
-                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", shopDto.GroupCode, "");
+                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "",shopDto.ShopCode, "");
                     if (shopList == null || shopList.Count == 0)
                     {
                         shopDto.ImportChk = false;
@@ -1075,7 +1078,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //验证Excel中的经销商代码和区域代码是否在系统存在
                 foreach (ShopDto shopDto in list)
                 {
-                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "", shopDto.GroupCode, "");
+                    List<ShopDto> shopList = masterService.GetShop(shopDto.TenantId.ToString(), shopDto.BrandId.ToString(), "", shopDto.ShopCode, "");
                     if (shopList == null || shopList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的经销商代码，请检查文件" };
@@ -1266,11 +1269,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetSubject")]
-        public APIResult GetSubject(string projectId, string subjectId)
+        public APIResult GetSubject(string projectId, string subjectId,string subjectCode,string orderNO)
         {
             try
             {
-                List<SubjectDto> subjectList = masterService.GetSubject(projectId, subjectId);
+                List<SubjectDto> subjectList = masterService.GetSubject(projectId, subjectId, subjectCode, orderNO);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(subjectList) };
             }
             catch (Exception ex)
@@ -1290,7 +1293,60 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(subject.SubjectCode.Replace(" ", "").ToString()))
+                {
+                    return new APIResult() { Status = false, Body = "题目代码不能为空" };
+                }
+                
+                if (subject.OrderNO==null|| subject.OrderNO==0)
+                {
+                    return new APIResult() { Status = false, Body = "序号不能为空或者为0" };
+                }
+                List<SubjectDto> subjectList_SubjectCode = masterService.GetSubject(subject.ProjectId.ToString(),"",subject.SubjectCode,"");
+                if (subjectList_SubjectCode != null && subjectList_SubjectCode.Count > 0 && subjectList_SubjectCode[0].SubjectId != subject.SubjectId)
+                {
+                    return new APIResult() { Status = false, Body = "题目编码重复" };
+                }
+                List<SubjectDto> subjectList_OrderNO = masterService.GetSubject(subject.ProjectId.ToString(), "",  "",subject.OrderNO.ToString());
+                if (subjectList_OrderNO != null && subjectList_OrderNO.Count > 0 && subjectList_OrderNO[0].SubjectId != subject.SubjectId)
+                {
+                    return new APIResult() { Status = false, Body = "题目序号重复" };
+                }
                 masterService.SaveSubject(subject);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 删除体系信息
+        /// </summary>
+        /// <param name="uploadData"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/DeleteSubject")]
+        public APIResult DeleteSubject(Subject subject)
+        {
+            try
+            {
+                List<SubjectFile> subjectFileList = masterService.GetSubjectFile(subject.ProjectId.ToString(), subject.SubjectId.ToString());
+                if (subjectFileList != null && subjectFileList.Count > 0)
+                {
+                    return new APIResult() { Status = false, Body = "请先删除标准照片" };
+                }
+                List<SubjectInspectionStandard> subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(subject.ProjectId.ToString(), subject.SubjectId.ToString());
+                if (subjectInspectionStandardList != null && subjectInspectionStandardList.Count > 0)
+                {
+                    return new APIResult() { Status = false, Body = "请先删除检查标准" };
+                }
+                List<SubjectLossResult> subjectLossResultList = masterService.GetSubjectLossResult(subject.ProjectId.ToString(), subject.SubjectId.ToString());
+                if (subjectLossResultList != null && subjectLossResultList.Count > 0)
+                {
+                    return new APIResult() { Status = false, Body = "请先删除失分说明" };
+                }
+                masterService.DeleteSubject(subject.SubjectId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -1331,6 +1387,25 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+       /// <summary>
+       /// 删除检查标准
+       /// </summary>
+       /// <param name="subjectInspectionStandard"></param>
+       /// <returns></returns>
+        [HttpPost]
+        [Route("Master/DeleteSubjectInspectionStandard")]
+        public APIResult DeleteSubjectInspectionStandard(SubjectInspectionStandard subjectInspectionStandard)
+        {
+            try
+            {
+                masterService.DeleteSubjectInspectionStandard(subjectInspectionStandard.SubjectId, subjectInspectionStandard.SeqNO);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -1379,6 +1454,25 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         /// <summary>
+        /// 删除标准照片
+        /// </summary>
+        /// <param name="subjectInspectionStandard"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/DeleteSubjectFile")]
+        public APIResult DeleteSubjectFile(SubjectFile subjectFile)
+        {
+            try
+            {
+                masterService.DeleteSubjectFile(subjectFile.SubjectId, subjectFile.SeqNO);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
         /// 获取失分描述
         /// </summary>
         /// <param name="projectId"></param>
@@ -1406,7 +1500,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Master/SaveLossResult")]
-        public APIResult SaveLossResult([FromBody]SubjectLossResult subjectlossResult)
+        public APIResult SaveLossResult(SubjectLossResult subjectlossResult)
         {
             try
             {
@@ -1418,11 +1512,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 删除失分描述
+        /// </summary>
+        /// <param name="subjectInspectionStandard"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Master/DeleteSubjectLossResult")]
+        public APIResult DeleteSubjectLossResult(SubjectLossResult subjectLossResult)
+        {
+            try
+            {
+                masterService.DeleteSubjectLossResult(subjectLossResult.SubjectId, subjectLossResult.SeqNO);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
-
-
-
-
-
     }
 }

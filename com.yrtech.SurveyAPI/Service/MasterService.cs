@@ -12,7 +12,6 @@ namespace com.yrtech.SurveyAPI.Service
     public class MasterService
     {
         Survey db = new Survey();
-        AccountService accountService = new AccountService();
         public List<RoleType> GetRoleType(string type,string roleTypeCode,string roleTypeName)
         {
 
@@ -806,15 +805,21 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectDto> GetSubject(string projectId, string subjectId)
+        public List<SubjectDto> GetSubject(string projectId, string subjectId,string subjectCode,string orderNO)
         {
             projectId = projectId == null ? "" : projectId;
             subjectId = subjectId == null ? "" : subjectId;
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            subjectCode = subjectCode == null ? "" : subjectCode;
+            orderNO = orderNO == null ? "" : orderNO;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@SubjectId", subjectId),
+                                                       new SqlParameter("@SubjectCode", subjectCode),
+                                                       new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.*
-                    FROM Subject A 
+            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExxamTypeName
+                    FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
+                                    INNER JOIN Label C ON B.BrandId = C.BrandId AND A.ExamTypeId  =  C.LabelId
                     WHERE 1=1 ";
             if (!string.IsNullOrEmpty(projectId))
             {
@@ -822,7 +827,15 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(subjectId))
             {
-                sql += " AND A.SubjectId = " + subjectId;
+                sql += " AND A.SubjectId = @SubjectId";
+            }
+            if (!string.IsNullOrEmpty(subjectCode))
+            {
+                sql += " AND A.SubjectCode =@SubjectCode ";
+            }
+            if (!string.IsNullOrEmpty(orderNO))
+            {
+                sql += " AND A.OrderNO =@OrderNO " ;
             }
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
@@ -852,8 +865,20 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = subject.ModifyUserId;
                 findOne.OrderNO = subject.OrderNO;
                 findOne.Remark = subject.Remark;
+                findOne.ExamTypeId = subject.ExamTypeId;
                 findOne.SubjectCode = subject.SubjectCode;
             }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 删除体系
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <param name="seqNo"></param>
+        public void DeleteSubject(long subjectId)
+        {
+            Subject findone = db.Subject.Where(x => x.SubjectId == subjectId).FirstOrDefault();
+            db.Subject.Remove(findone);
             db.SaveChanges();
         }
         /// <summary>
@@ -916,6 +941,17 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         /// <summary>
+        /// 删除标准照片
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <param name="seqNo"></param>
+        public void DeleteSubjectFile(long subjectId,int seqNo)
+        {
+            SubjectFile findone = db.SubjectFile.Where(x => x.SubjectId==subjectId&&x.SeqNO==seqNo).FirstOrDefault();
+            db.SubjectFile.Remove(findone);
+            db.SaveChanges();
+        }
+        /// <summary>
         /// 获取检查标准信息
         /// </summary>
         /// <param name="projectId"></param>
@@ -973,6 +1009,17 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         /// <summary>
+        /// 删除检查标准
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <param name="seqNo"></param>
+        public void DeleteSubjectInspectionStandard(long subjectId, int seqNo)
+        {
+            SubjectInspectionStandard findone = db.SubjectInspectionStandard.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
+            db.SubjectInspectionStandard.Remove(findone);
+            db.SaveChanges();
+        }
+        /// <summary>
         /// 获取失分说明
         /// </summary>
         /// <param name="projectId"></param>
@@ -1027,6 +1074,17 @@ namespace com.yrtech.SurveyAPI.Service
                     findOne.ModifyUserId = subjectLossResult.ModifyUserId;
                 }
             }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 删除失分说明
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <param name="seqNo"></param>
+        public void DeleteSubjectLossResult(long subjectId, int seqNo)
+        {
+            SubjectLossResult findone = db.SubjectLossResult.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
+            db.SubjectLossResult.Remove(findone);
             db.SaveChanges();
         }
         #endregion

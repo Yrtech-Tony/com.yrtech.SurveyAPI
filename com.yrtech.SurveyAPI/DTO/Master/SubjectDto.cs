@@ -8,22 +8,25 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class SubjectDto
     {
-        public int ProjectId { get; set; }
-        public int SubjectId { get; set; }
-        public string Remark { get; set; }
-        public int InUserId { get; set; }
-        public DateTime InDateTime { get; set; }
-        public int ModifyUserId { get; set; }
-        public DateTime ModifyDateTime { get; set; }
-        public DateTime UploadDate { get; set; }
-        public int UploadUserId { get; set; }
-        public string SubjectCode { get; set; }
-        public int OrderNO { get; set; }
-        public string Implementation { get; set; }
-        public string CheckPoint { get; set; }
-        public string Desc { get; set; }
-        public string InspectionDesc { get; set; }
-        public List<LabelObjectDto> LabelList { get; set; }
+        public long SubjectId { get; set; } 
+        public string SubjectCode { get; set; } // 题目代码
+        public Nullable<int> ProjectId { get; set; }
+        public string ProjectCode { get; set; }
+        public string ProjectName { get; set; }
+        public Nullable<int> OrderNO { get; set; }//序号
+        public Nullable<decimal> FullScore { get; set; } // 最高分
+        public Nullable<decimal> LowScore { get; set; }// 最低分
+        public int ExamTypeId { get; set; } // 试卷类型ID
+        public string ExamTypeCode { get; set; } // 试卷类型代码
+        public string ExamTypeName { get; set; } // 试卷类型代码
+        public string CheckPoint { get; set; }// 检查点
+        public string Implementation { get; set; }// 执行方式
+        public string InspectionDesc { get; set; }//检查标准说明
+        public string Remark { get; set; }//备注
+        public Nullable<int> InUserId { get; set; }
+        public Nullable<System.DateTime> InDateTime { get; set; }
+        public Nullable<int> ModifyUserId { get; set; }
+        public Nullable<System.DateTime> ModifyDateTime { get; set; }
 
     }
 }

@@ -152,6 +152,27 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+        // 导入经销商试卷类别
+        public List<ProjectShopExamTypeDto> ProjectShopExamTypeImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ProjectShopExamTypeDto> list = new List<ProjectShopExamTypeDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string shopCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                ProjectShopExamTypeDto projectShopExamTypeDto = new ProjectShopExamTypeDto();
+                projectShopExamTypeDto.ShopCode = shopCode;
+                projectShopExamTypeDto.ExamTypeCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(projectShopExamTypeDto);
+            }
+            return list;
+
+        }
         #endregion
         #region 导出
         // 导出账号

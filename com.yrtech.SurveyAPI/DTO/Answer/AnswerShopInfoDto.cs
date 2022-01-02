@@ -8,10 +8,12 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class AnswerShopInfoDto
     {
-        public int Id { get; set; }
         public int ProjectId { get; set; }
         public int ShopId { get; set; }
-        public string TeamLeaderName { get; set; }
+        public string ShopCode { get; set; }
+        public string ShopName { get; set; }
+        public string TeamLeader { get; set; }//执行组长
+        public string PhotoUrl { get; set; } //照片地址
         public int UserId { get; set; }
         public DateTime StartDate { get; set; }
         public int InUserId { get; set;  }
