@@ -77,7 +77,7 @@
           <Property Name="TeamLeader" Type="nvarchar" MaxLength="50" />
           <Property Name="StartDate" Type="datetime" />
           <Property Name="PhotoUrl" Type="nvarchar" MaxLength="500" />
-          <Property Name="InUseriId" Type="int" />
+          <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
           <Property Name="ModifyDateTime" Type="datetime" />
@@ -360,7 +360,7 @@
           <Property Name="Implementation" Type="nvarchar(max)" />
           <Property Name="InspectionDesc" Type="nvarchar(max)" />
           <Property Name="Desc" Type="nvarchar(max)" />
-          <Property Name="ExamTypeId" Type="int" />
+          <Property Name="LabelId" Type="int" />
           <Property Name="Remark" Type="nvarchar(max)" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -570,8 +570,8 @@
           <EntitySet Name="UserInfoBrand" EntityType="com.yrtech.SurveyDAL.UserInfoBrand" />
           <EntitySet Name="UserInfoObject" EntityType="com.yrtech.SurveyDAL.UserInfoObject" />
           <EntitySet Name="Answer" EntityType="com.yrtech.SurveyDAL.Answer" />
-          <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.SurveyDAL.AnswerShopInfo" />
           <EntitySet Name="Subject" EntityType="com.yrtech.SurveyDAL.Subject" />
+          <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.SurveyDAL.AnswerShopInfo" />
         </EntityContainer>
         <EntityType Name="AnswerShopConsultant">
           <Key>
@@ -1029,21 +1029,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="AnswerShopInfo">
-          <Key>
-            <PropertyRef Name="ProjectId" />
-            <PropertyRef Name="ShopId" />
-          </Key>
-          <Property Name="ProjectId" Type="Int32" Nullable="false" />
-          <Property Name="ShopId" Type="Int32" Nullable="false" />
-          <Property Name="TeamLeader" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="StartDate" Type="DateTime" Precision="3" />
-          <Property Name="PhotoUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="InUseriId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="Subject">
           <Key>
             <PropertyRef Name="SubjectId" />
@@ -1058,8 +1043,23 @@
           <Property Name="Implementation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="InspectionDesc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Desc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ExamTypeId" Type="Int32" />
+          <Property Name="LabelId" Type="Int32" />
           <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="AnswerShopInfo">
+          <Key>
+            <PropertyRef Name="ProjectId" />
+            <PropertyRef Name="ShopId" />
+          </Key>
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="ShopId" Type="Int32" Nullable="false" />
+          <Property Name="TeamLeader" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="PhotoUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -1554,21 +1554,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AnswerShopInfo">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AnswerShopInfo">
-              <MappingFragment StoreEntitySet="AnswerShopInfo">
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUseriId" ColumnName="InUseriId" />
-                <ScalarProperty Name="PhotoUrl" ColumnName="PhotoUrl" />
-                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
-                <ScalarProperty Name="TeamLeader" ColumnName="TeamLeader" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Subject">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Subject">
               <MappingFragment StoreEntitySet="Subject">
@@ -1577,7 +1562,7 @@
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="ExamTypeId" ColumnName="ExamTypeId" />
+                <ScalarProperty Name="LabelId" ColumnName="LabelId" />
                 <ScalarProperty Name="Desc" ColumnName="Desc" />
                 <ScalarProperty Name="InspectionDesc" ColumnName="InspectionDesc" />
                 <ScalarProperty Name="Implementation" ColumnName="Implementation" />
@@ -1588,6 +1573,21 @@
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AnswerShopInfo">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AnswerShopInfo">
+              <MappingFragment StoreEntitySet="AnswerShopInfo">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="PhotoUrl" ColumnName="PhotoUrl" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="TeamLeader" ColumnName="TeamLeader" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

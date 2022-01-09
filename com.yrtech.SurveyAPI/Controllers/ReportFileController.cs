@@ -158,7 +158,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "","");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };

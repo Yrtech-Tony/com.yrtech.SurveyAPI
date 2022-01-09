@@ -19,7 +19,7 @@ namespace com.yrtech.SurveyDAL
         public string TeamLeader { get; set; }
         public Nullable<System.DateTime> StartDate { get; set; }
         public string PhotoUrl { get; set; }
-        public Nullable<int> InUseriId { get; set; }
+        public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }

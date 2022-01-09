@@ -1187,7 +1187,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", brandId, projectId, "", year);
+                List<ProjectDto> projectList = masterService.GetProject("", brandId, projectId, "", year,"");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -1202,10 +1202,15 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "");
-                if (projectList != null && projectList.Count > 0 && projectList[0].ProjectId != project.ProjectId)
+                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "","");
+                if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "期号代码重复" };
+                }
+                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "","",project.Year, project.OrderNO.ToString());
+                if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
+                {
+                    return new APIResult() { Status = false, Body = "序号重复" };
                 }
                 masterService.SaveProject(project);
                 return new APIResult() { Status = true, Body = "" };

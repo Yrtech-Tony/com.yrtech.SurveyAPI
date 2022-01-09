@@ -551,21 +551,23 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode,string year)
+        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode,string year,string orderNO)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
             projectId = projectId == null ? "" : projectId;
             year = year == null ? "" : year;
             projectCode = projectCode == null ? "" : projectCode;
+            orderNO = orderNO == null ? "" : orderNO;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ProjectCode", projectCode),
-                                                    new SqlParameter("@Year", year)};
+                                                        new SqlParameter("@Year", year),
+                                                     new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(ProjectDto);
             string sql = "";
-            sql = @"SELECT *,CASE WHEN GETDATE()<ReportDeployDate  OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
+            sql = @"SELECT *,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
                              ELSE CAST(1 AS BIT) END AS ReportDeployChk
                     FROM [Project]
                     WHERE 1=1   
@@ -590,7 +592,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND Year = @Year";
             }
-            sql += " ORDER BY OrderNO DESC";
+            if (!string.IsNullOrEmpty(orderNO))
+            {
+                sql += " AND OrderNO = @OrderNO";
+            }
+            sql += " ORDER BY Year,OrderNO DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
 
         }
@@ -817,14 +823,10 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExxamTypeName
+            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
-                                    INNER JOIN Label C ON B.BrandId = C.BrandId AND A.ExamTypeId  =  C.LabelId
-                    WHERE 1=1 ";
-            if (!string.IsNullOrEmpty(projectId))
-            {
-                sql += " AND A.ProjectId = @ProjectId";
-            }
+                                    LEFT JOIN Label C ON B.BrandId = C.BrandId AND A.LabelId  =  C.LabelId
+                    WHERE 1=1 AND A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId = @SubjectId";
@@ -865,7 +867,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = subject.ModifyUserId;
                 findOne.OrderNO = subject.OrderNO;
                 findOne.Remark = subject.Remark;
-                findOne.ExamTypeId = subject.ExamTypeId;
+                findOne.LabelId = subject.LabelId;
                 findOne.SubjectCode = subject.SubjectCode;
             }
             db.SaveChanges();
