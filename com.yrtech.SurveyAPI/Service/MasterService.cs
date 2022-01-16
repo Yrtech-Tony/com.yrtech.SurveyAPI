@@ -895,7 +895,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectFile);
             string sql = "";
             sql = @"SELECT A.*
-                   FROM SubjectFile INNER JOIN Subject B ON A.SubjectId = B.SubjectId
+                   FROM SubjectFile A INNER JOIN [Subject] B ON A.SubjectId = B.SubjectId
                   WHERE B.ProjectId = @ProjectId ";
             if (!string.IsNullOrEmpty(subjectId))
             {

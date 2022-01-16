@@ -28,7 +28,7 @@ namespace com.yrtech.SurveyAPI.Service
             //string brandId = masterService.GetShop("", "", lst[0].ShopId.ToString(),"","")[0].BrandId.ToString();
             //string projectCode = masterService.GetProject("", "", lst[0].ProjectId.ToString(),"")[0].ProjectCode;
             //string accountId = accountService.GetUserInfo("",userId,"","")[0].AccountId;
-           // if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
+            // if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
             //try
             //{
             //    /// 保存得分信息
@@ -225,13 +225,13 @@ namespace com.yrtech.SurveyAPI.Service
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
                                                                 CASE WHEN EXISTS(SELECT 1 FROM Answer WHERE ProjectId = @ProjectId AND ShopId = @ShopId) 
-                                                                THEN (SELECT MAX(OrderNO) FROM  Answer A INNER JOIN [Subject] B ON A.ProjectId = B.ProjectId 
-																                                                                AND A.SubjectId = B.SubjectId 
-																                                                                AND A.ProjectId = @ProjectId 
-																                                                                AND A.ShopId = @ShopId
-																                                                                AND B.ExamTypeId=@ExamTypeId) 
+                                                                THEN (SELECT MAX(OrderNO) FROM  Answer X INNER JOIN [Subject] Y ON X.ProjectId = Y.ProjectId 
+																                                                                AND X.SubjectId = Y.SubjectId 
+																                                                                AND X.ProjectId = @ProjectId 
+																                                                                AND X.ShopId = @ShopId
+																                                                                AND Y.LabelId=@ExamTypeId) 
                                                                 ELSE (SELECT ISNULL(MIN(OrderNO),0) FROM [Subject] WHERE ProjectId  = @ProjectId 
-                                                                                                                            AND ExamTypeId=@ExamTypeId)
+                                                                                                                            AND LabelId=@ExamTypeId)
                                                                 END AS OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -265,7 +265,7 @@ namespace com.yrtech.SurveyAPI.Service
                     AND  A.OrderNO =(SELECT ISNULL(MIN(OrderNO),0) 
                                     FROM [Subject] 
                                     WHERE ProjectId = @ProjectId 
-                                    AND ExamTypeId =  @ExamTypeId 
+                                    AND LabelId =  @ExamTypeId 
                                     AND OrderNO > @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -298,7 +298,7 @@ namespace com.yrtech.SurveyAPI.Service
                     WHERE A.ProjectId  = @ProjectId 
                     AND  A.OrderNO =(SELECT ISNULL(MAX(OrderNO),0) FROM [Subject] 
                                                                     WHERE ProjectId = @ProjectId 
-                                                                    AND ExamTypeId = @ExamTypeId 
+                                                                    AND LabelId = @ExamTypeId 
                                                                     AND OrderNO < @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -309,7 +309,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId,string key)
+        public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId, string key)
         {
             // 获取打分的信息
             shopId = shopId == null ? "" : shopId;
@@ -396,8 +396,12 @@ namespace com.yrtech.SurveyAPI.Service
         {
             Answer answer = new Answer();
             answer.ProjectId = answerDto.ProjectId;
-            answer.ShopId = answerDto.ShopId;
-            answer.SubjectId = answerDto.SubjectId;
+            //if (answerDto.ShopId == null) answer.ShopId = 0;
+            //else
+            //{
+                answer.ShopId = Convert.ToInt32(answerDto.ShopId);
+            //}
+            answer.SubjectId = Convert.ToInt32(answerDto.SubjectId);
             answer.PhotoScore = answerDto.PhotoScore;
             answer.Remark = answerDto.Remark;
             answer.FileResult = answerDto.FileResult;
@@ -585,7 +589,7 @@ namespace com.yrtech.SurveyAPI.Service
         //    sql = @"SELECT B.AnswerShopConsultantScoreId,B.AnswerId,B.ConsultantId,B.ConsultantScore,B.ConsultantLossDesc
         //                ,C.ConsultantName,C.ConsultantType,C.SeqNO,B.InUserId,B.ModifyUserId
         //            FROM dbo.Answer A INNER JOIN dbo.AnswerShopConsultantScore B ON A.AnswerId = B.AnswerId
-						  // INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
+        // INNER JOIN dbo.AnswerShopConsultant C ON B.ConsultantId = C.ConsultantId
         //            WHERE A.AnswerId = @AnswerId ";
         //    if (!string.IsNullOrEmpty(consultantId))
         //    {
@@ -608,7 +612,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(AnswerShopInfoDto);
             string sql = "";
-             sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,ISNULL(C.TeamLeader,'') AS TeamLeader,C.StartDate,C.InDateTime,C.ModifyDateTime,C.PhotoUrl
+            sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,ISNULL(C.TeamLeader,'') AS TeamLeader,C.StartDate,C.InDateTime,C.ModifyDateTime,C.PhotoUrl
                             FROM ProjectShopExamType A INNER JOIN Shop B ON A.ShopId  = B.ShopId
 							                            LEFT JOIN AnswerShopInfo C ON A.ProjectId = C.ProjectId AND A.ShopId = C.ShopId
                             WHERE A.ProjectId = @ProjectId";
@@ -783,10 +787,10 @@ namespace com.yrtech.SurveyAPI.Service
         //    Type t = typeof(int);
         //    foreach (AnswerDto answer in answerList)
         //    {
-                
+
         //        Shop shop = db.Shop.Where(x => (x.ShopCode == answer.ShopCode&&x.BrandId == brandIdInt && x.TenantId== tenantIdInt)).FirstOrDefault();
         //        Subject subject = db.Subject.Where(x => (x.ProjectId == projectIdInt && x.SubjectCode == answer.SubjectCode)).FirstOrDefault();
-                
+
         //        sql += "INSERT INTO Answer(ProjectId,SubjectId,ShopId,ImportScore,ImportLossResult,InUserId,InDateTime,ModifyUserId,ModifyDateTime,UploadUserId,UploadDate) VALUES(";
         //        sql += projectId + ",";
         //        sql += subject.SubjectId + ",";
