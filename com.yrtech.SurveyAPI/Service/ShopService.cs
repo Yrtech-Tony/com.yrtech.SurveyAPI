@@ -26,10 +26,10 @@ namespace com.yrtech.SurveyAPI.Service
                                             new SqlParameter("@ProjectId", projectId),
                                             new SqlParameter("@ShopId", shopId) };
             Type t = typeof(ProjectShopExamTypeDto);
-            string sql = @"SELECT A.ShopId,ShopCode,ShopName,ShopshortName,
+            string sql = @"SELECT A.ShopId,ShopCode,ShopName,ShopshortName,B.ProjectId,
                                     CASE WHEN B.ProjectId IS NULL THEN ''
                                          ELSE(SELECT TOP 1 ProjectCode FROM Project WHERE ProjectId = @ProjectId)
-                                    END AS ProjectCode,
+                                    END AS ProjectCode,B.ExamTypeId,
                                     CASE WHEN B.ExamTypeId IS NULL THEN ''
                                          ELSE(SELECT TOP 1 LabelCode FROM Label WHERE BrandId = @BrandId AND LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
                                     END AS ExamTypeCode,
@@ -43,6 +43,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ShopId =@ShopId";
             }
+            sql += " ORDER BY A.ShopId";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectShopExamTypeDto>().ToList();
         }
         /// <summary>

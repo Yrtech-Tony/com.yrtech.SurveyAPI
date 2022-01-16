@@ -35,6 +35,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? OrderNO { get; set; }//题目序号
         public string Implementation { get; set; }//执行方式
         public string CheckPoint { get; set; }//检查点
+        public decimal? FullScore { get; set; }
+        public decimal? LowScore { get; set; }
         public string Desc { get; set; }//说明
         public string InspectionDesc { get; set; }//检查标准说明
         public RecheckDto Recheck { get; set; }
