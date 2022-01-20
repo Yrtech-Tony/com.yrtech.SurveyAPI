@@ -1099,17 +1099,17 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@LabelType", labelType),
                                                         new SqlParameter("@BrandId", brandId),
                                                          new SqlParameter("@LabelCode", labelCode),
-                                                        new SqlParameter("@LabelId", labelId),
-                                                        new SqlParameter("@UseChk", useChk)};
+                                                        new SqlParameter("@LabelId", labelId)};
             Type t = typeof(Label);
             string sql = "";
             sql = @"SELECT * 
                       FROM [Label] A
                     WHERE  BrandId = @BrandId AND 1=1
                     ";
-            if (useChk != null)
+            if (useChk.HasValue)
             {
-                sql += " AND UseChk = @UseChk";
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
+                sql += " AND A.UseChk = @UseChk";
             }
             if (!string.IsNullOrEmpty(labelCode))
             {
