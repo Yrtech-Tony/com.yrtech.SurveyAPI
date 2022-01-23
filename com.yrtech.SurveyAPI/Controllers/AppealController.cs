@@ -142,12 +142,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     appeal.AppealId = appealDto.AppealId;
                     appeal.AppealReason = appealDto.AppealReason;
                     appeal.AppealUserId = appealDto.AppealUserId;
-                    appeal.CheckPoint = appealDto.CheckPoint;
-                    appeal.LossResult = appealDto.LossResult;
                     appeal.ProjectId = appealDto.ProjectId;
-                    appeal.Score = appealDto.Score;
                     appeal.ShopId = appealDto.ShopId;
-                    appeal.SubjectCode = appealDto.SubjectCode;
                     appeal.SubjectId = appealDto.SubjectId;
                     if (appeal.AppealId == 0)// 申诉新增时，文件也进行保存
                     {
