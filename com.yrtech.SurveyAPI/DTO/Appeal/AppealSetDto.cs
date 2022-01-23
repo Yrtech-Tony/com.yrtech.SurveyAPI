@@ -12,6 +12,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ProjectName { get; set; }
         public DateTime? AppealStartDate { get; set; }
         public DateTime? AppealEndDate { get; set; }
+        public DateTime? AppealCreateDateTime { get; set; }
         public string HiddenCode { get; set; }
         public string HiddenName { get; set; }
         public DateTime? InDateTime { get; set; }
