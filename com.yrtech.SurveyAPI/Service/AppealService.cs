@@ -14,6 +14,8 @@ namespace com.yrtech.SurveyAPI.Service
     public class AppealService
     {
         Survey db = new Survey();
+        
+        
         /// <summary>
         /// 申诉设置查询
         /// </summary>
@@ -30,11 +32,13 @@ namespace com.yrtech.SurveyAPI.Service
                         ,A.ProjectName
 		                ,B.AppealStartDate
                         ,B.AppealEndDate
-                        ,B.HiddenCode,
-		                CASE WHEN HiddenCode IS NULL OR HiddenCode ='' THEN ''
+                        ,B.HiddenCode
+                        ,B.AppealCreateDateTime
+		                ,CASE WHEN HiddenCode IS NULL OR HiddenCode ='' THEN ''
 			                ELSE (SELECT TOP 1 HiddenName FROM HiddenColumn WHERE HiddenCOdeGroup = '申诉模式' AND HiddenCode = B.HiddenCode )
-		                END AS HiddenName,
-                        B.InDateTime,B.ModifyDateTime
+		                END AS HiddenName
+                        ,B.InDateTime
+                        ,B.ModifyDateTime
                     FROM Project A LEFT JOIN AppealSet B ON A.ProjectId = B.ProjectId
                     WHERE A.ProjectId = @ProjectId ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealSetDto>().ToList();
@@ -52,13 +56,13 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 findOne.AppealEndDate = appealSet.AppealEndDate;
                 findOne.AppealStartDate = appealSet.AppealStartDate;
+                findOne.AppealCreateDateTime = appealSet.AppealCreateDateTime;
                 findOne.HiddenCode = appealSet.HiddenCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = appealSet.ModifyUserId;
             }
             db.SaveChanges();
         }
-
         /// <summary>
         /// 查询经销商申诉列表_按页码
         /// </summary>
@@ -305,12 +309,8 @@ namespace com.yrtech.SurveyAPI.Service
             else {
                 findOne.AppealReason = appeal.AppealReason;
                 findOne.AppealUserId = appeal.AppealUserId;
-                findOne.CheckPoint = appeal.CheckPoint;
-                findOne.LossResult = appeal.LossResult;
                 findOne.ProjectId = appeal.ProjectId;
-                findOne.Score = appeal.Score;
                 findOne.ShopId = appeal.ShopId;
-                findOne.SubjectCode = appeal.SubjectCode;
                 findOne.SubjectId = appeal.SubjectId;
                 appeal = findOne;
             }
