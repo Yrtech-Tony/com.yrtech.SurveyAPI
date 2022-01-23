@@ -14,8 +14,17 @@ namespace com.yrtech.SurveyAPI.Service
     public class AppealService
     {
         Survey db = new Survey();
-        
-        
+
+        public void CreateAppeal(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            string sql = "";
+            sql = @"INSERT INTO Appeal
+                    SELECT ProjectId,ShopId,SubjectId,'',null,null,null,'',null,null
+                    FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
+                    WHERE ProjectId = @ProjectId AND A.PhotoScore<B.FullScore";
+            db.Database.ExecuteSqlCommand(sql,para);
+        }
         /// <summary>
         /// 申诉设置查询
         /// </summary>

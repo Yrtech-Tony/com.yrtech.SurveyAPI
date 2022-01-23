@@ -42,15 +42,14 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-
         [HttpGet]
         [Route("Appeal/CreateAppealInfoByProject")]
         public APIResult CreateAppealInfoByProject(string projectId)
         {
             try
             {
-                // appealService.CreateAppealInfoByProject(Convert.ToInt32(projectId));
-                return new APIResult() { Status = true, Body = "申诉阶段开始成功" };
+                 appealService.CreateAppeal(projectId);
+                return new APIResult() { Status = true, Body = "申诉数据生成完毕" };
             }
             catch (Exception ex)
             {
