@@ -37,7 +37,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
         public virtual DbSet<Label> Label { get; set; }
         public virtual DbSet<LabelObject> LabelObject { get; set; }
-        public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ProjectShopExamType> ProjectShopExamType { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
@@ -59,5 +58,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Answer> Answer { get; set; }
         public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
+        public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<AppealSet> AppealSet { get; set; }
     }
 }

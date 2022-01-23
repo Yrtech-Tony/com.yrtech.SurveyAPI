@@ -13,6 +13,36 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AppealService appealService = new AppealService();
 
+        #region 申诉设置
+        [HttpGet]
+        [Route("Appeal/GetAppealSet")]
+        public APIResult GetAppealSet(string projectId)
+        {
+            try
+            {
+                List<AppealSetDto> list = appealService.GetAppealSet(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [Route("Appeal/SaveAppealSet")]
+        public APIResult SaveAppealSet(AppealSet appealSet)
+        {
+            try
+            {
+                appealService.SaveAppealSet(appealSet);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
         [HttpGet]
         [Route("Appeal/CreateAppealInfoByProject")]
         public APIResult CreateAppealInfoByProject(string projectId)
