@@ -14,7 +14,51 @@ namespace com.yrtech.SurveyAPI.Service
     public class AppealService
     {
         Survey db = new Survey();
-        
+        /// <summary>
+        /// 申诉设置查询
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<AppealSetDto> GetAppealSet(string projectId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
+            Type t = typeof(AppealSetDto);
+            string sql = "";
+            sql = @"SELECT 
+                        A.ProjectId
+                        ,A.ProjectCode
+                        ,A.ProjectName
+		                ,B.AppealStartDate
+                        ,B.AppealEndDate
+                        ,B.HiddenCode,
+		                CASE WHEN HiddenCode IS NULL OR HiddenCode ='' THEN ''
+			                ELSE (SELECT TOP 1 HiddenName FROM HiddenColumn WHERE HiddenCOdeGroup = '申诉模式' AND HiddenCode = B.HiddenCode )
+		                END AS HiddenName,
+                        B.InDateTime,B.ModifyDateTime
+                    FROM Project A LEFT JOIN AppealSet B ON A.ProjectId = B.ProjectId
+                    WHERE A.ProjectId = @ProjectId ";
+            return db.Database.SqlQuery(t, sql, para).Cast<AppealSetDto>().ToList();
+        }
+        public void SaveAppealSet(AppealSet appealSet)
+        {
+            AppealSet findOne = db.AppealSet.Where(x => (x.ProjectId == appealSet.ProjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                appealSet.InDateTime = DateTime.Now;
+                appealSet.ModifyDateTime = DateTime.Now;
+                db.AppealSet.Add(appealSet);
+            }
+            else
+            {
+                findOne.AppealEndDate = appealSet.AppealEndDate;
+                findOne.AppealStartDate = appealSet.AppealStartDate;
+                findOne.HiddenCode = appealSet.HiddenCode;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = appealSet.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+
         /// <summary>
         /// 查询经销商申诉列表_按页码
         /// </summary>

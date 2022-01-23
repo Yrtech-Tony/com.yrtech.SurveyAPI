@@ -631,8 +631,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
-                findOne.DataScore = project.DataScore;
-                findOne.AppealStartDate = project.AppealStartDate;
+                //findOne.DataScore = project.DataScore;
+                //findOne.AppealStartDate = project.AppealStartDate;
+                //findOne.AppealEndDate = project.AppealEndDate;
+                //findOne.AppealMode = project.AppealMode;
                 findOne.ReportDeployDate= project.ReportDeployDate;// 报告发布时间
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
