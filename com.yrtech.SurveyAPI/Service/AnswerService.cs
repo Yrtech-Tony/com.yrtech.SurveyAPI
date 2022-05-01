@@ -218,10 +218,10 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@ExamTypeId", examTypeId)};
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT B.AnswerId,A.ProjectId,B.ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
+            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,
                             A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
-                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId =  @ShopId
+                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
                                                                 CASE WHEN EXISTS(SELECT 1 FROM Answer WHERE ProjectId = @ProjectId AND ShopId = @ShopId) 
@@ -255,7 +255,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT B.AnswerId,A.ProjectId,B.ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
+            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,
                             A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
@@ -289,7 +289,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT B.AnswerId,A.ProjectId,B.ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
+            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,
                             A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
@@ -303,7 +303,34 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
         /// <summary>
-        /// 获取当期经销商已经打分的信息
+        /// 按照需要查询题目
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="orderNO"></param>
+        /// <returns></returns>
+        public List<AnswerDto> GetShopTransAnswerSubject(string projectId, string shopId, string orderNO)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            orderNO = orderNO == null ? "" : orderNO;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@OrderNO", orderNO)};
+            Type t = typeof(AnswerDto);
+            string sql = "";
+            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
+                            B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,
+                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
+                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
+                                                        AND A.SubjectId = B.SubjectId 
+                                                        AND B.ShopId =  @ShopId
+                    WHERE A.ProjectId  = @ProjectId 
+                    AND  A.OrderNO = @OrderNO";
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
+        }
+        /// <summary>
+        /// 获取单个经销商打分信息
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
@@ -321,24 +348,21 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @" SELECT  B.ShopCode,B.ShopName,C.SubjectCode,C.[CheckPoint],C.OrderNO,C.[Desc],C.InspectionDesc,
-                             A.PhotoScore, A.Remark,A.InspectionStandardResult,A.FileResult,A.LossResult,A.InDateTime,A.ModifyDateTime
-                    FROM Answer A INNER JOIN Shop B ON A.ShopId =  B.ShopId
-			                      INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId
-                    WHERE A.ProjectId =  @ProjectId";
+            sql = @"  SELECT  A.ProjectId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,
+                             C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
+                    FROM [Subject] A CROSS JOIN 
+                                    (SELECT * FROM Shop WHERE ShopId = @ShopId) B 
+                        LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
+                    WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId =@SubjectId ";
-            }
-            if (!string.IsNullOrEmpty(shopId))
-            {
-                sql += " AND A.ShopId =@ShopId ";
             }
             if (!string.IsNullOrEmpty(key))
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
-            sql += "ORDER BY A.ProjectId,B.ShopCode,A.SubjectId";
+            sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO,A.SubjectId";
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             //// 绑定销售顾问打分信息,并计算当前题的得分，模拟得分
             //foreach (AnswerDto answer in answerList)
@@ -396,11 +420,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             Answer answer = new Answer();
             answer.ProjectId = answerDto.ProjectId;
-            //if (answerDto.ShopId == null) answer.ShopId = 0;
-            //else
-            //{
-                answer.ShopId = Convert.ToInt32(answerDto.ShopId);
-            //}
+            answer.ShopId = Convert.ToInt32(answerDto.ShopId);
             answer.SubjectId = Convert.ToInt32(answerDto.SubjectId);
             answer.PhotoScore = answerDto.PhotoScore;
             answer.Remark = answerDto.Remark;
@@ -412,108 +432,7 @@ namespace com.yrtech.SurveyAPI.Service
             answer.InUserId = Convert.ToInt32(answerDto.ModifyUserId);
             answer.ModifyDateTime = DateTime.Now;
             answer.ModifyUserId = Convert.ToInt32(answerDto.ModifyUserId);
-            // // 保存打分信息
-            // List<Project> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(),"");
-            // if (projectList == null || projectList.Count == 0)
-            // {
-            //     throw new Exception("没有找到对应的期号");
-            // }
-            // List<Shop> shopList = masterService.GetShop("", "", answer.ShopId.ToString(),"","");
-            // if (shopList == null || shopList.Count == 0)
-            // {
-            //     throw new Exception("没有找到对应的经销商");
-            // }
-            // List<UserInfo> userList = accountService.GetUserInfo("",answerDto.ModifyUserId.ToString(),"","");
-            // if (userList == null || userList.Count == 0)
-            // {
-            //     throw new Exception("没有找到对应的用户");
-            // }
-            // List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString());
-            // if (subjectList == null || subjectList.Count == 0)
-            // {
-            //     throw new Exception("没有找到对应的体系");
-            // }
-            // string projectCode = projectList[0].ProjectCode;
-            // string shopCode = shopList[0].ShopCode;
-            // string brandId = shopList[0].BrandId.ToString();
-            // string accountId = userList[0].AccountId;
-            // string subjectCode = subjectList[0].SubjectCode;
-            // if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-            //List<InspectionStandardResultDto> inspectionList = new List<InspectionStandardResultDto>();
-            //List<FileResultDto> fileList = new List<FileResultDto>();
-            //List<LossResultDto> lossResultList = new List<LossResultDto>();
-            //List<ShopConsultantResultDto> shopConsultantList = new List<ShopConsultantResultDto>();
-
-            //inspectionList = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(answer.InspectionStandardResult);
-            //fileList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
-            //lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-            //shopConsultantList = CommonHelper.DecodeString<List<ShopConsultantResultDto>>(answer.ShopConsultantResult);
-
-            //// CommonHelper.log(answer.ShopConsultantResult.ToString());
-            // webService.SaveAnswer(projectCode, subjectCode, shopCode, answer.PhotoScore,//score 赋值photoscore,模拟得分在上传的会自动计算覆盖
-            //             answer.Remark, "", accountId, '0', "", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Convert.ToDateTime(answer.InDateTime).ToString("yyyy-MM-dd HH:mm:ss"), answer.PhotoScore.ToString());
-
-            // if (inspectionList != null)
-            // {
-            //     foreach (InspectionStandardResultDto inspection in inspectionList)
-            //     {
-
-            //         if (!string.IsNullOrEmpty(inspection.ModifyType))
-            //         { webService.SaveAnswerDtl(projectCode, subjectCode, shopCode, Convert.ToInt32(inspection.SeqNO), accountId, inspection.AnswerResult, ""); }
-            //         inspection.ModifyType = null;
-            //     }
-            // }
-            // answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
-            // if (fileList != null)
-            // {
-            //     foreach (FileResultDto file in fileList)
-            //     {
-            //         if (!string.IsNullOrEmpty(file.ModifyType))
-            //             webService.SaveAnswerDtl2Stream(projectCode, subjectCode, shopCode, Convert.ToInt32(file.SeqNO), accountId,file.AnswerResult, null, "", file.FileName);
-            //         file.ModifyType = null;
-            //     }
-            // }
-            // answer.FileResult = CommonHelper.Encode(fileList);
-            // if (lossResultList != null)
-            // {
-            //     foreach (LossResultDto loss in lossResultList)
-            //     {
-            //         char type = 'N';
-            //         if (loss.ModifyType == "U")
-            //         { type = 'U'; }
-            //         else if (loss.ModifyType == "D")
-            //         {
-            //             type = 'D';
-            //         }
-            //         webService.SaveLossDesc(projectCode, shopCode, "", subjectCode, loss.LossDesc, loss.LossFileNameUrl, Convert.ToInt32(loss.LossId), type, "");
-            //         loss.ModifyType = null;
-            //     }
-            // }
-            // answer.LossResult = CommonHelper.Encode(lossResultList);
-            // if (shopConsultantList != null)
-            // {
-            //     foreach (ShopConsultantResultDto shopConsult in shopConsultantList)
-            //     {
-            //        // CommonHelper.log(shopConsult.ConsultantLossDesc);
-            //         char type = 'N';
-            //         if (shopConsult.ModifyType == "U")
-            //         { type = 'U'; }
-            //         else if (shopConsult.ModifyType == "D")
-            //         {
-            //             type = 'D';
-            //         }
-            //         webService.SaveSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantName,
-            //             shopConsult.ConsultantScore.HasValue ? shopConsult.ConsultantScore.ToString() : "", shopConsult.ConsultantLossDesc,
-            //             accountId, type, shopConsult.ConsultantType);
-            //         webService.UpdateSalesConsultant(projectCode, shopCode, subjectCode, shopConsult.SeqNO.ToString(), shopConsult.ConsultantLossDesc);
-            //         shopConsult.ModifyType = null;
-            //     }
-            // }
-            // CommonHelper.log(answer.LossResult);
-            //answer.LossResult = CommonHelper.Encode(lossResultList);
-            //answer.FileResult = CommonHelper.Encode(fileList);
-            //answer.InspectionStandardResult = CommonHelper.Encode(inspectionList);
-            //answer.ShopConsultantResult = CommonHelper.Encode(shopConsultantList);
+          
             Answer findOne = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
@@ -533,24 +452,6 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = answer.ModifyUserId;
             }
             db.SaveChanges();
-            // 保存销售顾问得分
-            //long answerId = db.Answer.Where(x => (x.ProjectId == answerDto.ProjectId && x.ShopId == answerDto.ShopId && x.SubjectId == answerDto.SubjectId)).FirstOrDefault().AnswerId;
-            //if (shopConsultantList != null)
-            //{
-            //    foreach (ShopConsultantResultDto result in shopConsultantList)
-            //    {
-            //        AnswerShopConsultantScore score = new AnswerShopConsultantScore();
-            //        score.AnswerId = Convert.ToInt32(answerId);
-            //        score.ConsultantId = result.ConsultantId;
-            //        score.ConsultantScore = result.ConsultantScore;
-            //        score.ConsultantLossDesc = result.ConsultantLossDesc;
-            //        score.InDateTime = DateTime.Now;
-            //        score.InUserId = answer.ModifyUserId;
-            //        score.ModifyDateTime = DateTime.Now;
-            //        score.ModifyUserId = answer.ModifyUserId;
-            //        SaveConsultantScore(score);
-            //    }
-            //}
 
         }
         ///// <summary>
@@ -629,30 +530,6 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerShopInfo(AnswerShopInfo shopInfo)
         {
-            //List<Project> projectList = masterService.GetProject("", "", shopInfo.ProjectId.ToString(),"");
-            //if (projectList == null || projectList.Count == 0)
-            //{
-            //    throw new Exception("没有找到对应的期号");
-            //}
-            //List<Shop> shopList = masterService.GetShop("", "", shopInfo.ShopId.ToString(),"","");
-            //if (shopList == null || shopList.Count == 0)
-            //{
-            //    throw new Exception("没有找到对应的经销商");
-            //}
-            //List<UserInfo> userList = accountService.GetUserInfo("",shopInfo.ModifyUserId.ToString(),"","");
-            //if (userList == null || userList.Count == 0)
-            //{
-            //    throw new Exception("没有找到对应的用户");
-            //}
-            //string projectCode = projectList[0].ProjectCode;
-            //string shopCode = shopList[0].ShopCode;
-            //string brandId = shopList[0].BrandId.ToString();
-            //string accountId = userList[0].AccountId;
-
-            //if (brandId == "3") { webService.Url = "http://123.57.229.128/gacfcaserver1/service.asmx"; }
-
-            //webService.AnswerStartInfoSave(projectCode, shopCode, shopInfo.TeamLeaderName, accountId, shopInfo.StartDate.ToString());
-
             AnswerShopInfo findOne = db.AnswerShopInfo.Where(x => (x.ProjectId == shopInfo.ProjectId && x.ShopId == shopInfo.ShopId)).FirstOrDefault();
             if (findOne == null)
             {

@@ -37,41 +37,13 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                // 获取上次打分题目信息
                 List<AnswerDto> answerList = answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId);
-                // 如果是第一题的时候，把得分检查标准和标准照片结果的json补上
+
                 if (answerList != null && answerList.Count > 0)
                 {
-                    List<SubjectFile> subjectFileList = new List<SubjectFile>();
-                    List<FileResultDto> fileResultList = new List<FileResultDto>();
-                    List<SubjectInspectionStandard> subjectInspectionStandardList = new List<SubjectInspectionStandard>();
-                    List<InspectionStandardResultDto> inspectionStandardResultList = new List<InspectionStandardResultDto>();
-
-                    subjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
-                    subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
-                foreach (SubjectFile subjecctFile in subjectFileList)
-                {
-                    FileResultDto fileResult = new FileResultDto();
-                    fileResult.FileName = subjecctFile.FileName;
-                    fileResult.ProjectId = projectId;
-                    fileResult.SeqNO = subjecctFile.SeqNO;
-                    fileResult.ShopId = shopId;
-                    fileResult.SubjectId = subjecctFile.SubjectId.ToString();
-                    fileResultList.Add(fileResult);
-                }
-                foreach (SubjectInspectionStandard subjectInspectionStandard in subjectInspectionStandardList)
-                {
-                    InspectionStandardResultDto inspectionStandardResult = new InspectionStandardResultDto();
-                    inspectionStandardResult.InspectionStandardName = subjectInspectionStandard.InspectionStandardName;
-                    inspectionStandardResult.ProjectId = projectId;
-                    inspectionStandardResult.SeqNO = subjectInspectionStandard.SeqNO;
-                    inspectionStandardResult.ShopId = shopId;
-                    inspectionStandardResult.SubjectId = subjectInspectionStandard.SubjectId.ToString();
-                }
-                    answerList[0].FileResultList = fileResultList;
-                    answerList[0].FileResult = CommonHelper.Encode(fileResultList);
-                    answerList[0].InspectionStandardResultList = inspectionStandardResultList;
-                    answerList[0].InspectionStandardResult = CommonHelper.Encode(inspectionStandardResultList);
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
@@ -93,11 +65,17 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNextAnswerSubjectInfo")]
-        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId,string orderNO)
+        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO)
         {
             try
             {
                 List<AnswerDto> answerList = answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO);
+                if (answerList != null && answerList.Count > 0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
                 if (answerList == null || answerList.Count == 0)
                 {
                     throw new Exception("已经是最后一题");
@@ -125,10 +103,42 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO);
+                
+                List<AnswerDto> answerList = answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO);
+                if (answerList != null && answerList.Count > 0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
                 if (answerList == null || answerList.Count == 0)
                 {
                     throw new Exception("已经是第一题");
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/GetShopTransAnswerSubjectInfo")]
+        public APIResult GetShopTransAnswerSubjectInfo(string projectId, string shopId, string orderNO)
+        {
+            try
+            {
+
+                List<AnswerDto> answerList = answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO);
+                if (answerList != null && answerList.Count > 0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
+                if (answerList == null || answerList.Count == 0)
+                {
+                    throw new Exception("该序号不存在");
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
             }
@@ -144,7 +154,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/SaveAnswerInfo")]
-        public  APIResult SaveAnswerInfo(AnswerDto answer)
+        public APIResult SaveAnswerInfo(AnswerDto answer)
         {
             try
             {
@@ -167,11 +177,18 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopAnswerScoreInfo")]
-        public APIResult GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId,string key)
+        public APIResult GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId, string key)
         {
             try
             {
                 List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key);
+                // 在查询特定Subject得分时，返回题目的信息
+                if (!string.IsNullOrEmpty(subjectId)&&answerList != null && answerList.Count>0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
             }
             catch (Exception ex)
@@ -273,7 +290,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-               // answerService.ImportAnswerResult(data.AnswerList[0].TenantId.ToString(), data.AnswerList[0].BrandId.ToString(), data.AnswerList[0].ProjectId.ToString(), data.AnswerList[0].InUserId.ToString(), data.AnswerList);
+                // answerService.ImportAnswerResult(data.AnswerList[0].TenantId.ToString(), data.AnswerList[0].BrandId.ToString(), data.AnswerList[0].ProjectId.ToString(), data.AnswerList[0].InUserId.ToString(), data.AnswerList);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

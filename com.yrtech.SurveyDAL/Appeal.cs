@@ -18,10 +18,6 @@ namespace com.yrtech.SurveyDAL
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ShopId { get; set; }
         public Nullable<int> SubjectId { get; set; }
-        public string SubjectCode { get; set; }
-        public string CheckPoint { get; set; }
-        public Nullable<decimal> Score { get; set; }
-        public string LossResult { get; set; }
         public string AppealReason { get; set; }
         public Nullable<int> AppealUserId { get; set; }
         public Nullable<System.DateTime> AppealDateTime { get; set; }

@@ -80,20 +80,34 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        /// <summary>
-        /// 获取经销商的复审状态
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="shopId"></param>
-        /// <param name="statusCode"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("Recheck/GetRecheckStatus")]
-        public APIResult GetRecheckStatus(string projectId, string shopId, string statusCode)
+        [HttpPost]
+        [Route("Recheck/SaveRecheckStatusDtl")]
+        public APIResult SaveRecheckStatusDtl(RecheckStatusDtl recheckStatusDtl)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatus(projectId, shopId, statusCode)) };
+                recheckService.SaveRecheckStatusDtl(recheckStatusDtl);
+                List<RecheckStatusDtlDto> recheckStatusDtlList = recheckService.GetShopRecheckStautsDtl(recheckStatusDtl.ProjectId.ToString(), recheckStatusDtl.ShopId.ToString());
+                List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatusDtl.ProjectId.ToString(), "", "", "");
+                if (projectList != null && projectList.Count > 0)
+                {
+                    ReCheckStatus status = new ReCheckStatus();
+                    status.InUserId = recheckStatusDtl.InUserId;
+                    status.ProjectId = recheckStatusDtl.ProjectId;
+                    status.ShopId = recheckStatusDtl.ShopId==null?0:Convert.ToInt32(recheckStatusDtl.ShopId);
+                    List<Label> labelList = masterService.GetLabel(projectList[0].BrandId.ToString(), "", "RecheckType", true, "");
+                    if (recheckStatusDtlList != null && labelList != null && recheckStatusDtlList.Count == labelList.Count)
+                    {
+                        status.StatusCode = "S3";
+                    }
+                    else
+                    {
+                        status.StatusCode = "S2";
+                    }
+                    recheckService.SaveRecheckStatus(status);
+                }
+               
+                return new APIResult() { Status = true, Body = "保存成功" };
             }
             catch (Exception ex)
             {
@@ -101,19 +115,31 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         /// <summary>
-        /// 获取经销商的复审状态Log
+        /// 
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <param name="statusCode"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Recheck/GetRecheckStatusLog")]
-        public APIResult GetRecheckStatusLog(string projectId, string shopId, string statusCode)
+        [Route("Recheck/GetRecheckStatus")]
+        public APIResult GetRecheckStatus(string projectId, string shopId)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatusLog(projectId, shopId, statusCode)) };
+                List<RecheckStatusDto> recheckStatusDtoList = recheckService.GetShopRecheckStatus(projectId, shopId);
+                foreach (RecheckStatusDto recheckStatus in recheckStatusDtoList)
+                {
+                    if (!string.IsNullOrEmpty(recheckStatus.Status_S0))
+                    { recheckStatus.Status_S0 = "√"; }
+                    if (!string.IsNullOrEmpty(recheckStatus.Status_S1))
+                    { recheckStatus.Status_S1 = "√"; }
+                    if (!string.IsNullOrEmpty(recheckStatus.Status_S2))
+                    { recheckStatus.Status_S2 = "√"; }
+                    if (!string.IsNullOrEmpty(recheckStatus.Status_S3))
+                    { recheckStatus.Status_S3 = "√"; }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode("") };
             }
             catch (Exception ex)
             {
@@ -140,37 +166,29 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-        #region 复审详细
+        #region 复审管理
         /// <summary>
-        /// 获取复审信息
+        /// 复审清单
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
+        /// <param name="recheckTypeId"></param>
         /// <returns></returns>
-        //[HttpGet]
-        //[Route("Recheck/GetShopRecheckInfo")]
-        //public APIResult GetShopRecheckInfo(string projectId, string shopId, string subjectId)
-        //{
-        //    try
-        //    {
-        //        List<object> result = new List<object>();
-        //        List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId);
-        //        List<RecheckDto> recheckList = recheckService.GetShopRecheckInfo(projectId, shopId, subjectId);
-        //        // answer和recheck默认都只会有一条数据
-        //        if (recheckList != null && recheckList.Count > 0)
-        //        {
-        //            answerList[0].Recheck = recheckList[0];
-        //        }
-        //        result.Add(masterService.GetRecheckErrorType(projectId, ""));
-        //        result.Add(answerList);
-        //        return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
-        //    }
-        //}
+        [HttpGet]
+        [Route("Recheck/GetShopRecheckScoreInfo")]
+        public APIResult GetShopRecheckScoreInfo(string projectId, string shopId, string subjectId, string recheckTypeId)
+        {
+            try
+            {
+                List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, subjectId, recheckTypeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         //[HttpPost]
         //[Route("Recheck/SaveShopRecheckInfo")]
         //public APIResult SaveShopRecheckInfo([FromBody]ReCheck recheck)
@@ -218,70 +236,75 @@ namespace com.yrtech.SurveyAPI.Controllers
         //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
         //    }
         //}
-        //[HttpGet]
-        //[Route("Recheck/GetShopNextRecheckSubject")]
-        //public APIResult GetShopNextRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
-        //{
-        //    try
-        //    {
-        //        List<object> resultList = new List<object>();
-        //        List<SubjectInspectionStandard> subjectInspectionStandardList = new List<SubjectInspectionStandard>();
-        //        List<SubjectFile> subjectFileList = new List<SubjectFile>();
-        //        List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
-        //        List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
-        //        //获取体系信息
-        //        List<Subject> subjectList = recheckService.GetShopNextRecheckSubject(projectId, shopId, subjectRecheckTypeId, orderNO);
-        //        if (subjectList == null || subjectList.Count == 0)
-        //        {
-        //            throw new Exception("已经是最后一题");
-        //        }
-        //        if (subjectList != null && subjectList.Count > 0)
-        //        {
-        //            subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectTypeScoreRegionList.AddRange(masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), "1"));
-        //            subjectTypeScoreRegionList.AddRange(masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), "2"));
-        //        }
-        //        return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
-        //    }
-        //}
-        //[HttpGet]
-        //[Route("Recheck/GetShopPreRecheckSubject")]
-        //public APIResult GetShopPreRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
-        //{
-        //    try
-        //    {
-        //        List<object> resultList = new List<object>();
-        //        List<SubjectInspectionStandard> subjectInspectionStandardList = new List<SubjectInspectionStandard>();
-        //        List<SubjectFile> subjectFileList = new List<SubjectFile>();
-        //        List<SubjectLossResult> subjectLossResultList = new List<SubjectLossResult>();
-        //        List<SubjectTypeScoreRegion> subjectTypeScoreRegionList = new List<SubjectTypeScoreRegion>();
-        //        //获取体系信息
-        //        List<Subject> subjectList = recheckService.GetShopPreRecheckSubject(projectId, shopId, subjectRecheckTypeId, orderNO);
-        //        if (subjectList == null || subjectList.Count == 0)
-        //        {
-        //            throw new Exception("已经是第一题了");
-        //        }
-        //        if (subjectList != null && subjectList.Count > 0)
-        //        {
-        //            subjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectFileList = masterService.GetSubjectFile(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectLossResultList = masterService.GetSubjectLossResult(projectId, subjectList[0].SubjectId.ToString());
-        //            subjectTypeScoreRegionList.AddRange(masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), "1"));
-        //            subjectTypeScoreRegionList.AddRange(masterService.GetSubjectTypeScoreRegion(projectId, subjectList[0].SubjectId.ToString(), "2"));
-        //        }
-        //        return new APIResult() { Status = true, Body = CommonHelper.Encode(resultList) };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
-        //    }
-        //}
+        [HttpGet]
+        [Route("Recheck/GetShopNextRecheckSubject")]
+        public APIResult GetShopNextRecheckSubject(string projectId, string shopId, string recheckTypeId, string orderNO)
+        {
+            try
+            {
+                //获取体系信息
+                List<AnswerDto> answerList = recheckService.GetShopNextRecheckSubject(projectId, shopId, recheckTypeId, orderNO);
+                if (answerList == null || answerList.Count == 0)
+                {
+                    throw new Exception("已经是最后一题");
+                }
+                if (answerList != null && answerList.Count > 0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Recheck/GetShopPreRecheckSubject")]
+        public APIResult GetShopPreRecheckSubject(string projectId, string shopId, string recheckTypeId, string orderNO)
+        {
+            try
+            {
+                //获取体系信息
+                List<AnswerDto> answerList = recheckService.GetShopPreRecheckSubject(projectId, shopId, recheckTypeId, orderNO);
+                if (answerList == null || answerList.Count == 0)
+                {
+                    throw new Exception("已经是第一题");
+                }
+                if (answerList != null && answerList.Count > 0)
+                {
+                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
+                    answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="recheck"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Recheck/SaveShopRecheckInfo")]
+        public APIResult SaveShopRecheckInfo(ReCheck recheck)
+        {
+            try
+            {
+                recheckService.SaveShopRecheckInfo(recheck);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         //#region 复审修改
         ///// <summary>
@@ -377,8 +400,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
 
-                    arbitrationService.SaveArbitrationInfo(recheck.RecheckId.ToString(), recheck.LastConfirmCheck, recheck.LastConfirmReason,recheck.LastConfirmUserId);
-              
+                arbitrationService.SaveArbitrationInfo(recheck.RecheckId.ToString(), recheck.LastConfirmCheck, recheck.LastConfirmReason, recheck.LastConfirmUserId);
+
                 return new APIResult() { Status = true, Body = "保存成功" };
             }
             catch (Exception ex)

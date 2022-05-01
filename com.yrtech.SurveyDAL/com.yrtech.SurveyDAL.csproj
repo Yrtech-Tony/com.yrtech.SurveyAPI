@@ -137,6 +137,9 @@
     <Compile Include="SubjectLossResult.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="SubjectScoreItem.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Survey.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

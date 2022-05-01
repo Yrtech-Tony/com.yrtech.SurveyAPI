@@ -48,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         return new APIResult() { Status = false, Body = "该用户无此平台权限" };
                     }
                     account.TenantList = tenantList;
-                    account.BrandList = accountService.GetBrandByRole(tenantId, account.Id.ToString(), account.RoleType.ToString());
+                    account.BrandList = accountService.GetBrandByRole(tenantId, accountId.ToString(), account.RoleType.ToString());
                     account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
                 }

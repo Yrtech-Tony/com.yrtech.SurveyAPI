@@ -1,4 +1,5 @@
-﻿using System;
+﻿using com.yrtech.SurveyDAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -22,9 +23,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public string InspectionStandardResult { get; set; }// 检查标准结果Json
         public string FileResult { get; set; }// 标准照片结果Json
         public string LossResult { get; set; }// 失分描述结果Json
-        public List<InspectionStandardResultDto> InspectionStandardResultList { get; set; }// 检查标准结果DTO，用于同步数据使用
-        public List<FileResultDto> FileResultList { get; set; }// 标准照片结果DTO，用于同步数据使用
-        public List<LossResultDto> LossResultList { get; set; }// 失分描述结果DTO，用于同步数据使用
+        // 暂时用不到
+        //public List<InspectionStandardResultDto> InspectionStandardResultList { get; set; }// 检查标准结果DTO，用于同步数据使用
+        //public List<FileResultDto> FileResultList { get; set; }// 标准照片结果DTO，用于同步数据使用
+        //public List<LossResultDto> LossResultList { get; set; }// 失分描述结果DTO，用于同步数据使用
         public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }
         public int? InUserId { get; set; }
@@ -39,6 +41,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public decimal? LowScore { get; set; }
         public string Desc { get; set; }//说明
         public string InspectionDesc { get; set; }//检查标准说明
+        public List<SubjectFile> SubjectFileList { get; set; } //体系对应的标准照片
+        public List<SubjectInspectionStandard> SubjectInspectionStandardList { get; set; }// 体系对应的检查标准
+        public List<SubjectLossResult> SubjectLossResultList { get; set; } // 体系对应的失分说明
         public RecheckDto Recheck { get; set; }
 
     }

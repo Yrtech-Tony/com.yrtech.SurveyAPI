@@ -19,10 +19,14 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             string sql = "";
-            sql = @"INSERT INTO Appeal
-                    SELECT ProjectId,ShopId,SubjectId,'',null,null,null,'',null,null
+            sql = "DELETE Appeal WHERE ProjectId = @ProjectId ";
+            sql += @"
+                    INSERT INTO Appeal 
+                    SELECT A.ProjectId,A.ShopId,A.SubjectId,'',null,null,null,'',null,null
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
-                    WHERE ProjectId = @ProjectId AND A.PhotoScore<B.FullScore";
+                    WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore";
+            sql += @" 
+                    UPDATE AppealSet Set AppealCreateDateTime = GETDATE() WHERE ProjectId = @ProjectId";
             db.Database.ExecuteSqlCommand(sql,para);
         }
         /// <summary>
@@ -115,10 +119,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
                                   ,A.[SubjectId]
-                                  ,A.[SubjectCode]
-                                  ,A.[CheckPoint]
-                                  ,A.[Score]
-                                  ,A.[LossResult]
+                                  ,C.[SubjectCode]
+                                  ,C.[CheckPoint]
+                                  ,D.[PhotoScore] AS Score
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -134,7 +137,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
                               FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
-                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
+                                                INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
+                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  ";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(',');
@@ -237,10 +242,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
                                   ,A.[SubjectId]
-                                  ,A.[SubjectCode]
-                                  ,A.[CheckPoint]
-                                  ,A.[Score]
-                                  ,A.[LossResult]
+                                  ,C.[SubjectCode]
+                                  ,C.[CheckPoint]
+                                  ,D.[PhotoScore] AS Score
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -256,7 +260,10 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
                               FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
-                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId ";
+                                                INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
+                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  ";
+            sql += "  ORDER BY A.ShopId,B.ShopCode,A.SubjectId,C.SubjectCode ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
@@ -272,16 +279,15 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
-                                  ,C.[ProjectCode]
-                                  ,C.[ProjectName]
+                                  ,X.[ProjectCode]
+                                  ,X.[ProjectName]
                                   ,A.[ShopId]
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
-                                  ,[SubjectId]
-                                  ,[SubjectCode]
-                                  ,[CheckPoint]
-                                  ,[Score]
-                                  ,[LossResult]
+                                  ,A.[SubjectId]
+                                  ,C.[SubjectCode]
+                                  ,C.[CheckPoint]
+                                  ,D.[PhotoScore] AS Score
                                   ,[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,AppealUserId
@@ -296,9 +302,11 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
-                              FROM [Appeal] A INNER JOIN Shop B ON A.ShopId = B.ShopId
-                                              INNER JOIN Project C ON A.ProjectId = C.ProjectId
-                              WHERE AppealId = @AppealId";
+                              FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId 
+                                                INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
+                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId  
+                              WHERE A.AppealId = @AppealId";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>

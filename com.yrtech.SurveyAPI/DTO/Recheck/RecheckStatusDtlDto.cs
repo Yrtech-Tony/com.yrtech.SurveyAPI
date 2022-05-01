@@ -14,12 +14,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
-        public int RecheckTypeId { get; set; }
-        public string RecheckTypeCode { get; set; }
-        public string RecheckTypeName { get; set; }
-        public string StatusName { get; set; }
-        public int? RecheckUserId { get; set; }
-        public string RecheckUserName { get; set; }
-        public DateTime? RecheckDateTime { get; set; }
+        public int RecheckTypeId { get; set; } // 复审类型Id
+        public string RecheckTypeCode { get; set; } // 复审类型代码
+        public string RecheckTypeName { get; set; }// 复审类型名称
+        public int? InUserId { get; set; }
+        public DateTime? InDateTime { get; set; }
     }
 }

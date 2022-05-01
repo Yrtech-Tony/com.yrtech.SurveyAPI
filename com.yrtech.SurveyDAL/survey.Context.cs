@@ -28,7 +28,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AnswerShopConsultant> AnswerShopConsultant { get; set; }
         public virtual DbSet<AnswerShopConsultantScore> AnswerShopConsultantScore { get; set; }
         public virtual DbSet<AnswerShopConsultantSubjectLink> AnswerShopConsultantSubjectLink { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealFile> AppealFile { get; set; }
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<AreaShop> AreaShop { get; set; }
@@ -38,8 +37,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Label> Label { get; set; }
         public virtual DbSet<LabelObject> LabelObject { get; set; }
         public virtual DbSet<ProjectShopExamType> ProjectShopExamType { get; set; }
-        public virtual DbSet<ReCheck> ReCheck { get; set; }
-        public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<RecheckStatusDtl> RecheckStatusDtl { get; set; }
         public virtual DbSet<ReportFile> ReportFile { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
@@ -56,9 +53,13 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealSet> AppealSet { get; set; }
+        public virtual DbSet<SubjectScoreItem> SubjectScoreItem { get; set; }
+        public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
+        public virtual DbSet<ReCheck> ReCheck { get; set; }
     }
 }
