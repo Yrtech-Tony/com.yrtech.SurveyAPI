@@ -870,6 +870,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.OrderNO = subject.OrderNO;
                 findOne.Remark = subject.Remark;
                 findOne.LabelId = subject.LabelId;
+                findOne.LabelId_RecheckType = subject.LabelId_RecheckType;
                 findOne.SubjectCode = subject.SubjectCode;
             }
             db.SaveChanges();
