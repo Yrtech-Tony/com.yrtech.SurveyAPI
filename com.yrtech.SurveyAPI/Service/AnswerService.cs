@@ -216,12 +216,12 @@ namespace com.yrtech.SurveyAPI.Service
             examTypeId = examTypeId == null ? "" : examTypeId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
-                                                        new SqlParameter("@ExamTypeId", examTypeId)};
+                                                       new SqlParameter("@ExamTypeId", examTypeId)};
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
+                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
@@ -258,7 +258,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
+                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                             AND A.SubjectId = B.SubjectId 
                                                             AND B.ShopId =  @ShopId
@@ -292,7 +292,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
+                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
@@ -322,7 +322,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc
+                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
@@ -349,7 +349,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"  SELECT  A.ProjectId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,
+            sql = @"  SELECT  A.ProjectId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                              C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
                     FROM [Subject] A CROSS JOIN 
                                     (SELECT * FROM Shop WHERE ShopId = @ShopId) B 

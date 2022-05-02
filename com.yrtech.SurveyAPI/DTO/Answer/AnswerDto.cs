@@ -19,6 +19,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopName { get; set; }
         public decimal? PhotoScore { get; set; }// 照片得分
         public decimal? Score { get; set; }
+        public string HiddenCode_SubjectType { get; set; } // 题目类型
         public decimal? ConsultantScore { get; set; }
         public string InspectionStandardResult { get; set; }// 检查标准结果Json
         public string FileResult { get; set; }// 标准照片结果Json
