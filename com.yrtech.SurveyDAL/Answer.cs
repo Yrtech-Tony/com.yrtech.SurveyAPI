@@ -19,15 +19,16 @@ namespace com.yrtech.SurveyDAL
         public int SubjectId { get; set; }
         public int ShopId { get; set; }
         public Nullable<decimal> PhotoScore { get; set; }
+        public string PhotoScoreResult { get; set; }
         public string InspectionStandardResult { get; set; }
         public string FileResult { get; set; }
         public string LossResult { get; set; }
+        public string LossResutlAdd { get; set; }
         public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
-        public string PhotoScoreResult { get; set; }
     }
 }

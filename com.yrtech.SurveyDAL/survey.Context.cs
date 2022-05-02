@@ -52,8 +52,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
-        public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealSet> AppealSet { get; set; }
@@ -61,5 +59,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<Answer> Answer { get; set; }
+        public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
     }
 }
