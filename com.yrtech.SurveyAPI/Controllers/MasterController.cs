@@ -1236,6 +1236,30 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Master/GetLabelRecheck")]
+        public APIResult GetLabelRecheck(string brandId, string labelId, string labelType, bool? useChk)
+        {
+            try
+            {
+                List<Label> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
+                List<LabelDto> lableDtoList = new List<LabelDto>();
+                foreach (Label label in labelList)
+                {
+                    LabelDto labelDto = new LabelDto();
+                    labelDto.LabelId_Recheck = label.LabelId;
+                    labelDto.LabelCode = label.LabelCode;
+                    labelDto.LabelName = label.LabelName;
+                    labelDto.LabelType = label.LabelType;
+                    lableDtoList.Add(labelDto);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(lableDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Master/SaveLabel")]
         public APIResult SaveLabel(Label label)
