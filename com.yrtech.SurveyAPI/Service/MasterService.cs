@@ -826,8 +826,10 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectDto);
             string sql = "";
             sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName
+                        ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
                                     LEFT JOIN Label C ON B.BrandId = C.BrandId AND A.LabelId  =  C.LabelId
+                                    LEFT JOIN Label D ON B.BrandId = D.BrandId AND A.LabelId_RecheckType  =  D.LabelId
                     WHERE 1=1 AND A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {

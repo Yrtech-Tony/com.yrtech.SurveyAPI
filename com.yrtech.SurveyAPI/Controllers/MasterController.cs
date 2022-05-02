@@ -1237,8 +1237,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         [HttpGet]
-        [Route("Master/GetLabelRecheck")]
-        public APIResult GetLabelRecheck(string brandId, string labelId, string labelType, bool? useChk)
+        [Route("Master/GetLabelRecheckType")]
+        public APIResult GetLabelRecheckType(string brandId, string labelId, string labelType, bool? useChk)
         {
             try
             {
@@ -1247,7 +1247,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (Label label in labelList)
                 {
                     LabelDto labelDto = new LabelDto();
-                    labelDto.LabelId_Recheck = label.LabelId;
+                    labelDto.LabelId_RecheckType = label.LabelId;
                     labelDto.LabelCode = label.LabelCode;
                     labelDto.LabelName = label.LabelName;
                     labelDto.LabelType = label.LabelType;

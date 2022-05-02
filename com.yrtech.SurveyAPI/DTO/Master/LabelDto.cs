@@ -8,7 +8,7 @@ namespace com.yrtech.SurveyAPI.DTO
     public class LabelDto
     {
         public long Id { get; set; }
-        public Nullable<int> LabelId_Recheck { get; set; }
+        public Nullable<int> LabelId_RecheckType { get; set; }
         public string LabelCode { get; set; }
         public string LabelName { get; set; }
         public string LabelType { get; set; }
