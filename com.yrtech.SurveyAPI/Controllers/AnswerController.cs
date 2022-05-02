@@ -21,6 +21,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
+        RecheckService recheckService = new RecheckService();
         #region 得分登记
         ///// <summary>
         ///// 查询经销商需要打分的体系信息
@@ -210,6 +211,13 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 answerService.SaveAnswerShopInfo(answerShopInfo);
+                // 提交进店信息，同时更新状态
+                ReCheckStatus status = new ReCheckStatus();
+                status.InUserId = answerShopInfo.InUserId;
+                status.ProjectId = answerShopInfo.ProjectId;
+                status.ShopId = answerShopInfo.ShopId;
+                status.StatusCode = "S0";
+                recheckService.SaveRecheckStatus(status);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
