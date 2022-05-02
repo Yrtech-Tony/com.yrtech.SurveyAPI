@@ -185,6 +185,28 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Master/GetHiddenCodeSubjectTye")]
+        public APIResult GetHiddenCodeSubjectTye(string hiddenCodeGroup, string hiddenCode)
+        {
+            try
+            {
+                List<HiddenColumn> hiddenCodeList = masterService.GetHiddenCode(hiddenCodeGroup, hiddenCode);
+                List<HiddenColumDto> hiddenColumDtoList = new List<HiddenColumDto>();
+                foreach (HiddenColumn hiddenColumn in hiddenCodeList)
+                {
+                    HiddenColumDto hiddenColumDto = new HiddenColumDto();
+                    hiddenColumDto.HiddenCode_SubjectType = hiddenColumn.HiddenCode;
+                    hiddenColumDto.HiddenName = hiddenColumn.HiddenName ;
+                    hiddenColumDtoList.Add(hiddenColumDto);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(hiddenColumDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 品牌
         /// <summary>
@@ -1330,6 +1352,18 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (subject.OrderNO==null|| subject.OrderNO==0)
                 {
                     return new APIResult() { Status = false, Body = "序号不能为空或者为0" };
+                }
+                if (subject.LabelId == null || subject.LabelId == 0)
+                {
+                    return new APIResult() { Status = false, Body = "试卷类型不能为空" };
+                }
+                if (subject.LabelId_RecheckType == null || subject.LabelId_RecheckType == 0)
+                {
+                    return new APIResult() { Status = false, Body = "复审类型不能为空" };
+                }
+                if (string.IsNullOrEmpty(subject.HiddenCode_SubjectType))
+                {
+                    return new APIResult() { Status = false, Body = "题目类型不能为空" };
                 }
                 List<SubjectDto> subjectList_SubjectCode = masterService.GetSubject(subject.ProjectId.ToString(),"",subject.SubjectCode,"");
                 if (subjectList_SubjectCode != null && subjectList_SubjectCode.Count > 0 && subjectList_SubjectCode[0].SubjectId != subject.SubjectId)

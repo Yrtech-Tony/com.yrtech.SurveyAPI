@@ -175,7 +175,7 @@
     <Compile Include="DTO\Master\LabelDto.cs" />
     <Compile Include="DTO\Master\ProjectDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
-    <Compile Include="DTO\Master\SubjectTypeScoreRegionDto.cs" />
+    <Compile Include="DTO\Master\HiddenColumDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDtlDto.cs" />
     <Compile Include="DTO\Recheck\RecheckDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />

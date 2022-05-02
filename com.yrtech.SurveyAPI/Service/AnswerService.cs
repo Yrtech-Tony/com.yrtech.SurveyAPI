@@ -92,7 +92,7 @@ namespace com.yrtech.SurveyAPI.Service
         //            findOne.FileResult = answer.FileResult;
         //            findOne.InspectionStandardResult = answer.InspectionStandardResult;
         //            findOne.LossResult = answer.LossResult;
-        //            findOne.LossResutlAdd = answer.LossResutlAdd;
+        //            findOne.LossResutAdd = answer.LossResutAdd;
         //            findOne.ModifyDateTime = answer.ModifyDateTime;
         //            findOne.ModifyUserId = answer.ModifyUserId;
         //            findOne.PhotoScore = answer.PhotoScore;
@@ -448,7 +448,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.FileResult = answer.FileResult;
                 findOne.InspectionStandardResult = answer.InspectionStandardResult;
                 findOne.LossResult = answer.LossResult;
-                findOne.LossResutlAdd = answer.LossResutlAdd;
+                findOne.LossResultAdd = answer.LossResultAdd;
                 findOne.ShopConsultantResult = answer.ShopConsultantResult;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = answer.ModifyUserId;

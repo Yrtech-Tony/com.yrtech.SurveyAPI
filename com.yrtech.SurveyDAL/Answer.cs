@@ -23,7 +23,7 @@ namespace com.yrtech.SurveyDAL
         public string InspectionStandardResult { get; set; }
         public string FileResult { get; set; }
         public string LossResult { get; set; }
-        public string LossResutlAdd { get; set; }
+        public string LossResultAdd { get; set; }
         public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }

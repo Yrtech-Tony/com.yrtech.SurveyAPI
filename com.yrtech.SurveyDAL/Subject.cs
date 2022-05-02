@@ -27,6 +27,7 @@ namespace com.yrtech.SurveyDAL
         public Nullable<int> LabelId { get; set; }
         public Nullable<int> LabelId_RecheckType { get; set; }
         public string ScoreType { get; set; }
+        public string HiddenCode_SubjectType { get; set; }
         public string Remark { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

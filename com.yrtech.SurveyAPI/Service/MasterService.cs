@@ -826,10 +826,11 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(SubjectDto);
             string sql = "";
             sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName
-                        ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName
+                        ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName,E.HiddenName AS HiddenCode_SubjectTypeName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
                                     LEFT JOIN Label C ON B.BrandId = C.BrandId AND A.LabelId  =  C.LabelId
                                     LEFT JOIN Label D ON B.BrandId = D.BrandId AND A.LabelId_RecheckType  =  D.LabelId
+                                    LEFT JOIN HiddenColumn E ON A.HiddenCode_SubjectType = E.HiddenCode AND E.HiddenCodeGroup = '体系类型'
                     WHERE 1=1 AND A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
@@ -873,6 +874,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.Remark = subject.Remark;
                 findOne.LabelId = subject.LabelId;
                 findOne.LabelId_RecheckType = subject.LabelId_RecheckType;
+                findOne.HiddenCode_SubjectType = subject.HiddenCode_SubjectType;
                 findOne.SubjectCode = subject.SubjectCode;
             }
             db.SaveChanges();

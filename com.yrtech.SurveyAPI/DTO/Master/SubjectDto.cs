@@ -22,6 +22,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ExamTypeName { get; set; } // 试卷类型名称
         public string RecheckTypeCode { get; set; } // 复审类型代码
         public string RecheckTypeName { get; set; } // 复审类型名称
+        public string HiddenCode_SubjectType { get; set; } // 题目类型
+        public string HiddenCode_SubjectTypeName { get; set; } // 题目类型名称
         public string CheckPoint { get; set; }// 检查点
         public string Implementation { get; set; }// 执行方式
         public string InspectionDesc { get; set; }//检查标准说明
