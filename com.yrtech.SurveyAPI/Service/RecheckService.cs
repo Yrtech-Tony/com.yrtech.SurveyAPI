@@ -112,8 +112,10 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(RecheckDto);
             string sql = "";
             sql = @"  SELECT A.ProjectId,D.ProjectCode,D.ProjectName,A.ShopId,A.SubjectId,C.ShopCode,C.ShopName,B.SubjectCode,B.[CheckPoint],B.OrderNO,B.[Desc],B.InspectionDesc,
-                            A.PhotoScore, A.Remark,
-                            X.RecheckId,X.PassReCheck,X.ReCheckContent,X.ReCheckError,X.ReCheckScore,X.ReCheckUserId,X.ReCheckDateTime
+                            A.PhotoScore, A.Remark,X.RecheckId,X.PassRecheck
+                            ,CASE WHEN X.PassReCheck=1 THEN '是'
+                                    ELSE '否'
+                            END AS PassRecheckName,X.RecheckContent,X.RecheckError,X.RecheckScore,X.RecheckUserId,X.RecheckDateTime
                       FROM Answer A INNER JOIN [Subject] B ON A.ProjectId = B.ProjectId 
 									                       AND A.SubjectId = B.SubjectId
 			                        INNER JOIN Shop C ON A.ShopId = C.ShopId
@@ -134,7 +136,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND B.LabelId_RecheckType = @RecheckTypeId";
             }
-            sql += " ORDER BY A.ProjectId,C.ShopCode,A.OrderNO,A.SubjectId";
+            sql += " ORDER BY A.ProjectId,C.ShopCode,B.OrderNO,A.SubjectId";
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
         #endregion

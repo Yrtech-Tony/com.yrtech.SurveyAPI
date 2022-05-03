@@ -7,7 +7,7 @@ namespace com.yrtech.SurveyAPI.DTO
 {
     public class RecheckDto
     {
-        public int RecheckId { get; set; } // 复审Id
+        public int? RecheckId { get; set; } // 复审Id
         public int? ProjectId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }
@@ -20,8 +20,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Implementation { get; set; }//执行方式
         public string CheckPoint { get; set; }//检查点
         public decimal? PhotoScore { get; set; }// 照片得分
-        public decimal? ReCheckScore { get; set; }// 照片得分
+        public decimal? RecheckScore { get; set; }// 照片得分
         public bool? PassRecheck { get; set; } // 是否通过复审
+        public string PassRecheckName { get; set; }
         public string RecheckContent { get; set; } // 复审意见
         public string RecheckError { get; set; }// 错误类型，json
         public int? RecheckUserId { get; set; } // 复审人员Id

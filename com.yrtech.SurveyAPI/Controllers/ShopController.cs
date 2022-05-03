@@ -41,17 +41,17 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Shop/GetProjectShopExamType")]
-        public APIResult GetProjectShopExamType(string brandId,string projectId, string shopId,string userId="")
+        public APIResult GetProjectShopExamType(string brandId, string projectId, string shopId, string userId = "")
         {
             try
             {
                 List<ProjectShopExamTypeDto> result = new List<ProjectShopExamTypeDto>();
                 List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType(brandId, projectId, shopId);
-                // 如果传入了UserId，查询UserId对应的经销商-主要是针对执行人员
+                // 如果传入了UserId，如果是执行人员查询对应权限的经销商，如果是其他角色查询全部
                 if (!string.IsNullOrEmpty(userId))
                 {
                     List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "");
-                    if (userInfoList != null && userInfoList.Count > 0)
+                    if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
                     {
                         List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
                         foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
@@ -65,11 +65,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        result = projectShopExamTypeList;
+                    }
                 }
-                else {
+                else
+                {
                     result = projectShopExamTypeList;
                 }
-               
+
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
             }
             catch (Exception ex)
@@ -108,7 +113,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         projectShopExamTypeDto.ImportChk = false;
                         projectShopExamTypeDto.ImportRemark += "经销商代码在系统中不存在" + ";";
                     }
-                    List<Label> labelList = masterService.GetLabel(brandId,"","ExamType",true,projectShopExamTypeDto.ExamTypeCode);
+                    List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
                     if (labelList == null || labelList.Count == 0)
                     {
                         projectShopExamTypeDto.ImportChk = false;
@@ -138,7 +143,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的经销商代码，请检查文件" };
                     }
-                    List<Label> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode); 
+                    List<Label> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
                     if (labelList == null || labelList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或者不可用的卷别代码，请检查文件" };
@@ -160,7 +165,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     projectShopExamType.InUserId = projectShopExamTypeDto.InUserId;
                     projectShopExamType.ModifyUserId = projectShopExamTypeDto.ModifyUserId;
-                    
+
                     shopService.SaveProjectShopExamType(projectShopExamType);
                 }
                 return new APIResult() { Status = true, Body = "" };
