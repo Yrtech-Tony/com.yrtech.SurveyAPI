@@ -41,12 +41,36 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Shop/GetProjectShopExamType")]
-        public APIResult GetProjectShopExamType(string brandId,string projectId, string shopId)
+        public APIResult GetProjectShopExamType(string brandId,string projectId, string shopId,string userId="")
         {
             try
             {
-                List<ProjectShopExamTypeDto> projectShopExamTypeList= shopService.GetProjectShopExamType(brandId,projectId, shopId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectShopExamTypeList) };
+                List<ProjectShopExamTypeDto> result = new List<ProjectShopExamTypeDto>();
+                List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType(brandId, projectId, shopId);
+                // 如果传入了UserId，查询UserId对应的经销商-主要是针对执行人员
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "");
+                    if (userInfoList != null && userInfoList.Count > 0)
+                    {
+                        List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
+                        foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
+                        {
+                            foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
+                            {
+                                if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
+                                {
+                                    result.Add(projectShopExamTypeDto);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    result = projectShopExamTypeList;
+                }
+               
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
             }
             catch (Exception ex)
             {

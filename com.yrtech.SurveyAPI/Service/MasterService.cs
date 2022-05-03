@@ -375,6 +375,13 @@ namespace com.yrtech.SurveyAPI.Service
                                               INNER JOIN Shop C ON B.ObjectId = C.ShopId
                           WHERE 1=1";
             }
+            else if (roleTypeCode == "S_Execute")// 设置执行人员有权限的经销商
+            {
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId
+                          FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
+                                            INNER JOIN Shop C ON B.ObjectId = C.ShopId
+                          WHERE 1=1";
+            }
             if (!string.IsNullOrEmpty(tenantId))
             {
                 sql += " AND A.TenantId = @TenantId";
