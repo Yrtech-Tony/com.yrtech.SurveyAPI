@@ -28,7 +28,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(RecheckStatusDto);
             string sql = "";
-            sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,
+            sql = @"SELECT DISTINCT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,
                             CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S0')
 	                                THEN 'S0'
 	                                ELSE ''
@@ -72,7 +72,7 @@ namespace com.yrtech.SurveyAPI.Service
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
             {
-                sql += "AND A.ShopId = @ShopId";
+                sql += " AND A.ShopId = @ShopId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDtlDto>().ToList();
         }

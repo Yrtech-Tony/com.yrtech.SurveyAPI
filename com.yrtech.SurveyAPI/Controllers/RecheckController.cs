@@ -139,7 +139,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     if (!string.IsNullOrEmpty(recheckStatus.Status_S3))
                     { recheckStatus.Status_S3 = "√"; }
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode("") };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckStatusDtoList) };
             }
             catch (Exception ex)
             {
