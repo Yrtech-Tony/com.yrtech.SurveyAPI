@@ -936,6 +936,7 @@ namespace com.yrtech.SurveyAPI.Service
                     subjectFile.SeqNO = findOneMax.SeqNO + 1;
                 }
                 subjectFile.InDateTime = DateTime.Now;
+                subjectFile.ModifyDateTime = DateTime.Now;
                 db.SubjectFile.Add(subjectFile);
 
             }
@@ -1004,6 +1005,7 @@ namespace com.yrtech.SurveyAPI.Service
                     subjectInspectionStandard.SeqNO = findOneMax.SeqNO + 1;
                 }
                 subjectInspectionStandard.InDateTime = DateTime.Now;
+                subjectInspectionStandard.ModifyDateTime = DateTime.Now;
                 db.SubjectInspectionStandard.Add(subjectInspectionStandard);
 
             }
@@ -1072,6 +1074,7 @@ namespace com.yrtech.SurveyAPI.Service
                     subjectLossResult.SeqNO = findOneMax.SeqNO + 1;
                 }
                 subjectLossResult.InDateTime = DateTime.Now;
+                subjectLossResult.ModifyDateTime = DateTime.Now;
                 db.SubjectLossResult.Add(subjectLossResult);
 
             }
