@@ -14,12 +14,31 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
 
         #region 复审状态
+        public List<ReCheckStatus> GetShopRecheckStatusInfo(string projectId, string shopId,string statusCode)
+        {
+            if (shopId == null) shopId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId),new SqlParameter("@StatusCode", statusCode)};
+            Type t = typeof(ReCheckStatus);
+            string sql = "";
+            sql = @"SELECT *
+                            FROM ReCheckStatus A
+                    WHERE A.ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(statusCode))
+            {
+                sql += " AND A.StatusCode = @StatusCode";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReCheckStatus>().ToList();
+        }
         /// <summary>
-        /// 查询经销商进度
+        /// 
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
-        /// <param name="statusCode"></param>
         /// <returns></returns>
         public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId)
         {

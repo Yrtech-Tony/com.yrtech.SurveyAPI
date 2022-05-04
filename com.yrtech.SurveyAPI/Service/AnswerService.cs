@@ -209,14 +209,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="examTypeId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopNeedAnswerSubject(string projectId, string shopId, string examTypeId)
+        public List<AnswerDto> GetShopNeedAnswerSubject(string projectId, string shopId, string examTypeId,string subjectType)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             examTypeId = examTypeId == null ? "" : examTypeId;
+            subjectType = subjectType == null ? "" : subjectType;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
-                                                       new SqlParameter("@ExamTypeId", examTypeId)};
+                                                       new SqlParameter("@ExamTypeId", examTypeId),
+                                                        new SqlParameter("@SubjectType", subjectType)};
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
@@ -225,14 +227,17 @@ namespace com.yrtech.SurveyAPI.Service
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
-                                                                CASE WHEN EXISTS(SELECT 1 FROM Answer WHERE ProjectId = @ProjectId AND ShopId = @ShopId) 
+                                                                CASE WHEN EXISTS(SELECT 1 FROM Answer X INNER JOIN [Subject] Y ON X.ProjectId = Y.SubjectId 
+                                                                                WHERE X.ProjectId = @ProjectId AND X.ShopId = @ShopId AND Y.HiddenCode_SubjectType = @SubjectType) 
                                                                 THEN (SELECT MAX(OrderNO) FROM  Answer X INNER JOIN [Subject] Y ON X.ProjectId = Y.ProjectId 
 																                                                                AND X.SubjectId = Y.SubjectId 
 																                                                                AND X.ProjectId = @ProjectId 
 																                                                                AND X.ShopId = @ShopId
-																                                                                AND Y.LabelId=@ExamTypeId) 
+																                                                                AND Y.LabelId=@ExamTypeId
+                                                                                                                                AND Y.HiddenCode_SubjectType =@SubjectType) 
                                                                 ELSE (SELECT ISNULL(MIN(OrderNO),0) FROM [Subject] WHERE ProjectId  = @ProjectId 
-                                                                                                                            AND LabelId=@ExamTypeId)
+                                                                                                                            AND LabelId=@ExamTypeId
+                                                                                                                            AND HiddenCode_SubjectType =@SubjectType )
                                                                 END AS OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -245,14 +250,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="orderNO"></param>
         /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopNextAnswerSubject(string projectId, string shopId, string examTypeId, string orderNO)
+        public List<AnswerDto> GetShopNextAnswerSubject(string projectId, string shopId, string examTypeId, string orderNO,string subjectType)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             examTypeId = examTypeId == null ? "" : examTypeId;
+            subjectType = subjectType == null ? "" : subjectType;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@ExamTypeId", examTypeId),
+                                                        new SqlParameter("@SubjectType", subjectType),
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -266,7 +273,8 @@ namespace com.yrtech.SurveyAPI.Service
                     AND  A.OrderNO =(SELECT ISNULL(MIN(OrderNO),0) 
                                     FROM [Subject] 
                                     WHERE ProjectId = @ProjectId 
-                                    AND LabelId =  @ExamTypeId 
+                                    AND LabelId =  @ExamTypeId
+                                    AND HiddenCode_SubjectType = @SubjectType
                                     AND OrderNO > @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -279,14 +287,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="orderNO"></param>
         /// <param name="subjectLinkId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopPreAnswerSubject(string projectId, string shopId, string examTypeId, string orderNO)
+        public List<AnswerDto> GetShopPreAnswerSubject(string projectId, string shopId, string examTypeId, string orderNO, string subjectType)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             examTypeId = examTypeId == null ? "" : examTypeId;
+            subjectType = subjectType == null ? "" : subjectType;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@ExamTypeId", examTypeId),
+                                                        new SqlParameter("@SubjectType", subjectType),
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -300,6 +310,7 @@ namespace com.yrtech.SurveyAPI.Service
                     AND  A.OrderNO =(SELECT ISNULL(MAX(OrderNO),0) FROM [Subject] 
                                                                     WHERE ProjectId = @ProjectId 
                                                                     AND LabelId = @ExamTypeId 
+                                                                    AND HiddenCode_SubjectType = @SubjectType
                                                                     AND OrderNO < @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
@@ -310,13 +321,15 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="orderNO"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopTransAnswerSubject(string projectId, string shopId, string orderNO)
+        public List<AnswerDto> GetShopTransAnswerSubject(string projectId, string shopId, string orderNO,string subjectType)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             orderNO = orderNO == null ? "" : orderNO;
+            subjectType = subjectType == null ? "" : subjectType;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@SubjectType", subjectType),
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -327,9 +340,11 @@ namespace com.yrtech.SurveyAPI.Service
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
                     WHERE A.ProjectId  = @ProjectId 
-                    AND  A.OrderNO = @OrderNO";
+                    AND  A.OrderNO = @OrderNO
+                    AND A.HiddenCode_SubjectType = @SubjectType";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
+
         /// <summary>
         /// 获取单个经销商打分信息
         /// </summary>
@@ -349,8 +364,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"  SELECT  A.ProjectId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
-                             C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
+            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
+                             ,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
                     FROM [Subject] A CROSS JOIN 
                                     (SELECT * FROM Shop WHERE ShopId = @ShopId) B 
                         LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
@@ -388,6 +403,20 @@ namespace com.yrtech.SurveyAPI.Service
             //    answer.ConsultantScore = consultantScore;
             //}
 
+            return answerList;
+        }
+        public List<AnswerDto> GetShopScoreInfo_NotAnswer(string projectId, string shopId)
+        {
+            shopId = shopId == null ? "" : shopId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(AnswerDto);
+            string sql = "";
+            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,A.SubjectId,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
+                    FROM [Subject] A 
+                    WHERE NOT EXISTS(SELECT 1 FROM Answer WHERE ProjectId = A.ProjectId AND ShopId = @ShopId)
+                    AND  A.ProjectId = @ProjectId";
+            List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
         //public decimal? AvgConsultantScore(string answerId)

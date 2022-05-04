@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
+        public int? ExamTypeId { get; set; }
         public decimal? PhotoScore { get; set; }// 照片得分
         public decimal? Score { get; set; }
         public string HiddenCode_SubjectType { get; set; } // 题目类型

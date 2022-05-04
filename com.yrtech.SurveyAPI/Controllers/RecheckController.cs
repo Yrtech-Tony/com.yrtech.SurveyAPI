@@ -54,7 +54,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         //            status.StatusCode = "S3";
         //            recheckService.SaveRecheckStatus(status);
         //        }
-        //        return new APIResult() { Status = true, Body = "保存成功" };
+        //        return new APIResult() { Status = true, Body = "" };
         //    }
         //    catch (Exception ex)
         //    {
@@ -72,8 +72,22 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                // 提交审核时，验证是否所有题目都已经打分完毕
+                if (recheckStatus.StatusCode == "S1")
+                {
+                    List<AnswerDto> answerList = answerService.GetShopScoreInfo_NotAnswer(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
+                    if(answerList!=null&&answerList.Count>0)
+                    {
+                        throw new Exception("存在未打分的题目，请先打分完毕");
+                    }
+                    List<ReCheckStatus> recheckStatusList = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"S1");
+                    if (recheckStatusList != null && recheckStatusList.Count > 0)
+                    {
+                        throw new Exception("已提交审核，请勿重复提交");
+                    }
+                }
                 recheckService.SaveRecheckStatus(recheckStatus);
-                return new APIResult() { Status = true, Body = "保存成功" };
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
@@ -86,28 +100,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                // 保存复审提交信息
+                // 缺少验证所有的题目是否都复审完毕，需要补充
+                // 缺少验证已经提交过的验证
                 recheckService.SaveRecheckStatusDtl(recheckStatusDtl);
-                List<RecheckStatusDtlDto> recheckStatusDtlList = recheckService.GetShopRecheckStautsDtl(recheckStatusDtl.ProjectId.ToString(), recheckStatusDtl.ShopId.ToString());
-                List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatusDtl.ProjectId.ToString(), "", "", "");
-                if (projectList != null && projectList.Count > 0)
-                {
-                    ReCheckStatus status = new ReCheckStatus();
-                    status.InUserId = recheckStatusDtl.InUserId;
-                    status.ProjectId = recheckStatusDtl.ProjectId;
-                    status.ShopId = recheckStatusDtl.ShopId==null?0:Convert.ToInt32(recheckStatusDtl.ShopId);
-                    List<Label> labelList = masterService.GetLabel(projectList[0].BrandId.ToString(), "", "RecheckType", true, "");
-                    if (recheckStatusDtlList != null && labelList != null && recheckStatusDtlList.Count == labelList.Count)
-                    {
-                        status.StatusCode = "S3";
-                    }
-                    else
-                    {
-                        status.StatusCode = "S2";
-                    }
-                    recheckService.SaveRecheckStatus(status);
-                }
-               
-                return new APIResult() { Status = true, Body = "保存成功" };
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
@@ -196,7 +193,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         //    try
         //    {
         //        recheckService.SaveShopRecheckInfo(recheck);
-        //        return new APIResult() { Status = true, Body = "保存成功" };
+        //        return new APIResult() { Status = true, Body = "" };
         //    }
         //    catch (Exception ex)
         //    {
@@ -345,7 +342,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         //        else {
         //            throw new Exception("该经销商已经复审修改完毕，不能进行修改");
         //        }
-        //        return new APIResult() { Status = true, Body = "保存成功" };
+        //        return new APIResult() { Status = true, Body = "" };
         //    }
         //    catch (Exception ex)
         //    {
@@ -371,7 +368,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         //        recheckStatus.StatusCode = "S4";
         //        recheckStatus.InDateTime = DateTime.Now;
         //        recheckService.SaveRecheckStatus(recheckStatus);
-        //        return new APIResult() { Status = true, Body = "保存成功" };
+        //        return new APIResult() { Status = true, Body = "" };
         //    }
         //    catch (Exception ex)
         //    {
@@ -402,7 +399,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 arbitrationService.SaveArbitrationInfo(recheck.RecheckId.ToString(), recheck.LastConfirmCheck, recheck.LastConfirmReason, recheck.LastConfirmUserId);
 
-                return new APIResult() { Status = true, Body = "保存成功" };
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
