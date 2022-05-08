@@ -113,15 +113,15 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
-                                  ,X.[ProjectCode]
-                                  ,X.[ProjectName]
+                                  ,U.[ProjectCode]
+                                  ,U.[ProjectName]
                                   ,A.[ShopId]
-                                  ,B.[ShopCode]
-                                  ,B.[ShopName]
+                                  ,X.[ShopCode]
+                                  ,X.[ShopName]
                                   ,A.[SubjectId]
-                                  ,C.[SubjectCode]
-                                  ,C.[CheckPoint]
-                                  ,D.[PhotoScore] AS Score
+                                  ,Y.[SubjectCode]
+                                  ,Y.[CheckPoint]
+                                  ,Z.[PhotoScore] AS Score
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -136,10 +136,10 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
-                              FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
-                                                INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
-                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
-                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  ";
+                              FROM [Appeal] A  INNER JOIN Shop X ON A.ShopId = X.ShopId AND (X.ShopCode LIKE '%'+@KeyWord+'%' OR X.ShopName LIKE '%'+@KeyWord+'%')
+                                                INNER JOIN [Subject] Y ON A.SubjectId = Y.SubjectId AND A.ProjectId = Y.ProjectId
+                                                INNER JOIN Answer Z ON A.ProjectId = Z.ProjectId AND A.ShopId = Z.ShopId AND A.SubjectId =Z.SubjectId
+                                               INNER JOIN Project U ON A.ProjectId = U.ProjectId AND A.ProjectId = @ProjectId  ";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(',');
@@ -160,7 +160,7 @@ namespace com.yrtech.SurveyAPI.Service
             else if (!string.IsNullOrEmpty(smallArea))
             {
                 sql += @" 
-                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN AreaShop C ON X.ShopId = C.ShopId
                         INNER JOIN Area D ON C.AreaId = D.AreaId 
                     WHERE D.AreaId = @SmallArea ";
             }

@@ -75,15 +75,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 提交审核时，验证是否所有题目都已经打分完毕
                 if (recheckStatus.StatusCode == "S1")
                 {
+                    List<ReCheckStatus> recheckStatusList = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "S1");
+                    if (recheckStatusList != null && recheckStatusList.Count > 0)
+                    {
+                        throw new Exception("已提交审核，请勿重复提交");
+                    }
                     List<AnswerDto> answerList = answerService.GetShopScoreInfo_NotAnswer(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
                     if(answerList!=null&&answerList.Count>0)
                     {
                         throw new Exception("存在未打分的题目，请先打分完毕");
-                    }
-                    List<ReCheckStatus> recheckStatusList = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"S1");
-                    if (recheckStatusList != null && recheckStatusList.Count > 0)
-                    {
-                        throw new Exception("已提交审核，请勿重复提交");
                     }
                 }
                 recheckService.SaveRecheckStatus(recheckStatus);

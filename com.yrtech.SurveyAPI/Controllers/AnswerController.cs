@@ -200,6 +200,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                //List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString());
+                //if (list != null && list.Count > 0 && !string.IsNullOrEmpty(list[0].Status_S1))
+                //{
+                //    throw new Exception("已提交复审，不能进行修改");
+                //}
                 answerService.SaveAnswerInfo(answer);
                 return new APIResult() { Status = true, Body = "" };
             }

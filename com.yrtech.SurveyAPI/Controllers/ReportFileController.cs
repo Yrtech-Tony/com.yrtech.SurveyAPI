@@ -190,6 +190,28 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #region 得分查询
+        [HttpGet]
+        [Route("ReportFile/ShopAnswerSearch")]
+        public APIResult ShopAnswerSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr,string keyword, int pageNum, int pageCount)
+        {
+            try
+            {
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
+                {
+                    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
+                }
+                List<AnswerDto> answerList = reportFileService.ShopAnswerSearchByPageSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
         #region 首页统计
         [HttpGet]
         [Route("ReportFile/ReportFileCountYear")]

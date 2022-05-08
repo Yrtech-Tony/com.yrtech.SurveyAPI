@@ -405,6 +405,12 @@ namespace com.yrtech.SurveyAPI.Service
 
             return answerList;
         }
+        /// <summary>
+        /// 获取经销商还未打分的题目
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
         public List<AnswerDto> GetShopScoreInfo_NotAnswer(string projectId, string shopId)
         {
             shopId = shopId == null ? "" : shopId;
@@ -414,11 +420,12 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,A.SubjectId,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                     FROM [Subject] A 
-                    WHERE NOT EXISTS(SELECT 1 FROM Answer WHERE ProjectId = A.ProjectId AND ShopId = @ShopId)
+                    WHERE A.SubjectId NOT IN (SELECT SubjectId FROM Answer WHERE ProjectId = A.ProjectId AND ShopId = @ShopId)
                     AND  A.ProjectId = @ProjectId";
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
+
         //public decimal? AvgConsultantScore(string answerId)
         //{
         //    decimal? avgScore = null;
@@ -729,5 +736,6 @@ namespace com.yrtech.SurveyAPI.Service
         //    db.Database.ExecuteSqlCommand(sql, para);
         //}
         #endregion
+
     }
 }

@@ -463,6 +463,132 @@ namespace com.yrtech.SurveyAPI.Service
             return isSuccess;
         }
         #endregion
+        #region 得分查询
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="projectId"></param>
+       /// <param name="bussinessType"></param>
+       /// <param name="wideArea"></param>
+       /// <param name="bigArea"></param>
+       /// <param name="middleArea"></param>
+       /// <param name="smallArea"></param>
+       /// <param name="shopIdStr"></param>
+       /// <param name="keyword"></param>
+       /// <returns></returns>
+        public List<AnswerDto> ShopAnswerSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
+        {
+            if (bussinessType == null) bussinessType = "";
+            if (wideArea == null) wideArea = "";
+            if (bigArea == null) bigArea = "";
+            if (middleArea == null) middleArea = "";
+            if (smallArea == null) smallArea = "";
+            if (shopIdStr == null) shopIdStr = "";
+            if (keyword == null) keyword = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SmallArea", smallArea),
+                                                        new SqlParameter("@MiddleArea", middleArea),
+                                                        new SqlParameter("@BigArea", bigArea),
+                                                        new SqlParameter("@WideArea", wideArea),
+                                                        new SqlParameter("@BussinessTypeId", bussinessType),
+                                                        new SqlParameter("@KeyWord", keyword)};
+            Type t = typeof(AnswerDto);
+            string sql = "";
+            sql = @"SELECT A.ProjectId,A.ShopId,X.SubjectId,A.PhotoScore, A.Remark,A.InspectionStandardResult,A.FileResult,A.LossResult,A.InDateTime,A.ModifyDateTime
+                    ,X.SubjectCode,X.[CheckPoint],X.OrderNO,X.[Desc],X.InspectionDesc,X.HiddenCode_SubjectType,B.ShopCode,B.ShopName
+                    FROM Answer A INNER JOIN Shop B ON A.ShopId = B.ShopId AND A.ProjectId = @ProjectId 
+                                  INNER JOIN [Subject] X ON A.ProjectId = X.ProjectId AND A.SubjectId = X.SubjectId AND A.ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(shopIdStr))
+            {
+                string[] shopIdList = shopIdStr.Split(',');
+                sql += " WHERE (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%') AND A.ShopId IN('";
+                for (int i = 0; i < shopIdList.Count(); i++)
+                {
+                    if (i == shopIdList.Count() - 1)
+                    {
+                        sql += shopIdList[i] + "'";
+                    }
+                    else
+                    {
+                        sql += shopIdList[i] + "','";
+                    }
+                }
+                sql += ")";
+            }
+            else if (!string.IsNullOrEmpty(smallArea))
+            {
+                sql += @" 
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                    WHERE D.AreaId = @SmallArea AND A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(middleArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                    WHERE A.ProjectId = @ProjectId AND E.AreaId = @MiddleArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bigArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+                    WHERE A.ProjectId = @ProjectId AND F.AreaId = @BigArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(wideArea))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+                        INNER JOIN Area G ON F.ParentId = G.AreaId 
+                    WHERE A.ProjectId = @ProjectId AND G.AreaId = @WideArea AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else if (!string.IsNullOrEmpty(bussinessType))
+            {
+                sql += @"
+                        INNER JOIN AreaShop C ON B.ShopId = C.ShopId
+                        INNER JOIN Area D ON C.AreaId = D.AreaId 
+                        INNER JOIN Area E ON D.ParentId = E.AreaId 
+                        INNER JOIN Area F ON E.ParentId = F.AreaId 
+                        INNER JOIN Area G ON F.ParentId = G.AreaId 
+                        INNER JOIN Area H ON G.ParentId = H.AreaId 
+                    WHERE A.ProjectId = @ProjectId AND H.AreaId = @BussinessType AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            else
+            {
+                sql += " WHERE 1=2"; // 业务类型也没有选择的情况下什么都不查询，未设置区域信息不能查询数据
+                                     // sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
+        }
+        /// <summary>
+        /// 按分页查询
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="bussinessType"></param>
+        /// <param name="wideArea"></param>
+        /// <param name="bigArea"></param>
+        /// <param name="middleArea"></param>
+        /// <param name="smallArea"></param>
+        /// <param name="shopIdStr"></param>
+        /// <param name="keyword"></param>
+        /// <param name="reportFileType"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="pageCount"></param>
+        /// <returns></returns>
+        public List<AnswerDto> ShopAnswerSearchByPageSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        {
+            int startIndex = (pageNum - 1) * pageCount;
+
+            return ShopAnswerSearch(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword).Skip(startIndex).Take(pageCount).ToList();
+        }
+        #endregion
         #region 报告下载日志
         /// <summary>
         /// 报告文件操作记录

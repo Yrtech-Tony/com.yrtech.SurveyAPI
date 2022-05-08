@@ -607,7 +607,7 @@ namespace com.yrtech.SurveyAPI.Service
 
             if (roleType == "S_Sysadmin")
             {
-                sql = @"SELECT DISTINCT A.* FROM Brand A";
+                sql = @"SELECT DISTINCT A.* FROM Brand A WHERE A.TenantId = @TenantId";
             }
             else if (roleType == "S_BrandSysadmin" ||
                 roleType == "S_Execute" ||
