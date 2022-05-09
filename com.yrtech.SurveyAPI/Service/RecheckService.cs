@@ -131,7 +131,8 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(RecheckDto);
             string sql = "";
             sql = @"  SELECT A.ProjectId,D.ProjectCode,D.ProjectName,A.ShopId,A.SubjectId,C.ShopCode,C.ShopName,B.SubjectCode,B.[CheckPoint],B.OrderNO,B.[Desc],B.InspectionDesc,
-                            A.PhotoScore, A.Remark,X.RecheckId,X.PassRecheck
+                            A.PhotoScore, A.Remark,X.RecheckId,X.PassRecheck,B.LabelId_RecheckType AS RecheckTypeId
+                            ,(SELECT TOP 1 LabelName FROM Label WHERE LabelId = B.LabelId_RecheckType) AS RecheckTypeName
                             ,CASE WHEN X.PassReCheck=1 THEN '是'
                                     ELSE '否'
                             END AS PassRecheckName,X.RecheckContent,X.RecheckError,X.RecheckScore,X.RecheckUserId,X.RecheckDateTime
@@ -228,6 +229,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (findOne == null)
             {
                 recheck.InDateTime = DateTime.Now;
+                recheck.ReCheckDateTime = DateTime.Now;
                 db.ReCheck.Add(recheck);
             }
             else

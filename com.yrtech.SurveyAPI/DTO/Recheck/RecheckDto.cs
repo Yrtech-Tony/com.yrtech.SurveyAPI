@@ -28,6 +28,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? RecheckUserId { get; set; } // 复审人员Id
         public string RecheckUserName { get; set; } //复审人员名称
         public DateTime? RecheckDateTime { get; set; }// 复审时间
+        public int RecheckTypeId { get; set; }
+        public string RecheckTypeName { get; set; }
         //public bool? AgreeCheck { get; set; }
         //public string AgreeReason { get; set; }
         //public int? AgreeUserId { get; set; }
