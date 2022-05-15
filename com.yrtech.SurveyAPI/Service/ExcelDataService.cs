@@ -176,6 +176,28 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+
+        // 导入执行人员关联的经销商
+        public List<UserInfoObjectDto> UserInfoObjectImport_ExcuteShop(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<UserInfoObjectDto> list = new List<UserInfoObjectDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string accountId = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(accountId)) break;
+                UserInfoObjectDto userInfoObject = new UserInfoObjectDto();
+                userInfoObject.AccountId = accountId;
+                userInfoObject.ObjectCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(userInfoObject);
+            }
+            return list;
+
+        }
         #endregion
         #region 导出
         // 导出账号
@@ -267,7 +289,7 @@ namespace com.yrtech.SurveyAPI.Service
                         lossResultStr += lossResult.LossDesc + ";";
                     }
                 }
-                sheet.GetCell("G" + (rowIndex + 2)).Value = lossResultStr;
+                sheet.GetCell("H" + (rowIndex + 2)).Value = lossResultStr;
                 // 通过复审
                 sheet.GetCell("I" + (rowIndex + 2)).Value = item.PassRecheckName;
                 //复审得分

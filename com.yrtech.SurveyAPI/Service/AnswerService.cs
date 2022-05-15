@@ -227,7 +227,7 @@ namespace com.yrtech.SurveyAPI.Service
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
-                                                                CASE WHEN EXISTS(SELECT 1 FROM Answer X INNER JOIN [Subject] Y ON X.ProjectId = Y.SubjectId 
+                                                                CASE WHEN EXISTS(SELECT 1 FROM Answer X INNER JOIN [Subject] Y ON X.SubjectId = Y.SubjectId 
                                                                                 WHERE X.ProjectId = @ProjectId AND X.ShopId = @ShopId AND Y.HiddenCode_SubjectType = @SubjectType) 
                                                                 THEN (SELECT MAX(OrderNO) FROM  Answer X INNER JOIN [Subject] Y ON X.ProjectId = Y.ProjectId 
 																                                                                AND X.SubjectId = Y.SubjectId 
