@@ -547,6 +547,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId)
         {
             shopId = shopId == null ? "" : shopId;
+            projectId = projectId == null ? "" : projectId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(AnswerShopInfoDto);

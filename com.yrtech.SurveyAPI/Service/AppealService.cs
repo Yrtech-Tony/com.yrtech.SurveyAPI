@@ -36,6 +36,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <returns></returns>
         public List<AppealSetDto> GetAppealSet(string projectId)
         {
+            if (projectId == null) projectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
             Type t = typeof(AppealSetDto);
             string sql = "";

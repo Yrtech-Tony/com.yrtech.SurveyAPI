@@ -16,6 +16,9 @@ namespace com.yrtech.SurveyAPI.Service
         string basePath = HostingEnvironment.MapPath(@"~/");
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
+        AnswerService answerService = new AnswerService();
+        ShopService shopService = new ShopService();
+        RecheckService recheckService = new RecheckService();
         #region 导入
         // 导入经销商
         public List<ShopDto> ShopImport(string ossPath)
@@ -37,7 +40,7 @@ namespace com.yrtech.SurveyAPI.Service
                 shop.Province = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
                 shop.City = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
                 shop.GroupCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
-                string useChk=sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                string useChk = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
                 if (useChk == "1")
                 {
                     shop.UseChk = true;
@@ -45,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { shop.UseChk = false; }
                 list.Add(shop);
             }
-            
+
             return list;
 
         }
@@ -91,13 +94,13 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 string areaCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
                 string shopCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(areaCode)|| string.IsNullOrEmpty(shopCode)) break;
+                if (string.IsNullOrEmpty(areaCode) || string.IsNullOrEmpty(shopCode)) break;
                 ShopDto areaShop = new ShopDto();
                 areaShop.AreaCode = areaCode;
                 areaShop.ShopCode = shopCode;
                 list.Add(areaShop);
             }
-            return list ;
+            return list;
 
         }
         // 导入账号信息
@@ -195,13 +198,13 @@ namespace com.yrtech.SurveyAPI.Service
                 //权限
                 string roleTypeName = "";
                 if (item.RoleType == "B_Brand") roleTypeName = "厂商";
-                else if(item.RoleType=="B_Bussiness") roleTypeName = "业务";
+                else if (item.RoleType == "B_Bussiness") roleTypeName = "业务";
                 else if (item.RoleType == "B_WideArea") roleTypeName = "广域区域";
                 else if (item.RoleType == "B_BigArea") roleTypeName = "大区";
                 else if (item.RoleType == "B_MiddleArea") roleTypeName = "中区";
                 else if (item.RoleType == "B_SmallArea") roleTypeName = "小区";
                 else if (item.RoleType == "B_Shop") roleTypeName = "经销商";
-                else if(item.RoleType=="B_Group") roleTypeName = "集团";
+                else if (item.RoleType == "B_Group") roleTypeName = "集团";
                 sheet.GetCell("D" + (rowIndex + 2)).Value = roleTypeName;
                 //Email
                 sheet.GetCell("E" + (rowIndex + 2)).Value = item.Email;
@@ -213,12 +216,70 @@ namespace com.yrtech.SurveyAPI.Service
                     sheet.GetCell("G" + (rowIndex + 2)).Value = "Y";
                 }
                 else { sheet.GetCell("G" + (rowIndex + 2)).Value = "N"; }
-               
+
                 rowIndex++;
             }
 
             //保存excel文件
             string fileName = "账号" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+        // 得分导出
+        public string ShopAnsewrScoreInfoExport(string projectId, string shopId)
+        {
+            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            foreach (RecheckDto item in recheckList)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                //题目代码
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.SubjectCode;
+                //题目代码
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.OrderNO;
+                //检查点
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.CheckPoint;
+                //得分
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.PhotoScore;
+                //得分备注
+                sheet.GetCell("G" + (rowIndex + 2)).Value = item.Remark;
+                //失分说明
+                string lossResultStr = "";
+                if (!string.IsNullOrEmpty(item.LossResult))
+                {
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    foreach (LossResultDto lossResult in lossResultList)
+                    {
+                        lossResultStr += lossResult.LossDesc + ";";
+                    }
+                }
+                sheet.GetCell("G" + (rowIndex + 2)).Value = lossResultStr;
+                // 通过复审
+                sheet.GetCell("I" + (rowIndex + 2)).Value = item.PassRecheckName;
+                //复审得分
+                sheet.GetCell("J" + (rowIndex + 2)).Value = item.RecheckScore;
+                     //复审得分
+                sheet.GetCell("K" + (rowIndex + 2)).Value = item.RecheckContent;
+
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "经销商得分" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             string dirPath = basePath + @"\Temp\";
             DirectoryInfo dir = new DirectoryInfo(dirPath);
             if (!dir.Exists)

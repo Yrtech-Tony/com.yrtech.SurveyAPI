@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<ReCheckStatus> GetShopRecheckStatusInfo(string projectId, string shopId,string statusCode)
         {
             if (shopId == null) shopId = "";
+            if (projectId == null) projectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),new SqlParameter("@StatusCode", statusCode)};
             Type t = typeof(ReCheckStatus);
@@ -43,6 +44,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId)
         {
             if (shopId == null) shopId = "";
+            if (projectId == null) projectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(RecheckStatusDto);
@@ -131,7 +133,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(RecheckDto);
             string sql = "";
             sql = @"  SELECT A.ProjectId,D.ProjectCode,D.ProjectName,A.ShopId,A.SubjectId,C.ShopCode,C.ShopName,B.SubjectCode,B.[CheckPoint],B.OrderNO,B.[Desc],B.InspectionDesc,
-                            A.PhotoScore, A.Remark,X.RecheckId,X.PassRecheck,B.LabelId_RecheckType AS RecheckTypeId
+                            A.PhotoScore, A.Remark,A.LossResult,X.RecheckId,X.PassRecheck,B.LabelId_RecheckType AS RecheckTypeId
                             ,(SELECT TOP 1 LabelName FROM Label WHERE LabelId = B.LabelId_RecheckType) AS RecheckTypeName
                             ,CASE WHEN X.PassReCheck=1 THEN '是'
                                     ELSE '否'
@@ -169,10 +171,11 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectRecheckTypeId"></param>
         /// <param name="orderNO"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopNextRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
+        public List<AnswerDto> GetShopNextRecheckSubject(string projectId, string shopId, string recheckTypeId, string orderNO)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId),
+                                                       new SqlParameter("@RecheckTypeId", recheckTypeId),
+                                                       new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t_subject = typeof(AnswerDto);
             string sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
@@ -197,10 +200,11 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectRecheckTypeId"></param>
         /// <param name="orderNO"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopPreRecheckSubject(string projectId, string shopId, string subjectRecheckTypeId, string orderNO)
+        public List<AnswerDto> GetShopPreRecheckSubject(string projectId, string shopId, string recheckTypeId, string orderNO)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId),
+                                                       new SqlParameter("@RecheckTypeId", recheckTypeId),
+                                                       new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@OrderNO", orderNO)};
             Type t_subject = typeof(AnswerDto);
             string sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,

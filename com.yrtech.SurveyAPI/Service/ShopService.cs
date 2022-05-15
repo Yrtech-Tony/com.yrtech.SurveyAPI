@@ -20,6 +20,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<ProjectShopExamTypeDto> GetProjectShopExamType(string brandId,string projectId, string shopId)
         {
             projectId = projectId == null ? "" : projectId;
+            brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
             SqlParameter[] para = new SqlParameter[] {
                                             new SqlParameter("@BrandId", brandId),

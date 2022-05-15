@@ -15,6 +15,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
         RecheckService recheckService = new RecheckService();
+        ExcelDataService excelDataService = new ExcelDataService();
         #region 得分登记
         ///// <summary>
         ///// 查询经销商需要打分的体系信息
@@ -237,6 +238,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                     answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/ShopAnswerScoreInfoExport")]
+        public APIResult ShopAnswerScoreInfoExport(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = excelDataService.ShopAnsewrScoreInfoExport(projectId, shopId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {

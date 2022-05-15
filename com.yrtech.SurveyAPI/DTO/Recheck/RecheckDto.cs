@@ -20,6 +20,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Implementation { get; set; }//执行方式
         public string CheckPoint { get; set; }//检查点
         public decimal? PhotoScore { get; set; }// 照片得分
+        public string Remark { get; set; } // 得分备注
+        public string LossResult { get; set; } // 失分说明
         public decimal? RecheckScore { get; set; }// 照片得分
         public bool? PassRecheck { get; set; } // 是否通过复审
         public string PassRecheckName { get; set; }
