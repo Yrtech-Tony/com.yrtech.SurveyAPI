@@ -20,12 +20,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<RecheckDto> GetNeedRecheckkModifyInfo(string projectId, string shopId,string subjectId,string agreeCheck)
+        public List<RecheckDto> GetRecheckNotPass(string projectId, string shopId, string subjectId, bool? agreeCheck)
         {
+            if (projectId == null) projectId = "";
+            if (shopId == null) shopId = "";
+            if (subjectId == null) subjectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                        ,new SqlParameter("@ShopId", shopId)
-                                                       ,new SqlParameter("@SubjectId", subjectId)
-                                                       ,new SqlParameter("@AgreeCheck",agreeCheck)};
+                                                       ,new SqlParameter("@SubjectId", subjectId)};
             Type t = typeof(RecheckDto);
             string sql = @"SELECT  A.*, B.ShopCode,B.ShopName,C.SubjectCode,C.[CheckPoint],C.OrderNO
                                     , D.AccountName AS RecheckUserName,ISNULL(E.AccountName, '') AS AgreeUserName
@@ -44,27 +46,45 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.SubjectId = @SubjectId";
             }
-            // 如果为null 就是查询未进行修改的数据
-            if (agreeCheck == null||agreeCheck=="")
+            if (agreeCheck.HasValue)
             {
-                sql += "AND (A.AgreeCheck IS NULL OR AgreeCheck ='')";
-            }
-            else if (agreeCheck == "1" || agreeCheck=="0")
-            {
-                sql += "AND A.AgreeCheck = @AgreeCheck";
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@AgreeCheck", agreeCheck) }).ToArray();
+                sql += " AND A.AgreeCheck = @AgreeCheck";
             }
 
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
-        public void SaveRecheckModifyInfo(string recheckId,bool? agreeCheck,string agreeReason,int? agreeUserId)
+        public void SaveRecheckModifyInfo(string recheckId, bool? agreeCheck, string agreeReason, int? agreeUserId)
         {
             ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
-            if (findOne!=null)
+            if (findOne != null)
             {
                 findOne.AgreeCheck = agreeCheck;
                 findOne.AgreeDateTime = DateTime.Now;
                 findOne.AgreeReason = agreeReason;
                 findOne.AgreeUserId = agreeUserId;
+            }
+            db.SaveChanges();
+        }
+        public void SaveSupervisionSpotCheck(string recheckId, string supervisionSpotCheckContent, int? supervisionSpotCheckUserId)
+        {
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            if (findOne != null)
+            {
+                findOne.SupervisionSpotCheckContent = supervisionSpotCheckContent;
+                findOne.SupervisionSpotCheckDateTime = DateTime.Now;
+                findOne.SupervisionSpotCheckUserId = supervisionSpotCheckUserId;
+            }
+            db.SaveChanges();
+        }
+        public void SavePMSpotCheck(string recheckId, string pmSpotCheckContent, int? pmSpotCheckUserId)
+        {
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            if (findOne != null)
+            {
+                findOne.PMSpotCheckContent = pmSpotCheckContent;
+                findOne.PMSpotCheckDateTime = DateTime.Now;
+                findOne.PMSpotCheckUserId = pmSpotCheckUserId;
             }
             db.SaveChanges();
         }

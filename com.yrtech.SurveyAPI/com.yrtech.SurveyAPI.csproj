@@ -199,6 +199,7 @@
     <Compile Include="Service\AnswerService.cs" />
     <Compile Include="Service\ExcelDataService.cs" />
     <Compile Include="Service\RecheckService.cs" />
+    <Compile Include="Service\RechecModifykService.cs" />
     <Compile Include="Service\ReportFileService.cs" />
     <Compile Include="Service\AppealService.cs" />
     <Compile Include="Service\AreaService.cs" />

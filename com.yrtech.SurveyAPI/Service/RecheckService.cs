@@ -66,7 +66,23 @@ namespace com.yrtech.SurveyAPI.Service
                             (SELECT COUNT(*) FROM (SELECT DISTINCT LabelId_RecheckType FROM [Subject] WHERE ProjectId = A.ProjectId)X)
 	                                THEN 'S3'
 	                                ELSE ''
-                            END AS Status_S3
+                            END AS Status_S3,
+                            CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S4')
+	                                THEN 'S4'
+	                                ELSE ''
+                            END AS Status_S4,
+                            CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S5')
+	                                THEN 'S5'
+	                                ELSE ''
+                            END AS Status_S5,
+                            CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S6')
+	                                THEN 'S6'
+	                                ELSE ''
+                            END AS Status_S6,
+                            CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S7')
+	                                THEN 'S7'
+	                                ELSE ''
+                            END AS Status_S7,
                             FROM ReCheckStatus A INNER JOIN Shop B ON A.ShopId = B.ShopId
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
@@ -81,10 +97,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId)
+        public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId,string recheckTypeId)
         {
+            if (shopId == null) shopId = "";
+            if (projectId == null) projectId = "";
+            if (recheckTypeId == null) recheckTypeId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId)};
+                                                       new SqlParameter("@RecheckTypeId", recheckTypeId),
+                                                        new SqlParameter("@ShopId", shopId)};
             Type t = typeof(RecheckStatusDtlDto);
             string sql = "";
             sql = @"SELECT A.*,B.LabelCode AS RecheckTypeCode,B.LabelName AS RecheckTypeName
@@ -94,6 +114,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(recheckTypeId))
+            {
+                sql += " AND A.RecheckTypeId = @RecheckTypeId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDtlDto>().ToList();
         }
