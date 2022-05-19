@@ -49,7 +49,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     // 验证是否所有题目都进行了同意与否操作
                     bool modifyFinish = true;
-                    List<RecheckDto> notPassRecheckList = recheckModifyService.GetRecheckNotPass(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "", null);
+                    List<RecheckDto> notPassRecheckList = recheckModifyService.GetRecheckInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "",false, null);
                     foreach (RecheckDto recheck in notPassRecheckList)
                     {
                         if (recheck.AgreeCheck == null)
@@ -323,7 +323,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     throw new Exception("该经销商还未复审完毕");
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckNotPass(projectId, shopId, subjectId, null)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId,false, null)) };
             }
             catch (Exception ex)
             {
@@ -369,7 +369,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     throw new Exception("该经销商还未复审修改完毕");
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckNotPass(projectId, shopId, subjectId, false)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId, false,false)) };
             }
             catch (Exception ex)
             {
@@ -393,6 +393,24 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         #endregion
         #region 抽查
+        [HttpGet]
+        [Route("Recheck/GetSupervisionSpotCheck")]
+        public APIResult GetSupervisionSpotCheck(string projectId, string shopId, string subjectId)
+        {
+            try
+            {
+                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId);
+                if (recheckStatus == null || (recheckStatus != null && recheckStatus.Count > 0 && recheckStatus[0].Status_S3 == ""))
+                {
+                    throw new Exception("该经销商还未复审完毕");
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId, null, null)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Recheck/SaveSupervisionSpotCheck")]
         public APIResult SaveSupervisionSpotCheck(ReCheck recheck)

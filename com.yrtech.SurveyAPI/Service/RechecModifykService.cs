@@ -20,7 +20,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<RecheckDto> GetRecheckNotPass(string projectId, string shopId, string subjectId, bool? agreeCheck)
+        public List<RecheckDto> GetRecheckInfo(string projectId, string shopId, string subjectId, bool? passRecheck,bool? agreeCheck)
         {
             if (projectId == null) projectId = "";
             if (shopId == null) shopId = "";
@@ -37,7 +37,7 @@ namespace com.yrtech.SurveyAPI.Service
                                          INNER JOIN UserInfo D ON A.RecheckUserId = D.Id
                                          LEFT JOIN UserInfo E ON A.AgreeUserId = E.Id
                                          LEFT JOIN UserInfo F ON A.LastConfirmUserId = F.Id
-                        WHERE A.ProjectId = @ProjectId AND A.PassRecheck=0";
+                        WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
@@ -50,6 +50,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 para = para.Concat(new SqlParameter[] { new SqlParameter("@AgreeCheck", agreeCheck) }).ToArray();
                 sql += " AND A.AgreeCheck = @AgreeCheck";
+            }
+            if (passRecheck.HasValue)
+            {
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@PassRecheck", passRecheck) }).ToArray();
+                sql += " AND A.PassRecheck = @PassRecheck";
             }
 
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();

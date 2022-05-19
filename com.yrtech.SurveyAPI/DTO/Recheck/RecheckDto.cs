@@ -32,15 +32,20 @@ namespace com.yrtech.SurveyAPI.DTO
         public DateTime? RecheckDateTime { get; set; }// 复审时间
         public int RecheckTypeId { get; set; }
         public string RecheckTypeName { get; set; }
-        public bool? AgreeCheck { get; set; }
+        public Nullable<bool> AgreeCheck { get; set; }
         public string AgreeReason { get; set; }
-        public int? AgreeUserId { get; set; }
-        public string AgreeUserName { get; set; }
-        public DateTime? AgreeDateTime { get; set; }
+        public Nullable<int> AgreeUserId { get; set; }
+        public Nullable<System.DateTime> AgreeDateTime { get; set; }
         public string LastConfirmCheck { get; set; }
-        public int? LastConfirmUserId { get; set; }
-        public string LastConfirmUserName { get; set; }
-        public DateTime? LastConfirmDateTime { get; set; }
+        public string LastConfirmReason { get; set; }
+        public Nullable<int> LastConfirmUserId { get; set; }
+        public Nullable<System.DateTime> LastConfirmDate { get; set; }
+        public string SupervisionSpotCheckContent { get; set; }
+        public Nullable<int> SupervisionSpotCheckUserId { get; set; }
+        public Nullable<System.DateTime> SupervisionSpotCheckDateTime { get; set; }
+        public string PMSpotCheckContent { get; set; }
+        public Nullable<int> PMSpotCheckUserId { get; set; }
+        public Nullable<System.DateTime> PMSpotCheckDateTime { get; set; }
 
     }
 }

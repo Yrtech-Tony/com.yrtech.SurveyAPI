@@ -28,11 +28,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         ///// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNeedAnswerSubjectInfo")]
-        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string examTypeId,string subjectType="")
+        public APIResult GetShopNeedAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string subjectType = "")
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId,subjectType);
+                List<AnswerDto> answerList = answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId, subjectType);
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -45,7 +45,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //    }
                 //}
                 //else { result = answerList; }
-                
+
                 if (answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
@@ -72,11 +72,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopNextAnswerSubjectInfo")]
-        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO,string subjectType="")
+        public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO, string subjectType = "")
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO,subjectType);
+                List<AnswerDto> answerList = answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType);
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -118,12 +118,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Answer/GetShopPreAnswerSubjectInfo")]
-        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO,string subjectType="")
+        public APIResult GetShopPreAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO, string subjectType = "")
         {
             try
             {
-                
-                List<AnswerDto> answerList = answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO,subjectType);
+
+                List<AnswerDto> answerList = answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType);
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -155,12 +155,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Answer/GetShopTransAnswerSubjectInfo")]
-        public APIResult GetShopTransAnswerSubjectInfo(string projectId, string shopId, string orderNO,string subjectType="")
+        public APIResult GetShopTransAnswerSubjectInfo(string projectId, string shopId, string orderNO, string subjectType = "")
         {
             try
             {
 
-                List<AnswerDto> answerList = answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO,subjectType);
+                List<AnswerDto> answerList = answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO, subjectType);
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -201,12 +201,34 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                //List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString());
-                //if (list != null && list.Count > 0 && !string.IsNullOrEmpty(list[0].Status_S1))
-                //{
-                //    throw new Exception("已提交复审，不能进行修改");
-                //}
+                string roleTypeCode = "";
+                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "");
+                if (userInfoList != null && userInfoList.Count > 0)
+                {
+                    roleTypeCode = userInfoList[0].RoleType;
+                }
+                if (roleTypeCode == "S_Recheck" || roleTypeCode == "S_SurperVision")
+                {
+                    throw new Exception("无修改得分权限");
+                }
+                else if (roleTypeCode == "S_Execute")
+                {
+                    List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString());
+                    if (list != null && list.Count > 0)
+                    {
+
+                        if (!string.IsNullOrEmpty(list[0].Status_S4))
+                        {
+                            throw new Exception("已复审修改完毕，不能进行修改");
+                        }
+                        else if (!string.IsNullOrEmpty(list[0].Status_S1))
+                        {
+                            throw new Exception("已提交复审，不能进行修改");
+                        }
+                    }
+                }
                 answerService.SaveAnswerInfo(answer);
+
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -231,7 +253,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key);
                 // 在查询特定Subject得分时，返回题目的信息
-                if (!string.IsNullOrEmpty(subjectId)&&answerList != null && answerList.Count>0)
+                if (!string.IsNullOrEmpty(subjectId) && answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
                     answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
