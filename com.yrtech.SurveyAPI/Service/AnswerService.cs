@@ -492,6 +492,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
 
         }
+       
         ///// <summary>
         ///// 保存销售顾问得分
         ///// </summary>
@@ -589,6 +590,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
+
         #region 销售顾问信息
         public List<ShopConsultantDto> GetShopConsultant(string projectId, string shopId)
         {

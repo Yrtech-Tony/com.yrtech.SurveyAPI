@@ -628,7 +628,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     userInfoObjectDto.ImportChk = true;
                     userInfoObjectDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId,"" , "", userInfoObjectDto.AccountId, "", "", "", "");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", userInfoObjectDto.AccountId, "", "", "", "");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         userInfoObjectDto.ImportChk = false;
@@ -1059,7 +1059,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                 }
-                List<Shop> importShopList = new List<Shop>();
                 foreach (ShopDto shopDto in list)
                 {
                     Shop shop = new Shop();
@@ -1087,9 +1086,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     shop.TenantId = shopDto.TenantId;
                     shop.UseChk = shopDto.UseChk;
                     masterService.SaveShop(shop);
-                    //importShopList.Add(shop);
                 }
-                // masterService.ImportShop(importShopList);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -1663,6 +1660,303 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
+        }
+
+        [HttpGet]
+        [Route("Master/SubjectExcelAnalysis")]
+        public APIResult SubjectExcelAnalysis(string brandId, string ossPath)
+        {
+            try
+            {
+                List<SubjectDto> list = excelDataService.SubjectImport(ossPath);
+
+                foreach (SubjectDto subject in list)
+                {
+                    subject.ImportChk = true;
+                    subject.ImportRemark = "";
+                    if (subject.OrderNO == null)
+                    {
+                        subject.ImportChk = false;
+                        subject.ImportRemark += "执行顺序有为空的数据" + ";";
+                    }
+                    if (string.IsNullOrEmpty(subject.ExamTypeCode))
+                    {
+                        subject.ImportChk = false;
+                        subject.ImportRemark += "试卷类型代码有为空的数据" + ";";
+                    }
+                    if (string.IsNullOrEmpty(subject.RecheckTypeCode))
+                    {
+                        subject.ImportChk = false;
+                        subject.ImportRemark += "复审类型代码有为空的数据" + ";";
+                    }
+                    if (string.IsNullOrEmpty(subject.HiddenCode_SubjectType))
+                    {
+                        subject.ImportChk = false;
+                        subject.ImportRemark += "题目类型有为空的数据" + ";";
+                    }
+                    foreach (SubjectDto subject1 in list)
+                    {
+                        if (subject != subject1 && subject.SubjectCode == subject1.SubjectCode)
+                        {
+                            subject.ImportChk = false;
+                            subject.ImportRemark += "表格中存在重复的题目代码" + ";";
+                        }
+                        if (subject != subject1 && subject.OrderNO == subject1.OrderNO)
+                        {
+                            subject.ImportChk = false;
+                            subject.ImportRemark += "表格中存在重复的执行顺序" + ";";
+                        }
+                    }
+                    // 验证Excel中的试卷类型、复审类型是否存在
+                    if (!string.IsNullOrEmpty(subject.ExamTypeCode.Trim()))
+                    {
+                        List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, subject.ExamTypeCode);
+                        if (labelList == null || labelList.Count == 0)
+                        {
+                            subject.ImportChk = false;
+                            subject.ImportRemark += "试卷类型在系统中未登记" + ";";
+                        }
+                    }
+                    // 验证Excel中的试卷类型、复审类型是否存在
+                    if (!string.IsNullOrEmpty(subject.RecheckTypeCode.Trim()))
+                    {
+                        List<Label> labelList = masterService.GetLabel(brandId, "", "RecheckType", true, subject.RecheckTypeCode);
+                        if (labelList == null || labelList.Count == 0)
+                        {
+                            subject.ImportChk = false;
+                            subject.ImportRemark += "复审类型在系统中未登记" + ";";
+                        }
+                    }
+                }
+                list = (from subject in list orderby subject.ImportChk select subject).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SubjectImport")]
+        public APIResult SubjectImport(UploadData uploadData)
+        {
+            try
+            {
+                List<SubjectDto> list = CommonHelper.DecodeString<List<SubjectDto>>(uploadData.ListJson);
+                foreach (SubjectDto dto in list)
+                {
+                    Subject subject = new Subject();
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        subject.SubjectId = subjectList[0].SubjectId;
+                    }
+                    subject.CheckPoint = dto.CheckPoint;
+                    subject.FullScore = dto.FullScore;
+                    if (dto.HiddenCode_SubjectTypeName == "照片")
+                    {
+                        subject.HiddenCode_SubjectType = "Photo";
+                    }
+                    else { subject.HiddenCode_SubjectType = "Process"; }
+                    subject.Implementation = dto.Implementation;
+                    subject.InspectionDesc = dto.InspectionDesc;
+                    subject.InUserId = dto.InUserId;
+                    List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
+                    if (labelList != null && labelList.Count > 0)
+                    {
+                        subject.LabelId = labelList[0].LabelId;
+                    }
+                    
+                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "RecheckType", true, dto.ExamTypeCode);
+                    if (labelList != null && labelList.Count > 0)
+                    {
+                        subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
+                    }
+                    subject.LowScore = dto.LowScore;
+                   
+                    subject.ModifyUserId = dto.ModifyUserId;
+                    subject.OrderNO = dto.OrderNO;
+                    subject.ProjectId = dto.ProjectId;
+                    subject.Remark = dto.Remark;
+                    subject.SubjectCode = dto.SubjectCode;
+                    masterService.SaveSubject(subject);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/SubjectFileExcelAnalysis")]
+        public APIResult SubjectFileExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<FileResultDto> list = excelDataService.SubjectFileImport(ossPath);
+
+                foreach (FileResultDto fileResult in list)
+                {
+                    fileResult.ImportChk = true;
+                    fileResult.ImportRemark = "";
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", fileResult.SubjectCode, "");
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        fileResult.ImportChk = false;
+                        fileResult.ImportRemark += "题目代码未登记" + ";";
+                    }
+                }
+                list = (from fileResult in list orderby fileResult.ImportChk select fileResult).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SubjectFileImport")]
+        public APIResult SubjectFileImport(UploadData uploadData)
+        {
+            try
+            {
+                List<FileResultDto> list = CommonHelper.DecodeString<List<FileResultDto>>(uploadData.ListJson);
+                foreach (FileResultDto dto in list)
+                {
+                    SubjectFile subjectFile = new SubjectFile();
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        subjectFile.SubjectId = subjectList[0].SubjectId;
+                    }
+                    subjectFile.FileName = dto.FileName;
+                    subjectFile.InUserId = dto.InUserId;
+                    subjectFile.ModifyUserId = dto.ModifyUserId;
+                    masterService.SaveSubjectFile(subjectFile);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/SubjectInspectionStandardExcelAnalysis")]
+        public APIResult SubjectInspectionStandardExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<InspectionStandardResultDto> list = excelDataService.SubjectInspectionStandardImport(ossPath);
+
+                foreach (InspectionStandardResultDto inspectionStandardResult in list)
+                {
+                    inspectionStandardResult.ImportChk = true;
+                    inspectionStandardResult.ImportRemark = "";
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", inspectionStandardResult.SubjectCode, "");
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        inspectionStandardResult.ImportChk = false;
+                        inspectionStandardResult.ImportRemark += "题目代码未登记" + ";";
+                    }
+                }
+                list = (from inspectionStandardResult in list orderby inspectionStandardResult.ImportChk select inspectionStandardResult).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SubjectInspectionStandardImport")]
+        public APIResult SubjectInspectionStandardImport(UploadData uploadData)
+        {
+            try
+            {
+                List<InspectionStandardResultDto> list = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(uploadData.ListJson);
+                foreach (InspectionStandardResultDto dto in list)
+                {
+                    SubjectInspectionStandard subjectInspectionStandard = new SubjectInspectionStandard();
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        subjectInspectionStandard.SubjectId = subjectList[0].SubjectId;
+                    }
+                    subjectInspectionStandard.InspectionStandardName = dto.InspectionStandardName;
+                    subjectInspectionStandard.InUserId = dto.InUserId;
+                    subjectInspectionStandard.ModifyUserId = dto.ModifyUserId;
+                    masterService.SaveSubjectInspectionStandard(subjectInspectionStandard);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/SubjectLossResultExcelAnalysis")]
+        public APIResult SubjectLossResultExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<LossResultDto> list = excelDataService.SubjectLossImport(ossPath);
+
+                foreach (LossResultDto lossResult in list)
+                {
+                    lossResult.ImportChk = true;
+                    lossResult.ImportRemark = "";
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", lossResult.SubjectCode, "");
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        lossResult.ImportChk = false;
+                        lossResult.ImportRemark += "题目代码未登记" + ";";
+                    }
+                }
+                list = (from lossResult in list orderby lossResult.ImportChk select lossResult).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SubjectLossResultImport")]
+        public APIResult SubjectLossResultImport(UploadData uploadData)
+        {
+            try
+            {
+                List<LossResultDto> list = CommonHelper.DecodeString<List<LossResultDto>>(uploadData.ListJson);
+                foreach (LossResultDto dto in list)
+                {
+                    SubjectLossResult subjectLossResult = new SubjectLossResult();
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        subjectLossResult.SubjectId = subjectList[0].SubjectId;
+                    }
+                    subjectLossResult.LossResultName = dto.LossDesc;
+                    subjectLossResult.InUserId = dto.InUserId;
+                    subjectLossResult.ModifyUserId = dto.ModifyUserId;
+                    masterService.SaveSubjectLossResult(subjectLossResult);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
         }
         #endregion
     }

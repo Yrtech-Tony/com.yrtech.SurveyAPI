@@ -107,7 +107,6 @@ namespace com.yrtech.SurveyAPI.Common
             }
             return strData;
         }
-
         public static void log(string message)
         {
             string appDomainPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -133,5 +132,22 @@ namespace com.yrtech.SurveyAPI.Common
             fs.Write(info, 0, info.Length);
             return info;
         }
+        // 文件名中非法字符替换
+        public static string ReplaceBadCharOfFileName(string fileName)
+        {
+            string str = fileName;
+            str = str.Replace("\\", string.Empty);
+            str = str.Replace("/", string.Empty);
+            str = str.Replace(":", string.Empty);
+            str = str.Replace("*", string.Empty);
+            str = str.Replace("?", string.Empty);
+            str = str.Replace("\"", string.Empty);
+            str = str.Replace("<", string.Empty);
+            str = str.Replace(">", string.Empty);
+            str = str.Replace("|", string.Empty);
+            str = str.Replace("", string.Empty);    //前⾯的替换会产⽣空格,最后将其⼀并替换掉
+            return str;
+        }
+
     }
 }

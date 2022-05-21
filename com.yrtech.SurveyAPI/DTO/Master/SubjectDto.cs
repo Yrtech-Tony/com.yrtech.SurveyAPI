@@ -8,7 +8,7 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class SubjectDto
     {
-        public long SubjectId { get; set; } 
+        public long SubjectId { get; set; }
         public string SubjectCode { get; set; } // 题目代码
         public Nullable<int> ProjectId { get; set; }
         public string ProjectCode { get; set; }
@@ -32,6 +32,13 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
         public Nullable<System.DateTime> ModifyDateTime { get; set; }
+        public List<FileResultDto> PhotoList { get; set; }
+        public List<InspectionStandardResultDto> InstandardList { get; set; }
+        public List<LossResultDto> LossResultList { get; set; }
+        public bool ImportChk { get; set; }
+        public string ImportRemark { get; set; }
+
+
 
     }
 }

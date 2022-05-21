@@ -198,6 +198,121 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+
+        // 导入题目
+        public List<SubjectDto> SubjectImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<SubjectDto> list = new List<SubjectDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string subjectCode= sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(subjectCode)) break;
+                SubjectDto subject = new SubjectDto();
+                subject.SubjectCode = subjectCode;
+                string orderNO = sheet.GetCell("B" + (i + 3)).Value.ToString();
+                if (string.IsNullOrEmpty(orderNO))
+                {
+                    subject.OrderNO = null;
+                }
+                else
+                {
+                    subject.OrderNO = Convert.ToInt32(sheet.GetCell("B" + (i + 3)).Value.ToString().Trim());
+                }
+                string fullScore = sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(fullScore))
+                {
+                    subject.FullScore = null;
+                }
+                else
+                {
+                    subject.FullScore = Convert.ToDecimal(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
+                }
+                string lowScore = sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(lowScore))
+                {
+                    subject.LowScore = null;
+                }
+                else
+                {
+                    subject.LowScore = Convert.ToDecimal(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
+                }
+                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
+                subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
+                subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
+                subject.CheckPoint = sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
+                subject.InspectionDesc = sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
+                subject.Remark = sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
+                list.Add(subject);
+            }
+            return list;
+        }
+        // 标准照片
+        public List<FileResultDto> SubjectFileImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<FileResultDto> list = new List<FileResultDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string subjectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(subjectCode)) break;
+                FileResultDto file = new FileResultDto();
+                file.SubjectCode = subjectCode;
+                file.FileName = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(file);
+            }
+            return list;
+        }
+        // 标准检查标准
+        public List<InspectionStandardResultDto> SubjectInspectionStandardImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<InspectionStandardResultDto> list = new List<InspectionStandardResultDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string subjectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(subjectCode)) break;
+                InspectionStandardResultDto ins = new InspectionStandardResultDto();
+                ins.SubjectCode = subjectCode;
+                ins.InspectionStandardName = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(ins);
+            }
+            return list;
+        }
+        // 失分说明
+        public List<LossResultDto> SubjectLossImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<LossResultDto> list = new List<LossResultDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string subjectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(subjectCode)) break;
+                LossResultDto loss = new LossResultDto();
+                loss.SubjectCode = subjectCode;
+               
+                loss.LossDesc = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(loss);
+            }
+            return list;
+        }
         #endregion
         #region 导出
         // 导出账号

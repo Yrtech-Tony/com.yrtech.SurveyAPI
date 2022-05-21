@@ -82,7 +82,7 @@ namespace com.yrtech.SurveyAPI.Service
                             CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S7')
 	                                THEN 'S7'
 	                                ELSE ''
-                            END AS Status_S7,
+                            END AS Status_S7
                             FROM ReCheckStatus A INNER JOIN Shop B ON A.ShopId = B.ShopId
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
