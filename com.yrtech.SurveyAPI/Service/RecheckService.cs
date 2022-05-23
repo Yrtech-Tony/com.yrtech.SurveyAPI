@@ -285,7 +285,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@SubjectRecheckTypeId", subjectRecheckTypeId)};
             string sql = "";
             Type t = typeof(AnswerDto);
-            sql += @"SELECT A.SubjectId,B.SubjectCode,A.AnswerId
+            sql += @"SELECT B.SubjectId,B.SubjectCode,A.AnswerId
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
                     WHERE A.ProjectId = @ProjectId 
                     AND NOT EXISTS(SELECT 1 FROM Recheck WHERE ProjectId = A.ProjectId 
@@ -297,7 +297,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(subjectRecheckTypeId))
             {
-                sql += "  AND B.SubjectRecheckTypeId = @SubjectRecheckTypeId";
+                sql += "  AND B.LabelId_RecheckType = @SubjectRecheckTypeId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }

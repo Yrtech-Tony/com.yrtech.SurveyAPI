@@ -31,10 +31,12 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(RecheckDto);
             string sql = @"SELECT  A.*, B.ShopCode,B.ShopName,C.SubjectCode,C.[CheckPoint],C.OrderNO
                                     , D.AccountName AS RecheckUserName,ISNULL(E.AccountName, '') AS AgreeUserName
-                                    , ISNULL(F.AccountName, '') AS LastConfirmUserName
+                                    , ISNULL(F.AccountName, '') AS LastConfirmUserName,X.PhotoScore,X.Remark
+                                    , (SELECT TOP 1 HiddenName FROM HiddenColumn WHERE HiddenCodeGroup = '仲裁结果' AND HiddenCode = A.LastConfirmCheck) AS LastConfirmCheckName
                           FROM Recheck A INNER JOIN Shop B ON A.ShopId = B.ShopId
                                          INNER JOIN[Subject] C ON A.ProjectId = C.ProjectId AND A.SubjectId = C.SubjectId
                                          INNER JOIN UserInfo D ON A.RecheckUserId = D.Id
+                                         INNER JOIN Answer X ON A.ProjectId = X.ProjectId AND A.ShopId = X.ShopId AND A.SubjectId = X.SubjectId
                                          LEFT JOIN UserInfo E ON A.AgreeUserId = E.Id
                                          LEFT JOIN UserInfo F ON A.LastConfirmUserId = F.Id
                         WHERE A.ProjectId = @ProjectId";
@@ -61,7 +63,8 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveRecheckModifyInfo(string recheckId, bool? agreeCheck, string agreeReason, int? agreeUserId)
         {
-            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            int recheckIdinput = Convert.ToInt32(recheckId);
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == recheckIdinput)).FirstOrDefault();
             if (findOne != null)
             {
                 findOne.AgreeCheck = agreeCheck;
@@ -73,7 +76,8 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveSupervisionSpotCheck(string recheckId, string supervisionSpotCheckContent, int? supervisionSpotCheckUserId)
         {
-            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            int recheckIdinput = Convert.ToInt32(recheckId);
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == recheckIdinput)).FirstOrDefault();
             if (findOne != null)
             {
                 findOne.SupervisionSpotCheckContent = supervisionSpotCheckContent;
@@ -84,7 +88,8 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SavePMSpotCheck(string recheckId, string pmSpotCheckContent, int? pmSpotCheckUserId)
         {
-            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            int recheckIdinput = Convert.ToInt32(recheckId);
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == recheckIdinput)).FirstOrDefault();
             if (findOne != null)
             {
                 findOne.PMSpotCheckContent = pmSpotCheckContent;

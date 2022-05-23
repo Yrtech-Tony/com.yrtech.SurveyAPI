@@ -16,10 +16,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> OrderNO { get; set; }//序号
         public Nullable<decimal> FullScore { get; set; } // 最高分
         public Nullable<decimal> LowScore { get; set; }// 最低分
-        public int? LabelId { get; set; } // 试卷类型ID
+        public int? LabelId { get; set; } // 卷别类型ID
         public int? LabelId_RecheckType { get; set; } // 复审类型ID
-        public string ExamTypeCode { get; set; } // 试卷类型代码
-        public string ExamTypeName { get; set; } // 试卷类型名称
+        public string ExamTypeCode { get; set; } // 卷别类型代码
+        public string ExamTypeName { get; set; } // 卷别类型名称
         public string RecheckTypeCode { get; set; } // 复审类型代码
         public string RecheckTypeName { get; set; } // 复审类型名称
         public string HiddenCode_SubjectType { get; set; } // 题目类型

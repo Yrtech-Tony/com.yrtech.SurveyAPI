@@ -48,7 +48,8 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveArbitrationInfo(string recheckId,string lastConfirm,string lastConfirmReason,int? lastConfirmUserId)
         {
-            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == Convert.ToInt32(recheckId))).FirstOrDefault();
+            int recheckIdinput = Convert.ToInt32(recheckId);
+            ReCheck findOne = db.ReCheck.Where(x => (x.RecheckId == recheckIdinput)).FirstOrDefault();
             if (findOne != null)
             {
                 findOne.LastConfirmCheck = lastConfirm;

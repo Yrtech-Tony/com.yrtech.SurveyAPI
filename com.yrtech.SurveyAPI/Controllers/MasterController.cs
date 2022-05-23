@@ -35,7 +35,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         //        // 用户经销商关系信息 ProjectShop
         //        resultList.Add(shopService.GetProjectShop(projectId));
-        //        // 经销商试卷类型信息 ShopSubjectTypeExam
+        //        // 经销商卷别类型信息 ShopSubjectTypeExam
         //        resultList.Add(shopService.GetShopSubjectTypeExam(projectId));
         //        // 体系类型信息  Subject
         //        resultList.Add(masterService.GetSubject(projectId, ""));
@@ -950,7 +950,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         /// <summary>
-        /// 获取当前期需要执行的经销商及所属试卷类型
+        /// 获取当前期需要执行的经销商及所属卷别类型
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="subjectId"></param>
@@ -1422,7 +1422,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 if (subject.LabelId == null || subject.LabelId == 0)
                 {
-                    return new APIResult() { Status = false, Body = "试卷类型不能为空" };
+                    return new APIResult() { Status = false, Body = "卷别类型不能为空" };
                 }
                 if (subject.LabelId_RecheckType == null || subject.LabelId_RecheckType == 0)
                 {
@@ -1682,14 +1682,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                     if (string.IsNullOrEmpty(subject.ExamTypeCode))
                     {
                         subject.ImportChk = false;
-                        subject.ImportRemark += "试卷类型代码有为空的数据" + ";";
+                        subject.ImportRemark += "卷别类型代码有为空的数据" + ";";
                     }
                     if (string.IsNullOrEmpty(subject.RecheckTypeCode))
                     {
                         subject.ImportChk = false;
                         subject.ImportRemark += "复审类型代码有为空的数据" + ";";
                     }
-                    if (string.IsNullOrEmpty(subject.HiddenCode_SubjectType))
+                    if (string.IsNullOrEmpty(subject.HiddenCode_SubjectTypeName))
                     {
                         subject.ImportChk = false;
                         subject.ImportRemark += "题目类型有为空的数据" + ";";
@@ -1707,17 +1707,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                             subject.ImportRemark += "表格中存在重复的执行顺序" + ";";
                         }
                     }
-                    // 验证Excel中的试卷类型、复审类型是否存在
+                    // 验证Excel中的卷别类型、复审类型是否存在
                     if (!string.IsNullOrEmpty(subject.ExamTypeCode.Trim()))
                     {
                         List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, subject.ExamTypeCode);
                         if (labelList == null || labelList.Count == 0)
                         {
                             subject.ImportChk = false;
-                            subject.ImportRemark += "试卷类型在系统中未登记" + ";";
+                            subject.ImportRemark += "卷别类型在系统中未登记" + ";";
                         }
                     }
-                    // 验证Excel中的试卷类型、复审类型是否存在
+                    // 验证Excel中的卷别类型、复审类型是否存在
                     if (!string.IsNullOrEmpty(subject.RecheckTypeCode.Trim()))
                     {
                         List<Label> labelList = masterService.GetLabel(brandId, "", "RecheckType", true, subject.RecheckTypeCode);

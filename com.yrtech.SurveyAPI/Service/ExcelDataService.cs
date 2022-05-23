@@ -155,7 +155,7 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-        // 导入经销商试卷类别
+        // 导入经销商卷别类别
         public List<ProjectShopExamTypeDto> ProjectShopExamTypeImport(string ossPath)
         {
             // 从OSS下载文件
@@ -241,13 +241,13 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     subject.LowScore = Convert.ToDecimal(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
                 }
-                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
-                subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
-                subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
-                subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
-                subject.CheckPoint = sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
-                subject.InspectionDesc = sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
-                subject.Remark = sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
+                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value == null ? "" :sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
+                subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
+                subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
+                subject.CheckPoint = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
+                subject.InspectionDesc = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
+                subject.Remark = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
                 list.Add(subject);
             }
             return list;
@@ -259,7 +259,7 @@ namespace com.yrtech.SurveyAPI.Service
             string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
-            Worksheet sheet = book.Worksheets[0];
+            Worksheet sheet = book.Worksheets[1];
             List<FileResultDto> list = new List<FileResultDto>();
             for (int i = 0; i < 10000; i++)
             {
@@ -267,7 +267,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (string.IsNullOrEmpty(subjectCode)) break;
                 FileResultDto file = new FileResultDto();
                 file.SubjectCode = subjectCode;
-                file.FileName = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                file.FileName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(file);
             }
             return list;
@@ -279,7 +279,7 @@ namespace com.yrtech.SurveyAPI.Service
             string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
-            Worksheet sheet = book.Worksheets[0];
+            Worksheet sheet = book.Worksheets[2];
             List<InspectionStandardResultDto> list = new List<InspectionStandardResultDto>();
             for (int i = 0; i < 10000; i++)
             {
@@ -287,7 +287,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (string.IsNullOrEmpty(subjectCode)) break;
                 InspectionStandardResultDto ins = new InspectionStandardResultDto();
                 ins.SubjectCode = subjectCode;
-                ins.InspectionStandardName = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                ins.InspectionStandardName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(ins);
             }
             return list;
@@ -299,7 +299,7 @@ namespace com.yrtech.SurveyAPI.Service
             string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
-            Worksheet sheet = book.Worksheets[0];
+            Worksheet sheet = book.Worksheets[3];
             List<LossResultDto> list = new List<LossResultDto>();
             for (int i = 0; i < 10000; i++)
             {
@@ -308,7 +308,7 @@ namespace com.yrtech.SurveyAPI.Service
                 LossResultDto loss = new LossResultDto();
                 loss.SubjectCode = subjectCode;
                
-                loss.LossDesc = sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                loss.LossDesc = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(loss);
             }
             return list;

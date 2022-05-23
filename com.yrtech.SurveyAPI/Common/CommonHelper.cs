@@ -145,7 +145,7 @@ namespace com.yrtech.SurveyAPI.Common
             str = str.Replace("<", string.Empty);
             str = str.Replace(">", string.Empty);
             str = str.Replace("|", string.Empty);
-            str = str.Replace("", string.Empty);    //前⾯的替换会产⽣空格,最后将其⼀并替换掉
+            str = str.Replace(" ", string.Empty);    //前⾯的替换会产⽣空格,最后将其⼀并替换掉
             return str;
         }
 

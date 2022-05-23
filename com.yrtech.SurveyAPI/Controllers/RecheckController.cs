@@ -295,6 +295,18 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<SubjectDto> subjectList = masterService.GetSubject("", recheck.SubjectId.ToString(), "", "");
+                string recheckTypeId = "";
+                if (subjectList != null && subjectList.Count > 0)
+                {
+                    recheckTypeId = subjectList[0].LabelId_RecheckType.ToString();
+                }
+                List<RecheckStatusDtlDto> dtlList = recheckService.GetShopRecheckStautsDtl(recheck.ProjectId.ToString(), recheck.ShopId.ToString(), recheckTypeId);
+
+                if (dtlList != null && dtlList.Count > 0 )
+                {
+                    throw new Exception("已复审完毕不能修改");
+                }
                 recheckService.SaveShopRecheckInfo(recheck);
                 return new APIResult() { Status = true, Body = "" };
             }

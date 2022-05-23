@@ -13,7 +13,7 @@ namespace com.yrtech.SurveyAPI.Service
     {
         Survey db = new Survey();
         /// <summary>
-        /// 获取经销商试卷信息
+        /// 获取经销商卷别信息
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
@@ -48,7 +48,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectShopExamTypeDto>().ToList();
         }
         /// <summary>
-        /// 保存经销商试卷类型
+        /// 保存经销商卷别类型
         /// </summary>
         /// <param name="projectShopExamType"></param>
         public void SaveProjectShopExamType(ProjectShopExamType projectShopExamType)

@@ -16,6 +16,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         MasterService masterService = new MasterService();
         RecheckService recheckService = new RecheckService();
         ExcelDataService excelDataService = new ExcelDataService();
+        PhotoService photoService = new PhotoService();
         #region 得分登记
         ///// <summary>
         ///// 查询经销商需要打分的体系信息
@@ -273,6 +274,44 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string downloadPath = excelDataService.ShopAnsewrScoreInfoExport(projectId, shopId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/ShopAnswerFileResultDownLoad")]
+        public APIResult ShopAnswerFileResultDownLoad(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = photoService.FileResultDownLoad(projectId, shopId);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/ShopAnswerLossResultDownLoad")]
+        public APIResult ShopAnswerLossResultDownLoad(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = photoService.LossResultDownLoad(projectId, shopId);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)

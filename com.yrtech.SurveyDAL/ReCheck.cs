@@ -33,5 +33,11 @@ namespace com.yrtech.SurveyDAL
         public string LastConfirmReason { get; set; }
         public Nullable<int> LastConfirmUserId { get; set; }
         public Nullable<System.DateTime> LastConfirmDate { get; set; }
+        public string SupervisionSpotCheckContent { get; set; }
+        public Nullable<int> SupervisionSpotCheckUserId { get; set; }
+        public Nullable<System.DateTime> SupervisionSpotCheckDateTime { get; set; }
+        public string PMSpotCheckContent { get; set; }
+        public Nullable<int> PMSpotCheckUserId { get; set; }
+        public Nullable<System.DateTime> PMSpotCheckDateTime { get; set; }
     }
 }
