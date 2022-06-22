@@ -156,12 +156,26 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetRoleType")]
-        public APIResult GetRoleType(string type)
+        public APIResult GetRoleType(string type,string roleTypeCode)
         {
             try
             {
+                List<RoleType> roleTypeListReturn = new List<RoleType>();
                 List<RoleType> roleTypeList = masterService.GetRoleType(type, "", "");
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(roleTypeList) };
+                if (roleTypeCode == "S_Sysadmin")
+                { roleTypeListReturn = roleTypeList; }
+                // 品牌管理员不能设置租户和品牌管理员的账号
+                else if (roleTypeCode == "S_BrandSysadmin")
+                {
+                    foreach (RoleType roleType in roleTypeList)
+                    {
+                        if (roleType.RoleTypeCode != "S_Sysadmin" && roleType.RoleTypeCode != "S_BrandSysadmin")
+                        {
+                            roleTypeListReturn.Add(roleType);
+                        }
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(roleTypeListReturn) };
             }
             catch (Exception ex)
             {
@@ -745,7 +759,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                        area.AreaType != "WideArea" &&
                        area.AreaType != "BigArea" &&
                        area.AreaType != "MiddleArea" &&
-                       area.AreaType != "SmalllArea")
+                       area.AreaType != "SmallArea")
                     {
                         area.ImportChk = false;
                         area.ImportRemark += "区域类型填写错误" + ";";
@@ -808,7 +822,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         area.AreaType != "WideArea" &&
                         area.AreaType != "BigArea" &&
                         area.AreaType != "MiddleArea" &&
-                        area.AreaType != "SmalllArea")
+                        area.AreaType != "SmallArea")
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中有错误的区域类型，请检查文件" };
                     }
@@ -1768,8 +1782,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.LabelId = labelList[0].LabelId;
                     }
                     
-                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "RecheckType", true, dto.ExamTypeCode);
-                    if (labelList != null && labelList.Count > 0)
+                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
+                    if (labelList_Recheck != null && labelList_Recheck.Count > 0)
                     {
                         subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
                     }

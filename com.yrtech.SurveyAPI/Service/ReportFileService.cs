@@ -54,6 +54,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             if (brandId == null) brandId = "";
             if (projectId == null) projectId = "";
+            if (bussinessTypeId == null) bussinessTypeId = "";
             if (keyword == null) keyword = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                         , new SqlParameter("@Keyword", keyword)

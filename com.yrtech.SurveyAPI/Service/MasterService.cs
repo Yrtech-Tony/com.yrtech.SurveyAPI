@@ -60,6 +60,94 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<HiddenColumn>().ToList();
         }
+        #region 获取用户权限菜单
+        public List<RoleProgramDto> GetTenantProgram(string tenantId, bool? isChild, string parentId)
+        {
+
+            if (tenantId == null) tenantId = "";
+
+            Type t = typeof(RoleProgramDto);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId), new SqlParameter("@ParentId", parentId) };
+            string sql = "";
+            sql = @"SELECT A.*,'S_Sysadmin' AS RoleTypeCode,C.TenantId 
+                    FROM Program A 
+                    INNER JOIN TenantProgram C ON A.ProgramCode = C.ProgramCode  
+                    WHERE C.TenantId=@TenantId ";
+            if (isChild.HasValue)
+            {
+                if (isChild == false)
+                {
+                    sql += " AND A.UpperProgramId IS NULL";
+                }
+                else
+                {
+                    sql += " AND A.UpperProgramId IS NOT NULL";
+                    if (!string.IsNullOrEmpty(parentId))
+                    {
+                        sql += " AND A.UpperProgramId = @ParentId";
+                    }
+                }
+            }
+            sql += " ORDER BY A.ShowOrder ";
+            return db.Database.SqlQuery(t, sql, para).Cast<RoleProgramDto>().ToList();
+        }
+        public List<RoleProgramDto> GetRoleProgram(string tenantId, string roleTypeCode, bool? isChild, string parentId)
+        {
+            if (roleTypeCode == null) roleTypeCode = "";
+            if (tenantId == null) tenantId = "";
+            if (parentId == null) parentId = "";
+            Type t = typeof(RoleProgramDto);
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId)
+                                                        , new SqlParameter("@RoleTypeCode", roleTypeCode)
+                                                        , new SqlParameter("@ParentId", parentId)};
+            string sql = "";
+            sql += @"SELECT A.*,B.RoleTypeCode,C.TenantId 
+                    FROM Program A 
+                    INNER JOIN RoleProgram B ON A.ProgramCode = B.ProgramCode
+                    INNER JOIN TenantProgram C ON A.ProgramCode = C.ProgramCode  
+                    WHERE C.TenantId=@TenantId AND B.RoleTypeCode = @RoleTypeCode";
+            if (isChild.HasValue)
+            {
+                if (isChild == false)
+                {
+                    sql += " AND A.UpperProgramId IS NULL";
+                }
+                else
+                {
+                    sql += " AND A.UpperProgramId IS NOT NULL";
+                    if (!string.IsNullOrEmpty(parentId))
+                    {
+                        sql += " AND A.UpperProgramId = @ParentId";
+                    }
+                }
+            }
+            sql += " ORDER BY A.ShowOrder ";
+            return db.Database.SqlQuery(t, sql, para).Cast<RoleProgramDto>().ToList();
+        }
+        public List<RoleProgramDto> GetRoleProgram_Tree(string tenantId, string roleTypeCode)
+        {
+            List<RoleProgramDto> list_Parent = new List<RoleProgramDto>();
+            if (roleTypeCode == "S_Sysadmin") // 租户管理员直接查询租户的权限信息
+            {
+                list_Parent = GetTenantProgram(tenantId, false, "");
+
+                foreach (RoleProgramDto parent in list_Parent)
+                {
+                    parent.ChildMenu = GetTenantProgram(tenantId, true, parent.ProgramId.ToString());
+                }
+            }
+            else
+            {
+                list_Parent = GetRoleProgram(tenantId, roleTypeCode, false, "");
+
+                foreach (RoleProgramDto parent in list_Parent)
+                {
+                    parent.ChildMenu = GetRoleProgram(tenantId, roleTypeCode, true, parent.ProgramId.ToString());
+                }
+            }
+            return list_Parent;
+        }
+        #endregion
         #region 租户信息
         /// <summary>
         /// 查询租户信息

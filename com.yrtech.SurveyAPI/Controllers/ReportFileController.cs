@@ -13,6 +13,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         ReportFileService reportFileService = new ReportFileService();
         MasterService masterService = new MasterService();
+        ExcelDataService excelDataService = new ExcelDataService();
 
         #region 文件上传
         [HttpGet]
@@ -249,6 +250,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(userId,action,account,project,reportFileName,startDate,endDate)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportLogExport")]
+        public APIResult ReportLogExport(string project, string reportFileName, string startDate, string endDate)
+        {
+            try
+            {
+                string downloadPath = excelDataService.ReportLogExport(project,reportFileName,startDate,endDate);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {

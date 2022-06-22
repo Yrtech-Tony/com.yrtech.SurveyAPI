@@ -19,6 +19,7 @@ namespace com.yrtech.SurveyAPI.Service
         AnswerService answerService = new AnswerService();
         ShopService shopService = new ShopService();
         RecheckService recheckService = new RecheckService();
+        ReportFileService reportService = new ReportFileService();
         #region 导入
         // 导入经销商
         public List<ShopDto> ShopImport(string ossPath)
@@ -210,7 +211,7 @@ namespace com.yrtech.SurveyAPI.Service
             List<SubjectDto> list = new List<SubjectDto>();
             for (int i = 0; i < 10000; i++)
             {
-                string subjectCode= sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                string subjectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
                 if (string.IsNullOrEmpty(subjectCode)) break;
                 SubjectDto subject = new SubjectDto();
                 subject.SubjectCode = subjectCode;
@@ -241,7 +242,7 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     subject.LowScore = Convert.ToDecimal(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
                 }
-                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value == null ? "" :sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
+                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
                 subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
                 subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
                 subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
@@ -307,7 +308,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (string.IsNullOrEmpty(subjectCode)) break;
                 LossResultDto loss = new LossResultDto();
                 loss.SubjectCode = subjectCode;
-               
+
                 loss.LossDesc = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(loss);
             }
@@ -409,7 +410,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sheet.GetCell("I" + (rowIndex + 2)).Value = item.PassRecheckName;
                 //复审得分
                 sheet.GetCell("J" + (rowIndex + 2)).Value = item.RecheckScore;
-                     //复审得分
+                //复审得分
                 sheet.GetCell("K" + (rowIndex + 2)).Value = item.RecheckContent;
 
                 rowIndex++;
@@ -417,6 +418,46 @@ namespace com.yrtech.SurveyAPI.Service
 
             //保存excel文件
             string fileName = "经销商得分" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+
+        public string ReportLogExport(string project, string reportFileName, string startDate, string endDate)
+        {
+            List<ReportFileActionLogDto> list = reportService.ReportFileActionLogSearch("", "", "", project, reportFileName, startDate, endDate);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "ReportLog.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 1;
+
+            foreach (ReportFileActionLogDto item in list)
+            {
+                //操作时间
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.InDateTime;
+                //下载账号
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.AccountId;
+                //下载姓名
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.AccountName;
+                // 期号代码
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.ProjectCode;
+                //期号名称
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.ProjectName;
+                //文件
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.ReportFileName;
+
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "报告下载日志" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             string dirPath = basePath + @"\Temp\";
             DirectoryInfo dir = new DirectoryInfo(dirPath);
             if (!dir.Exists)

@@ -208,7 +208,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     roleTypeCode = userInfoList[0].RoleType;
                 }
-                if (roleTypeCode == "S_Recheck" || roleTypeCode == "S_SurperVision")
+                if (roleTypeCode == "S_Recheck" || roleTypeCode == "S_SurperVision" || roleTypeCode == "S_Customer")
                 {
                     throw new Exception("无修改得分权限");
                 }
@@ -228,6 +228,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                 }
+                
+                //List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString(), "", "");
+                //if (subjectList != null && subjectList.Count > 0)
+                //{
+                //    decimal fullScore = subjectList[0].FullScore==null?0:Convert.ToDecimal(subjectList[0].FullScore);
+                //    decimal lowScore = subjectList[0].LowScore == null ? 0 : Convert.ToDecimal(subjectList[0].LowScore);
+                //    decimal photoScore = answer.PhotoScore == null ? 0 : Convert.ToDecimal(answer.PhotoScore);
+                //    if (photoScore < lowScore|| photoScore> fullScore) {
+                //        throw new Exception("输入的分数不在分值范围内");
+                //    }
+                //}
                 answerService.SaveAnswerInfo(answer);
 
                 return new APIResult() { Status = true, Body = "" };
