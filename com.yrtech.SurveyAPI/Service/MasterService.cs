@@ -12,6 +12,14 @@ namespace com.yrtech.SurveyAPI.Service
     public class MasterService
     {
         Survey db = new Survey();
+        public List<AppVersion> GetAppVersion()
+        {
+            SqlParameter[] para = new SqlParameter[] { };
+            Type t = typeof(AppVersion);
+            string sql = @"SELECT *
+                            FROM AppVersion A ";
+            return db.Database.SqlQuery(t, sql, para).Cast<AppVersion>().ToList();
+        }
         public List<RoleType> GetRoleType(string type, string roleTypeCode, string roleTypeName)
         {
 
@@ -731,6 +739,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ProjectCode = project.ProjectCode;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
+                findOne.RechckShopShow = project.RechckShopShow;
                 //findOne.DataScore = project.DataScore;
                 //findOne.AppealStartDate = project.AppealStartDate;
                 //findOne.AppealEndDate = project.AppealEndDate;
@@ -976,6 +985,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.LabelId_RecheckType = subject.LabelId_RecheckType;
                 findOne.HiddenCode_SubjectType = subject.HiddenCode_SubjectType;
                 findOne.SubjectCode = subject.SubjectCode;
+                findOne.MustScore = subject.MustScore;
             }
             db.SaveChanges();
         }
@@ -1303,6 +1313,90 @@ namespace com.yrtech.SurveyAPI.Service
                 db.LabelObject.Add(labelObject);
             }
             db.SaveChanges();
+        }
+        #endregion
+        #region 照片下载命名
+        public List<FileType> GetFileType()
+        {
+            SqlParameter[] para = new SqlParameter[] { };
+            Type t = typeof(FileType);
+            string sql = @"SELECT A.*
+                            FROM FileType A ";
+            return db.Database.SqlQuery(t, sql, para).Cast<FileType>().ToList();
+        }
+        public List<FileNameOption> GetFileNameOption()
+        {
+            SqlParameter[] para = new SqlParameter[] { };
+            Type t = typeof(FileNameOption);
+            string sql = @"SELECT A.*
+                            FROM FileNameOption A ";
+            return db.Database.SqlQuery(t, sql, para).Cast<FileNameOption>().ToList();
+        }
+        public void SaveFileRename(FileRename fileRename)
+        {
+            // 只能新增不能修改
+            if (fileRename.SeqNO == 0)
+            {
+                FileRename findOneMax = db.FileRename.Where(x => (x.ProjectId == fileRename.ProjectId && x.FileTypeCode == fileRename.FileTypeCode&&x.PhotoType==fileRename.PhotoType)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    fileRename.SeqNO = 1;
+                }
+                else
+                {
+                    fileRename.SeqNO = findOneMax.SeqNO + 1;
+                }
+                fileRename.InDateTime = DateTime.Now;
+                fileRename.ModifyDateTime = DateTime.Now;
+                db.FileRename.Add(fileRename);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteFileRename(FileRename fileRename)
+        {
+            string sql = "DELETE FileRename WHERE FileNameId= '" + fileRename.FileNameId.ToString() + "'";
+            SqlParameter[] para = new SqlParameter[] { };
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        public List<FileRenameDto> GetFileRename(string projectId, string fileTypeCode,string photoType)
+        {
+            if (projectId == null) projectId = "";
+            if (fileTypeCode == null) fileTypeCode = "";
+            if (photoType == null) photoType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                    ,new SqlParameter("@FileTypeCode", fileTypeCode) 
+                                                    ,new SqlParameter("@PhotoType", photoType) };
+            Type t = typeof(FileRenameDto);
+            string sql = @"SELECT A.*,D.ProjectCode,D.ProjectName,B.FileTypeName,C.OptionName
+                         FROM FileRename A INNER JOIN FileType B ON A.FileTypeCode = B.FileTypeCode
+				                        INNER JOIN FileNameOption C ON A.OptionCode = C.OptionCode
+				                    INNER JOIN Project D ON A.ProjectId = D.ProjectId
+                        WHERE A.ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(fileTypeCode))
+            {
+                sql += " AND A.FileTypeCode = @FileTypeCode";
+            }
+            if (!string.IsNullOrEmpty(photoType))
+            {
+                sql += " AND A.PhotoType = @PhotoType";
+            }
+            sql += " ORDER BY A.SeqNO";
+            return db.Database.SqlQuery(t, sql, para).Cast<FileRenameDto>().ToList();
+        }
+        #endregion
+        #region 期号基本信息设置
+        public List<ProjectBaseSetting> GetProjectBaseSetting(string projectId)
+        {
+           
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
+            Type t = typeof(ProjectBaseSetting);
+            string sql = "";
+            sql = @"SELECT * 
+                      FROM [ProjectBaseSetting] A
+                    WHERE  ProjectId = @ProjectId 
+                    ";
+           
+            return db.Database.SqlQuery(t, sql, para).Cast<ProjectBaseSetting>().ToList();
         }
         #endregion
         #region 收费

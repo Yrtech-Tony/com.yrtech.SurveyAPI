@@ -20,12 +20,17 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? ExamTypeId { get; set; }
         public decimal? PhotoScore { get; set; }// 照片得分
         public decimal? Score { get; set; }
+        public string PhotoCount { get; set; }
+        public string PhotoStatus { get; set; } // 1:已拍照 0：未拍照
+        public string LossPhotoCount { get; set; }
+        public string LossPhotoStatus { get; set; } // 1:已拍照 0：未拍照
         public string HiddenCode_SubjectType { get; set; } // 题目类型
         public decimal? ConsultantScore { get; set; }
         public string InspectionStandardResult { get; set; }// 检查标准结果Json
         public string FileResult { get; set; }// 标准照片结果Json
         public string LossResult { get; set; }// 失分描述结果Json
         public string LossResultAdd { get; set; } // 失分描述补充说明
+       
         // 暂时用不到
         //public List<InspectionStandardResultDto> InspectionStandardResultList { get; set; }// 检查标准结果DTO，用于同步数据使用
         //public List<FileResultDto> FileResultList { get; set; }// 标准照片结果DTO，用于同步数据使用
@@ -42,6 +47,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string CheckPoint { get; set; }//检查点
         public decimal? FullScore { get; set; }
         public decimal? LowScore { get; set; }
+        public bool MustScore { get; set; }
         public string Desc { get; set; }//说明
         public string InspectionDesc { get; set; }//检查标准说明
         public List<SubjectFile> SubjectFileList { get; set; } //体系对应的标准照片

@@ -1018,6 +1018,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     shop.ImportChk = true;
                     shop.ImportRemark = "";
+                    if (IsChineseLetter(shop.ShopCode)) {
+                        shop.ImportChk = false;
+                        shop.ImportRemark += "经销商代码只能为字母或数字" + ";";
+                    }
                     foreach (ShopDto shop1 in list)
                     {
                         if (shop != shop1 && shop.ShopCode == shop1.ShopCode)
@@ -1036,6 +1040,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                             shop.ImportRemark += "集团代码在系统中不存在" + ";";
                         }
                     }
+
                 }
                 list = (from shop in list orderby shop.ImportChk select shop).ToList();
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
@@ -1045,6 +1050,31 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+        protected bool IsChineseLetter(string input)
+        {
+            bool isChinese = true;
+            for (int i = 0; i < input.Length; i++)
+            {
+                int code = 0;
+                int chfrom = Convert.ToInt32("4e00", 16); //范围（0x4e00～0x9fff）转换成int（chfrom～chend）
+                int chend = Convert.ToInt32("9fff", 16);
+                if (input != "")
+                {
+                    code = Char.ConvertToUtf32(input, i); //获得字符串input中指定索引index处字符unicode编码
+
+                    if (code >= chfrom && code <= chend)
+                    {
+                        isChinese = true; ; //当code在中文范围内返回true
+
+                    }
+                    else
+                    {
+                        isChinese= false; //当code不在中文范围内返回false
+                    }
+                }
+            }
+            return isChinese;
         }
         [HttpPost]
         [Route("Master/ShopImport")]
@@ -1296,6 +1326,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
+                CommonHelper.log(ex.ToString());
             }
 
         }
@@ -1965,6 +1996,98 @@ namespace com.yrtech.SurveyAPI.Controllers
                     masterService.SaveSubjectLossResult(subjectLossResult);
                 }
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
+        #region 下载文件照片命名
+        [HttpGet]
+        [Route("Master/GetFileType")]
+        public APIResult GetFileType()
+        {
+            try
+            {
+                List<FileType> fileTypeList = masterService.GetFileType();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(fileTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/GetFileNameOption")]
+        public APIResult GetFileNameOption()
+        {
+            try
+            {
+                List<FileNameOption> fileNameOptionList = masterService.GetFileNameOption();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(fileNameOptionList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpGet]
+        [Route("Master/GetFileRename")]
+        public APIResult GetFileRename(string projectId, string fileTypeCode,string photoType)
+        {
+            try
+            {
+                List<FileRenameDto> fileRenameList = masterService.GetFileRename(projectId, fileTypeCode, photoType);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(fileRenameList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveFileRename")]
+        public APIResult SaveFileRename(FileRename fileRename)
+        {
+            try
+            {
+                masterService.SaveFileRename(fileRename);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/DeleteFileRename")]
+        public APIResult DeleteFileRename(FileRename fileRename)
+        {
+            try
+            {
+                masterService.DeleteFileRename(fileRename);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 版本管理
+        [HttpGet]
+        [Route("Master/GetAppVersion")]
+        public APIResult GetAppVersion()
+        {
+            try
+            {
+                List<AppVersion> versionList = masterService.GetAppVersion();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(versionList) };
             }
             catch (Exception ex)
             {

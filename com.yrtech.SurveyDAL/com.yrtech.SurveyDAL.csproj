@@ -75,6 +75,9 @@
     <Compile Include="AppealSet.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="AppVersion.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Area.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -85,6 +88,15 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Class1.cs" />
+    <Compile Include="FileNameOption.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="FileRename.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="FileType.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Group.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -97,7 +109,13 @@
     <Compile Include="LabelObject.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="Program.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Project.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectBaseSetting.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectShopExamType.cs">
@@ -117,6 +135,9 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ReportFileActionLog.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RoleProgram.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="RoleType.cs">
@@ -162,6 +183,9 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="TenantMemberTypeCharge.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TenantProgram.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="TenantSimple.cs">

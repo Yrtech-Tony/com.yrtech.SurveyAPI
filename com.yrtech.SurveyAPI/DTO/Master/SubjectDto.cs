@@ -16,6 +16,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> OrderNO { get; set; }//序号
         public Nullable<decimal> FullScore { get; set; } // 最高分
         public Nullable<decimal> LowScore { get; set; }// 最低分
+        public bool? MustScore { get; set; }
         public int? LabelId { get; set; } // 卷别类型ID
         public int? LabelId_RecheckType { get; set; } // 复审类型ID
         public string ExamTypeCode { get; set; } // 卷别类型代码

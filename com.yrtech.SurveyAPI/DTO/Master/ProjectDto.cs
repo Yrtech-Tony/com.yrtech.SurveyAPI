@@ -18,6 +18,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Year { get; set; }
         public string Quarter { get; set; }
         public Nullable<int> OrderNO { get; set; }
+        public bool? RechckShopShow { get; set; }
         public string DataScore { get; set; }
         public DateTime? AppealStartDate { get; set; }
         public Nullable<int> InUserId { get; set; }

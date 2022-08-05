@@ -214,7 +214,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else if (roleTypeCode == "S_Execute")
                 {
-                    List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString());
+                    List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(),"");
                     if (list != null && list.Count > 0)
                     {
 
@@ -228,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                 }
-                
+
                 //List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString(), "", "");
                 //if (subjectList != null && subjectList.Count > 0)
                 //{
@@ -264,6 +264,58 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key);
+                foreach (AnswerDto answer in answerList)
+                {
+                    // 标准照片信息
+                    List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
+                    List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                    if (subjectFileList == null || subjectFileList.Count == 0)
+                    {
+                        answer.PhotoCount = "0/0";
+                        answer.PhotoStatus = "1";
+                    }
+                    else
+                    {
+                        int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
+                        answer.PhotoCount = fileResutlCount.ToString() + "/" + subjectFileList.Count.ToString();
+                        if (fileResutlCount != 0)
+                        {
+                            answer.PhotoStatus = "1";
+                        }
+                        else
+                        {
+                            answer.PhotoStatus = "0";
+                        }
+                    }
+                    // 失分照片信息
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                    int lossPhotoCount = 0;
+                    if (lossResultList == null || lossResultList.Count == 0)
+                    {
+                        answer.LossPhotoCount = "0";
+                        answer.LossPhotoStatus = "0";
+                    }
+                    else
+                    {
+                        foreach (LossResultDto lossResult in lossResultList)
+                        {
+                            if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
+                            {
+                                lossPhotoCount += lossResult.LossFileNameUrl.Split(';').Length;
+                            }
+                        }
+                        if (lossPhotoCount == 0)
+                        {
+                            answer.LossPhotoCount = "0";
+                            answer.LossPhotoStatus = "0";
+                        }
+                        else
+                        {
+                            answer.LossPhotoCount = lossPhotoCount.ToString();
+                            answer.LossPhotoStatus = "1";
+                        }
+                    }
+                }
                 // 在查询特定Subject得分时，返回题目的信息
                 if (!string.IsNullOrEmpty(subjectId) && answerList != null && answerList.Count > 0)
                 {

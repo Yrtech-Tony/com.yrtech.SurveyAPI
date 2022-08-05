@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         ShopService shopService = new ShopService();
         ExcelDataService excelDataService = new ExcelDataService();
         MasterService masterService = new MasterService();
+        RecheckService recheckService = new RecheckService();
         //[HttpGet]
         //[Route("Shop/GetShopByProjectId")]
         //public APIResult GetShopByProjectId(string projectId)
@@ -47,32 +48,70 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<ProjectShopExamTypeDto> result = new List<ProjectShopExamTypeDto>();
                 List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType(brandId, projectId, shopId);
-                // 如果传入了UserId，如果是执行人员查询对应权限的经销商，如果是其他角色查询全部
-                if (!string.IsNullOrEmpty(userId))
+                if (projectId == "135")
                 {
-                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "");
-                    if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
+                    result = projectShopExamTypeList;
+                }
+                else
+                {
+                    // 验证是否设置：如果已经提交审核，执行人员就不允许查看分数
+                    bool rechckShopShow = true; // true: 复审之后，执行人员还可以查到这家店,false:不能查看
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    if (projectList != null && projectList.Count > 0)
                     {
-                        List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
-                        foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
+                        rechckShopShow = projectList[0].RechckShopShow == null ? true : Convert.ToBoolean(projectList[0].RechckShopShow);
+                    }
+                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(projectId, "","");
+                    // 如果传入了UserId，如果是执行人员查询对应权限的经销商，如果是其他角色查询全部
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "");
+                        if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
                         {
-                            foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
+                            List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
+                            foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
                             {
-                                if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
+                                foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
                                 {
-                                    result.Add(projectShopExamTypeDto);
+                                    if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
+                                    {
+                                        // 如果未设置了复审后，执行人员不能查看，直接添加
+                                        if (rechckShopShow)
+                                        {
+                                            result.Add(projectShopExamTypeDto);
+                                        }
+                                        else
+                                        {
+                                            //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
+                                            // 是否提交审核
+                                            bool recheckStatus_S1 = false;
+                                            List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId).ToList();
+                                            if (recheckStatusList_shop != null && recheckStatusList_shop.Count > 0)
+                                            {
+                                                if (!string.IsNullOrEmpty(recheckStatusList_shop[0].Status_S1))
+                                                {
+                                                    recheckStatus_S1 = true;
+                                                }
+                                            }
+                                            // 未提交审核的经销商可以显示
+                                            if (!recheckStatus_S1)
+                                            {
+                                                result.Add(projectShopExamTypeDto);
+                                            }
+                                        }
+                                    }
                                 }
                             }
+                        }
+                        else
+                        {
+                            result = projectShopExamTypeList;
                         }
                     }
                     else
                     {
                         result = projectShopExamTypeList;
                     }
-                }
-                else
-                {
-                    result = projectShopExamTypeList;
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };

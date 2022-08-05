@@ -23,6 +23,7 @@ namespace com.yrtech.SurveyDAL
         public string Quarter { get; set; }
         public Nullable<int> OrderNO { get; set; }
         public Nullable<System.DateTime> ReportDeployDate { get; set; }
+        public Nullable<bool> RechckShopShow { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

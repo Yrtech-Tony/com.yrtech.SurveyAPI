@@ -52,14 +52,22 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
-        public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealSet> AppealSet { get; set; }
         public virtual DbSet<SubjectScoreItem> SubjectScoreItem { get; set; }
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<Subject> Subject { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<RoleProgram> RoleProgram { get; set; }
+        public virtual DbSet<TenantProgram> TenantProgram { get; set; }
+        public virtual DbSet<Program> Program { get; set; }
+        public virtual DbSet<Subject> Subject { get; set; }
+        public virtual DbSet<FileNameOption> FileNameOption { get; set; }
+        public virtual DbSet<FileType> FileType { get; set; }
+        public virtual DbSet<FileRename> FileRename { get; set; }
+        public virtual DbSet<ProjectBaseSetting> ProjectBaseSetting { get; set; }
+        public virtual DbSet<AppVersion> AppVersion { get; set; }
+        public virtual DbSet<Project> Project { get; set; }
     }
 }

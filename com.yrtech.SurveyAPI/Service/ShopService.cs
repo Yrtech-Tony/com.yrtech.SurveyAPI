@@ -39,7 +39,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     END AS ExamTypeName,
                                     B.InDateTime,B.ModifyDateTime
                             FROM Shop A  LEFT JOIN  ProjectShopExamType B ON A.ShopId = B.ShopId AND B.ProjectId = @ProjectId
-                            WHERE A.BrandId = @BrandId";
+                            WHERE A.BrandId = @BrandId ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId =@ShopId";

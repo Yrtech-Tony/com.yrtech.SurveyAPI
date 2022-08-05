@@ -41,12 +41,14 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId)
+        public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId,string shopCode)
         {
             if (shopId == null) shopId = "";
             if (projectId == null) projectId = "";
+            if (shopCode == null) shopCode = "";
+            
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId)};
+                                                       new SqlParameter("@ShopId", shopId),  new SqlParameter("@ShopCode", shopCode)};
             Type t = typeof(RecheckStatusDto);
             string sql = "";
             sql = @"SELECT DISTINCT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,
@@ -88,6 +90,10 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(shopCode))
+            {
+                sql += " AND B.ShopCode = @ShopCode";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDto>().ToList();
         }

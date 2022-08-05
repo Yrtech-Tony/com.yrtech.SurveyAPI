@@ -216,11 +216,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 首页统计
         [HttpGet]
         [Route("ReportFile/ReportFileCountYear")]
-        public APIResult ReportFileCountYear()
+        public APIResult ReportFileCountYear(string tenantId)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileCountYear()) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileCountYear(tenantId)) };
             }
             catch (Exception ex)
             {

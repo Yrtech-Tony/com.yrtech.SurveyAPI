@@ -21,9 +21,9 @@ namespace com.yrtech.SurveyAPI.Service
         /// 首页报告统计查询
         /// </summary>
         /// <returns></returns>
-        public List<ReportFileUploadDto> ReportFileCountYear()
+        public List<ReportFileUploadDto> ReportFileCountYear(string tenantId)
         {
-            SqlParameter[] para = new SqlParameter[] { };
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),};
             Type t = typeof(ReportFileUploadDto);
             string sql = @"
                         SELECT ProjectId,ProjectCode,ProjectName
@@ -33,8 +33,8 @@ namespace com.yrtech.SurveyAPI.Service
                                 SELECT A.ProjectId,B.ProjectCode,B.ProjectName,
                                         CASE WHEN A.ReportFileType = '01' THEN 1 ELSE 0 END AS ReportFileCount_File,
                                         CASE WHEN A.ReportFileType = '02' THEN 1 ELSE 0 END AS ReportFileCount_Video
-                                FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId AND B.[Year] = YEAR(GETDATE())
-                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
+                                FROM ReportFile A INNER JOIN Project B ON A.ProjectId = B.ProjectId AND B.[Year] = YEAR(GETDATE()) AND B.TenantId = @TenantId
+                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId 
                                             ) X
                         WHERE 1=1
                         GROUP BY X.ProjectId,X.ProjectCode,X.ProjectName";

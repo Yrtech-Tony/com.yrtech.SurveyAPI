@@ -135,18 +135,24 @@ namespace com.yrtech.SurveyAPI.Common
         // 文件名中非法字符替换
         public static string ReplaceBadCharOfFileName(string fileName)
         {
-            string str = fileName;
-            str = str.Replace("\\", string.Empty);
-            str = str.Replace("/", string.Empty);
-            str = str.Replace(":", string.Empty);
-            str = str.Replace("*", string.Empty);
-            str = str.Replace("?", string.Empty);
-            str = str.Replace("\"", string.Empty);
-            str = str.Replace("<", string.Empty);
-            str = str.Replace(">", string.Empty);
-            str = str.Replace("|", string.Empty);
-            str = str.Replace(" ", string.Empty);    //前⾯的替换会产⽣空格,最后将其⼀并替换掉
-            return str;
+            //string str = fileName;
+            //str = str.Replace("\\", string.Empty);
+            //str = str.Replace("/", string.Empty);
+            //str = str.Replace(":", string.Empty);
+            //str = str.Replace("*", string.Empty);
+            //str = str.Replace("?", string.Empty);
+            //str = str.Replace("\"", string.Empty);
+            //str = str.Replace("<", string.Empty);
+            //str = str.Replace(">", string.Empty);
+            //str = str.Replace("|", string.Empty);
+            //str = str.Replace(" ", string.Empty);    //前⾯的替换会产⽣空格,最后将其⼀并替换掉
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+
+            foreach (char c in invalid)
+            {
+                fileName = fileName.Replace(c.ToString(), "");
+            }
+            return fileName;
         }
 
     }

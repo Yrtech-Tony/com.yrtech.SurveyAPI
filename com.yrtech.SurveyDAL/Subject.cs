@@ -20,6 +20,7 @@ namespace com.yrtech.SurveyDAL
         public Nullable<int> OrderNO { get; set; }
         public Nullable<decimal> FullScore { get; set; }
         public Nullable<decimal> LowScore { get; set; }
+        public Nullable<bool> MustScore { get; set; }
         public string CheckPoint { get; set; }
         public string Implementation { get; set; }
         public string InspectionDesc { get; set; }
