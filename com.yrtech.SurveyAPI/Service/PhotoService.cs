@@ -10,11 +10,13 @@ using System.IO;
 using System.Web.Hosting;
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
+using System.Data.SqlClient;
 
 namespace com.yrtech.SurveyAPI.Service
 {
     public class PhotoService
     {
+        Survey db = new Survey();
         string basePath = HostingEnvironment.MapPath(@"~/");
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
@@ -58,9 +60,9 @@ namespace com.yrtech.SurveyAPI.Service
                 foreach (FileResultDto fileResult in fileResultList)
                 {
                     // 获取文件夹信息
-                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
+                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
+                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
+                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
                     string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, fileResult.FileName, fileResult.SeqNO.ToString(), fileResult.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString());
                     if (!string.IsNullOrEmpty(folder4))
                     {
@@ -100,71 +102,73 @@ namespace com.yrtech.SurveyAPI.Service
                                     if (url.Length == 1)
                                     {
                                         // 已有的文件先删除
-                                        if (File.Exists(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg"))
+                                        string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
+                                        if (File.Exists(filePath))
                                         {
-                                            File.Delete(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg");
+                                            File.Delete(filePath);
                                         }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath);
                                     }
                                     else
                                     {
                                         // 已有的文件先删除
-                                        if (File.Exists(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg"))
+                                        string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
+                                        if (File.Exists(filePath + i.ToString() + ".jpg"))
                                         {
-                                            File.Delete(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg");
+                                            File.Delete(filePath + i.ToString() + ".jpg");
                                         }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath + i.ToString() + ".jpg");
                                     }
                                 }
                             }
                         }
                         catch (Exception ex) { }
                     }
-                    else
-                    {
-                        if (!Directory.Exists(folder + @"\" + answer.ProjectId))
-                        {
-                            Directory.CreateDirectory(folder + @"\" + answer.ProjectId);//创建期号文件夹
-                        }
-                        if (!Directory.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName)))
-                        {
-                            Directory.CreateDirectory(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName));//创建经销商代码文件夹
-                        }
-                        try
-                        {
-                            // 下载文件的名称为标准照片名称
-                            if (!string.IsNullOrEmpty(fileResult.Url))
-                            {
-                                string[] url = fileResult.Url.Split(';');
-                                for (int i = 0; i < url.Length; i++)
-                                {
-                                    string urlstr = url[i].ToString();
+                    //else
+                    //{
+                    //    if (!Directory.Exists(folder + @"\" + answer.ProjectId))
+                    //    {
+                    //        Directory.CreateDirectory(folder + @"\" + answer.ProjectId);//创建期号文件夹
+                    //    }
+                    //    if (!Directory.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName)))
+                    //    {
+                    //        Directory.CreateDirectory(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName));//创建经销商代码文件夹
+                    //    }
+                    //    try
+                    //    {
+                    //        // 下载文件的名称为标准照片名称
+                    //        if (!string.IsNullOrEmpty(fileResult.Url))
+                    //        {
+                    //            string[] url = fileResult.Url.Split(';');
+                    //            for (int i = 0; i < url.Length; i++)
+                    //            {
+                    //                string urlstr = url[i].ToString();
 
-                                    if (url.Length == 1)
-                                    {
-                                        // 文件已存在的话，删除
-                                        if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg"))
-                                        {
-                                            File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg");
-                                        }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg");
-                                    }
-                                    else
-                                    {
-                                        // 文件已存在的话，删除
-                                        if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg"))
-                                        {
-                                            File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg");
-                                        }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg");
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                        }
-                    }
+                    //                if (url.Length == 1)
+                    //                {
+                    //                    // 文件已存在的话，删除
+                    //                    if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg"))
+                    //                    {
+                    //                        File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg");
+                    //                    }
+                    //                    OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + ".jpg");
+                    //                }
+                    //                else
+                    //                {
+                    //                    // 文件已存在的话，删除
+                    //                    if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg"))
+                    //                    {
+                    //                        File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg");
+                    //                    }
+                    //                    OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(fileResult.FileName) + i.ToString() + ".jpg");
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //    }
+                    //}
                 }
             }
             #endregion
@@ -173,8 +177,9 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 return "";
             }
-            else { // 压缩成功上传到OSS
-                return OSSClientHelper.PutObjectMultipart("DownTempFile" + @"/" + downLoadfolder+".zip", downLoadPath);
+            else
+            { // 压缩成功上传到OSS
+                return OSSClientHelper.PutObjectMultipart("DownTempFile" + @"/" + downLoadfolder + ".zip", downLoadPath);
             }
             //return downLoadPath.Replace(HostingEnvironment.MapPath(@"~/"), "");
         }
@@ -227,10 +232,10 @@ namespace com.yrtech.SurveyAPI.Service
                             try
                             {
                                 // 获取文件夹信息
-                                string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                                string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                                string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                                string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(),photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1",answer.OrderNO.ToString());
+                                string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
+                                string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
+                                string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
+                                string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString());
                                 string photoName = "";
                                 // 下载文件的名称为标准照片名称
                                 if (!string.IsNullOrEmpty(photo.Url))
@@ -238,28 +243,28 @@ namespace com.yrtech.SurveyAPI.Service
                                     string[] url = photo.Url.Split(';');
                                     for (int i = 0; i < url.Length; i++)
                                     {
-                                        if (string.IsNullOrEmpty(folder4))
+                                        //if (string.IsNullOrEmpty(folder4))
+                                        //{
+                                        //    if (url.Length == 1)
+                                        //    {
+                                        //        photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.FileName) + ".jpg";
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.FileName) + i.ToString() + ".jpg";
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        if (url.Length == 1)
                                         {
-                                            if (url.Length == 1)
-                                            {
-                                                photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.FileName) + ".jpg";
-                                            }
-                                            else
-                                            {
-                                                photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(answer.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.FileName) + i.ToString() + ".jpg";
-                                            }
+                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
                                         }
                                         else
                                         {
-                                            if (url.Length == 1)
-                                            {
-                                                photoName = folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg";
-                                            }
-                                            else
-                                            {
-                                                photoName = folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg";
-                                            }
+                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + i.ToString() + ".jpg";
                                         }
+                                        // }
                                         string file = Path.Combine(folderToZip, foler, photoName);
                                         string extension = string.Empty;
                                         if (!System.IO.File.Exists(file))
@@ -297,7 +302,7 @@ namespace com.yrtech.SurveyAPI.Service
             catch (Exception ex)
             {
                 CommonHelper.log("11111" + ex.Message.ToString() + "  " + ex.InnerException);
-                //isSuccess = false;
+                isSuccess = false;
             }
             return isSuccess;
         }
@@ -337,9 +342,9 @@ namespace com.yrtech.SurveyAPI.Service
                 foreach (LossResultDto loss in lossResult)
                 {
                     // 获取文件夹信息
-                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
-                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "", "");
+                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
+                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
+                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
                     string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, loss.LossDesc, loss.LossId.ToString(), loss.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString());
                     if (!string.IsNullOrEmpty(folder4))
                     {
@@ -378,66 +383,68 @@ namespace com.yrtech.SurveyAPI.Service
                                     if (url.Length == 1)
                                     {
                                         // 已有的文件先删除
-                                        if (File.Exists(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg"))
+                                        string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
+                                        if (File.Exists(filePath))
                                         {
-                                            File.Delete(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg");
+                                            File.Delete(filePath);
                                         }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath);
                                     }
                                     else
                                     {
                                         // 已有的文件先删除
-                                        if (File.Exists(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg"))
+                                        string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
+                                        if (File.Exists(filePath + i.ToString() + ".jpg"))
                                         {
-                                            File.Delete(folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg");
+                                            File.Delete(filePath + i.ToString() + ".jpg");
                                         }
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath + i.ToString() + ".jpg");
                                     }
                                 }
                             }
                         }
                         catch (Exception) { }
                     }
-                    else
-                    {
-                        if (!Directory.Exists(folder + @"\" + answer.ProjectId))
-                        {
-                            Directory.CreateDirectory(folder + @"\" + answer.ProjectId);//创建期号文件夹
-                        }
-                        if (!Directory.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName)))
-                        {
-                            Directory.CreateDirectory(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName));//创建经销商代码文件夹
-                        }
-                        try
-                        {
-                            // 下载文件的名称为失分照片名称
-                            if (!string.IsNullOrEmpty(loss.LossFileNameUrl))
-                            {
-                                string[] url = loss.LossFileNameUrl.Split(';');
-                                for (int i = 0; i < url.Length; i++)
-                                {
-                                    // 文件已存在的话，删除
-                                    if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg"))
-                                    {
-                                        File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg");
-                                    }
-                                    string urlstr = url[i].ToString();
-                                    if (url.Length == 1)
-                                    {
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg");
-                                    }
-                                    else
-                                    {
-                                        OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + i.ToString() + ".jpg");
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
+                    //else
+                    //{
+                    //    if (!Directory.Exists(folder + @"\" + answer.ProjectId))
+                    //    {
+                    //        Directory.CreateDirectory(folder + @"\" + answer.ProjectId);//创建期号文件夹
+                    //    }
+                    //    if (!Directory.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName)))
+                    //    {
+                    //        Directory.CreateDirectory(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName));//创建经销商代码文件夹
+                    //    }
+                    //    try
+                    //    {
+                    //        // 下载文件的名称为失分照片名称
+                    //        if (!string.IsNullOrEmpty(loss.LossFileNameUrl))
+                    //        {
+                    //            string[] url = loss.LossFileNameUrl.Split(';');
+                    //            for (int i = 0; i < url.Length; i++)
+                    //            {
+                    //                // 文件已存在的话，删除
+                    //                if (File.Exists(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg"))
+                    //                {
+                    //                    File.Delete(folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg");
+                    //                }
+                    //                string urlstr = url[i].ToString();
+                    //                if (url.Length == 1)
+                    //                {
+                    //                    OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + ".jpg");
+                    //                }
+                    //                else
+                    //                {
+                    //                    OSSClientHelper.GetObject(urlstr, folder + @"\" + answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(loss.LossDesc) + i.ToString() + ".jpg");
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
 
-                        }
-                    }
+                    //    }
+                    //}
                 }
             }
             #endregion
@@ -450,7 +457,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 return OSSClientHelper.PutObjectMultipart("DownTempFile" + @"/" + downLoadfolder + ".zip", downLoadPath);
             }
-           // return downLoadPath.Replace(HostingEnvironment.MapPath(@"~/"), "");
+            // return downLoadPath.Replace(HostingEnvironment.MapPath(@"~/"), "");
         }
         /// <summary>
         /// 压缩失分照片
@@ -499,10 +506,10 @@ namespace com.yrtech.SurveyAPI.Service
                         foreach (LossResultDto photo in lossResultList)
                         {
                             // 获取文件夹信息
-                            string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "","");
-                            string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "","");
-                            string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "","");
-                            string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.LossDesc, photo.LossId.ToString(),photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "2",answer.OrderNO.ToString());
+                            string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
+                            string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
+                            string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
+                            string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.LossDesc, photo.LossId.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString());
                             string photoName = "";
                             // 下载文件的名称为失分照片名称
                             if (!string.IsNullOrEmpty(photo.LossFileNameUrl))
@@ -510,28 +517,28 @@ namespace com.yrtech.SurveyAPI.Service
                                 string[] url = photo.LossFileNameUrl.Split(';');
                                 for (int i = 0; i < url.Length; i++)
                                 {
-                                    if (string.IsNullOrEmpty(folder4)) // 未设置命名规则
+                                    //if (string.IsNullOrEmpty(folder4)) // 未设置命名规则
+                                    //{
+                                    //    if (url.Length == 1)
+                                    //    {
+                                    //        photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(photo.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.LossDesc) + ".jpg";
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(photo.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.LossDesc) + i.ToString() + ".jpg";
+                                    //    }
+                                    //}
+                                    //else // 设置了命名规则
+                                    //{
+                                    if (url.Length == 1)
                                     {
-                                        if (url.Length == 1)
-                                        {
-                                            photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(photo.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.LossDesc) + ".jpg";
-                                        }
-                                        else
-                                        {
-                                            photoName = answer.ProjectId + @"\" + answer.ShopCode + CommonHelper.ReplaceBadCharOfFileName(answer.ShopName) + @"\" + CommonHelper.ReplaceBadCharOfFileName(photo.SubjectCode) + "_" + CommonHelper.ReplaceBadCharOfFileName(photo.LossDesc) + i.ToString() + ".jpg";
-                                        }
+                                        photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
                                     }
-                                    else // 设置了命名规则
+                                    else
                                     {
-                                        if (url.Length == 1)
-                                        {
-                                            photoName = folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg";
-                                        }
-                                        else
-                                        {
-                                            photoName = folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + i.ToString() + ".jpg";
-                                        }
+                                        photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + i.ToString() + ".jpg";
                                     }
+                                    // }
                                     string file = Path.Combine(folderToZip, foler, photoName);
                                     string extension = string.Empty;
                                     if (!System.IO.File.Exists(file))
@@ -569,69 +576,117 @@ namespace com.yrtech.SurveyAPI.Service
             return isSuccess;
         }
         #endregion
-        public string GetFolderName(string projectId, string fileTypeCode, string shopCode, string shopName, string subectCode, string photoName, string photoOrder,string photoTime, string photoType,string subjectOrder)
+        #region 照片下载重命名
+        public string GetFolderName(string projectId, string fileTypeCode, string shopCode, string shopName, string subectCode, string photoName, string photoOrder, string photoTime, string photoType, string subjectOrder)
         {
             string folderName = "";
             List<FileRenameDto> fileRenameList_Folder = masterService.GetFileRename(projectId, fileTypeCode, photoType);
-            for (int i = 0; i < fileRenameList_Folder.Count; i++)
+            // 设置了命名规则
+            if (fileRenameList_Folder != null && fileRenameList_Folder.Count > 0)
             {
-                if (fileRenameList_Folder[i].SeqNO == i + 1)
+                for (int i = 0; i < fileRenameList_Folder.Count; i++)
                 {
-                    if (fileRenameList_Folder[i].OptionCode == "ProjectCode")
+                    if (fileRenameList_Folder[i].SeqNO == i + 1)
                     {
-                        folderName += fileRenameList_Folder[i].ProjectCode + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "ProjectName")
-                    {
-                        folderName += fileRenameList_Folder[i].ProjectName + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "ShopCode")
-                    {
-                        folderName += shopCode + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "ShopName")
-                    {
-                        folderName += shopName + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "SubjectCode")
-                    {
-                        folderName += subectCode + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "SubjectOrder")
-                    {
-                        string order = "";
-                        if (subjectOrder.Length == 1)
+                        if (fileRenameList_Folder[i].OptionCode == "ProjectCode")
                         {
-                            order = "00" + subjectOrder;
+                            folderName += fileRenameList_Folder[i].ProjectCode + fileRenameList_Folder[i].ConnectStr;
                         }
-                        else if (subjectOrder.Length == 2)
+                        if (fileRenameList_Folder[i].OptionCode == "ProjectName")
                         {
-                            order = "0" + subjectOrder;
+                            folderName += fileRenameList_Folder[i].ProjectName + fileRenameList_Folder[i].ConnectStr;
                         }
-                        else {
-                            order = subjectOrder;
+                        if (fileRenameList_Folder[i].OptionCode == "ShopCode")
+                        {
+                            folderName += shopCode + fileRenameList_Folder[i].ConnectStr;
                         }
-                        folderName += order + fileRenameList_Folder[i].ConnectStr;
+                        if (fileRenameList_Folder[i].OptionCode == "ShopName")
+                        {
+                            folderName += shopName + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "SubjectCode")
+                        {
+                            folderName += subectCode + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "SubjectOrder")
+                        {
+                            string order = "";
+                            if (subjectOrder.Length == 1)
+                            {
+                                order = "00" + subjectOrder;
+                            }
+                            else if (subjectOrder.Length == 2)
+                            {
+                                order = "0" + subjectOrder;
+                            }
+                            else
+                            {
+                                order = subjectOrder;
+                            }
+                            folderName += order + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "PhotoName")
+                        {
+                            folderName += photoName + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "PhotoOrder")
+                        {
+                            folderName += photoOrder + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "PhotoTime")
+                        {
+                            folderName += photoTime + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "Other")
+                        {
+                            folderName += fileRenameList_Folder[i].OtherName + fileRenameList_Folder[i].ConnectStr;
+                        }
                     }
-                    if (fileRenameList_Folder[i].OptionCode == "PhotoName")
-                    {
-                        folderName += photoName + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "PhotoOrder")
-                    {
-                        folderName += photoOrder + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "PhotoTime")
-                    {
-                        folderName += photoTime + fileRenameList_Folder[i].ConnectStr;
-                    }
-                    if (fileRenameList_Folder[i].OptionCode == "Other")
-                    {
-                        folderName += fileRenameList_Folder[i].OtherName + fileRenameList_Folder[i].ConnectStr;
-                    }
+                }
+            }
+            else // 未设置命名规则
+            {
+                if (fileTypeCode == "1")
+                {
+                    return folderName = projectId;
+                }
+                if (fileTypeCode == "2" || fileTypeCode == "3")
+                {
+                    folderName = shopCode;
+                }
+                if (fileTypeCode == "4")
+                {
+                    folderName = shopCode + "_" + shopName + "_" + subectCode + "_" + photoName;
                 }
             }
             return CommonHelper.ReplaceBadCharOfFileName(folderName);
         }
+        #endregion
+        #region 照片上传日志
+        public void SaveAnswerPhotoLog(AnswerPhotoLog answerPhotoLog)
+        {
+            answerPhotoLog.InDateTime = DateTime.Now;
+            db.AnswerPhotoLog.Add(answerPhotoLog);
+            db.SaveChanges();
+        }
+        public List<AnswerPhotoLog> GetAnswerPhoto(string projectId, string shopId)
+        {
+            if (projectId == null) projectId = "";
+            if (shopId == null) shopId = "";
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                    ,new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(AnswerPhotoLog);
+            string sql = @"SELECT A.*
+                         FROM AnswerPhotoLog A
+                        WHERE A.ProjectId = @ProjectId ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerPhotoLog>().ToList();
+        }
+        #endregion
+
     }
 }

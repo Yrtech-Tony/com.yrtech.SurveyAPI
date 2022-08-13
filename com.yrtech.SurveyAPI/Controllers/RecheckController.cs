@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         ArbitrationService arbitrationService = new ArbitrationService();
         AnswerService answerService = new AnswerService();
         MasterService masterService = new MasterService();
+        ExcelDataService excelDataService = new ExcelDataService();
 
         #region 复审状态
         /// <summary>
@@ -185,6 +186,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                     { recheckStatus.Status_S7 = "√"; }
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckStatusDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Recheck/RecheckStatusExport")]
+        public APIResult RecheckStatusExport(string projectId, string shopId, string shopCode = "")
+        {
+            try
+            {
+                string downloadPath = excelDataService.RecheckStatusExport(projectId, shopId, shopCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {

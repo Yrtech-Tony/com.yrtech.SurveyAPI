@@ -49,6 +49,7 @@
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.ProjectBaseSetting" Width="1.5" PointX="7.375" PointY="21.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AppVersion" Width="1.5" PointX="21.375" PointY="8.75" />
         <EntityTypeShape EntityType="com.yrtech.SurveyDAL.Project" Width="1.5" PointX="9.375" PointY="17.75" />
+        <EntityTypeShape EntityType="com.yrtech.SurveyDAL.AnswerPhotoLog" Width="1.5" PointX="21.375" PointY="11.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

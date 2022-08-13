@@ -69,5 +69,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<ProjectBaseSetting> ProjectBaseSetting { get; set; }
         public virtual DbSet<AppVersion> AppVersion { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<AnswerPhotoLog> AnswerPhotoLog { get; set; }
     }
 }

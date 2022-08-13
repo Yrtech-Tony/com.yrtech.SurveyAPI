@@ -3,6 +3,7 @@ using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.Common;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
 
@@ -214,7 +215,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else if (roleTypeCode == "S_Execute")
                 {
-                    List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(),"");
+                    List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(), "");
                     if (list != null && list.Count > 0)
                     {
 
@@ -242,6 +243,135 @@ namespace com.yrtech.SurveyAPI.Controllers
                 answerService.SaveAnswerInfo(answer);
 
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        // 照片上传记录
+        [HttpPost]
+        [Route("Answer/SaveAnswerPhotoLog")]
+        public APIResult SaveAnswerPhotoLog(AnswerPhotoLog answerPhotoLog)
+        {
+            try
+            {
+                photoService.SaveAnswerPhotoLog(answerPhotoLog);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/GetShopAnswerPhotoLog")]
+        public APIResult GetShopAnswerPhotoLog(string projectId, string shopId, string uploadStatus)
+        {
+            try
+            {
+                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
+                List<AnswerPhotoLog> uploadLogList = photoService.GetAnswerPhoto(projectId, shopId);
+                List<AnswerPhotoLogDto> photoList = new List<AnswerPhotoLogDto>();
+                foreach (AnswerDto answer in answerList)
+                {
+                    // 标准照片信息
+                    List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                    if (fileResultList != null && fileResultList.Count > 0)
+                    {
+                        foreach (FileResultDto fileResult in fileResultList)
+                        {
+                            if (!string.IsNullOrEmpty(fileResult.Url))
+                            {
+                                string[] strUrl = fileResult.Url.Split(';');
+                                foreach (string url in strUrl)
+                                {
+                                    AnswerPhotoLogDto photo = new AnswerPhotoLogDto();
+                                    photo.ProjectId = answer.ProjectId;
+                                    photo.ShopId = answer.ShopId.ToString();
+                                    photo.ShopCode = answer.ShopCode;
+                                    photo.ShopName = answer.ShopName;
+                                    photo.SubjectCode = answer.SubjectCode;
+                                    photo.SubjectId = answer.SubjectId;
+                                    photo.OrderNO = answer.OrderNO;
+                                    photo.PhotoUrl = url;
+                                    photo.PhotoType = "标准照片";
+                                    List<AnswerPhotoLog> uploadLogUrl = uploadLogList.Where(x => x.FileUrl == url).ToList();
+                                    if (uploadLogUrl == null || uploadLogUrl.Count == 0)
+                                    {
+                                        photo.UploadStatus = "0";
+                                    }
+                                    else
+                                    {
+                                        photo.UploadStatus = "1";
+                                        photo.InDateTime = uploadLogUrl[0].InDateTime;
+                                    }
+                                    photoList.Add(photo);
+                                }
+                            }
+                        }
+                    }
+                    // 失分照片信息
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                    if(lossResultList!=null&& lossResultList.Count>0)
+                    {
+                        foreach (LossResultDto lossResult in lossResultList)
+                        {
+                            if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
+                            {
+                                string[] strUrl = lossResult.LossFileNameUrl.Split(';');
+                                foreach (string url in strUrl)
+                                {
+                                    AnswerPhotoLogDto photo = new AnswerPhotoLogDto();
+                                    photo.ProjectId = answer.ProjectId;
+                                    photo.ShopId = answer.ShopId.ToString();
+                                    photo.ShopCode = answer.ShopCode;
+                                    photo.ShopName = answer.ShopName;
+                                    photo.SubjectCode = answer.SubjectCode;
+                                    photo.SubjectId = answer.SubjectId;
+                                    photo.OrderNO = answer.OrderNO;
+                                    photo.PhotoUrl = url;
+                                    photo.PhotoType = "失分照片";
+                                    List<AnswerPhotoLog> uploadLogUrl = uploadLogList.Where(x => x.FileUrl == url).ToList();
+                                    if (uploadLogUrl == null || uploadLogUrl.Count == 0)
+                                    {
+                                        photo.UploadStatus = "0";
+                                    }
+                                    else
+                                    {
+                                        photo.UploadStatus = "1";
+                                        photo.InDateTime = uploadLogUrl[0].InDateTime;
+                                    }
+                                    photoList.Add(photo);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(uploadStatus))
+                {
+                    photoList = photoList.Where(x => x.UploadStatus == uploadStatus).ToList();
+                }
+                
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(photoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/GetFolderName")]
+        public APIResult GetFolderName(string projectId, string shopCode, string shopName, string subectCode, string photoName, string photoOrder,  string photoType, string subjectOrder)
+        {
+            try
+            {
+                // photoName:（标准照片：照片名称；失分照片：失分描述）
+                // photoOrder:（标准照片：标准照片SeqNO；失分照片：失分描述Id）
+                // photoType:(标准照片：1; 失分照片：2)
+                string folder4 =photoService.GetFolderName(projectId, "4", shopCode, shopName, subectCode, photoName, photoOrder, "", photoType, subjectOrder);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(folder4) };
             }
             catch (Exception ex)
             {

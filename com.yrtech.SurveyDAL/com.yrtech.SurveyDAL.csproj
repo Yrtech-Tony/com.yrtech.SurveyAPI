@@ -54,6 +54,9 @@
     <Compile Include="Answer.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="AnswerPhotoLog.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="AnswerShopConsultant.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

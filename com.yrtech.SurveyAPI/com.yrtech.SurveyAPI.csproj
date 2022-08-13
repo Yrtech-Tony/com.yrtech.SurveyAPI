@@ -161,6 +161,7 @@
     <Compile Include="DTO\Account\AccountDto.cs" />
     <Compile Include="DTO\Account\ChangePasswordDto.cs" />
     <Compile Include="DTO\Answer\AnswerDto.cs" />
+    <Compile Include="DTO\Answer\AnswerPhotoLogDto.cs" />
     <Compile Include="DTO\Answer\AnswerShopInfoDto.cs" />
     <Compile Include="DTO\Answer\FileResultDto.cs" />
     <Compile Include="DTO\Answer\FileRenameDto.cs" />

@@ -429,7 +429,62 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
+        // 审核状态导出
+        public string RecheckStatusExport(string projectId, string shopId, string shopCode)
+        {
+            List<RecheckStatusDto> recheckList = recheckService.GetShopRecheckStatus(projectId, shopId, shopCode);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "RecheckStatus.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            foreach (RecheckStatusDto item in recheckList)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                //进店
+                if (!string.IsNullOrEmpty(item.Status_S0))
+                    sheet.GetCell("C" + (rowIndex + 2)).Value = "√";
+                //提交复审
+                if (!string.IsNullOrEmpty(item.Status_S1))
+                    sheet.GetCell("D" + (rowIndex + 2)).Value = "√";
+                //审核进行中
+                if (!string.IsNullOrEmpty(item.Status_S2))
+                    sheet.GetCell("E" + (rowIndex + 2)).Value = "√";
+                //审核完毕
+                if (!string.IsNullOrEmpty(item.Status_S3))
+                    sheet.GetCell("F" + (rowIndex + 2)).Value = "√";
+                //审核修改
+                if (!string.IsNullOrEmpty(item.Status_S4))
+                    sheet.GetCell("G" + (rowIndex + 2)).Value = "√";
+                // 仲裁
+                if (!string.IsNullOrEmpty(item.Status_S5))
+                    sheet.GetCell("H" + (rowIndex + 2)).Value = "√";
+                // 督导抽查
+                if (!string.IsNullOrEmpty(item.Status_S6))
+                    sheet.GetCell("I" + (rowIndex + 2)).Value = "√";
+                //PM 抽查
+                if (!string.IsNullOrEmpty(item.Status_S7))
+                    sheet.GetCell("J" + (rowIndex + 2)).Value = "√";
 
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "复审进度" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+        // 报告下载日志导出
         public string ReportLogExport(string project, string reportFileName, string startDate, string endDate)
         {
             List<ReportFileActionLogDto> list = reportService.ReportFileActionLogSearch("", "", "", project, reportFileName, startDate, endDate);

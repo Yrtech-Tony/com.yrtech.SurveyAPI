@@ -740,6 +740,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = project.ModifyUserId;
                 findOne.RechckShopShow = project.RechckShopShow;
+                findOne.PhotoUploadMode = project.PhotoUploadMode;
                 //findOne.DataScore = project.DataScore;
                 //findOne.AppealStartDate = project.AppealStartDate;
                 //findOne.AppealEndDate = project.AppealEndDate;
