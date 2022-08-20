@@ -72,7 +72,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<RoleProgramDto> GetTenantProgram(string tenantId, bool? isChild, string parentId)
         {
 
-            if (tenantId == null) tenantId = "";
+             if (tenantId == null) tenantId = "";
 
             Type t = typeof(RoleProgramDto);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId), new SqlParameter("@ParentId", parentId) };
@@ -1325,12 +1325,18 @@ namespace com.yrtech.SurveyAPI.Service
                             FROM FileType A ";
             return db.Database.SqlQuery(t, sql, para).Cast<FileType>().ToList();
         }
-        public List<FileNameOption> GetFileNameOption()
+        public List<FileNameOption> GetFileNameOption(string fileTypeCode)
         {
-            SqlParameter[] para = new SqlParameter[] { };
+            if (fileTypeCode == null) fileTypeCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileTypeCode", fileTypeCode) };
             Type t = typeof(FileNameOption);
             string sql = @"SELECT A.*
-                            FROM FileNameOption A ";
+                            FROM FileNameOption A INNER JOIN FileTypeFileNameOption B ON B.FileNameOptionCode = A.OptionCode
+                            WHERE 1=1   ";
+            if (!string.IsNullOrEmpty(fileTypeCode))
+            {
+                sql += " AND B.FileTypeCode = @FileTypeCode";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<FileNameOption>().ToList();
         }
         public void SaveFileRename(FileRename fileRename)

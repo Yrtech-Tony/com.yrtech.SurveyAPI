@@ -44,7 +44,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<SubjectFile> SubjectFile { get; set; }
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
-        public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<TenantMemberTypeCharge> TenantMemberTypeCharge { get; set; }
@@ -70,5 +69,7 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AppVersion> AppVersion { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<AnswerPhotoLog> AnswerPhotoLog { get; set; }
+        public virtual DbSet<FileTypeFileNameOption> FileTypeFileNameOption { get; set; }
+        public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
     }
 }

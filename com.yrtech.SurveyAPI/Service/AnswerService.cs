@@ -455,6 +455,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="userId"></param>
         public void SaveAnswerInfo(AnswerDto answerDto)
         {
+            //CommonHelper.log("ProjectId:" + answerDto.ProjectId.ToString() + "ShopId:" + answerDto.ShopId.ToString() + "FileResult:" + answerDto.FileResult.ToString() +
+            //    "LossResult:" + answerDto.LossResult.ToString());
             Answer answer = new Answer();
             answer.ProjectId = answerDto.ProjectId;
             answer.ShopId = Convert.ToInt32(answerDto.ShopId);

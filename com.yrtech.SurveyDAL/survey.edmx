@@ -223,6 +223,16 @@
           <Property Name="FileTypeCode" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="FileTypeName" Type="nvarchar" MaxLength="50" />
         </EntityType>
+        <EntityType Name="FileTypeFileNameOption">
+          <Key>
+            <PropertyRef Name="FileNameOptionCode" />
+            <PropertyRef Name="FileTypeCode" />
+          </Key>
+          <Property Name="FileNameOptionCode" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="FileTypeCode" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+        </EntityType>
         <EntityType Name="Group">
           <Key>
             <PropertyRef Name="GroupId" />
@@ -512,6 +522,7 @@
           </Key>
           <Property Name="SubjectId" Type="bigint" Nullable="false" />
           <Property Name="SeqNO" Type="int" Nullable="false" />
+          <Property Name="LossResultCode" Type="nvarchar" MaxLength="50" />
           <Property Name="LossResultName" Type="nvarchar(max)" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -650,6 +661,7 @@
           <EntitySet Name="FileNameOption" EntityType="Self.FileNameOption" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FileRename" EntityType="Self.FileRename" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FileType" EntityType="Self.FileType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FileTypeFileNameOption" EntityType="Self.FileTypeFileNameOption" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Group" EntityType="Self.Group" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="HiddenColumn" EntityType="Self.HiddenColumn" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Label" EntityType="Self.Label" Schema="dbo" store:Type="Tables" />
@@ -704,7 +716,6 @@
           <EntitySet Name="Shop" EntityType="com.yrtech.SurveyDAL.Shop" />
           <EntitySet Name="SubjectFile" EntityType="com.yrtech.SurveyDAL.SubjectFile" />
           <EntitySet Name="SubjectInspectionStandard" EntityType="com.yrtech.SurveyDAL.SubjectInspectionStandard" />
-          <EntitySet Name="SubjectLossResult" EntityType="com.yrtech.SurveyDAL.SubjectLossResult" />
           <EntitySet Name="sysdiagrams" EntityType="com.yrtech.SurveyDAL.sysdiagrams" />
           <EntitySet Name="Tenant" EntityType="com.yrtech.SurveyDAL.Tenant" />
           <EntitySet Name="TenantMemberTypeCharge" EntityType="com.yrtech.SurveyDAL.TenantMemberTypeCharge" />
@@ -730,6 +741,8 @@
           <EntitySet Name="AppVersion" EntityType="com.yrtech.SurveyDAL.AppVersion" />
           <EntitySet Name="Project" EntityType="com.yrtech.SurveyDAL.Project" />
           <EntitySet Name="AnswerPhotoLog" EntityType="com.yrtech.SurveyDAL.AnswerPhotoLog" />
+          <EntitySet Name="FileTypeFileNameOption" EntityType="com.yrtech.SurveyDAL.FileTypeFileNameOption" />
+          <EntitySet Name="SubjectLossResult" EntityType="com.yrtech.SurveyDAL.SubjectLossResult" />
         </EntityContainer>
         <EntityType Name="AnswerShopConsultant">
           <Key>
@@ -986,19 +999,6 @@
           <Property Name="SubjectId" Type="Int64" Nullable="false" />
           <Property Name="SeqNO" Type="Int32" Nullable="false" />
           <Property Name="InspectionStandardName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="SubjectLossResult">
-          <Key>
-            <PropertyRef Name="SubjectId" />
-            <PropertyRef Name="SeqNO" />
-          </Key>
-          <Property Name="SubjectId" Type="Int64" Nullable="false" />
-          <Property Name="SeqNO" Type="Int32" Nullable="false" />
-          <Property Name="LossResultName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -1359,6 +1359,30 @@
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="FileTypeFileNameOption">
+          <Key>
+            <PropertyRef Name="FileNameOptionCode" />
+            <PropertyRef Name="FileTypeCode" />
+          </Key>
+          <Property Name="FileNameOptionCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FileTypeCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="SubjectLossResult">
+          <Key>
+            <PropertyRef Name="SubjectId" />
+            <PropertyRef Name="SeqNO" />
+          </Key>
+          <Property Name="SubjectId" Type="Int64" Nullable="false" />
+          <Property Name="SeqNO" Type="Int32" Nullable="false" />
+          <Property Name="LossResultCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LossResultName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1635,19 +1659,6 @@
                 <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
                 <ScalarProperty Name="InUserId" ColumnName="InUserId" />
                 <ScalarProperty Name="InspectionStandardName" ColumnName="InspectionStandardName" />
-                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
-                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="SubjectLossResult">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.SubjectLossResult">
-              <MappingFragment StoreEntitySet="SubjectLossResult">
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="LossResultName" ColumnName="LossResultName" />
                 <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
               </MappingFragment>
@@ -2028,6 +2039,30 @@
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
                 <ScalarProperty Name="AnswerPhotoId" ColumnName="AnswerPhotoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FileTypeFileNameOption">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.FileTypeFileNameOption">
+              <MappingFragment StoreEntitySet="FileTypeFileNameOption">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="FileTypeCode" ColumnName="FileTypeCode" />
+                <ScalarProperty Name="FileNameOptionCode" ColumnName="FileNameOptionCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubjectLossResult">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.SubjectLossResult">
+              <MappingFragment StoreEntitySet="SubjectLossResult">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="LossResultName" ColumnName="LossResultName" />
+                <ScalarProperty Name="LossResultCode" ColumnName="LossResultCode" />
+                <ScalarProperty Name="SeqNO" ColumnName="SeqNO" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

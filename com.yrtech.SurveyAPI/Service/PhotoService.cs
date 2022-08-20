@@ -665,6 +665,7 @@ namespace com.yrtech.SurveyAPI.Service
         #region 照片上传日志
         public void SaveAnswerPhotoLog(AnswerPhotoLog answerPhotoLog)
         {
+           // CommonHelper.log("ProjectId:" + answerPhotoLog.ProjectId.ToString() + "ShopId:" + answerPhotoLog.ShopId.ToString() + "URL" + answerPhotoLog.FileUrl);
             answerPhotoLog.InDateTime = DateTime.Now;
             db.AnswerPhotoLog.Add(answerPhotoLog);
             db.SaveChanges();

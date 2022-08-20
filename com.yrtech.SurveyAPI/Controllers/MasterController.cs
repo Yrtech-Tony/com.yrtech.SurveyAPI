@@ -2022,11 +2022,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Master/GetFileNameOption")]
-        public APIResult GetFileNameOption()
+        public APIResult GetFileNameOption(string fileTypeCode)
         {
             try
             {
-                List<FileNameOption> fileNameOptionList = masterService.GetFileNameOption();
+                List<FileNameOption> fileNameOptionList = masterService.GetFileNameOption(fileTypeCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(fileNameOptionList) };
             }
             catch (Exception ex)

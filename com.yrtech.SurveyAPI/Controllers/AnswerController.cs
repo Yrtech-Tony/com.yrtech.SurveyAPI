@@ -475,6 +475,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         [HttpGet]
+        [Route("Answer/ShopAnswerScoreInfoExportL")]
+        public APIResult ShopAnswerScoreInfoExportL(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = excelDataService.ShopAnsewrScoreInfoExport_L(projectId, shopId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
         [Route("Answer/ShopAnswerFileResultDownLoad")]
         public APIResult ShopAnswerFileResultDownLoad(string projectId, string shopId)
         {

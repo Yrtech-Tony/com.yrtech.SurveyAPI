@@ -429,6 +429,137 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
+        // 得分导出-横向
+        public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId)
+        {
+            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            int shopId_Temp = 0;
+            // 填充表头
+            string[] head = { "C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","AB","AC","AD","AE"
+                    ,"AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA","BB","BC","BD","BE","BF"
+                    ,"BG","BH","BI","BJ","BK","BL","BM","BN","BO","BP","BQ","BR","BS","BT","BU","BV","BW","BX","BY","BZ","CA","CB","CC","CD","CE","CF","CG"
+                    ,"CH","CI","CJ","CK","CL","CM","CN","CO","CP","CQ","CR","CS","CT","CU","CV","CW","CX","CY","CZ","DA","DB","DC","DD","DE","DF","DG","DH"
+                    ,"DI","DJ","DK","DL","DM","DN","DO","DP","DQ","DR","DS","DT","DU","DV","DW","DX","DY","DZ","EA","EB","EC","ED","EE","EF","EG","EH","EI"
+                    ,"EJ","EK","EL","EM","EN","EO","EP","EQ","ER","ES","ET","EU","EV","EW","EX","EY","EZ","FA","FB","FC","FD","FE","FF","FG","FH","FI","FJ"
+                    ,"FK","FL","FM","FN","FO","FP","FQ","FR","FS","FT","FU","FV","FW","FX","FY","FZ","GA","GB","GC","GD","GE","GF","GG","GH","GI","GJ","GK"
+                    ,"GL","GM","GN","GO","GP","GQ","GR","GS","GT","GU","GV","GW","GX","GY","GZ","HA","HB","HC","HD","HE","HF","HG","HH","HI","HJ","HK","HL"
+                    ,"HM","HN","HO","HP","HQ","HR","HS","HT","HU","HV","HW","HX","HY","HZ","IA","IB","IC","ID","IE","IF","IG","IH","II","IJ","IK","IL","IM"
+                    ,"IN","IO","IP","IQ","IR","IS","IT","IU","IV","IW","IX","IY","IZ","JA","JB","JC","JD","JE","JF","JG","JH","JI","JJ","JK","JL","JM","JN"
+                    ,"JO","JP","JQ","JR","JS","JT","JU","JV","JW","JX","JY","JZ","KA","KB","KC","KD","KE","KF","KG","KH","KI","KJ","KK","KL","KM","KN","KO"
+                    ,"KP","KQ","KR","KS","KT","KU","KV","KW","KX","KY","KZ","LA","LB","LC","LD","LE","LF","LG","LH","LI","LJ","LK","LL","LM","LN","LO","LP"
+                    ,"LQ","LR","LS","LT","LU","LV","LW","LX","LY","LZ","MA","MB","MC","MD","ME","MF","MG","MH","MI","MJ","MK","ML","MM","MN","MO","MP","MQ"
+                    ,"MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NB","NC","ND","NE","NF","NG","NH","NI","NJ","NK","NL","NM","NN","NO","NP","NQ","NR"
+                    ,"NS","NT","NU","NV","NW","NX","NY","NZ","OA","OB","OC","OD","OE","OF","OG","OH","OI","OJ","OK","OL","OM","ON","OO","OP","OQ","OR","OS"
+                    ,"OT","OU","OV","OW","OX","OY","OZ","PA","PB","PC","PD","PE","PF","PG","PH","PI","PJ","PK","PL","PM","PN","PO","PP","PQ","PR","PS","PT"
+                    ,"PU","PV","PW","PX","PY","PZ","QA","QB","QC","QD","QE","QF","QG","QH","QI","QJ","QK","QL","QM","QN","QO","QP","QQ","QR","QS","QT","QU"
+                    ,"QV","QW","QX","QY","QZ","RA","RB","RC","RD","RE","RF","RG","RH","RI","RJ","RK","RL","RM","RN","RO","RP","RQ","RR","RS","RT","RU","RV"
+                    ,"RW","RX","RY","RZ","SA","SB","SC","SD","SE","SF","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SP","SQ","SR","SS","ST","SU","SV","SW"
+                    ,"SX","SY","SZ","TA","TB","TC","TD","TE","TF","TG","TH","TI","TJ","TK","TL","TM","TN","TO","TP","TQ","TR","TS","TT","TU","TV","TW","TX"
+                    ,"TY","TZ","UA","UB","UC","UD","UE","UF","UG","UH","UI","UJ","UK","UL","UM","UN","UO","UP","UQ","UR","US","UT","UU","UV","UW","UX","UY"
+                    ,"UZ","VA","VB","VC","VD","VE","VF","VG","VH","VI","VJ","VK","VL","VM","VN","VO","VP","VQ","VR","VS","VT","VU","VV","VW","VX","VY","VZ"
+                    ,"WA","WB","WC","WD","WE","WF","WG","WH","WI","WJ","WK","WL","WM","WN","WO","WP","WQ","WR","WS","WT","WU","WV","WW","WX","WY","WZ","XA"
+                    ,"XB","XC","XD","XE","XF","XG","XH","XI","XJ","XK","XL","XM","XN","XO","XP","XQ","XR","XS","XT","XU","XV","XW","XX","XY","XZ","YA","YB"
+                    ,"YC","YD","YE","YF","YG","YH","YI","YJ","YK","YL","YM","YN","YO","YP","YQ","YR","YS","YT","YU","YV","YW","YX","YY","YZ","ZA","ZB","ZC"
+                    ,"ZD","ZE","ZF","ZG","ZH","ZI","ZJ","ZK","ZL","ZM","ZN","ZO","ZP","ZQ","ZR","ZS","ZT","ZU","ZV","ZW","ZX","ZY","ZZ"};
+            for (int i = 0; i < subjectList.Count; i++)
+            {
+                sheet.GetCell(head[i * 3] + 1).Value = subjectList[i].SubjectCode;
+                sheet.GetCell(head[(i * 3 + 1)] + 1).Value = subjectList[i].SubjectCode + "-描述";
+                //sheet.GetCell(head[(i * 3 + 2)] + 1).Value = "得分";
+                sheet.GetCell(head[(i * 3 + 2)] + 1).Value = "备注";
+            }
+            // 绑定数据
+            foreach (RecheckDto item in recheckList)
+            {
+                // 判断经销商是否一致，如果不一致的话，开始往下一行写数据，如果一致还在当前行写入数据
+                if (shopId_Temp == 0)
+                {
+                    shopId_Temp = item.ShopId;
+                }
+                else if (shopId_Temp != item.ShopId)
+                {
+                    rowIndex++;
+                    shopId_Temp = item.ShopId;
+                }
+                //失分说明
+                string lossResultStr = "";
+                string lossResultStrCode = "";
+                
+                if (!string.IsNullOrEmpty(item.LossResult))
+                {
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    
+                    foreach (LossResultDto lossResult in lossResultList)
+                    {
+                        string[] lossStr = lossResult.LossDesc.Split(';');
+                        
+                        foreach (string loss in lossStr)
+                        {
+                            if (!string.IsNullOrEmpty(loss))
+                            {
+                                List<SubjectLossResult> subjectLossList = masterService.GetSubjectLossResult(projectId.ToString(), item.SubjectId.ToString()).Where(x => x.LossResultName == loss).ToList();
+                                if (subjectLossList != null && subjectLossList.Count > 0)
+                                {
+                                    lossResultStrCode += subjectLossList[0].LossResultCode + ";";
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc))
+                        {
+                            lossResultStr += lossResult.LossDesc + ";";
+                        }
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                        {
+                            lossResultStr += lossResult.LossDesc2 + ";";
+                        }
+                    }
+                }
+                // 去掉最后一个分号
+                if (!string.IsNullOrEmpty(lossResultStrCode))
+                {
+                    lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
+                }
+                if (!string.IsNullOrEmpty(lossResultStr))
+                {
+                    lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                }
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                for (int i = 0; i < head.Length; i++)
+                {
+                    string cellValue = sheet.GetCell(head[i] + 1).Value == null ? "" : sheet.GetCell(head[i] + 1).Value.ToString();
+                    if (!string.IsNullOrEmpty(cellValue))
+                    {
+                        if (cellValue == item.SubjectCode)
+                        {
+                            sheet.GetCell(head[i] + (rowIndex + 2)).Value = lossResultStrCode;
+                            sheet.GetCell(head[i + 1] + (rowIndex + 2)).Value = lossResultStr;
+                            //sheet.GetCell(head[i + 2] + (rowIndex + 2)).Value = item.PhotoScore;
+                            sheet.GetCell(head[i + 2] + (rowIndex + 2)).Value = item.Remark;
+                        }
+                    }
+                }
+            }
+            //保存excel文件
+            string fileName = "经销商得分" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
         // 审核状态导出
         public string RecheckStatusExport(string projectId, string shopId, string shopCode)
         {

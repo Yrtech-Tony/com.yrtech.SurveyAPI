@@ -16,6 +16,7 @@ namespace com.yrtech.SurveyDAL
     {
         public long SubjectId { get; set; }
         public int SeqNO { get; set; }
+        public string LossResultCode { get; set; }
         public string LossResultName { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
