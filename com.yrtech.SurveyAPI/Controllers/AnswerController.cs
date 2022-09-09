@@ -370,7 +370,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // photoName:（标准照片：照片名称；失分照片：失分描述）
                 // photoOrder:（标准照片：标准照片SeqNO；失分照片：失分描述Id）
                 // photoType:(标准照片：1; 失分照片：2)
-                string folder4 =photoService.GetFolderName(projectId, "4", shopCode, shopName, subectCode, photoName, photoOrder, "", photoType, subjectOrder);
+                string folder4 =photoService.GetFolderName(projectId, "4", shopCode, shopName, subectCode, photoName, photoOrder, "", photoType, subjectOrder,"");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(folder4) };
             }
             catch (Exception ex)

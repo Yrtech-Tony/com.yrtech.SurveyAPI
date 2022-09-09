@@ -60,10 +60,10 @@ namespace com.yrtech.SurveyAPI.Service
                 foreach (FileResultDto fileResult in fileResultList)
                 {
                     // 获取文件夹信息
-                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                    string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, fileResult.FileName, fileResult.SeqNO.ToString(), fileResult.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString());
+                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                    string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, fileResult.FileName, fileResult.SeqNO.ToString(), fileResult.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString(),"");
                     if (!string.IsNullOrEmpty(folder4))
                     {
                         // 创建1级目录
@@ -113,11 +113,11 @@ namespace com.yrtech.SurveyAPI.Service
                                     {
                                         // 已有的文件先删除
                                         string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
-                                        if (File.Exists(filePath + i.ToString() + ".jpg"))
+                                        if (File.Exists(filePath +"_"+ (i+1).ToString() + ".jpg"))
                                         {
-                                            File.Delete(filePath + i.ToString() + ".jpg");
+                                            File.Delete(filePath + "_" + (i + 1).ToString() + ".jpg");
                                         }
-                                        OSSClientHelper.GetObject(urlstr, filePath + i.ToString() + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath + "_" + (i + 1).ToString() + ".jpg");
                                     }
                                 }
                             }
@@ -232,10 +232,10 @@ namespace com.yrtech.SurveyAPI.Service
                             try
                             {
                                 // 获取文件夹信息
-                                string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                                string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                                string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "");
-                                string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString());
+                                string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                                string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                                string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "","");
+                                string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString(),"");
                                 string photoName = "";
                                 // 下载文件的名称为标准照片名称
                                 if (!string.IsNullOrEmpty(photo.Url))
@@ -262,7 +262,7 @@ namespace com.yrtech.SurveyAPI.Service
                                         }
                                         else
                                         {
-                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + i.ToString() + ".jpg";
+                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i + 1).ToString() + ".jpg";
                                         }
                                         // }
                                         string file = Path.Combine(folderToZip, foler, photoName);
@@ -341,11 +341,16 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 foreach (LossResultDto loss in lossResult)
                 {
+                    string lossResultStrCode = "";
+                    if (!string.IsNullOrEmpty(loss.LossDesc))
+                    {
+                        lossResultStrCode = masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), answer.SubjectId.ToString(), loss.LossDesc);
+                    }
                     // 获取文件夹信息
-                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                    string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, loss.LossDesc, loss.LossId.ToString(), loss.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString());
+                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                    string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, loss.LossDesc, loss.LossId.ToString(), loss.LastTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString(), lossResultStrCode);
                     if (!string.IsNullOrEmpty(folder4))
                     {
                         // 创建1级目录
@@ -373,7 +378,7 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         try
                         {
-                            // 下载文件的名称为标准照片名称
+                            // 下载文件的名称为失分照片名称
                             if (!string.IsNullOrEmpty(loss.LossFileNameUrl))
                             {
                                 string[] url = loss.LossFileNameUrl.Split(';');
@@ -394,11 +399,11 @@ namespace com.yrtech.SurveyAPI.Service
                                     {
                                         // 已有的文件先删除
                                         string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
-                                        if (File.Exists(filePath + i.ToString() + ".jpg"))
+                                        if (File.Exists(filePath +"_"+ (i+1).ToString() + ".jpg"))
                                         {
-                                            File.Delete(filePath + i.ToString() + ".jpg");
+                                            File.Delete(filePath +"_"+(i+1).ToString() + ".jpg");
                                         }
-                                        OSSClientHelper.GetObject(urlstr, filePath + i.ToString() + ".jpg");
+                                        OSSClientHelper.GetObject(urlstr, filePath + "_" + (i+1).ToString() + ".jpg");
                                     }
                                 }
                             }
@@ -505,11 +510,16 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         foreach (LossResultDto photo in lossResultList)
                         {
+                            string lossResultStrCode = "";
+                            if (!string.IsNullOrEmpty(photo.LossDesc))
+                            {
+                                lossResultStrCode = masterService.GetSubjectLossCodeByAnswerLossName(answer.ProjectId.ToString(), answer.SubjectId.ToString(), photo.LossDesc);
+                            }
                             // 获取文件夹信息
-                            string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                            string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                            string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "");
-                            string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.LossDesc, photo.LossId.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString());
+                            string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                            string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                            string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "2", "","");
+                            string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.LossDesc, photo.LossId.ToString(), photo.LastTime.ToString("yyyyMMddHHmmssfff"), "2", answer.OrderNO.ToString(), lossResultStrCode);
                             string photoName = "";
                             // 下载文件的名称为失分照片名称
                             if (!string.IsNullOrEmpty(photo.LossFileNameUrl))
@@ -536,7 +546,7 @@ namespace com.yrtech.SurveyAPI.Service
                                     }
                                     else
                                     {
-                                        photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + i.ToString() + ".jpg";
+                                        photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i+1).ToString() + ".jpg";
                                     }
                                     // }
                                     string file = Path.Combine(folderToZip, foler, photoName);
@@ -577,7 +587,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 照片下载重命名
-        public string GetFolderName(string projectId, string fileTypeCode, string shopCode, string shopName, string subectCode, string photoName, string photoOrder, string photoTime, string photoType, string subjectOrder)
+        public string GetFolderName(string projectId, string fileTypeCode, string shopCode, string shopName, string subectCode, string photoName, string photoOrder, string photoTime, string photoType, string subjectOrder,string lossResultCode)
         {
             string folderName = "";
             List<FileRenameDto> fileRenameList_Folder = masterService.GetFileRename(projectId, fileTypeCode, photoType);
@@ -636,6 +646,10 @@ namespace com.yrtech.SurveyAPI.Service
                         if (fileRenameList_Folder[i].OptionCode == "PhotoTime")
                         {
                             folderName += photoTime + fileRenameList_Folder[i].ConnectStr;
+                        }
+                        if (fileRenameList_Folder[i].OptionCode == "LossResultCode")
+                        {
+                            folderName += lossResultCode + fileRenameList_Folder[i].ConnectStr;
                         }
                         if (fileRenameList_Folder[i].OptionCode == "Other")
                         {

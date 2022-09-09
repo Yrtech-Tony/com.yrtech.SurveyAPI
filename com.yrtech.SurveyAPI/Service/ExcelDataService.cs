@@ -395,6 +395,23 @@ namespace com.yrtech.SurveyAPI.Service
                 sheet.GetCell("F" + (rowIndex + 2)).Value = item.PhotoScore;
                 //得分备注
                 sheet.GetCell("G" + (rowIndex + 2)).Value = item.Remark;
+                // 失分说明编码
+                string lossResultStrCode = "";
+
+                if (!string.IsNullOrEmpty(item.LossResult))
+                {
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    foreach (LossResultDto lossResult in lossResultList)
+                    {
+                        lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
+                    }
+                }
+                // 去掉最后一个分号
+                if (!string.IsNullOrEmpty(lossResultStrCode))
+                {
+                    lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
+                }
+
                 //失分说明
                 string lossResultStr = "";
                 if (!string.IsNullOrEmpty(item.LossResult))
@@ -402,16 +419,30 @@ namespace com.yrtech.SurveyAPI.Service
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
                     foreach (LossResultDto lossResult in lossResultList)
                     {
-                        lossResultStr += lossResult.LossDesc + ";";
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc))
+                        {
+                            lossResultStr += lossResult.LossDesc + ";";
+                        }
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                        {
+                            lossResultStr += lossResult.LossDesc2 + ";";
+                        }
                     }
+
                 }
-                sheet.GetCell("H" + (rowIndex + 2)).Value = lossResultStr;
+                // 去掉最后一个分号
+                if (!string.IsNullOrEmpty(lossResultStr))
+                {
+                    lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                }
+                sheet.GetCell("H" + (rowIndex + 2)).Value = lossResultStrCode;
+                sheet.GetCell("I" + (rowIndex + 2)).Value = lossResultStr;
                 // 通过复审
-                sheet.GetCell("I" + (rowIndex + 2)).Value = item.PassRecheckName;
+                sheet.GetCell("J" + (rowIndex + 2)).Value = item.PassRecheckName;
                 //复审得分
-                sheet.GetCell("J" + (rowIndex + 2)).Value = item.RecheckScore;
+                sheet.GetCell("K" + (rowIndex + 2)).Value = item.RecheckScore;
                 //复审得分
-                sheet.GetCell("K" + (rowIndex + 2)).Value = item.RecheckContent;
+                sheet.GetCell("L" + (rowIndex + 2)).Value = item.RecheckContent;
 
                 rowIndex++;
             }
@@ -489,26 +520,13 @@ namespace com.yrtech.SurveyAPI.Service
                 //失分说明
                 string lossResultStr = "";
                 string lossResultStrCode = "";
-                
+
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
-                    
                     foreach (LossResultDto lossResult in lossResultList)
                     {
-                        string[] lossStr = lossResult.LossDesc.Split(';');
-                        
-                        foreach (string loss in lossStr)
-                        {
-                            if (!string.IsNullOrEmpty(loss))
-                            {
-                                List<SubjectLossResult> subjectLossList = masterService.GetSubjectLossResult(projectId.ToString(), item.SubjectId.ToString()).Where(x => x.LossResultName == loss).ToList();
-                                if (subjectLossList != null && subjectLossList.Count > 0)
-                                {
-                                    lossResultStrCode += subjectLossList[0].LossResultCode + ";";
-                                }
-                            }
-                        }
+                        lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
                         if (!string.IsNullOrEmpty(lossResult.LossDesc))
                         {
                             lossResultStr += lossResult.LossDesc + ";";
@@ -520,13 +538,13 @@ namespace com.yrtech.SurveyAPI.Service
                     }
                 }
                 // 去掉最后一个分号
-                if (!string.IsNullOrEmpty(lossResultStrCode))
-                {
-                    lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
-                }
                 if (!string.IsNullOrEmpty(lossResultStr))
                 {
                     lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                }
+                if (!string.IsNullOrEmpty(lossResultStrCode))
+                {
+                    lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
                 }
                 //经销商代码
                 sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;

@@ -20,6 +20,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public DateTime InDateTime { get; set; }
         public int InUserId { get; set; }
         public DateTime ModifyDateTime { get; set; }
+        public DateTime LastTime { get; set; }
         public int ModifyUserId { get; set; }
         public bool ImportChk { get; set; }
         public string ImportRemark { get; set; }

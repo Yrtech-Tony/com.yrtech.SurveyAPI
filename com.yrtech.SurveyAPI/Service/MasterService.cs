@@ -72,7 +72,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<RoleProgramDto> GetTenantProgram(string tenantId, bool? isChild, string parentId)
         {
 
-             if (tenantId == null) tenantId = "";
+            if (tenantId == null) tenantId = "";
 
             Type t = typeof(RoleProgramDto);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId), new SqlParameter("@ParentId", parentId) };
@@ -1160,6 +1160,31 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<SubjectLossResult>().ToList();
         }
+        public string GetSubjectLossCodeByAnswerLossName(string projectId, string subjectId, string lossDesc)
+        {
+            string lossResultStrCode = "";
+            if (!string.IsNullOrEmpty(lossDesc))
+            {
+                string[] lossStr = lossDesc.Split(';');
+                foreach (string loss in lossStr)
+                {
+                    if (!string.IsNullOrEmpty(loss))
+                    {
+                        List<SubjectLossResult> subjectLossList = GetSubjectLossResult(projectId.ToString(), subjectId.ToString()).Where(x => x.LossResultName == loss).ToList();
+                        if (subjectLossList != null && subjectLossList.Count > 0)
+                        {
+                            lossResultStrCode += subjectLossList[0].LossResultCode + ";";
+                        }
+                    }
+                }
+            }
+            // 去掉最后一个分号
+            if (!string.IsNullOrEmpty(lossResultStrCode))
+            {
+                lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
+            }
+            return lossResultStrCode;
+        }
         /// <summary>
         /// 保存失分说明
         /// </summary>
@@ -1344,7 +1369,7 @@ namespace com.yrtech.SurveyAPI.Service
             // 只能新增不能修改
             if (fileRename.SeqNO == 0)
             {
-                FileRename findOneMax = db.FileRename.Where(x => (x.ProjectId == fileRename.ProjectId && x.FileTypeCode == fileRename.FileTypeCode&&x.PhotoType==fileRename.PhotoType)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                FileRename findOneMax = db.FileRename.Where(x => (x.ProjectId == fileRename.ProjectId && x.FileTypeCode == fileRename.FileTypeCode && x.PhotoType == fileRename.PhotoType)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
                 if (findOneMax == null)
                 {
                     fileRename.SeqNO = 1;
@@ -1365,13 +1390,13 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { };
             db.Database.ExecuteSqlCommand(sql, para);
         }
-        public List<FileRenameDto> GetFileRename(string projectId, string fileTypeCode,string photoType)
+        public List<FileRenameDto> GetFileRename(string projectId, string fileTypeCode, string photoType)
         {
             if (projectId == null) projectId = "";
             if (fileTypeCode == null) fileTypeCode = "";
             if (photoType == null) photoType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                    ,new SqlParameter("@FileTypeCode", fileTypeCode) 
+                                                    ,new SqlParameter("@FileTypeCode", fileTypeCode)
                                                     ,new SqlParameter("@PhotoType", photoType) };
             Type t = typeof(FileRenameDto);
             string sql = @"SELECT A.*,D.ProjectCode,D.ProjectName,B.FileTypeName,C.OptionName
@@ -1394,15 +1419,15 @@ namespace com.yrtech.SurveyAPI.Service
         #region 期号基本信息设置
         public List<ProjectBaseSetting> GetProjectBaseSetting(string projectId)
         {
-           
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)};
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             Type t = typeof(ProjectBaseSetting);
             string sql = "";
             sql = @"SELECT * 
                       FROM [ProjectBaseSetting] A
                     WHERE  ProjectId = @ProjectId 
                     ";
-           
+
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectBaseSetting>().ToList();
         }
         #endregion
