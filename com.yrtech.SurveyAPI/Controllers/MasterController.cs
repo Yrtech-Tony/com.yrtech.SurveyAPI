@@ -422,6 +422,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                         userInfoDto.ImportChk = false;
                         userInfoDto.ImportRemark += "权限类型不存在" + ";";
                     }
+                    foreach (UserInfoDto userInfoDto1 in list)
+                    {
+                        if (userInfoDto1 != userInfoDto && userInfoDto1.AccountId == userInfoDto.AccountId)
+                        {
+                            userInfoDto.ImportChk = false;
+                            userInfoDto.ImportRemark += "表格中有重复的账号" + ";";
+                        }
+                    }
                 }
                 list = (from shop in list orderby shop.ImportChk select shop).ToList();
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
@@ -442,6 +450,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     UserInfo userInfo = new UserInfo();
                     userInfo.AccountId = userInfoDto.AccountId;
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoDto.TenantId.ToString(), "", "", userInfoDto.AccountId, "", "", "", "");
+                    if (userInfoList != null && userInfoList.Count > 0)
+                    {
+                        userInfo.Id = userInfoList[0].Id;
+                    }
                     userInfo.AccountName = userInfoDto.AccountName;
                     userInfo.BrandId = userInfoDto.BrandId;
                     userInfo.Email = userInfoDto.Email;
@@ -1121,6 +1134,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     shop.BrandId = shopDto.BrandId;
                     shop.City = shopDto.City;
+                    shop.Address = shopDto.Address;
                     shop.InUserId = shopDto.InUserId;
                     shop.ModifyUserId = shopDto.ModifyUserId;
                     shop.Province = shopDto.Province;
@@ -1326,7 +1340,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
-                CommonHelper.log(ex.ToString());
+               // CommonHelper.log(ex.ToString());
             }
 
         }
@@ -1336,6 +1350,18 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(project.ProjectCode))
+                {
+                    return new APIResult() { Status = false, Body = "期号代码不能为空" };
+                }
+                if (string.IsNullOrEmpty(project.ProjectName))
+                {
+                    return new APIResult() { Status = false, Body = "期号名称不能为空" };
+                }
+                if (project.OrderNO==null|| project.OrderNO==0)
+                {
+                    return new APIResult() { Status = false, Body = "序号不能为空或者0" };
+                }
                 List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "");
                 if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
                 {
@@ -1465,10 +1491,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "序号不能为空或者为0" };
                 }
-                if (subject.LabelId == null || subject.LabelId == 0)
-                {
-                    return new APIResult() { Status = false, Body = "卷别类型不能为空" };
-                }
+                //if (subject.LabelId == null || subject.LabelId == 0)
+                //{
+                //    return new APIResult() { Status = false, Body = "卷别类型不能为空" };
+                //}
                 if (subject.LabelId_RecheckType == null || subject.LabelId_RecheckType == 0)
                 {
                     return new APIResult() { Status = false, Body = "复审类型不能为空" };
@@ -1480,7 +1506,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<SubjectDto> subjectList_SubjectCode = masterService.GetSubject(subject.ProjectId.ToString(), "", subject.SubjectCode, "");
                 if (subjectList_SubjectCode != null && subjectList_SubjectCode.Count > 0 && subjectList_SubjectCode[0].SubjectId != subject.SubjectId)
                 {
-                    return new APIResult() { Status = false, Body = "题目编码重复" };
+                    return new APIResult() { Status = false, Body = "题目代码重复" };
                 }
                 List<SubjectDto> subjectList_OrderNO = masterService.GetSubject(subject.ProjectId.ToString(), "", "", subject.OrderNO.ToString());
                 if (subjectList_OrderNO != null && subjectList_OrderNO.Count > 0 && subjectList_OrderNO[0].SubjectId != subject.SubjectId)
@@ -1724,11 +1750,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.ImportChk = false;
                         subject.ImportRemark += "执行顺序有为空的数据" + ";";
                     }
-                    if (string.IsNullOrEmpty(subject.ExamTypeCode))
-                    {
-                        subject.ImportChk = false;
-                        subject.ImportRemark += "卷别类型代码有为空的数据" + ";";
-                    }
+                    //if (string.IsNullOrEmpty(subject.ExamTypeCode))
+                    //{
+                    //    subject.ImportChk = false;
+                    //    subject.ImportRemark += "卷别类型代码有为空的数据" + ";";
+                    //}
                     if (string.IsNullOrEmpty(subject.RecheckTypeCode))
                     {
                         subject.ImportChk = false;
@@ -1807,10 +1833,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subject.Implementation = dto.Implementation;
                     subject.InspectionDesc = dto.InspectionDesc;
                     subject.InUserId = dto.InUserId;
-                    List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
-                    if (labelList != null && labelList.Count > 0)
+                    if (!string.IsNullOrEmpty(dto.ExamTypeCode))
                     {
-                        subject.LabelId = labelList[0].LabelId;
+                        List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
+                        if (labelList != null && labelList.Count > 0)
+                        {
+                            subject.LabelId = labelList[0].LabelId;
+                        }
+                    }
+                    else {
+                        subject.LabelId = null;
                     }
                     
                     List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
@@ -1870,6 +1902,17 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<FileResultDto> list = CommonHelper.DecodeString<List<FileResultDto>>(uploadData.ListJson);
+                // 先删除
+                foreach (FileResultDto dto in list)
+                {
+
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        masterService.DeleteSubjectFile(subjectList[0].SubjectId, 0);
+                    }
+                }
+                // 插入
                 foreach (FileResultDto dto in list)
                 {
                     SubjectFile subjectFile = new SubjectFile();
@@ -1926,6 +1969,17 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<InspectionStandardResultDto> list = CommonHelper.DecodeString<List<InspectionStandardResultDto>>(uploadData.ListJson);
+
+                // 先删除
+                foreach (InspectionStandardResultDto dto in list)
+                {
+
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        masterService.DeleteSubjectInspectionStandard(subjectList[0].SubjectId, 0);
+                    }
+                }
                 foreach (InspectionStandardResultDto dto in list)
                 {
                     SubjectInspectionStandard subjectInspectionStandard = new SubjectInspectionStandard();
@@ -1984,6 +2038,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<LossResultDto> list = CommonHelper.DecodeString<List<LossResultDto>>(uploadData.ListJson);
                 foreach (LossResultDto dto in list)
                 {
+
+                    List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        masterService.DeleteSubjectLossResult(subjectList[0].SubjectId, 0);
+                    }
+                }
+                foreach (LossResultDto dto in list)
+                {
                     SubjectLossResult subjectLossResult = new SubjectLossResult();
                     List<SubjectDto> subjectList = masterService.GetSubject(dto.ProjectId.ToString(), "", dto.SubjectCode, "");
                     if (subjectList != null && subjectList.Count > 0)
@@ -1991,6 +2054,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subjectLossResult.SubjectId = subjectList[0].SubjectId;
                     }
                     subjectLossResult.LossResultName = dto.LossDesc;
+                    subjectLossResult.LossResultCode = dto.LossCode;
                     subjectLossResult.InUserId = dto.InUserId;
                     subjectLossResult.ModifyUserId = dto.ModifyUserId;
                     masterService.SaveSubjectLossResult(subjectLossResult);

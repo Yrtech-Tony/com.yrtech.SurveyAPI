@@ -29,6 +29,18 @@ namespace com.yrtech.SurveyDAL
         public string AgreeReason { get; set; }
         public Nullable<int> AgreeUserId { get; set; }
         public Nullable<System.DateTime> AgreeDateTime { get; set; }
+        public Nullable<bool> PassReCheck_Confirm { get; set; }
+        public string ReCheckContent_Confirm { get; set; }
+        public string ReCheckError_Confirm { get; set; }
+        public Nullable<decimal> ReCheckScore_Confirm { get; set; }
+        public Nullable<System.DateTime> ReCheckDateTime_Confirm { get; set; }
+        public Nullable<int> ReCheckUserId_Confirm { get; set; }
+        public Nullable<bool> PassReCheck_Sec { get; set; }
+        public string ReCheckContent_Sec { get; set; }
+        public string ReCheckError_Sec { get; set; }
+        public Nullable<decimal> ReCheckScore_Sec { get; set; }
+        public Nullable<System.DateTime> ReCheckDateTime_Sec { get; set; }
+        public Nullable<int> ReCheckUserId_Sec { get; set; }
         public string LastConfirmCheck { get; set; }
         public string LastConfirmReason { get; set; }
         public Nullable<int> LastConfirmUserId { get; set; }

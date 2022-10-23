@@ -209,7 +209,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     roleTypeCode = userInfoList[0].RoleType;
                 }
-                if (roleTypeCode == "S_Recheck" || roleTypeCode == "S_SurperVision" || roleTypeCode == "S_Customer")
+                if (roleTypeCode == "S_SurperVision" || roleTypeCode == "S_Customer")
                 {
                     throw new Exception("无修改得分权限");
                 }

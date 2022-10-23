@@ -41,7 +41,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<ReportFile> ReportFile { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
         public virtual DbSet<RoleType> RoleType { get; set; }
-        public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<SubjectFile> SubjectFile { get; set; }
         public virtual DbSet<SubjectInspectionStandard> SubjectInspectionStandard { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
@@ -57,7 +56,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<ReCheck> ReCheck { get; set; }
         public virtual DbSet<RoleProgram> RoleProgram { get; set; }
         public virtual DbSet<TenantProgram> TenantProgram { get; set; }
         public virtual DbSet<Program> Program { get; set; }
@@ -71,5 +69,17 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AnswerPhotoLog> AnswerPhotoLog { get; set; }
         public virtual DbSet<FileTypeFileNameOption> FileTypeFileNameOption { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
+        public virtual DbSet<ReCheck> ReCheck { get; set; }
+        public virtual DbSet<Shop> Shop { get; set; }
+        public virtual DbSet<Chapter> Chapter { get; set; }
+        public virtual DbSet<ChapterSubject> ChapterSubject { get; set; }
+        public virtual DbSet<ReportAreaChapterScore> ReportAreaChapterScore { get; set; }
+        public virtual DbSet<ReportShopCompleteCount> ReportShopCompleteCount { get; set; }
+        public virtual DbSet<ReportShopLossResult> ReportShopLossResult { get; set; }
+        public virtual DbSet<ReportCountryChapterScore> ReportCountryChapterScore { get; set; }
+        public virtual DbSet<ReportShopSubjectScore> ReportShopSubjectScore { get; set; }
+        public virtual DbSet<ReportAreaSubjectScore> ReportAreaSubjectScore { get; set; }
+        public virtual DbSet<ReportCountrySubjectScore> ReportCountrySubjectScore { get; set; }
+        public virtual DbSet<ReportShopChapterScore> ReportShopChapterScore { get; set; }
     }
 }

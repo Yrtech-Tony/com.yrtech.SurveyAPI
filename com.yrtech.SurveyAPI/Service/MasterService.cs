@@ -782,6 +782,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ShopShortName]
                           ,[Province]
                           ,[City]
+                          ,[Address]
                           ,[GroupId]
                            ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId) AS GroupName
                             ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId) AS GroupCode
@@ -838,6 +839,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = shop.ModifyUserId;
                 findOne.Province = shop.Province;
                 findOne.ShopShortName = shop.ShopShortName;
+                findOne.Address = shop.Address;
                 findOne.UseChk = shop.UseChk;
             }
             db.SaveChanges();
@@ -854,6 +856,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += shop.ShopShortName + "','";
                 sql += shop.Province + "','";
                 sql += shop.City + "','";
+                sql += shop.Address + "','";
                 sql += shop.GroupId + "','";
                 sql += shop.InUserId + "','";
                 sql += DateTime.Now.ToString() + "','";
@@ -923,7 +926,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectDto> GetSubject(string projectId, string subjectId, string subjectCode, string orderNO)
+        public List<SubjectDto> GetSubject(string projectId, string subjectId, string subjectCode, string orderNO )
         {
             projectId = projectId == null ? "" : projectId;
             subjectId = subjectId == null ? "" : subjectId;
@@ -938,8 +941,8 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName
                         ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName,E.HiddenName AS HiddenCode_SubjectTypeName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
-                                    LEFT JOIN Label C ON B.BrandId = C.BrandId AND A.LabelId  =  C.LabelId
-                                    LEFT JOIN Label D ON B.BrandId = D.BrandId AND A.LabelId_RecheckType  =  D.LabelId
+                                    LEFT JOIN Label C ON   ISNULL(A.LabelId,0)  =  C.LabelId
+                                    LEFT JOIN Label D ON   A.LabelId_RecheckType  =  D.LabelId
                                     LEFT JOIN HiddenColumn E ON A.HiddenCode_SubjectType = E.HiddenCode AND E.HiddenCodeGroup = '体系类型'
                     WHERE 1=1 AND A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
@@ -954,6 +957,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.OrderNO =@OrderNO ";
             }
+            sql += " ORDER BY A.OrderNO ";
             List<SubjectDto> list = db.Database.SqlQuery(t, sql, para).Cast<SubjectDto>().ToList();
             return list;
         }
@@ -1068,9 +1072,18 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="seqNo"></param>
         public void DeleteSubjectFile(long subjectId, int seqNo)
         {
-            SubjectFile findone = db.SubjectFile.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
-            db.SubjectFile.Remove(findone);
-            db.SaveChanges();
+            if (seqNo == 0)
+            {
+                string sql = "DELETE SubjectFile WHERE SubjectId= '" + subjectId.ToString() + "'";
+                SqlParameter[] para = new SqlParameter[] { };
+                db.Database.ExecuteSqlCommand(sql, para);
+            }
+            else
+            {
+                SubjectFile findone = db.SubjectFile.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
+                db.SubjectFile.Remove(findone);
+                db.SaveChanges();
+            }
         }
         /// <summary>
         /// 获取检查标准信息
@@ -1137,9 +1150,18 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="seqNo"></param>
         public void DeleteSubjectInspectionStandard(long subjectId, int seqNo)
         {
-            SubjectInspectionStandard findone = db.SubjectInspectionStandard.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
-            db.SubjectInspectionStandard.Remove(findone);
-            db.SaveChanges();
+            if (seqNo == 0)
+            {
+                string sql = "DELETE SubjectInspectionStandard WHERE SubjectId= '" + subjectId.ToString() + "'";
+                SqlParameter[] para = new SqlParameter[] { };
+                db.Database.ExecuteSqlCommand(sql, para);
+            }
+            else
+            {
+                SubjectInspectionStandard findone = db.SubjectInspectionStandard.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
+                db.SubjectInspectionStandard.Remove(findone);
+                db.SaveChanges();
+            }
         }
         /// <summary>
         /// 获取失分说明
@@ -1231,9 +1253,18 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="seqNo"></param>
         public void DeleteSubjectLossResult(long subjectId, int seqNo)
         {
-            SubjectLossResult findone = db.SubjectLossResult.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
-            db.SubjectLossResult.Remove(findone);
-            db.SaveChanges();
+            if (seqNo == 0)
+            {
+                string sql = "DELETE SubjectLossResult WHERE SubjectId= '" + subjectId.ToString() + "'";
+                SqlParameter[] para = new SqlParameter[] { };
+                db.Database.ExecuteSqlCommand(sql, para);
+            }
+            else
+            {
+                SubjectLossResult findone = db.SubjectLossResult.Where(x => x.SubjectId == subjectId && x.SeqNO == seqNo).FirstOrDefault();
+                db.SubjectLossResult.Remove(findone);
+                db.SaveChanges();
+            }
         }
         #endregion
         #region 标签管理
@@ -1249,14 +1280,28 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@LabelId", labelId)};
             Type t = typeof(Label);
             string sql = "";
-            sql = @"SELECT * 
-                      FROM [Label] A
+            // 如果是试卷类型，查询出来通用卷
+            if (!string.IsNullOrEmpty(labelType) && labelType == "ExamType")
+            {
+                sql = @"SELECT * FROM 
+                            (SELECT * FROM [Label] WHERE LabelId=0
+                                 UNION ALL
+                            SELECT * 
+                             FROM [Label] 
+                            WHERE  BrandId = @BrandId AND 1=1) A WHERE  1=1
+                            ";
+            }
+            else {
+                sql = @"
+                    SELECT * 
+                      FROM [Label] 
                     WHERE  BrandId = @BrandId AND 1=1
                     ";
+            }
             if (useChk.HasValue)
             {
                 para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
-                sql += " AND A.UseChk = @UseChk";
+                sql += " AND UseChk = @UseChk";
             }
             if (!string.IsNullOrEmpty(labelCode))
             {

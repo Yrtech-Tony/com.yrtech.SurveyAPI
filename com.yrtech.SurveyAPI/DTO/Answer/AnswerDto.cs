@@ -14,6 +14,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public long? AnswerId { get; set; }
         public int ProjectId { get; set; }
         public long? SubjectId { get; set; }
+        public int ChapterId { get; set; }
+        public string ChapterCode { get; set; }
+        public string ChapterName { get; set; }
         public int? ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
@@ -54,6 +57,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<SubjectInspectionStandard> SubjectInspectionStandardList { get; set; }// 体系对应的检查标准
         public List<SubjectLossResult> SubjectLossResultList { get; set; } // 体系对应的失分说明
         public RecheckDto Recheck { get; set; }
+
 
     }
 }

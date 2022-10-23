@@ -19,12 +19,17 @@ namespace com.yrtech.SurveyAPI.Service
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             string sql = "";
-            sql = "DELETE Appeal WHERE ProjectId = @ProjectId ";
+            //sql = "DELETE Appeal WHERE ProjectId = @ProjectId ";
             sql += @"
-                    INSERT INTO Appeal 
-                    SELECT A.ProjectId,A.ShopId,A.SubjectId,'',null,null,null,'',null,null
+                   INSERT INTO Appeal 
+                    SELECT * FROM 
+                    (SELECT A.ProjectId,A.ShopId,A.SubjectId,'' AppealReason,null AppealUserId,null AppealDateTime,null FeedBackStatus
+                    ,'' FeedBackReason,null FeedBackUserId,null FeedBackDateTime
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
-                    WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore";
+                    WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore
+                    AND EXISTS(SELECT 1 FROM RecheckStatus WHERE ProjectId = @ProjectId AND StatusCode = 'S9' AND ShopId = A.ShopId)) A
+                    WHERE 1=1 AND NOT EXISTS(SELECT 1 FROM Appeal WHERE Projectid= A.ProjectId AND ShopId=A.ShopId AND
+                    SubjectId = A.SubjectId )";
             sql += @" 
                     UPDATE AppealSet Set AppealCreateDateTime = GETDATE() WHERE ProjectId = @ProjectId";
             db.Database.ExecuteSqlCommand(sql,para);
@@ -448,6 +453,8 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE ProjectId = @ProjectId) X GROUP BY ShopId,ShopCode,ShopName ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealCountDto>().ToList();
         }
+
+
 
     }
 }

@@ -30,6 +30,20 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? RecheckUserId { get; set; } // 复审人员Id
         public string RecheckUserName { get; set; } //复审人员名称
         public DateTime? RecheckDateTime { get; set; }// 复审时间
+        public Nullable<bool> PassReCheck_Confirm { get; set; } // 复审确认结果
+        public string PassReCheckName_Confirm { get; set; } // 复审确认结果名称
+        public string ReCheckContent_Confirm { get; set; }// 复审确认意见
+        public string ReCheckError_Confirm { get; set; }// 复审确认错误类型
+        public Nullable<decimal> ReCheckScore_Confirm { get; set; }// 复审确认建议得分
+        public Nullable<System.DateTime> ReCheckDateTime_Confirm { get; set; } // 复审确认时间
+        public Nullable<int> ReCheckUserId_Confirm { get; set; }// 复审确认人员
+        public Nullable<bool> PassReCheck_Sec { get; set; }// 二审结果
+        public string PassReCheckName_Sec { get; set; }// 二审结果名称
+        public string ReCheckContent_Sec { get; set; }// 二审意见
+        public string ReCheckError_Sec { get; set; }// 二审错误
+        public Nullable<decimal> ReCheckScore_Sec { get; set; }// 二审建议得分
+        public Nullable<System.DateTime> ReCheckDateTime_Sec { get; set; }// 二审时间
+        public Nullable<int> ReCheckUserId_Sec { get; set; }// 二审人员
         public int RecheckTypeId { get; set; }
         public string RecheckTypeName { get; set; }
         public Nullable<bool> AgreeCheck { get; set; }

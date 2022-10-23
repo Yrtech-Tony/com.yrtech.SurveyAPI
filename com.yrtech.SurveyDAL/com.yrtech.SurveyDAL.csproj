@@ -90,6 +90,12 @@
     <Compile Include="Brand.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="Chapter.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ChapterSubject.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Class1.cs" />
     <Compile Include="FileNameOption.cs">
       <DependentUpon>Survey.tt</DependentUpon>
@@ -137,10 +143,34 @@
     <Compile Include="RecheckStatusDtl.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReportAreaChapterScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportAreaSubjectScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportCountryChapterScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportCountrySubjectScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="ReportFile.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ReportFileActionLog.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportShopChapterScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportShopCompleteCount.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportShopLossResult.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportShopSubjectScore.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="RoleProgram.cs">

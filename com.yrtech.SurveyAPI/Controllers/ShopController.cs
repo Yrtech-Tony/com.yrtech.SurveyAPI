@@ -150,6 +150,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                         projectShopExamTypeDto.ImportChk = false;
                         projectShopExamTypeDto.ImportRemark += "经销商代码在系统中不存在" + ";";
                     }
+                    else {
+                        projectShopExamTypeDto.ShopName = shopList[0].ShopName;
+                    }
                     List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
                     if (labelList == null || labelList.Count == 0)
                     {

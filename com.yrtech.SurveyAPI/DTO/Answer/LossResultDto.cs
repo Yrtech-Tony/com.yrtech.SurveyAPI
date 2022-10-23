@@ -14,6 +14,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string SubjectCode { get; set; }
         public int SeqNO { get; set; }
         public string LossId { get; set; }
+        public string LossCode { get; set; }
         public string LossDesc { get; set; }
         public string LossDesc2 { get; set; }
         public string LossFileNameUrl { get; set; }

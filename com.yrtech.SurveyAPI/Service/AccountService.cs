@@ -624,7 +624,9 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (string.IsNullOrEmpty(sql))
             { return new List<Brand>(); }
-            else { return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList(); }
+            else {
+                sql += @" ORDER BY A.BrandId DESC ";
+                return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList(); }
            
 
         }

@@ -14,6 +14,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string AreaCode { get; set; }
         public string AreaName { get; set; }
         public int? GroupId { get; set; }
+        public string Address { get; set; }
         public string GroupName { get; set; }
         public string GroupCode { get; set; }
         public Nullable<int> TenantId { get; set; }

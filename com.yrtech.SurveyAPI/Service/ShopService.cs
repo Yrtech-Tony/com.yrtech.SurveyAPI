@@ -22,20 +22,33 @@ namespace com.yrtech.SurveyAPI.Service
             projectId = projectId == null ? "" : projectId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
+            if (string.IsNullOrEmpty(projectId))
+            {
+                return new List<ProjectShopExamTypeDto>();
+            }
+            if (string.IsNullOrEmpty(brandId))
+            {
+                MasterService masterService = new MasterService();
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                if (projectList != null && projectList.Count > 0)
+                {
+                    brandId = projectList[0].BrandId.ToString();
+                }
+            }
             SqlParameter[] para = new SqlParameter[] {
                                             new SqlParameter("@BrandId", brandId),
                                             new SqlParameter("@ProjectId", projectId),
                                             new SqlParameter("@ShopId", shopId) };
             Type t = typeof(ProjectShopExamTypeDto);
-            string sql = @"SELECT A.ShopId,ShopCode,ShopName,ShopshortName,B.ProjectId,
+            string sql = @"SELECT A.ShopId,ShopCode, ShopName,ShopshortName,B.ProjectId,ISNULL(Address,'') AS Address,
                                     CASE WHEN B.ProjectId IS NULL THEN ''
                                          ELSE(SELECT TOP 1 ProjectCode FROM Project WHERE ProjectId = @ProjectId)
                                     END AS ProjectCode,B.ExamTypeId,
                                     CASE WHEN B.ExamTypeId IS NULL THEN ''
-                                         ELSE(SELECT TOP 1 LabelCode FROM Label WHERE BrandId = @BrandId AND LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
+                                         ELSE(SELECT TOP 1 LabelCode FROM Label WHERE  LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
                                     END AS ExamTypeCode,
                                     CASE WHEN B.ExamTypeId IS NULL THEN ''
-                                         ELSE(SELECT TOP 1 LabelName FROM Label WHERE BrandId = @BrandId AND LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
+                                         ELSE(SELECT TOP 1 LabelName FROM Label WHERE  LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
                                     END AS ExamTypeName,
                                     B.InDateTime,B.ModifyDateTime
                             FROM Shop A  LEFT JOIN  ProjectShopExamType B ON A.ShopId = B.ShopId AND B.ProjectId = @ProjectId

@@ -223,7 +223,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore
-                            ,A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
+                            ,A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
@@ -233,10 +233,10 @@ namespace com.yrtech.SurveyAPI.Service
 																                                                                AND X.SubjectId = Y.SubjectId 
 																                                                                AND X.ProjectId = @ProjectId 
 																                                                                AND X.ShopId = @ShopId
-																                                                                AND Y.LabelId=@ExamTypeId
+																                                                                AND (Y.LabelId=@ExamTypeId OR Y.LabelId=0 OR Y.LabelId IS NULL) 
                                                                                                                                 AND Y.HiddenCode_SubjectType =@SubjectType) 
                                                                 ELSE (SELECT ISNULL(MIN(OrderNO),0) FROM [Subject] WHERE ProjectId  = @ProjectId 
-                                                                                                                            AND LabelId=@ExamTypeId
+                                                                                                                            AND (LabelId=@ExamTypeId OR LabelId=0 OR LabelId IS NULL)
                                                                                                                             AND HiddenCode_SubjectType =@SubjectType )
                                                                 END AS OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
@@ -265,7 +265,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
+                            A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                             AND A.SubjectId = B.SubjectId 
                                                             AND B.ShopId =  @ShopId
@@ -273,7 +273,7 @@ namespace com.yrtech.SurveyAPI.Service
                     AND  A.OrderNO =(SELECT ISNULL(MIN(OrderNO),0) 
                                     FROM [Subject] 
                                     WHERE ProjectId = @ProjectId 
-                                    AND LabelId =  @ExamTypeId
+                                    AND (LabelId =  @ExamTypeId OR LabelId=0 OR LabelId IS NULL)
                                     AND HiddenCode_SubjectType = @SubjectType
                                     AND OrderNO > @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
@@ -302,14 +302,14 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
+                            A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
                     WHERE A.ProjectId  = @ProjectId 
                     AND  A.OrderNO =(SELECT ISNULL(MAX(OrderNO),0) FROM [Subject] 
                                                                     WHERE ProjectId = @ProjectId 
-                                                                    AND LabelId = @ExamTypeId 
+                                                                    AND (LabelId = @ExamTypeId OR LabelId=0 OR LabelId IS NULL)
                                                                     AND HiddenCode_SubjectType = @SubjectType
                                                                     AND OrderNO < @OrderNO)";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
@@ -335,7 +335,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
-                            A.SubjectCode,A.OrderNO,a.[Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
+                            A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
@@ -364,12 +364,14 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
+            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                              ,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
+                             ,a.FullScore,a.LowScore
                     FROM [Subject] A CROSS JOIN 
-                                    (SELECT * FROM Shop WHERE ShopId = @ShopId) B 
-                        LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
-                    WHERE A.ProjectId = @ProjectId";
+                                    (SELECT * FROM Shop WHERE ShopId = @ShopId ) B 
+							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId AND D.ProjectId=@ProjectId
+                           LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
+                    WHERE A.ProjectId = @ProjectId AND ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) ";
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId =@SubjectId ";
@@ -411,17 +413,21 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopScoreInfo_NotAnswer(string projectId, string shopId)
+        public List<AnswerDto> GetShopScoreInfo_NotAnswer(string projectId, string shopId,string labelId)
         {
             shopId = shopId == null ? "" : shopId;
+            labelId = labelId == null ? "" : labelId;
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId)};
+                                                       new SqlParameter("@ShopId", shopId),new SqlParameter("@LabelId", labelId)};
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,A.SubjectId,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                     FROM [Subject] A 
                     WHERE A.SubjectId NOT IN (SELECT SubjectId FROM Answer WHERE ProjectId = A.ProjectId AND ShopId = @ShopId)
-                    AND  A.ProjectId = @ProjectId";
+                    AND  A.ProjectId = @ProjectId
+                    AND (A.LabelId = @LabelId  OR A.LabelId=0 OR A.LabelId IS NULL)";
+                    
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }

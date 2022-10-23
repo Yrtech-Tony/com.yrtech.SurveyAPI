@@ -12,6 +12,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     public class AppealController : ApiController
     {
         AppealService appealService = new AppealService();
+        ExcelDataService excelDataService = new ExcelDataService();
 
         #region 申诉设置
         [HttpGet]
@@ -48,7 +49,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                 appealService.CreateAppeal(projectId);
+                appealService.CreateAppeal(projectId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -180,7 +181,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     appeal.FeedBackReason = appealDto.FeedBackReason;
                     appeal.FeedBackStatus = appealDto.FeedBackStatus;
                     appeal.FeedBackUserId = appealDto.FeedBackUserId;
-                     appealService.AppealFeedBack(appeal);
+                    appealService.AppealFeedBack(appeal);
                     //foreach (AppealFile appealFile in appealDto.AppealFileList)
                     //{
                     //    appealFile.AppealId = appealDto.AppealId;
@@ -231,6 +232,22 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 appealService.AppealDelete(appeal.AppealId.ToString());
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        // 申诉导出
+        [HttpGet]
+        [Route("Appeal/AppealExport")]
+        public APIResult AppealExport(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        {
+            try
+            {
+                string downloadPath = excelDataService.AppealExport(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {

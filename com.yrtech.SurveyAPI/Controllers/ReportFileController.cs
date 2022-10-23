@@ -18,7 +18,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 文件上传
         [HttpGet]
         [Route("ReportFile/ReportFileListUploadSearch")]
-        public APIResult ReportFileListUploadSearch(string brandId, string projectId, string bussinessTypeId,string keyword, int pageNum, int pageCount)
+        public APIResult ReportFileListUploadSearch(string brandId, string projectId, string bussinessTypeId, string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
                 //resultList.Add(total);
                 // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, bussinessTypeId,keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, bussinessTypeId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -35,7 +35,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileSearch")]
-        public APIResult ReportFileSearch(string projectId, string bussinessTypeId,string shopId, string reportFileType)
+        public APIResult ReportFileSearch(string projectId, string bussinessTypeId, string shopId, string reportFileType)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         reportFile.Url_OSS = reportFileDto.Url_OSS;
                         reportFileService.ReportFileSave(reportFile);
                     }
-                   
+
                 }
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -159,7 +159,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "","");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
@@ -173,16 +173,16 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileDownLoad")]
-        public APIResult ReportFileDownLoad(string userId,string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
+        public APIResult ReportFileDownLoad(string userId, string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, string reportFileType, int pageNum, int pageCount)
         {
             try
             {
-                string downloadPath = reportFileService.ReportFileDownLoad(userId,projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
+                string downloadPath = reportFileService.ReportFileDownLoad(userId, projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
                 if (string.IsNullOrEmpty(downloadPath))
                 {
                     return new APIResult() { Status = false, Body = "没有可下载文件" };
                 }
-                
+
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
@@ -194,7 +194,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 得分查询
         [HttpGet]
         [Route("ReportFile/ShopAnswerSearch")]
-        public APIResult ShopAnswerSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr,string keyword, int pageNum, int pageCount)
+        public APIResult ShopAnswerSearch(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
         {
             try
             {
@@ -245,11 +245,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportFileActionLogSearch")]
-        public APIResult ReportFileActionLogSearch(string userId,string action, string account, string project,string reportFileName,string startDate,string endDate)
+        public APIResult ReportFileActionLogSearch(string userId, string action, string account, string project, string reportFileName, string startDate, string endDate)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(userId,action,account,project,reportFileName,startDate,endDate)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileActionLogSearch(userId, action, account, project, reportFileName, startDate, endDate)) };
             }
             catch (Exception ex)
             {
@@ -262,7 +262,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                string downloadPath = excelDataService.ReportLogExport(project,reportFileName,startDate,endDate);
+                string downloadPath = excelDataService.ReportLogExport(project, reportFileName, startDate, endDate);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
@@ -271,6 +271,74 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-
+        #region 数据报告
+        #region 获取区域和全国执行进度
+        [HttpGet]
+        [Route("ReportFile/ReportShopCompleteCountSearch")]
+        public APIResult ReportShopCompleteCountSearch(string projectId, string areaId, string shopType = "")
+        {
+            try
+            {
+                List<ReportShopCompleteCount> list = new List<ReportShopCompleteCount>();
+                // 为空查询全国的数量，不为空查询当前区域的数量
+                if (string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportShopCompleteCountCountrySearch(projectId, shopType);
+                }
+                else
+                {
+                    list = reportFileService.ReportShopCompleteCountSearch(projectId, areaId, shopType);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 获取一级指标和二级指标的得分
+        [HttpGet]
+        [Route("ReportFile/ReportChapterScoreSearch")]
+        public APIResult ReportChapterScoreSearch(string projectId, string areaId, string shopId, string shopType = "")
+        {
+            try
+            {
+                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
+                // 如果经销商不为空，按经销商查询
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
+                    }
+                }
+                // 为空查询全国的数量，不为空查询当前区域的数量
+                else if (!string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportAreaChapterScoreSearch(projectId, areaId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportAreaSubjectScoreSearch(projectId, areaId, chapterScore.ChapterId.ToString(),shopType);
+                    }
+                }
+                else
+                {
+                    list = reportFileService.ReportCountryChapterScoreSearch(projectId,shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #endregion
     }
 }

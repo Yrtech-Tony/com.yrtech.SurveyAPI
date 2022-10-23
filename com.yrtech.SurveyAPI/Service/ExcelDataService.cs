@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using System.Web.Hosting;
+using System.Collections;
 
 namespace com.yrtech.SurveyAPI.Service
 {
@@ -20,6 +21,7 @@ namespace com.yrtech.SurveyAPI.Service
         ShopService shopService = new ShopService();
         RecheckService recheckService = new RecheckService();
         ReportFileService reportService = new ReportFileService();
+        AppealService appealService = new AppealService();
         #region 导入
         // 导入经销商
         public List<ShopDto> ShopImport(string ossPath)
@@ -40,8 +42,9 @@ namespace com.yrtech.SurveyAPI.Service
                 shop.ShopShortName = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
                 shop.Province = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
                 shop.City = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
-                shop.GroupCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
-                string useChk = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                shop.Address = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
+                shop.GroupCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                string useChk = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
                 if (useChk == "1")
                 {
                     shop.UseChk = true;
@@ -308,8 +311,9 @@ namespace com.yrtech.SurveyAPI.Service
                 if (string.IsNullOrEmpty(subjectCode)) break;
                 LossResultDto loss = new LossResultDto();
                 loss.SubjectCode = subjectCode;
+                loss.LossCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
 
-                loss.LossDesc = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                loss.LossDesc = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
                 list.Add(loss);
             }
             return list;
@@ -401,6 +405,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    lossResultList= lossResultList.Where((x,i)=> lossResultList.FindIndex(z=>z.LossDesc==x.LossDesc&&z.LossDesc2==x.LossDesc2)==i).ToList();
                     foreach (LossResultDto lossResult in lossResultList)
                     {
                         lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
@@ -417,6 +422,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
                     foreach (LossResultDto lossResult in lossResultList)
                     {
                         if (!string.IsNullOrEmpty(lossResult.LossDesc))
@@ -524,6 +530,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
                     foreach (LossResultDto lossResult in lossResultList)
                     {
                         lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
@@ -662,6 +669,52 @@ namespace com.yrtech.SurveyAPI.Service
 
             //保存excel文件
             string fileName = "报告下载日志" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); 
+        }
+        // 申诉导出
+        public string AppealExport(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCoun)
+        {
+            List<AppealDto> list = appealService.GetShopAppealInfoByPage(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,keyword,pageNum,pageCoun);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "Appeal.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 1;
+
+            foreach (AppealDto item in list)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                //体系号
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.SubjectCode;
+                // 检查点
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.CheckPoint;
+                //申诉理由
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.AppealReason;
+                //反馈状态
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.FeedBackStatusStr;
+                //反馈意见
+                sheet.GetCell("G" + (rowIndex + 2)).Value = item.FeedBackReason;
+                //反馈人
+                sheet.GetCell("H" + (rowIndex + 2)).Value = item.FeedBackUserName;
+                //反馈时间
+                sheet.GetCell("I" + (rowIndex + 2)).Value = item.FeedBackDateTime;
+
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "申诉" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             string dirPath = basePath + @"\Temp\";
             DirectoryInfo dir = new DirectoryInfo(dirPath);
             if (!dir.Exists)
