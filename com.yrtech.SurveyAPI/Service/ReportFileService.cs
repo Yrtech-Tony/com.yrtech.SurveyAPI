@@ -16,6 +16,40 @@ namespace com.yrtech.SurveyAPI.Service
     public class ReportFileService
     {
         Survey db = new Survey();
+        #region 报告设置
+        public List<ReportSetDto> GetReportSet(string projectId)
+        {
+            if (projectId == null) projectId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(ReportSetDto);
+            string sql = "";
+            sql = @"SELECT 
+                        A.ProjectId
+                        ,A.ProjectCode
+                        ,A.ProjectName
+                        ,B.InDateTime
+                        ,B.ModifyDateTime
+                    FROM Project A LEFT JOIN ReportSet B ON A.ProjectId = B.ProjectId
+                    WHERE A.ProjectId = @ProjectId ";
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportSetDto>().ToList();
+        }
+        public void SaveReportSet(ReportSet reportSet)
+        {
+            ReportSet findOne = db.ReportSet.Where(x => (x.ProjectId == reportSet.ProjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                reportSet.InDateTime = DateTime.Now;
+                reportSet.ModifyDateTime = DateTime.Now;
+                db.ReportSet.Add(reportSet);
+            }
+            else
+            {
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = reportSet.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        #endregion
         #region 首页
         /// <summary>
         /// 首页报告统计查询
@@ -654,14 +688,14 @@ namespace com.yrtech.SurveyAPI.Service
         #region 报告平台-数据
         #region 执行数量统计
         // 各区域类型每个区域的数量
-        public List<ReportShopCompleteCount> ReportShopCompleteCountSearch(string projectId, string areaId, string shopType)
+        public List<ReportShopCompleteCountDto> ReportShopCompleteCountSearch(string projectId, string areaId, string shopType)
         {
             if (areaId == null) areaId = "";
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@AreaId", areaId),
                                                         new SqlParameter("@ShopType", shopType)};
-            Type t = typeof(ReportShopCompleteCount);
+            Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT * FROM ReportShopCompleteCount
                    WHERE ProjectId=@ProjectId ";
@@ -673,24 +707,24 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ShopType = @ShopType";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCount>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCountDto>().ToList();
         }
         // 全国数量
-        public List<ReportShopCompleteCount> ReportShopCompleteCountCountrySearch(string projectId, string shopType)
+        public List<ReportShopCompleteCountDto> ReportShopCompleteCountCountrySearch(string projectId, string shopType)
         {
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@ShopType", shopType)};
-            Type t = typeof(ReportShopCompleteCount);
+            Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
                     FROM ReportShopCompleteCount A INNER JOIN Area B ON A.AreaId = B.AreaId AND B.AreaType='SmallArea' 
-                   WHERE ProjectId=@ProjectId ";
+                   WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
                 sql += " AND ShopType = @ShopType";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCount>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCountDto>().ToList();
         }
         #endregion
         #region 一级指标统计
@@ -820,6 +854,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<ReportSubjectScoreDto> ReportCountrySubjectScoreSearch(string projectId, string chapterId,string shopType)
         {
             if (chapterId == null) chapterId = "";
+            if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),new SqlParameter("@ShopType", shopType),
                                                         new SqlParameter("@ChapterId", chapterId)};
             Type t = typeof(ReportSubjectScoreDto);
@@ -838,7 +873,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
-
         // 扣分细节项
         public List<AnswerDto> ReportShopLossResult(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopId, string keyword)
         {
@@ -859,8 +893,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@BussinessTypeId", bussinessType)};
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT A.ProjectId,A.ShopId,C.ShopCode,C.ShopName,A.SubjectId, D.CheckPoint,A.LossResult,A.LossResultAdd,
-                    F.ChapterId,F.ChapterCode,F.ChapterName
+            sql = @"SELECT A.ProjectId,A.ShopId,X.ShopCode,X.ShopName,Y.SubjectId,Y.[CheckPoint],B.LossResult,B.LossResultAdd,
+                    Z.ChapterId,O.ChapterCode,O.ChapterName
                     FROM ReportShopLossResult A INNER JOIN Answer B ON A.ProjectId = B.ProjectId AND A.ShopId = B.ShopId AND A.SubjectId = B.SubjectId
                                                                        AND A.ProjectId = @ProjectId
                                                 INNER JOIN Shop X ON B.ShopId = X.ShopId
@@ -936,6 +970,18 @@ namespace com.yrtech.SurveyAPI.Service
                                      // sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
+        }
+        #endregion
+        #region 生成报告数据
+        public void ReportDataCreate(string brandId,string projectId)
+        {
+            if (brandId == null ) brandId = "";
+            if (projectId == null ) projectId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                        , new SqlParameter("@BrandId", brandId)};
+            string sql = @" EXEC sp_ARCFOX_Report  @BrandId = @BrandId,@ProjectId = @ProjectId
+                        ";
+            db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
         #endregion

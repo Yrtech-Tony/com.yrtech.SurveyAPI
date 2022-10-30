@@ -18,8 +18,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public int SubjectId { get; set; }
         public string SubjectCode { get; set; }
         public string CheckPoint { get; set; }
+        public string Remark { get; set; }
         public decimal? FullScore { get; set; }
         public decimal? Score { get; set; }
+        public bool? AppealStatus { get; set; }
         public string LossResult { get; set; }
         public string AppealReason { get; set; }
         public string AppealUserName { get; set; }

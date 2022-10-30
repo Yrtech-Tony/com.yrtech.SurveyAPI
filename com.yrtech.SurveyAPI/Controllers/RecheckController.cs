@@ -54,6 +54,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         throw new Exception("存在未打分的题目，请先打分完毕");
                     }
+
+                    // 验证照片是否已经全部上传
+                    bool photoUpload = true;
+                    List<AnswerPhotoLogDto> photoList = answerService.GetShopAnsewrPhotoLog(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
+                    foreach (AnswerPhotoLogDto answerPhoto in photoList)
+                    {
+                        if (answerPhoto.UploadStatus == "0")
+                        {
+                            photoUpload = false;
+                            break;
+                        }
+                    }
+                    if (!photoUpload)
+                    {
+                        throw new Exception("存在未上传的照片，请先在上传管理一键上传");
+                    }
                 }
                 /*一审复审完毕是按照类型提交的，不在此处进行验证*/
                 // 复审修改完毕时验证

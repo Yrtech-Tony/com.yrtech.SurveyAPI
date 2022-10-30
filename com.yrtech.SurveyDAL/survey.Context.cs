@@ -50,13 +50,11 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<UserInfo> UserInfo { get; set; }
         public virtual DbSet<UserInfoBrand> UserInfoBrand { get; set; }
         public virtual DbSet<UserInfoObject> UserInfoObject { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<AppealSet> AppealSet { get; set; }
         public virtual DbSet<SubjectScoreItem> SubjectScoreItem { get; set; }
         public virtual DbSet<ReCheckStatus> ReCheckStatus { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
         public virtual DbSet<Answer> Answer { get; set; }
-        public virtual DbSet<RoleProgram> RoleProgram { get; set; }
         public virtual DbSet<TenantProgram> TenantProgram { get; set; }
         public virtual DbSet<Program> Program { get; set; }
         public virtual DbSet<Subject> Subject { get; set; }
@@ -74,12 +72,15 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<Chapter> Chapter { get; set; }
         public virtual DbSet<ChapterSubject> ChapterSubject { get; set; }
         public virtual DbSet<ReportAreaChapterScore> ReportAreaChapterScore { get; set; }
-        public virtual DbSet<ReportShopCompleteCount> ReportShopCompleteCount { get; set; }
         public virtual DbSet<ReportShopLossResult> ReportShopLossResult { get; set; }
         public virtual DbSet<ReportCountryChapterScore> ReportCountryChapterScore { get; set; }
         public virtual DbSet<ReportShopSubjectScore> ReportShopSubjectScore { get; set; }
         public virtual DbSet<ReportAreaSubjectScore> ReportAreaSubjectScore { get; set; }
         public virtual DbSet<ReportCountrySubjectScore> ReportCountrySubjectScore { get; set; }
         public virtual DbSet<ReportShopChapterScore> ReportShopChapterScore { get; set; }
+        public virtual DbSet<ReportShopCompleteCount> ReportShopCompleteCount { get; set; }
+        public virtual DbSet<RoleProgram> RoleProgram { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
+        public virtual DbSet<ReportSet> ReportSet { get; set; }
     }
 }

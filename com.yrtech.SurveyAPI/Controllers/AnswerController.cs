@@ -271,84 +271,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
-                List<AnswerPhotoLog> uploadLogList = photoService.GetAnswerPhoto(projectId, shopId);
                 List<AnswerPhotoLogDto> photoList = new List<AnswerPhotoLogDto>();
-                foreach (AnswerDto answer in answerList)
-                {
-                    // 标准照片信息
-                    List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
-                    if (fileResultList != null && fileResultList.Count > 0)
-                    {
-                        foreach (FileResultDto fileResult in fileResultList)
-                        {
-                            if (!string.IsNullOrEmpty(fileResult.Url))
-                            {
-                                string[] strUrl = fileResult.Url.Split(';');
-                                foreach (string url in strUrl)
-                                {
-                                    AnswerPhotoLogDto photo = new AnswerPhotoLogDto();
-                                    photo.ProjectId = answer.ProjectId;
-                                    photo.ShopId = answer.ShopId.ToString();
-                                    photo.ShopCode = answer.ShopCode;
-                                    photo.ShopName = answer.ShopName;
-                                    photo.SubjectCode = answer.SubjectCode;
-                                    photo.SubjectId = answer.SubjectId;
-                                    photo.OrderNO = answer.OrderNO;
-                                    photo.PhotoUrl = url;
-                                    photo.PhotoType = "标准照片";
-                                    List<AnswerPhotoLog> uploadLogUrl = uploadLogList.Where(x => x.FileUrl == url).ToList();
-                                    if (uploadLogUrl == null || uploadLogUrl.Count == 0)
-                                    {
-                                        photo.UploadStatus = "0";
-                                    }
-                                    else
-                                    {
-                                        photo.UploadStatus = "1";
-                                        photo.InDateTime = uploadLogUrl[0].InDateTime;
-                                    }
-                                    photoList.Add(photo);
-                                }
-                            }
-                        }
-                    }
-                    // 失分照片信息
-                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-                    if(lossResultList!=null&& lossResultList.Count>0)
-                    {
-                        foreach (LossResultDto lossResult in lossResultList)
-                        {
-                            if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
-                            {
-                                string[] strUrl = lossResult.LossFileNameUrl.Split(';');
-                                foreach (string url in strUrl)
-                                {
-                                    AnswerPhotoLogDto photo = new AnswerPhotoLogDto();
-                                    photo.ProjectId = answer.ProjectId;
-                                    photo.ShopId = answer.ShopId.ToString();
-                                    photo.ShopCode = answer.ShopCode;
-                                    photo.ShopName = answer.ShopName;
-                                    photo.SubjectCode = answer.SubjectCode;
-                                    photo.SubjectId = answer.SubjectId;
-                                    photo.OrderNO = answer.OrderNO;
-                                    photo.PhotoUrl = url;
-                                    photo.PhotoType = "失分照片";
-                                    List<AnswerPhotoLog> uploadLogUrl = uploadLogList.Where(x => x.FileUrl == url).ToList();
-                                    if (uploadLogUrl == null || uploadLogUrl.Count == 0)
-                                    {
-                                        photo.UploadStatus = "0";
-                                    }
-                                    else
-                                    {
-                                        photo.UploadStatus = "1";
-                                        photo.InDateTime = uploadLogUrl[0].InDateTime;
-                                    }
-                                    photoList.Add(photo);
-                                }
-                            }
-                        }
-                    }
-                }
+                photoList = answerService.GetShopAnsewrPhotoLog(projectId, shopId);
                 if (!string.IsNullOrEmpty(uploadStatus))
                 {
                     photoList = photoList.Where(x => x.UploadStatus == uploadStatus).ToList();

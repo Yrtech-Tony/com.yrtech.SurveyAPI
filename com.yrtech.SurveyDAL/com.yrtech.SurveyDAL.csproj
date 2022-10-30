@@ -161,6 +161,9 @@
     <Compile Include="ReportFileActionLog.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReportSet.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="ReportShopChapterScore.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

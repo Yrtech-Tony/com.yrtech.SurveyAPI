@@ -106,6 +106,7 @@
           <Property Name="ProjectId" Type="int" />
           <Property Name="ShopId" Type="int" />
           <Property Name="SubjectId" Type="int" />
+          <Property Name="AppealStatus" Type="bit" />
           <Property Name="AppealReason" Type="nvarchar(max)" />
           <Property Name="AppealUserId" Type="int" />
           <Property Name="AppealDateTime" Type="datetime" />
@@ -434,8 +435,8 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" Nullable="false" />
           <Property Name="AreaId" Type="int" Nullable="false" />
-          <Property Name="ChapterId" Type="int" Nullable="false" />
           <Property Name="ShopType" Type="nvarchar" MaxLength="50" />
+          <Property Name="ChapterId" Type="int" Nullable="false" />
           <Property Name="Score" Type="decimal" Precision="19" Scale="2" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -465,8 +466,8 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" Nullable="false" />
-          <Property Name="ChapterId" Type="int" Nullable="false" />
           <Property Name="ShopType" Type="nvarchar" MaxLength="50" />
+          <Property Name="ChapterId" Type="int" Nullable="false" />
           <Property Name="Score" Type="decimal" Precision="19" Scale="2" />
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
@@ -516,6 +517,16 @@
           <Property Name="ProjectId" Type="int" />
           <Property Name="ReportFileName" Type="nvarchar(max)" />
         </EntityType>
+        <EntityType Name="ReportSet">
+          <Key>
+            <PropertyRef Name="ProjectId" />
+          </Key>
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="InUserId" Type="int" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="ModifyUserId" Type="int" />
+          <Property Name="ModifyDateTime" Type="datetime" />
+        </EntityType>
         <EntityType Name="ReportShopChapterScore">
           <Key>
             <PropertyRef Name="Id" />
@@ -532,10 +543,9 @@
         </EntityType>
         <EntityType Name="ReportShopCompleteCount">
           <Key>
-            <PropertyRef Name="ProjectId" />
-            <PropertyRef Name="AreaId" />
-            <PropertyRef Name="ShopType" />
+            <PropertyRef Name="Id" />
           </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectId" Type="int" Nullable="false" />
           <Property Name="AreaId" Type="int" Nullable="false" />
           <Property Name="ShopType" Type="nvarchar" MaxLength="50" Nullable="false" />
@@ -546,7 +556,7 @@
           <Property Name="InUserId" Type="int" />
           <Property Name="InDateTime" Type="datetime" />
           <Property Name="ModifyUserId" Type="int" />
-          <Property Name="ModifyDateTime" Type="int" />
+          <Property Name="ModifyDateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="ReportShopLossResult">
           <Key>
@@ -581,6 +591,7 @@
             <PropertyRef Name="RoleProgramId" />
           </Key>
           <Property Name="RoleProgramId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenantId" Type="int" />
           <Property Name="RoleTypeCode" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="ProgramCode" Type="nvarchar" MaxLength="50" />
           <Property Name="InUserId" Type="int" />
@@ -837,6 +848,7 @@
           <EntitySet Name="ReportCountrySubjectScore" EntityType="Self.ReportCountrySubjectScore" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportFile" EntityType="Self.ReportFile" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportFileActionLog" EntityType="Self.ReportFileActionLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ReportSet" EntityType="Self.ReportSet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportShopChapterScore" EntityType="Self.ReportShopChapterScore" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportShopCompleteCount" EntityType="Self.ReportShopCompleteCount" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportShopLossResult" EntityType="Self.ReportShopLossResult" Schema="dbo" store:Type="Tables" />
@@ -888,13 +900,11 @@
           <EntitySet Name="UserInfo" EntityType="com.yrtech.SurveyDAL.UserInfo" />
           <EntitySet Name="UserInfoBrand" EntityType="com.yrtech.SurveyDAL.UserInfoBrand" />
           <EntitySet Name="UserInfoObject" EntityType="com.yrtech.SurveyDAL.UserInfoObject" />
-          <EntitySet Name="Appeal" EntityType="com.yrtech.SurveyDAL.Appeal" />
           <EntitySet Name="AppealSet" EntityType="com.yrtech.SurveyDAL.AppealSet" />
           <EntitySet Name="SubjectScoreItem" EntityType="com.yrtech.SurveyDAL.SubjectScoreItem" />
           <EntitySet Name="ReCheckStatus" EntityType="com.yrtech.SurveyDAL.ReCheckStatus" />
           <EntitySet Name="AnswerShopInfo" EntityType="com.yrtech.SurveyDAL.AnswerShopInfo" />
           <EntitySet Name="Answer" EntityType="com.yrtech.SurveyDAL.Answer" />
-          <EntitySet Name="RoleProgram" EntityType="com.yrtech.SurveyDAL.RoleProgram" />
           <EntitySet Name="TenantProgram" EntityType="com.yrtech.SurveyDAL.TenantProgram" />
           <EntitySet Name="Program" EntityType="com.yrtech.SurveyDAL.Program" />
           <EntitySet Name="Subject" EntityType="com.yrtech.SurveyDAL.Subject" />
@@ -912,13 +922,16 @@
           <EntitySet Name="Chapter" EntityType="com.yrtech.SurveyDAL.Chapter" />
           <EntitySet Name="ChapterSubject" EntityType="com.yrtech.SurveyDAL.ChapterSubject" />
           <EntitySet Name="ReportAreaChapterScore" EntityType="com.yrtech.SurveyDAL.ReportAreaChapterScore" />
-          <EntitySet Name="ReportShopCompleteCount" EntityType="com.yrtech.SurveyDAL.ReportShopCompleteCount" />
           <EntitySet Name="ReportShopLossResult" EntityType="com.yrtech.SurveyDAL.ReportShopLossResult" />
           <EntitySet Name="ReportCountryChapterScore" EntityType="com.yrtech.SurveyDAL.ReportCountryChapterScore" />
           <EntitySet Name="ReportShopSubjectScore" EntityType="com.yrtech.SurveyDAL.ReportShopSubjectScore" />
           <EntitySet Name="ReportAreaSubjectScore" EntityType="com.yrtech.SurveyDAL.ReportAreaSubjectScore" />
           <EntitySet Name="ReportCountrySubjectScore" EntityType="com.yrtech.SurveyDAL.ReportCountrySubjectScore" />
           <EntitySet Name="ReportShopChapterScore" EntityType="com.yrtech.SurveyDAL.ReportShopChapterScore" />
+          <EntitySet Name="ReportShopCompleteCount" EntityType="com.yrtech.SurveyDAL.ReportShopCompleteCount" />
+          <EntitySet Name="RoleProgram" EntityType="com.yrtech.SurveyDAL.RoleProgram" />
+          <EntitySet Name="Appeal" EntityType="com.yrtech.SurveyDAL.Appeal" />
+          <EntitySet Name="ReportSet" EntityType="com.yrtech.SurveyDAL.ReportSet" />
         </EntityContainer>
         <EntityType Name="AnswerShopConsultant">
           <Key>
@@ -1252,22 +1265,6 @@
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="Appeal">
-          <Key>
-            <PropertyRef Name="AppealId" />
-          </Key>
-          <Property Name="AppealId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProjectId" Type="Int32" />
-          <Property Name="ShopId" Type="Int32" />
-          <Property Name="SubjectId" Type="Int32" />
-          <Property Name="AppealReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AppealUserId" Type="Int32" />
-          <Property Name="AppealDateTime" Type="DateTime" Precision="3" />
-          <Property Name="FeedBackStatus" Type="Boolean" />
-          <Property Name="FeedBackReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="FeedBackUserId" Type="Int32" />
-          <Property Name="FeedBackDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="AppealSet">
           <Key>
             <PropertyRef Name="ProjectId" />
@@ -1344,16 +1341,6 @@
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="RoleProgram">
-          <Key>
-            <PropertyRef Name="RoleProgramId" />
-          </Key>
-          <Property Name="RoleProgramId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RoleTypeCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ProgramCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="TenantProgram">
           <Key>
@@ -1608,24 +1595,6 @@
           <Property Name="ModifyUserId" Type="Int32" />
           <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="ReportShopCompleteCount">
-          <Key>
-            <PropertyRef Name="ProjectId" />
-            <PropertyRef Name="AreaId" />
-            <PropertyRef Name="ShopType" />
-          </Key>
-          <Property Name="ProjectId" Type="Int32" Nullable="false" />
-          <Property Name="AreaId" Type="Int32" Nullable="false" />
-          <Property Name="ShopType" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="AreaCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="AreaName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Count_Complete" Type="Int32" />
-          <Property Name="Count_UnComplete" Type="Int32" />
-          <Property Name="InUserId" Type="Int32" />
-          <Property Name="InDateTime" Type="DateTime" Precision="3" />
-          <Property Name="ModifyUserId" Type="Int32" />
-          <Property Name="ModifyDateTime" Type="Int32" />
-        </EntityType>
         <EntityType Name="ReportShopLossResult">
           <Key>
             <PropertyRef Name="Id" />
@@ -1710,6 +1679,61 @@
           <Property Name="ShopId" Type="Int32" Nullable="false" />
           <Property Name="ChapterId" Type="Int32" Nullable="false" />
           <Property Name="Score" Type="Decimal" Precision="19" Scale="2" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ReportShopCompleteCount">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="AreaId" Type="Int32" Nullable="false" />
+          <Property Name="ShopType" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AreaCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AreaName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Count_Complete" Type="Int32" />
+          <Property Name="Count_UnComplete" Type="Int32" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="ModifyUserId" Type="Int32" />
+          <Property Name="ModifyDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="RoleProgram">
+          <Key>
+            <PropertyRef Name="RoleProgramId" />
+          </Key>
+          <Property Name="RoleProgramId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="RoleTypeCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProgramCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InUserId" Type="Int32" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Appeal">
+          <Key>
+            <PropertyRef Name="AppealId" />
+          </Key>
+          <Property Name="AppealId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ShopId" Type="Int32" />
+          <Property Name="SubjectId" Type="Int32" />
+          <Property Name="AppealStatus" Type="Boolean" />
+          <Property Name="AppealReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppealUserId" Type="Int32" />
+          <Property Name="AppealDateTime" Type="DateTime" Precision="3" />
+          <Property Name="FeedBackStatus" Type="Boolean" />
+          <Property Name="FeedBackReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FeedBackUserId" Type="Int32" />
+          <Property Name="FeedBackDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ReportSet">
+          <Key>
+            <PropertyRef Name="ProjectId" />
+          </Key>
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
           <Property Name="InUserId" Type="Int32" />
           <Property Name="InDateTime" Type="DateTime" Precision="3" />
           <Property Name="ModifyUserId" Type="Int32" />
@@ -2074,23 +2098,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Appeal">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Appeal">
-              <MappingFragment StoreEntitySet="Appeal">
-                <ScalarProperty Name="FeedBackDateTime" ColumnName="FeedBackDateTime" />
-                <ScalarProperty Name="FeedBackUserId" ColumnName="FeedBackUserId" />
-                <ScalarProperty Name="FeedBackReason" ColumnName="FeedBackReason" />
-                <ScalarProperty Name="FeedBackStatus" ColumnName="FeedBackStatus" />
-                <ScalarProperty Name="AppealDateTime" ColumnName="AppealDateTime" />
-                <ScalarProperty Name="AppealUserId" ColumnName="AppealUserId" />
-                <ScalarProperty Name="AppealReason" ColumnName="AppealReason" />
-                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
-                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AppealSet">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.AppealSet">
               <MappingFragment StoreEntitySet="AppealSet">
@@ -2168,17 +2175,6 @@
                 <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="AnswerId" ColumnName="AnswerId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="RoleProgram">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.RoleProgram">
-              <MappingFragment StoreEntitySet="RoleProgram">
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="ProgramCode" ColumnName="ProgramCode" />
-                <ScalarProperty Name="RoleTypeCode" ColumnName="RoleTypeCode" />
-                <ScalarProperty Name="RoleProgramId" ColumnName="RoleProgramId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2450,23 +2446,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="ReportShopCompleteCount">
-            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.ReportShopCompleteCount">
-              <MappingFragment StoreEntitySet="ReportShopCompleteCount">
-                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
-                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
-                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
-                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
-                <ScalarProperty Name="Count_UnComplete" ColumnName="Count_UnComplete" />
-                <ScalarProperty Name="Count_Complete" ColumnName="Count_Complete" />
-                <ScalarProperty Name="AreaName" ColumnName="AreaName" />
-                <ScalarProperty Name="AreaCode" ColumnName="AreaCode" />
-                <ScalarProperty Name="ShopType" ColumnName="ShopType" />
-                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ReportShopLossResult">
             <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.ReportShopLossResult">
               <MappingFragment StoreEntitySet="ReportShopLossResult">
@@ -2559,6 +2538,65 @@
                 <ScalarProperty Name="ShopId" ColumnName="ShopId" />
                 <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReportShopCompleteCount">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.ReportShopCompleteCount">
+              <MappingFragment StoreEntitySet="ReportShopCompleteCount">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="Count_UnComplete" ColumnName="Count_UnComplete" />
+                <ScalarProperty Name="Count_Complete" ColumnName="Count_Complete" />
+                <ScalarProperty Name="AreaName" ColumnName="AreaName" />
+                <ScalarProperty Name="AreaCode" ColumnName="AreaCode" />
+                <ScalarProperty Name="ShopType" ColumnName="ShopType" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RoleProgram">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.RoleProgram">
+              <MappingFragment StoreEntitySet="RoleProgram">
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ProgramCode" ColumnName="ProgramCode" />
+                <ScalarProperty Name="RoleTypeCode" ColumnName="RoleTypeCode" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="RoleProgramId" ColumnName="RoleProgramId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Appeal">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.Appeal">
+              <MappingFragment StoreEntitySet="Appeal">
+                <ScalarProperty Name="FeedBackDateTime" ColumnName="FeedBackDateTime" />
+                <ScalarProperty Name="FeedBackUserId" ColumnName="FeedBackUserId" />
+                <ScalarProperty Name="FeedBackReason" ColumnName="FeedBackReason" />
+                <ScalarProperty Name="FeedBackStatus" ColumnName="FeedBackStatus" />
+                <ScalarProperty Name="AppealDateTime" ColumnName="AppealDateTime" />
+                <ScalarProperty Name="AppealUserId" ColumnName="AppealUserId" />
+                <ScalarProperty Name="AppealReason" ColumnName="AppealReason" />
+                <ScalarProperty Name="AppealStatus" ColumnName="AppealStatus" />
+                <ScalarProperty Name="SubjectId" ColumnName="SubjectId" />
+                <ScalarProperty Name="ShopId" ColumnName="ShopId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="AppealId" ColumnName="AppealId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReportSet">
+            <EntityTypeMapping TypeName="com.yrtech.SurveyDAL.ReportSet">
+              <MappingFragment StoreEntitySet="ReportSet">
+                <ScalarProperty Name="ModifyDateTime" ColumnName="ModifyDateTime" />
+                <ScalarProperty Name="ModifyUserId" ColumnName="ModifyUserId" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InUserId" ColumnName="InUserId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

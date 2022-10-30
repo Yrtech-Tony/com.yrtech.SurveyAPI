@@ -33,6 +33,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string FileResult { get; set; }// 标准照片结果Json
         public string LossResult { get; set; }// 失分描述结果Json
         public string LossResultAdd { get; set; } // 失分描述补充说明
+        public string LossResultStr { get; set; } // 失分描述拼接的字符串
        
         // 暂时用不到
         //public List<InspectionStandardResultDto> InspectionStandardResultList { get; set; }// 检查标准结果DTO，用于同步数据使用

@@ -111,8 +111,8 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql += @"SELECT A.*,B.RoleTypeCode,C.TenantId 
                     FROM Program A 
-                    INNER JOIN RoleProgram B ON A.ProgramCode = B.ProgramCode
-                    INNER JOIN TenantProgram C ON A.ProgramCode = C.ProgramCode  
+                    INNER JOIN RoleProgram B ON A.ProgramCode = B.ProgramCode AND B.TenantId = @TenantId
+                    INNER JOIN TenantProgram C ON A.ProgramCode = C.ProgramCode  AND B.TenantId = C.TenantId
                     WHERE C.TenantId=@TenantId AND B.RoleTypeCode = @RoleTypeCode";
             if (isChild.HasValue)
             {

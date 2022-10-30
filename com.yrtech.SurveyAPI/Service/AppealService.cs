@@ -23,7 +23,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql += @"
                    INSERT INTO Appeal 
                     SELECT * FROM 
-                    (SELECT A.ProjectId,A.ShopId,A.SubjectId,'' AppealReason,null AppealUserId,null AppealDateTime,null FeedBackStatus
+                    (SELECT A.ProjectId,A.ShopId,null AS AppealStatus,A.SubjectId,'' AppealReason,null AppealUserId,null AppealDateTime,null FeedBackStatus
                     ,'' FeedBackReason,null FeedBackUserId,null FeedBackDateTime
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
                     WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore
@@ -119,6 +119,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
+                                    ,ISNULL(A.AppealStatus,1) AppealStatus
                                   ,U.[ProjectCode]
                                   ,U.[ProjectName]
                                   ,A.[ShopId]
@@ -127,7 +128,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,A.[SubjectId]
                                   ,Y.[SubjectCode]
                                   ,Y.[CheckPoint]
+                                  ,Y.Remark
                                   ,Z.[PhotoScore] AS Score
+                                  ,Z.LossResult
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -243,6 +246,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
                                   ,X.[ProjectCode]
+                                  ,ISNULL(A.AppealStatus,1) AppealStatus
                                   ,X.[ProjectName]
                                   ,A.[ShopId]
                                   ,B.[ShopCode]
@@ -251,6 +255,8 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,C.[SubjectCode]
                                   ,C.[CheckPoint]
                                   ,D.[PhotoScore] AS Score
+                                  ,C.Remark
+                                  ,D.LossResult
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -285,6 +291,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
+                                  ,ISNULL(A.AppealStatus,1) AppealStatus
                                   ,X.[ProjectCode]
                                   ,X.[ProjectName]
                                   ,A.[ShopId]
@@ -293,7 +300,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,A.[SubjectId]
                                   ,C.[SubjectCode]
                                   ,C.[CheckPoint]
+                                  ,C.Remark
                                   ,D.[PhotoScore] AS Score
+                                  ,D.LossResult
                                   ,[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,AppealUserId
@@ -334,6 +343,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.AppealUserId = appeal.AppealUserId;
                 findOne.ProjectId = appeal.ProjectId;
                 findOne.ShopId = appeal.ShopId;
+                findOne.AppealDateTime = DateTime.Now;
+                findOne.AppealStatus = appeal.AppealStatus;
                 findOne.SubjectId = appeal.SubjectId;
                 appeal = findOne;
             }

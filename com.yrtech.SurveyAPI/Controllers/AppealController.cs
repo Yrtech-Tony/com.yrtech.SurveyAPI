@@ -29,6 +29,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpPost]
         [Route("Appeal/SaveAppealSet")]
         public APIResult SaveAppealSet(AppealSet appealSet)
         {
@@ -140,11 +141,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     Appeal appeal = new Appeal();
                     appeal.AppealId = appealDto.AppealId;
-                    appeal.AppealReason = appealDto.AppealReason;
+                    appeal.AppealStatus = appealDto.AppealStatus;
+                    // 如果选择了不申诉，系统自动生成申诉理由
+                    if (appealDto.AppealStatus == false)
+                    {
+                        appeal.AppealReason =  "经销商对检核扣分无异议("+DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +")";
+                    }
+                    else {
+                        appeal.AppealReason = appealDto.AppealReason;
+                    }
                     appeal.AppealUserId = appealDto.AppealUserId;
+
                     appeal.ProjectId = appealDto.ProjectId;
                     appeal.ShopId = appealDto.ShopId;
                     appeal.SubjectId = appealDto.SubjectId;
+
                     if (appeal.AppealId == 0)// 申诉新增时，文件也进行保存
                     {
                         appeal = appealService.AppealApply(appeal);

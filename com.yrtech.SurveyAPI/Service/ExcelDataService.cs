@@ -422,6 +422,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    // 去掉重复项，有可能2条失分说明中勾选了重复的失分说明
                     lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
                     foreach (LossResultDto lossResult in lossResultList)
                     {

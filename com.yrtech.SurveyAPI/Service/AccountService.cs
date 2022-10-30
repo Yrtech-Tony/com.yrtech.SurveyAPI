@@ -610,8 +610,8 @@ namespace com.yrtech.SurveyAPI.Service
                 sql = @"SELECT DISTINCT A.* FROM Brand A WHERE A.TenantId = @TenantId";
             }
             else if (roleType == "S_BrandSysadmin" ||
-                roleType == "S_Execute" ||
-                roleType == "S_Recheck")
+                roleType == "S_Execute" || roleType== "S_SurperVision"|| roleType == "S_Customer"
+                ||roleType == "S_Recheck")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId 

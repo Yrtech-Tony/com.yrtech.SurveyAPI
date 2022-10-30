@@ -5,6 +5,7 @@ using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
+using System.Linq;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -14,7 +15,36 @@ namespace com.yrtech.SurveyAPI.Controllers
         ReportFileService reportFileService = new ReportFileService();
         MasterService masterService = new MasterService();
         ExcelDataService excelDataService = new ExcelDataService();
-
+        #region 报告设置
+        [HttpGet]
+        [Route("ReportFile/GetReportSet")]
+        public APIResult GetReportSet(string projectId)
+        {
+            try
+            {
+                List<ReportSetDto> list = reportFileService.GetReportSet(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/SaveReportSet")]
+        public APIResult SaveReportSet(ReportSet reportSet)
+        {
+            try
+            {
+                reportFileService.SaveReportSet(reportSet);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
         #region 文件上传
         [HttpGet]
         [Route("ReportFile/ReportFileListUploadSearch")]
@@ -279,7 +309,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ReportShopCompleteCount> list = new List<ReportShopCompleteCount>();
+                List<ReportShopCompleteCountDto> list = new List<ReportShopCompleteCountDto>();
                 // 为空查询全国的数量，不为空查询当前区域的数量
                 if (string.IsNullOrEmpty(areaId))
                 {
@@ -314,7 +344,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
                     }
                 }
-                // 为空查询全国的数量，不为空查询当前区域的数量
+                // 区域为空查询全国的数量，不为空查询当前区域的数量
                 else if (!string.IsNullOrEmpty(areaId))
                 {
                     list = reportFileService.ReportAreaChapterScoreSearch(projectId, areaId, shopType);
@@ -332,6 +362,71 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 扣分细项
+        [HttpGet]
+        [Route("ReportFile/ReportShopLossResult")]
+        public APIResult ReportShopLossResult(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
+        {
+            try
+            {
+                //List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                //if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
+                //{
+                //    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
+                //}
+                List<AnswerDto> answerList = reportFileService.ReportShopLossResult(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword);
+                foreach (AnswerDto answer in answerList)
+                {
+                    //失分说明
+                    string lossResultStr = "";
+                    if (!string.IsNullOrEmpty(answer.LossResult))
+                    {
+                        List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                        // 去掉重复项，有可能2条失分说明中勾选了重复的失分说明
+                        lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
+                        foreach (LossResultDto lossResult in lossResultList)
+                        {
+                            if (!string.IsNullOrEmpty(lossResult.LossDesc))
+                            {
+                                lossResultStr += lossResult.LossDesc + ";";
+                            }
+                            if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                            {
+                                lossResultStr += lossResult.LossDesc2 + ";";
+                            }
+                        }
+                    }
+                    // 去掉最后一个分号
+                    if (!string.IsNullOrEmpty(lossResultStr))
+                    {
+                        lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                    }
+                    answer.LossResultStr = lossResultStr;
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 数据报告生成
+        [HttpGet]
+        [Route("ReportFile/ReportDataCreate")]
+        public APIResult ReportDataCreate(string brandId,string projectId)
+        {
+            try
+            {
+                reportFileService.ReportDataCreate(brandId, projectId);
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {

@@ -651,6 +651,10 @@ namespace com.yrtech.SurveyAPI.Service
                         {
                             folderName += lossResultCode + fileRenameList_Folder[i].ConnectStr;
                         }
+                        //if (fileRenameList_Folder[i].OptionCode == "CheckPoint")
+                        //{
+                        //    folderName += checkPoint + fileRenameList_Folder[i].ConnectStr;
+                        //}
                         if (fileRenameList_Folder[i].OptionCode == "Other")
                         {
                             folderName += fileRenameList_Folder[i].OtherName + fileRenameList_Folder[i].ConnectStr;

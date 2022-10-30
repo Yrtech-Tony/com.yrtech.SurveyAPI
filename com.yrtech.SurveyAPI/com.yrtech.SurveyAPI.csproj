@@ -182,6 +182,8 @@
     <Compile Include="DTO\Recheck\RecheckStatusDtlDto.cs" />
     <Compile Include="DTO\Recheck\RecheckDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />
+    <Compile Include="DTO\ReportFile\ReporSetDto..cs" />
+    <Compile Include="DTO\ReportFile\ReportShopCompleteCountDto.cs" />
     <Compile Include="DTO\ReportFile\ReporSubjectScoreDto..cs" />
     <Compile Include="DTO\ReportFile\ReportChapterScoreDto..cs" />
     <Compile Include="DTO\ReportFile\ReportFileActionLogDto..cs" />
