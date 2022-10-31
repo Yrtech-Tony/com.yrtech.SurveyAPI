@@ -82,5 +82,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<RoleProgram> RoleProgram { get; set; }
         public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<ReportSet> ReportSet { get; set; }
+        public virtual DbSet<AppealShopSet> AppealShopSet { get; set; }
     }
 }

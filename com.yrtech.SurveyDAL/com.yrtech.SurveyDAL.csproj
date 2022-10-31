@@ -78,6 +78,9 @@
     <Compile Include="AppealSet.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="AppealShopSet.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="AppVersion.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>

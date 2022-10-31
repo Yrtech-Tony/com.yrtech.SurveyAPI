@@ -5,6 +5,7 @@ using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
+using System.Linq;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -13,6 +14,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AppealService appealService = new AppealService();
         ExcelDataService excelDataService = new ExcelDataService();
+        MasterService masterService = new MasterService();
 
         #region 申诉设置
         [HttpGet]
@@ -42,6 +44,91 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
+        }
+        [HttpGet]
+        [Route("Appeal/GetAppealShopSet")]
+        public APIResult GetAppealShopSet(string projectId)
+        {
+            try
+            {
+                List<AppealSetDto> list = appealService.GetAppealShopSet(projectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/SaveAppealShopSet")]
+        public APIResult SaveAppealShopSet(AppealShopSet appealSet)
+        {
+            try
+            {
+                appealService.SaveAppealShopSet(appealSet);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Appeal/AppealShopSetExcelAnalysis")]
+        public APIResult AppealShopSetExcelAnalysis(string tenantId, string brandId, string ossPath)
+        {
+            try
+            {
+                List<AppealSetDto> list = excelDataService.AppealShopSetImport(ossPath);
+                foreach (AppealSetDto appealSet in list)
+                {
+                    appealSet.ImportChk = true;
+                    appealSet.ImportRemark = "";
+                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", appealSet.ShopCode, "");
+                    if (shopList == null || shopList.Count == 0)
+                    {
+                        appealSet.ImportChk = false;
+                        appealSet.ImportRemark += "经销商不存在" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/AppealShopSetImport")]
+        public APIResult AppealShopSetImport(UploadData uploadData)
+        {
+            try
+            {
+                List<AppealSetDto> list = CommonHelper.DecodeString<List<AppealSetDto>>(uploadData.ListJson);
+                foreach (AppealSetDto appeal in list)
+                {
+                    AppealShopSet appealSet = new AppealShopSet();
+                    appealSet.ProjectId = appeal.ProjectId;
+                   
+                    List<ShopDto> shopList = masterService.GetShop(appeal.TenantId.ToString(),appeal.BrandId.ToString(),"",appeal.ShopCode,"");
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        appealSet.ShopId = shopList[0].ShopId;
+                    }
+                    appealSet.AppealStartDate = appeal.AppealStartDate;
+                    appealSet.AppealEndDate = appeal.AppealEndDate;
+                    appealSet.InUserId = appeal.InUserId;
+                    appealSet.ModifyUserId = appeal.ModifyUserId;
+                    appealService.SaveAppealShopSet(appealSet);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
         }
         #endregion
         [HttpGet]

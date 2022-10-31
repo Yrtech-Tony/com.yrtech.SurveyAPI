@@ -318,6 +318,40 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return list;
         }
+        // 申诉设置导入
+        public List<AppealSetDto> AppealShopSetImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<AppealSetDto> list = new List<AppealSetDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string shopCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                AppealSetDto appealSet = new AppealSetDto();
+                appealSet.ShopCode = shopCode;
+                if (string.IsNullOrEmpty(sheet.GetCell("B" + (i + 3)).Value.ToString()))
+                {
+                    appealSet.AppealStartDate = null;
+                }
+                else {
+                    appealSet.AppealStartDate = Convert.ToDateTime(sheet.GetCell("B" + (i + 3)).Value.ToString());
+                }
+                if (string.IsNullOrEmpty(sheet.GetCell("C" + (i + 3)).Value.ToString()))
+                {
+                    appealSet.AppealEndDate = null;
+                }
+                else
+                {
+                    appealSet.AppealEndDate = Convert.ToDateTime(sheet.GetCell("C" + (i + 3)).Value.ToString());
+                }
+                list.Add(appealSet);
+            }
+            return list;
+        }
         #endregion
         #region 导出
         // 导出账号

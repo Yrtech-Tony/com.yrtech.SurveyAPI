@@ -82,6 +82,47 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
+        public List<AppealSetDto> GetAppealShopSet(string projectId)
+        {
+            if (projectId == null) projectId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            Type t = typeof(AppealSetDto);
+            string sql = "";
+            sql = @"SELECT 
+                        A.ProjectId
+                        ,C.ProjectCode
+                        ,C.ProjectName
+                        ,D.ShopCode
+                        ,D.ShopName
+		                ,B.AppealStartDate
+                        ,B.AppealEndDate
+                        ,B.InDateTime
+                        ,B.ModifyDateTime
+                    FROM ProjectShopExamType A INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                                               INNER JOIN Shop D ON A.ShopId = D.ShopId
+                                                LEFT JOIN AppealShopSet B ON A.ProjectId = B.ProjectId 
+                                                AND A.ShopId = B.ShopId
+                    WHERE A.ProjectId = @ProjectId ";
+            return db.Database.SqlQuery(t, sql, para).Cast<AppealSetDto>().ToList();
+        }
+        public void SaveAppealShopSet(AppealShopSet appealSet)
+        {
+            AppealShopSet findOne = db.AppealShopSet.Where(x => (x.ProjectId == appealSet.ProjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                appealSet.InDateTime = DateTime.Now;
+                appealSet.ModifyDateTime = DateTime.Now;
+                db.AppealShopSet.Add(appealSet);
+            }
+            else
+            {
+                findOne.AppealEndDate = appealSet.AppealEndDate;
+                findOne.AppealStartDate = appealSet.AppealStartDate;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = appealSet.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
         /// <summary>
         /// 查询经销商申诉列表_按页码
         /// </summary>
