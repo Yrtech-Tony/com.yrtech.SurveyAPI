@@ -92,12 +92,14 @@ namespace com.yrtech.SurveyAPI.Service
                         A.ProjectId
                         ,C.ProjectCode
                         ,C.ProjectName
+                        ,D.ShopId
                         ,D.ShopCode
                         ,D.ShopName
 		                ,B.AppealStartDate
                         ,B.AppealEndDate
                         ,B.InDateTime
                         ,B.ModifyDateTime
+                        
                     FROM ProjectShopExamType A INNER JOIN Project C ON A.ProjectId = C.ProjectId
                                                INNER JOIN Shop D ON A.ShopId = D.ShopId
                                                 LEFT JOIN AppealShopSet B ON A.ProjectId = B.ProjectId 
@@ -107,7 +109,11 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveAppealShopSet(AppealShopSet appealSet)
         {
-            AppealShopSet findOne = db.AppealShopSet.Where(x => (x.ProjectId == appealSet.ProjectId)).FirstOrDefault();
+            if (appealSet.AppealEndDate != null)
+            {
+                appealSet.AppealEndDate = Convert.ToDateTime(Convert.ToDateTime(appealSet.AppealEndDate).ToString("yyyy-MM-dd") + " 23:59:59");
+            }
+            AppealShopSet findOne = db.AppealShopSet.Where(x => (x.ProjectId == appealSet.ProjectId&&x.ShopId==appealSet.ShopId)).FirstOrDefault();
             if (findOne == null)
             {
                 appealSet.InDateTime = DateTime.Now;
@@ -186,6 +192,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
+                                  ,(SELECT TOP 1 AppealEndDate FROM AppealShopSet WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId) AS AppealEndDate
                               FROM [Appeal] A  INNER JOIN Shop X ON A.ShopId = X.ShopId AND (X.ShopCode LIKE '%'+@KeyWord+'%' OR X.ShopName LIKE '%'+@KeyWord+'%')
                                                 INNER JOIN [Subject] Y ON A.SubjectId = Y.SubjectId AND A.ProjectId = Y.ProjectId
                                                 INNER JOIN Answer Z ON A.ProjectId = Z.ProjectId AND A.ShopId = Z.ShopId AND A.SubjectId =Z.SubjectId
@@ -358,6 +365,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
+                                  ,(SELECT TOP 1 AppealEndDate FROM AppealShopSet WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId) AS AppealEndDate
                               FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId 
                                                 INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
                                                 INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
@@ -498,7 +506,7 @@ namespace com.yrtech.SurveyAPI.Service
                            FROM 
                         (SELECT A.ShopId,B.ShopCode,B.ShopName,
                                  1 AS ApplyCount,
-                                CASE WHEN A.FeedBackStatus IS NOT NULL AND A.FeedBackStatus<>'' THEN 1
+                                CASE WHEN A.FeedBackStatus IS NOT NULL  THEN 1
                                     ELSE 0
                                 END AS FeedBackCount
                          FROM Appeal A INNER JOIN Shop B ON A.ShopId = B.ShopId

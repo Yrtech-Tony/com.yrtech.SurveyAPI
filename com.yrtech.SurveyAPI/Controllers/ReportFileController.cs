@@ -338,10 +338,32 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 如果经销商不为空，按经销商查询
                 if (!string.IsNullOrEmpty(shopId))
                 {
-                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId);
+
+                    ShopService shopservice = new ShopService();
+                    // 专门针对极狐项目的特殊处理
+                    List<ProjectShopExamTypeDto> shopList = shopservice.GetProjectShopExamType("", projectId, shopId);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        if (shopList[0].ExamTypeId == 18)
+                        {
+                            shopType = "A";
+                        }
+                        else if (shopList[0].ExamTypeId == 19)
+                        {
+                            shopType = "B";
+                        }
+                        else {
+                            shopType = "C";
+                        }
+                    }
+                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId,shopType);
                     foreach (ReportChapterScoreDto chapterScore in list)
                     {
                         chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
+                    }
+                    if (list == null || list.Count == 0)
+                    {
+                        return new APIResult() { Status = false, Body = "申诉流程暂未结束，检核快报暂未生成" };
                     }
                 }
                 // 区域为空查询全国的数量，不为空查询当前区域的数量
@@ -382,6 +404,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
                 //}
                 List<AnswerDto> answerList = reportFileService.ReportShopLossResult(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword);
+                if (answerList == null || answerList.Count == 0)
+                {
+                    return new APIResult() { Status = false, Body = "申诉流程暂未结束，扣分细节页暂未开放" };
+                }
                 foreach (AnswerDto answer in answerList)
                 {
                     //失分说明

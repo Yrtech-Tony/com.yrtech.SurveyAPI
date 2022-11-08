@@ -28,9 +28,11 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(RecheckDto);
             string sql = @"SELECT  A.*, B.ShopCode,B.ShopName,C.SubjectCode,C.[CheckPoint],C.OrderNO
                                     , D.AccountName AS RecheckUserName,ISNULL(E.AccountName, '') AS AgreeUserName
-                                    , ISNULL(F.AccountName, '') AS LastConfirmUserName
+                                    , ISNULL(F.AccountName, '') AS LastConfirmUserName,X.PhotoScore,X.Remark,
+                                     X.InspectionStandardResult,X.FileResult,X.LossResult,X.LossResultAdd
                           FROM Recheck A INNER JOIN Shop B ON A.ShopId = B.ShopId
                                          INNER JOIN[Subject] C ON A.ProjectId = C.ProjectId AND A.SubjectId = C.SubjectId
+                                          INNER JOIN Answer X ON A.ProjectId = X.ProjectId AND A.ShopId = X.ShopId AND A.SubjectId = X.SubjectId
                                          INNER JOIN UserInfo D ON A.RecheckUserId = D.Id
                                          LEFT JOIN UserInfo E ON A.AgreeUserId = E.Id
                                          LEFT JOIN UserInfo F ON A.LastConfirmUserId = F.Id

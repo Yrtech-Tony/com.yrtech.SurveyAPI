@@ -237,7 +237,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND B.LabelId_RecheckType = @RecheckTypeId";
             }
-            sql += " ORDER BY A.ProjectId,C.ShopCode,B.OrderNO,A.SubjectId";
+            sql += " ORDER BY A.ProjectId,C.ShopCode,A.SubjectId,B.OrderNO";
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
         #endregion

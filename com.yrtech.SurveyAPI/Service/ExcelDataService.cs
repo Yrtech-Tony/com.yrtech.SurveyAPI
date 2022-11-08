@@ -333,20 +333,20 @@ namespace com.yrtech.SurveyAPI.Service
                 if (string.IsNullOrEmpty(shopCode)) break;
                 AppealSetDto appealSet = new AppealSetDto();
                 appealSet.ShopCode = shopCode;
+                //if (string.IsNullOrEmpty(sheet.GetCell("B" + (i + 3)).Value.ToString()))
+                //{
+                //    appealSet.AppealEndDate = null;
+                //}
+                //else {
+                //    appealSet.AppealStartDate = Convert.ToDateTime(sheet.GetCell("B" + (i + 3)).Value.ToString());
+                //}
                 if (string.IsNullOrEmpty(sheet.GetCell("B" + (i + 3)).Value.ToString()))
-                {
-                    appealSet.AppealStartDate = null;
-                }
-                else {
-                    appealSet.AppealStartDate = Convert.ToDateTime(sheet.GetCell("B" + (i + 3)).Value.ToString());
-                }
-                if (string.IsNullOrEmpty(sheet.GetCell("C" + (i + 3)).Value.ToString()))
                 {
                     appealSet.AppealEndDate = null;
                 }
                 else
                 {
-                    appealSet.AppealEndDate = Convert.ToDateTime(sheet.GetCell("C" + (i + 3)).Value.ToString());
+                    appealSet.AppealEndDate = Convert.ToDateTime(sheet.GetCell("B" + (i + 3)).Value.ToString());
                 }
                 list.Add(appealSet);
             }
@@ -413,6 +413,7 @@ namespace com.yrtech.SurveyAPI.Service
         public string ShopAnsewrScoreInfoExport(string projectId, string shopId)
         {
             List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];
@@ -439,7 +440,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
-                    lossResultList= lossResultList.Where((x,i)=> lossResultList.FindIndex(z=>z.LossDesc==x.LossDesc&&z.LossDesc2==x.LossDesc2)==i).ToList();
+                    lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
                     foreach (LossResultDto lossResult in lossResultList)
                     {
                         lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
@@ -453,6 +454,7 @@ namespace com.yrtech.SurveyAPI.Service
 
                 //失分说明
                 string lossResultStr = "";
+                string lossResultStr2 = "";
                 if (!string.IsNullOrEmpty(item.LossResult))
                 {
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
@@ -466,7 +468,7 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         if (!string.IsNullOrEmpty(lossResult.LossDesc2))
                         {
-                            lossResultStr += lossResult.LossDesc2 + ";";
+                            lossResultStr2 += lossResult.LossDesc2 + ";";
                         }
                     }
 
@@ -476,18 +478,38 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
                 }
+                if (!string.IsNullOrEmpty(lossResultStr2))
+                {
+                    lossResultStr2 = lossResultStr2.Substring(0, lossResultStr2.Length - 1);
+                }
                 sheet.GetCell("H" + (rowIndex + 2)).Value = lossResultStrCode;
                 sheet.GetCell("I" + (rowIndex + 2)).Value = lossResultStr;
+                sheet.GetCell("J" + (rowIndex + 2)).Value = lossResultStr2;
                 // 通过复审
-                sheet.GetCell("J" + (rowIndex + 2)).Value = item.PassRecheckName;
+                sheet.GetCell("K" + (rowIndex + 2)).Value = item.PassRecheckName;
                 //复审得分
-                sheet.GetCell("K" + (rowIndex + 2)).Value = item.RecheckScore;
-                //复审得分
-                sheet.GetCell("L" + (rowIndex + 2)).Value = item.RecheckContent;
-
+                sheet.GetCell("L" + (rowIndex + 2)).Value = item.RecheckScore;
+                //复审意见
+                sheet.GetCell("M" + (rowIndex + 2)).Value = item.RecheckContent;
+                int projectInt = Convert.ToInt32(projectId);
+                List<AppealDto> appeal = appealList.Where(x => x.ProjectId == projectInt && x.ShopId == item.ShopId && x.SubjectId == item.SubjectId).ToList();
+                string appealStatus = "";
+                string appealReason = "";
+                string feedBackStatus = "";
+                string feedBackContent = "";
+                if (appeal != null && appeal.Count > 0)
+                {
+                    appealStatus = appeal[0].AppealStatus == true ?"申诉":"不申诉";
+                    appealReason = appeal[0].AppealReason;
+                    feedBackStatus = appeal[0].FeedBackStatusStr;
+                    feedBackContent = appeal[0].FeedBackReason;
+                }
+                sheet.GetCell("N" + (rowIndex + 2)).Value = appealStatus;
+                sheet.GetCell("O" + (rowIndex + 2)).Value = appealReason;
+                sheet.GetCell("P" + (rowIndex + 2)).Value = feedBackStatus;
+                sheet.GetCell("Q" + (rowIndex + 2)).Value = feedBackContent;
                 rowIndex++;
             }
-
             //保存excel文件
             string fileName = "经销商得分" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             string dirPath = basePath + @"\Temp\";
@@ -502,7 +524,7 @@ namespace com.yrtech.SurveyAPI.Service
             return filePath.Replace(basePath, ""); ;
         }
         // 得分导出-横向
-        public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId)
+        public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId, string columnList)
         {
             List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
@@ -540,10 +562,35 @@ namespace com.yrtech.SurveyAPI.Service
                     ,"ZD","ZE","ZF","ZG","ZH","ZI","ZJ","ZK","ZL","ZM","ZN","ZO","ZP","ZQ","ZR","ZS","ZT","ZU","ZV","ZW","ZX","ZY","ZZ"};
             for (int i = 0; i < subjectList.Count; i++)
             {
-                sheet.GetCell(head[i * 3] + 1).Value = subjectList[i].SubjectCode;
-                sheet.GetCell(head[(i * 3 + 1)] + 1).Value = subjectList[i].SubjectCode + "-描述";
-                //sheet.GetCell(head[(i * 3 + 2)] + 1).Value = "得分";
-                sheet.GetCell(head[(i * 3 + 2)] + 1).Value = "备注";
+                //int j = 0;
+                string[] column = columnList.Split(';');
+                sheet.GetCell(head[i * column.Length] + 1).Value = subjectList[i].SubjectCode;
+               
+                for (int j = 1; j < column.Length; j++)
+                {
+                    if (column[j].Contains("LossCode"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-失分代码";
+                    }
+                    if (column[j].Contains("LossName"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-描述";
+                    }
+                    if (column[j].Contains("LossName2"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-补充描述";
+                    }
+                    if (column[j].Contains("PhotoScore"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "得分";
+                    }
+                    if (column[j].Contains("Remark"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "备注";
+                    }
+                }
+                //sheet.GetCell(head[(i * 4 + 2)] + 1).Value = "得分";
+                //sheet.GetCell(head[(i * 4 + 3)] + 1).Value = "备注";
             }
             // 绑定数据
             foreach (RecheckDto item in recheckList)
@@ -560,6 +607,7 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 //失分说明
                 string lossResultStr = "";
+                string lossResultStr2 = "";
                 string lossResultStrCode = "";
 
                 if (!string.IsNullOrEmpty(item.LossResult))
@@ -575,7 +623,7 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         if (!string.IsNullOrEmpty(lossResult.LossDesc2))
                         {
-                            lossResultStr += lossResult.LossDesc2 + ";";
+                            lossResultStr2 += lossResult.LossDesc2 + ";";
                         }
                     }
                 }
@@ -583,6 +631,10 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(lossResultStr))
                 {
                     lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                }
+                if (!string.IsNullOrEmpty(lossResultStr2))
+                {
+                    lossResultStr2 = lossResultStr2.Substring(0, lossResultStr2.Length - 1);
                 }
                 if (!string.IsNullOrEmpty(lossResultStrCode))
                 {
@@ -599,10 +651,31 @@ namespace com.yrtech.SurveyAPI.Service
                     {
                         if (cellValue == item.SubjectCode)
                         {
-                            sheet.GetCell(head[i] + (rowIndex + 2)).Value = lossResultStrCode;
-                            sheet.GetCell(head[i + 1] + (rowIndex + 2)).Value = lossResultStr;
-                            //sheet.GetCell(head[i + 2] + (rowIndex + 2)).Value = item.PhotoScore;
-                            sheet.GetCell(head[i + 2] + (rowIndex + 2)).Value = item.Remark;
+                            int j = 0;
+                            if (columnList.Contains("LossCode"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStrCode;
+                                j++;
+                            }
+                            if (columnList.Contains("LossName"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStr;
+                                j++;
+                            }
+                            if (columnList.Contains("LossName2"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStr2;
+                                j++;
+                            }
+                            if (columnList.Contains("PhotoScore"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = item.PhotoScore;
+                                j++;
+                            }
+                            if (columnList.Contains("Remark"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = item.Remark;
+                            }
                         }
                     }
                 }
@@ -713,12 +786,12 @@ namespace com.yrtech.SurveyAPI.Service
             string filePath = dirPath + fileName;
             book.Save(filePath);
 
-            return filePath.Replace(basePath, ""); 
+            return filePath.Replace(basePath, "");
         }
         // 申诉导出
         public string AppealExport(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCoun)
         {
-            List<AppealDto> list = appealService.GetShopAppealInfoByPage(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,keyword,pageNum,pageCoun);
+            List<AppealDto> list = appealService.GetShopAppealInfoByPage(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCoun);
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "Appeal.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];

@@ -400,11 +400,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Answer/ShopAnswerScoreInfoExportL")]
-        public APIResult ShopAnswerScoreInfoExportL(string projectId, string shopId)
+        public APIResult ShopAnswerScoreInfoExportL(string projectId, string shopId,string columnList="")
         {
             try
             {
-                string downloadPath = excelDataService.ShopAnsewrScoreInfoExport_L(projectId, shopId);
+                string downloadPath = excelDataService.ShopAnsewrScoreInfoExport_L(projectId, shopId, columnList);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)

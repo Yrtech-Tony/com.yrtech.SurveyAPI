@@ -269,12 +269,12 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@MiddleArea", middleArea),
                                                         new SqlParameter("@BigArea", bigArea),
                                                         new SqlParameter("@WideArea", wideArea),
-                                                        new SqlParameter("@BussinessTypeId", bussinessType),
+                                                        new SqlParameter("@BussinessType", bussinessType),
                                                     new SqlParameter("@KeyWord", keyword), new SqlParameter("@ReportFileType", reportFileType)};
             Type t = typeof(ReportFileDto);
             string sql = "";
             sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,A.ReportFileType,A.ReportFileName,A.Url_OSS,A.InDateTime
-                    FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId AND A.BussinessTypeId = @BussinessTypeId";
+                    FROM ReportFile A INNER JOIN Shop B ON A.ShopId = B.ShopId AND A.BussinessTypeId = @BussinessType";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
                 string[] shopIdList = shopIdStr.Split(',');
@@ -525,7 +525,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@MiddleArea", middleArea),
                                                         new SqlParameter("@BigArea", bigArea),
                                                         new SqlParameter("@WideArea", wideArea),
-                                                        new SqlParameter("@BussinessTypeId", bussinessType),
+                                                        new SqlParameter("@BussinessType", bussinessType),
                                                         new SqlParameter("@KeyWord", keyword)};
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -729,14 +729,16 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 一级指标统计
         // 经销商一级指标得分
-        public List<ReportChapterScoreDto> ReportShopChapterScoreSearch(string projectId, string shopId)
+        public List<ReportChapterScoreDto> ReportShopChapterScoreSearch(string projectId, string shopId,string shopType)
         {
             if (shopId == null) shopId = "";
+            if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@ShopId", shopId)};
+                                                        new SqlParameter("@ShopId", shopId),new SqlParameter("@ShopType", shopType)};
             Type t = typeof(ReportChapterScoreDto);
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.ShopCode,C.ShopName
+                 , (SELECT ISNULL(FullScore,0) FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) FullScore
                     FROM ReportShopChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
                                                    INNER JOIN Shop C ON A.ShopId = C.ShopId
@@ -747,6 +749,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopId=@ShopId";
             }
+            sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
         // 区域一级指标得分
@@ -760,8 +763,9 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportChapterScoreDto);
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.AreaCode,C.AreaName
+            ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
                 FROM ReportAreaChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
-                                                                       AND A.ChapterId = B.ChapterId
+                                                                       AND A.ChapterId = B.ChapterId    
                                                    INNER JOIN Area C ON A.AreaId = C.AreaId
                    WHERE A.ProjectId=@ProjectId ";
 
@@ -773,6 +777,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND ShopType=@ShopType";
             }
+            sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
         // 全国一级指标得分
@@ -784,13 +789,16 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportChapterScoreDto);
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName
+                ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
                     FROM ReportCountryChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
+                                                                       
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
-                sql += @" AND ShopType=@ShopType";
+                sql += @" AND A.ShopType=@ShopType";
             }
+            sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
 
@@ -804,7 +812,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@ChapterId", chapterId)};
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
-            sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint] 
+            sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore
                     FROM ReportShopSubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                   INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -817,6 +825,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND B.ChapterId=@ChapterId";
             }
+            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 区域二级指标得分
@@ -831,7 +840,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@ChapterId", chapterId)};
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
-            sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint]  
+            sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore  
                     FROM ReportAreaSubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                   INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -848,6 +857,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopType=@ShopType";
             }
+            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 全国二级指标得分
@@ -859,7 +869,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@ChapterId", chapterId)};
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
-            sql = @"SELECT A.* ,C.SubjectId,C.SubjectCode,C.[CheckPoint]
+            sql = @"SELECT A.* ,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore
                     FROM ReportCountrySubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                      INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -871,6 +881,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopType=@ShopType";
             }
+            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 扣分细节项
@@ -890,7 +901,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@WideArea", wideArea),
                                                         new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@Keyword", keyword),
-                                                        new SqlParameter("@BussinessTypeId", bussinessType)};
+                                                        new SqlParameter("@BussinessType", bussinessType)};
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"SELECT A.ProjectId,A.ShopId,X.ShopCode,X.ShopName,Y.SubjectId,Y.[CheckPoint],B.LossResult,B.LossResultAdd,

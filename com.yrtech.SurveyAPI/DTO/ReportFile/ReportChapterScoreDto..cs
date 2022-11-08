@@ -19,6 +19,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ChapterCode { get; set; } //一级指标代码
         public string ChapterName { get; set; } // 一级指标名称
         public Nullable<decimal> Score { get; set; } // 分数
+        public Nullable<decimal> FullScore { get; set; } // 标准分
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

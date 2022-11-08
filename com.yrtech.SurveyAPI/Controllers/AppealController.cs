@@ -90,6 +90,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                         appealSet.ImportChk = false;
                         appealSet.ImportRemark += "经销商不存在" + ";";
                     }
+                    if (appealSet.AppealEndDate == null)
+                    {
+                        appealSet.ImportChk = false;
+                        appealSet.ImportRemark += "结束时间不能为空" + ";";
+                    }
                 }
                 list = (from shop in list orderby shop.ImportChk select shop).ToList();
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
@@ -151,7 +156,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopAppealInfoByPage(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount)) };
+                List<AppealDto> list = appealService.GetShopAppealInfoByPage(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount);
+                foreach (AppealDto appeal in list)
+                {
+                    if (appeal.AppealEndDate == null)
+                    {
+                        appeal.AppealDateCheck = true;
+                    }
+                    else if (appeal.AppealEndDate > DateTime.Now)
+                    {
+                        appeal.AppealDateCheck = true; // 不能编辑
+                    }
+                    else if(appeal.AppealEndDate < DateTime.Now)
+                    {
+                        appeal.AppealDateCheck = false;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
             {
@@ -177,7 +198,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetShopSubjectAppeal(appealId)) };
+                List<AppealDto> list = appealService.GetShopSubjectAppeal(appealId);
+                foreach (AppealDto appeal in list)
+                {
+                    if (appeal.AppealEndDate == null)
+                    {
+                        appeal.AppealDateCheck = true;
+                    }
+                    else if (appeal.AppealEndDate > DateTime.Now)
+                    {
+                        appeal.AppealDateCheck = true; // 
+                    }
+                    else if (appeal.AppealEndDate < DateTime.Now)
+                    {
+                        appeal.AppealDateCheck = false;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
             {
@@ -232,7 +269,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     // 如果选择了不申诉，系统自动生成申诉理由
                     if (appealDto.AppealStatus == false)
                     {
-                        appeal.AppealReason =  "经销商对检核扣分无异议("+DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +")";
+                        appeal.AppealReason = "经销商对检核扣分：无异议/未反馈";
                     }
                     else {
                         appeal.AppealReason = appealDto.AppealReason;

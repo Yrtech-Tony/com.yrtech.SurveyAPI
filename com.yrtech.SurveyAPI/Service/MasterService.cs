@@ -1267,6 +1267,30 @@ namespace com.yrtech.SurveyAPI.Service
             }
         }
         #endregion
+        #region 章节管理
+        public List<Chapter> GetChapter(string projectId,string chapterId,string chapterCode)
+        {
+            if (chapterId == null) chapterId = "";
+            if (chapterCode == null) chapterCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ChapterId", chapterId)
+                                                        ,new SqlParameter("@ChapterCode", chapterCode)};
+            Type t = typeof(Chapter);
+            string sql = "";
+            sql = @"SELECT A.*
+                    FROM Chapter A
+                   WHERE A.ProjectId=@ProjectId ";
+            if (string.IsNullOrEmpty(chapterId))
+            {
+                sql += " AND A.ChapterId = @ChapterId";
+            }
+            if (string.IsNullOrEmpty(chapterCode))
+            {
+                sql += " AND A.ChapterCode = @ChapterCode";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Chapter>().ToList();
+        }
+        #endregion
         #region 标签管理
         public List<Label> GetLabel(string brandId, string labelId, string labelType, bool? useChk, string labelCode)
         {

@@ -2068,6 +2068,23 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         #endregion
+        #region 章节管理
+        [HttpGet]
+        [Route("Master/GetChapter")]
+        public APIResult GetChapter(string projectId, string chapterId="",string chapterCode="")
+        {
+            try
+            {
+                List<Chapter> chapterList = masterService.GetChapter(projectId,chapterId,chapterCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 下载文件照片命名
         [HttpGet]
         [Route("Master/GetFileType")]

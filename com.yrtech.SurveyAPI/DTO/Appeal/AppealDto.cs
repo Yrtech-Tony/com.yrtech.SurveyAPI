@@ -42,5 +42,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? ShopAcceptUserId { get; set; }
         public string ShopAcceptDateTime { get; set; }
         public List<AppealFile> AppealFileList { get; set; }
+        public DateTime? AppealEndDate { get; set; }
+        public bool AppealDateCheck { get; set; }
     }
 }
