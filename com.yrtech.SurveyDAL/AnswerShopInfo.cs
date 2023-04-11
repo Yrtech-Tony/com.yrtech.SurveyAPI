@@ -21,6 +21,32 @@ namespace com.yrtech.SurveyDAL
         public string PhotoUrl { get; set; }
         public string Longitude { get; set; }
         public string Latitude { get; set; }
+        public string InShopMode { get; set; }
+        public string InShopAddress { get; set; }
+        public Nullable<bool> AddressCheck { get; set; }
+        public string SalesName { get; set; }
+        public string SalesNameCheckMode { get; set; }
+        public string SakesNameCheckReason { get; set; }
+        public string ExecuteName { get; set; }
+        public string ExcuteAddress { get; set; }
+        public string ExcuteCity { get; set; }
+        public string ExcuteJob { get; set; }
+        public string CarBuyPurpose { get; set; }
+        public Nullable<decimal> CarBuyBudget { get; set; }
+        public string CarBuyType { get; set; }
+        public string CarCompetitor { get; set; }
+        public string ExcuteHomeAddress { get; set; }
+        public string ExcutePhone { get; set; }
+        public Nullable<System.DateTime> InShopStartDate { get; set; }
+        public Nullable<System.DateTime> InShopEndDate { get; set; }
+        public Nullable<bool> TestDriverCheck { get; set; }
+        public Nullable<System.DateTime> TestDriverStartDate { get; set; }
+        public Nullable<System.DateTime> TestDriverEndDate { get; set; }
+        public string WeatherCondition { get; set; }
+        public string OutShopCondition { get; set; }
+        public string InShopCondition { get; set; }
+        public string VideoComplete { get; set; }
+        public string ExecuteRecogniz { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

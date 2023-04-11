@@ -140,9 +140,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         #endregion
-
         /// <summary>
         /// 修改密码
         /// </summary>
@@ -154,7 +152,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfo> userList = masterService.GetUserInfo("", "", obj.UserId, "", "", "", "", "");
+                List<UserInfo> userList = masterService.GetUserInfo("", "", obj.UserId, "", "", "", "", "",null);
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)
@@ -175,7 +173,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = "密码修改失败！ " + ex.Message };
             }
         }
-
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
             bool platformCheck = false;
@@ -207,7 +204,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode, "");
-                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "", "", userInfoList[0].TelNO, "", "", "", ""); // 注册时初始化登陆账号为手机号
+                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "", "", userInfoList[0].TelNO, "", "", "", "",null); // 注册时初始化登陆账号为手机号
                     if (tenantList_Name != null && tenantList_Name.Count > 0 && tenantList_Name[0].TenantId != userInfoList[0].TenantId)
                     {
                         return new APIResult() { Status = false, Body = "该租户名称已存在,请更换其他租户名称" };

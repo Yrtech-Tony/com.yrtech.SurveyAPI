@@ -640,7 +640,22 @@ namespace com.yrtech.SurveyAPI.Service
             if (project == null) project = "";
             if (reportFileName == null) reportFileName = "";
             if (userId == null) userId = "";
-            endDate = endDate + " 23:59:59";
+            if (string.IsNullOrEmpty(startDate))
+            {
+                startDate = "2022-01-01 00:00:00";
+            }
+            else
+            {
+                startDate = startDate + " 00:00:00";
+            }
+            if (string.IsNullOrEmpty(endDate))
+            {
+                endDate = DateTime.Now.ToString("yyyy-MM-dd")+ " 23:59:59";
+            }
+            else
+            {
+                endDate = endDate + " 23:59:59";
+            }
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@Action", action),
                                                         new SqlParameter("@UserId", userId),
                                                         new SqlParameter("@Account", account),
@@ -652,7 +667,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = @" SELECT A.*,B.AccountId,B.AccountName,C.ProjectCode,C.ProjectName
                             FROM ReportFileActionLog A INNER JOIN UserInfo B ON A.InUserId = B.Id
                                                        INNER JOIN Project C ON A.ProjectId = C.ProjectId
-                            WHERE 1=1";
+                            WHERE 1=1 AND A.ProjectId = @Project";
             if (!string.IsNullOrEmpty(action))
             {
                 sql += " AND Action = @Action";
@@ -665,10 +680,10 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.AccountId LIKE '%'+@Account+'%' OR B.AccountName LIKE '%'+@Account+'%')";
             }
-            if (!string.IsNullOrEmpty(project))
-            {
-                sql += " AND (C.ProjectCode LIKE '%'+@Project+'%' OR C.ProjectName LIKE '%'+@Project+'%')";
-            }
+            //if (!string.IsNullOrEmpty(project))
+            //{
+            //    sql += " AND (C.ProjectCode LIKE '%'+@Project+'%' OR C.ProjectName LIKE '%'+@Project+'%')";
+            //}
             if (!string.IsNullOrEmpty(reportFileName))
             {
                 sql += " AND A.ReportFileName LIKE '%'+@ReportFileName+'%'";
@@ -729,7 +744,7 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 一级指标统计
         // 经销商一级指标得分
-        public List<ReportChapterScoreDto> ReportShopChapterScoreSearch(string projectId, string shopId,string shopType)
+        public List<ReportChapterScoreDto> ReportShopChapterScoreSearch(string projectId, string shopId, string shopType)
         {
             if (shopId == null) shopId = "";
             if (shopType == null) shopType = "";
@@ -739,6 +754,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.ShopCode,C.ShopName
                  , (SELECT ISNULL(FullScore,0) FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) FullScore
+                  ,  (SELECT ISNULL(SumScore,0) FROM ReportShopChapterSumScore WHERE ProjectId = @ProjectId AND ShopId = A.ShopId) SumScore
                     FROM ReportShopChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
                                                    INNER JOIN Shop C ON A.ShopId = C.ShopId
@@ -764,10 +780,11 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.AreaCode,C.AreaName
             ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
+            ,(SELECT SumScore FROM ReportAreaChapterSumScore WHERE ProjectId =@ProjectId AND ShopType=@ShopType AND AreaId = A.AreaId) AS SumScore
                 FROM ReportAreaChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId    
                                                    INNER JOIN Area C ON A.AreaId = C.AreaId
-                   WHERE A.ProjectId=@ProjectId ";
+                WHERE A.ProjectId=@ProjectId ";
 
             if (!string.IsNullOrEmpty(areaId))
             {
@@ -790,6 +807,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName
                 ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
+                ,(SELECT SumScore FROM ReportCountryChapterSumScore WHERE ProjectId = @ProjectId AND ShopType=@ShopType) AS SumScore
                     FROM ReportCountryChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
                                                                        
@@ -801,7 +819,6 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
-
         // 经销商二级指标得分
         public List<ReportSubjectScoreDto> ReportShopSubjectScoreSearch(string projectId, string shopId, string chapterId)
         {
@@ -813,6 +830,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
             sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore
+                    ,(SELECT ISNULL(Score,0) FROM ReportShopChapterScore WHERE ProjectId = @ProjectId AND ChapterId = B.ChapterId AND ShopId = A.ShopId) AS SumScore
                     FROM ReportShopSubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                   INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -829,7 +847,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 区域二级指标得分
-        public List<ReportSubjectScoreDto> ReportAreaSubjectScoreSearch(string projectId, string areaId, string chapterId,string shopType)
+        public List<ReportSubjectScoreDto> ReportAreaSubjectScoreSearch(string projectId, string areaId, string chapterId, string shopType)
         {
             if (areaId == null) areaId = "";
             if (shopType == null) shopType = "";
@@ -841,6 +859,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
             sql = @"SELECT A.*,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore  
+                ,(SELECT ISNULL(Score,0) FROM ReportAreaChapterScore WHERE ProjectId = @ProjectId AND ChapterId = B.ChapterId AND AreaId = A.AreaId AND ShopType = @ShopType) AS SumScore
                     FROM ReportAreaSubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                   INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -861,7 +880,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 全国二级指标得分
-        public List<ReportSubjectScoreDto> ReportCountrySubjectScoreSearch(string projectId, string chapterId,string shopType)
+        public List<ReportSubjectScoreDto> ReportCountrySubjectScoreSearch(string projectId, string chapterId, string shopType)
         {
             if (chapterId == null) chapterId = "";
             if (shopType == null) shopType = "";
@@ -870,6 +889,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportSubjectScoreDto);
             string sql = "";
             sql = @"SELECT A.* ,C.SubjectId,C.SubjectCode,C.[CheckPoint],ISNULL(C.FullScore,0) AS FullScore
+            ,(SELECT ISNULL(Score,0) FROM ReportCountryChapterScore WHERE ProjectId = @ProjectId AND ChapterId = B.ChapterId  AND ShopType = @ShopType) AS SumScore
                     FROM ReportCountrySubjectScore A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                                                      INNER JOIN Subject C ON B.SubjectId = C.SubjectId
                    WHERE A.ProjectId=@ProjectId ";
@@ -984,10 +1004,10 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 生成报告数据
-        public void ReportDataCreate(string brandId,string projectId)
+        public void ReportDataCreate(string brandId, string projectId)
         {
-            if (brandId == null ) brandId = "";
-            if (projectId == null ) projectId = "";
+            if (brandId == null) brandId = "";
+            if (projectId == null) projectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                         , new SqlParameter("@BrandId", brandId)};
             string sql = @" EXEC sp_ARCFOX_Report  @BrandId = @BrandId,@ProjectId = @ProjectId

@@ -14,6 +14,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
+        public string StatusCode { get; set; }
+        public string StatusName { get; set; }
         public string Status_S0 { get; set; } // 进店状态
         public string Status_S1 { get; set; } // 提交复审状态
         public string Status_S2 { get; set; }// 复审进行中
@@ -37,5 +39,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? RecheckUserId { get; set; } // 复审人员Id
         public string RecheckUserName { get; set; } // 复审人员名称
         public DateTime? RecheckDateTime { get; set; }// 复审时间
+        public DateTime? InDateTime { get; set; }// 插入时间
     }
 }

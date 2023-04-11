@@ -706,6 +706,27 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerPhotoLog>().ToList();
         }
         #endregion
-
+        #region 删除缓存的文件
+        public void DeleteCacheFile(string path,int day)
+        {
+            DirectoryInfo dir = new DirectoryInfo(path);
+            FileSystemInfo[] fileInfo = dir.GetFileSystemInfos(); //返回目录中所有文件和子目录
+            foreach (FileSystemInfo file in fileInfo)
+            {
+                if (file.LastAccessTime.Date == DateTime.Now.AddDays(day).Date)
+                {
+                    if (file is DirectoryInfo)
+                    {
+                        DirectoryInfo subdir = new DirectoryInfo(file.FullName);
+                        subdir.Delete(true); //删除子目录和文件
+                    }
+                    else
+                    {
+                        File.Delete(file.FullName);
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

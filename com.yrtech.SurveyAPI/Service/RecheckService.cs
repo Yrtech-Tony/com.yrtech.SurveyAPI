@@ -14,16 +14,19 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
 
         #region 复审状态
-        public List<ReCheckStatus> GetShopRecheckStatusInfo(string projectId, string shopId,string statusCode)
+        public List<RecheckStatusDto> GetShopRecheckStatusInfo(string projectId, string shopId, string statusCode)
         {
             if (shopId == null) shopId = "";
             if (projectId == null) projectId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),new SqlParameter("@StatusCode", statusCode)};
-            Type t = typeof(ReCheckStatus);
+                                                       new SqlParameter("@ShopId", shopId)
+                                                       ,new SqlParameter("@StatusCode", statusCode)};
+            Type t = typeof(RecheckStatusDto);
             string sql = "";
-            sql = @"SELECT *
-                            FROM ReCheckStatus A
+            sql = @"SELECT A.*,B.HiddenName AS StatusName,C.ShopCode,C.ShopName,D.ProjectCode,D.ProjectName
+                            FROM ReCheckStatus A INNER JOIN HiddenColumn B ON A.StatusCode = B.HiddenCode AND B.HiddenCodeGroup='调研进度'
+                                                 INNER JOIN Shop C ON A.ShopId = C.ShopId
+                                                 INNER JOIN Project D ON A.ProjectId = D.ProjectId
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
             {
@@ -33,7 +36,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.StatusCode = @StatusCode";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<ReCheckStatus>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<RecheckStatusDto>().ToList();
         }
         /// <summary>
         /// 
@@ -41,12 +44,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId,string shopCode)
+        public List<RecheckStatusDto> GetShopRecheckStatus(string projectId, string shopId, string shopCode)
         {
             if (shopId == null) shopId = "";
             if (projectId == null) projectId = "";
             if (shopCode == null) shopCode = "";
-            
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),  new SqlParameter("@ShopCode", shopCode)};
             Type t = typeof(RecheckStatusDto);
@@ -111,7 +114,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId,string recheckTypeId)
+        public List<RecheckStatusDtlDto> GetShopRecheckStautsDtl(string projectId, string shopId, string recheckTypeId)
         {
             if (shopId == null) shopId = "";
             if (projectId == null) projectId = "";
@@ -184,6 +187,40 @@ namespace com.yrtech.SurveyAPI.Service
                 db.RecheckStatusDtl.Add(statusDtl);
             }
             db.SaveChanges();
+        }
+        public void DeleteRecheckStatus(string recheckStatusId, string userId)
+        {
+            if (recheckStatusId == null) recheckStatusId = "";
+            SqlParameter[] para = new SqlParameter[] { };
+            string sql = "";
+            sql += @" INSERT INTO RecheckStatusLog
+                      SELECT RecheckStatusId,
+                             0,
+                             ProjectId,
+                             ShopId,
+                             StatusCode,
+                             'D',
+                             '',
+                            " + userId + ",GETDATE() WHERE RecheckStatusId=" + recheckStatusId;
+            sql += " DELETE RecheckStatus WHERE RecheckStatusId = " + recheckStatusId;
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        public void DeleteRecheckStatusDtl(string recheckStatusDtlId,string userId)
+        {
+            if (recheckStatusDtlId == null) recheckStatusDtlId = "";
+            SqlParameter[] para = new SqlParameter[] { };
+            string sql = "";
+            sql += @" INSERT INTO RecheckStatusLog
+                      SELECT 0,
+                             RecheckStatusDtlId,
+                             ProjectId,
+                             ShopId,
+                             RecheckTypeId,
+                             'D',
+                             '',
+                            " + userId + ",GETDATE() WHERE RecheckStatusId=" + recheckStatusDtlId;
+             sql = "DELETE RecheckStatusDtl WHERE RecheckStatusDtlId = " + recheckStatusDtlId;
+            db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
         #region 一审

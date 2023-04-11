@@ -84,7 +84,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     appealSet.ImportChk = true;
                     appealSet.ImportRemark = "";
-                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", appealSet.ShopCode, "");
+                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", appealSet.ShopCode, "",null);
                     if (shopList == null || shopList.Count == 0)
                     {
                         appealSet.ImportChk = false;
@@ -116,7 +116,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     AppealShopSet appealSet = new AppealShopSet();
                     appealSet.ProjectId = appeal.ProjectId;
                    
-                    List<ShopDto> shopList = masterService.GetShop(appeal.TenantId.ToString(),appeal.BrandId.ToString(),"",appeal.ShopCode,"");
+                    List<ShopDto> shopList = masterService.GetShop(appeal.TenantId.ToString(),appeal.BrandId.ToString(),"",appeal.ShopCode,"",null);
                     if (shopList != null && shopList.Count > 0)
                     {
                         appealSet.ShopId = shopList[0].ShopId;
@@ -213,6 +213,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         appeal.AppealDateCheck = false;
                     }
+                    
+                }
+                if (list != null && list.Count > 0)
+                {
+                    list[0].SubjectFileList = masterService.GetSubjectFile(list[0].ProjectId.ToString(), list[0].SubjectId.ToString());
+                    
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }

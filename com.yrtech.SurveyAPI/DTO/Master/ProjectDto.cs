@@ -20,8 +20,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> OrderNO { get; set; }
         public bool? RechckShopShow { get; set; }
         public bool? PhotoUploadMode { get; set; }
+        public string PhotoSize { get; set; } // 未设置默认300万像素
         public string DataScore { get; set; }
         public DateTime? AppealStartDate { get; set; }
+        public string ProjectType { get; set; } // 明检、密采
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

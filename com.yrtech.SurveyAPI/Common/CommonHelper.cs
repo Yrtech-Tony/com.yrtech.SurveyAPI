@@ -154,6 +154,11 @@ namespace com.yrtech.SurveyAPI.Common
             }
             return fileName;
         }
+        public static double DiffMinutes(DateTime endDate, DateTime startDate)
+        {
+            TimeSpan ts = new TimeSpan(endDate.Ticks - startDate.Ticks);
+            return ts.TotalMinutes;
+        } 
 
     }
 }

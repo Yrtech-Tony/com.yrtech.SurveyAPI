@@ -25,6 +25,8 @@ namespace com.yrtech.SurveyDAL
         public Nullable<System.DateTime> ReportDeployDate { get; set; }
         public Nullable<bool> RechckShopShow { get; set; }
         public Nullable<bool> PhotoUploadMode { get; set; }
+        public string PhotoSize { get; set; }
+        public string ProjectType { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

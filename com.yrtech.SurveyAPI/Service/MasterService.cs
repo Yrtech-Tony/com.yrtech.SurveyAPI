@@ -275,7 +275,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email)
+        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk)
         {
             if (tenantId == null) tenantId = "";
             if (brandId == null) brandId = "";
@@ -330,7 +330,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND Email = @Email";
             }
-
+            if (useChk.HasValue)
+            {
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
+                sql += " AND UseChk = @UseChk";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }
         /// <summary>
@@ -359,6 +363,12 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = userinfo.ModifyUserId;
             }
+            db.SaveChanges();
+        }
+        public void DeleteUserInfo(int userId)
+        {
+            UserInfo findone = db.UserInfo.Where(x => x.Id == userId).FirstOrDefault();
+            db.UserInfo.Remove(findone);
             db.SaveChanges();
         }
         public List<UserInfoBrandDto> GetUserInfoBrand(string tenantId, string userId, string brandId)
@@ -506,12 +516,11 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        public void DeleteUserInfoObject(int userInfoObjectId)
+        public void DeleteUserInfoObject(int userObjectId)
         {
-            UserInfoObject findone = db.UserInfoObject.Where(x => x.Id == userInfoObjectId).FirstOrDefault();
+            UserInfoObject findone = db.UserInfoObject.Where(x => x.Id == userObjectId).FirstOrDefault();
             db.UserInfoObject.Remove(findone);
             db.SaveChanges();
-            //SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
         }
         #endregion
         #region 区域管理
@@ -594,7 +603,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 集团管理
-        public List<Group> GetGroup(string brandId, string groupId, string groupCode, string groupName)
+        public List<Group> GetGroup(string brandId, string groupId, string groupCode, string groupName,bool? useChk)
         {
             groupCode = groupCode == null ? "" : groupCode;
             brandId = brandId == null ? "" : brandId;
@@ -626,6 +635,11 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(groupName))
             {
                 sql += " AND A.GroupName LIKE '%'+ @GroupName+'%'";
+            }
+            if (useChk.HasValue)
+            {
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
+                sql += " AND A.UseChk = @UseChk";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Group>().ToList();
 
@@ -675,7 +689,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ProjectDto);
             string sql = "";
             sql = @"SELECT *,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
-                             ELSE CAST(1 AS BIT) END AS ReportDeployChk
+                             ELSE CAST(1 AS BIT) END AS ReportDeployChk,ISNULL(ProjectType,'明检') AS ProjectType
                     FROM [Project]
                     WHERE 1=1
                     ";
@@ -741,6 +755,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyUserId = project.ModifyUserId;
                 findOne.RechckShopShow = project.RechckShopShow;
                 findOne.PhotoUploadMode = project.PhotoUploadMode;
+                findOne.PhotoSize = project.PhotoSize;
                 //findOne.DataScore = project.DataScore;
                 //findOne.AppealStartDate = project.AppealStartDate;
                 //findOne.AppealEndDate = project.AppealEndDate;
@@ -749,6 +764,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;
+                findOne.ProjectType = project.ProjectType;
             }
             db.SaveChanges();
         }
@@ -761,7 +777,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<ShopDto> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key)
+        public List<ShopDto> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key,bool? useChk)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -814,6 +830,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (ShopCode LIKE '%" + key + "%' OR ShopName LIKE '%" + key + "%' OR ShopShortName LIKE '%" + key + "%')";
             }
+            if (useChk.HasValue)
+            {
+                para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
+                sql += " AND UseChk = @UseChk";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<ShopDto>().ToList();
         }
         /// <summary>
@@ -863,6 +884,12 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += shop.ModifyUserId + "','";
                 sql += DateTime.Now.ToString() + ",')";
             }
+        }
+        public void DeleteShop(int shopId)
+        {
+            Shop findone = db.Shop.Where(x => x.ShopId == shopId).FirstOrDefault();
+            db.Shop.Remove(findone);
+            db.SaveChanges();
         }
         #endregion
         #region 经销商区域设置
@@ -926,7 +953,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<SubjectDto> GetSubject(string projectId, string subjectId, string subjectCode, string orderNO )
+        public List<SubjectDto> GetSubject(string projectId, string subjectId, string subjectCode, string orderNO)
         {
             projectId = projectId == null ? "" : projectId;
             subjectId = subjectId == null ? "" : subjectId;
@@ -1268,7 +1295,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 章节管理
-        public List<Chapter> GetChapter(string projectId,string chapterId,string chapterCode)
+        public List<Chapter> GetChapter(string projectId, string chapterId, string chapterCode)
         {
             if (chapterId == null) chapterId = "";
             if (chapterCode == null) chapterCode = "";
@@ -1315,7 +1342,8 @@ namespace com.yrtech.SurveyAPI.Service
                             WHERE  BrandId = @BrandId AND 1=1) A WHERE  1=1
                             ";
             }
-            else {
+            else
+            {
                 sql = @"
                     SELECT * 
                       FROM [Label] 
@@ -1343,7 +1371,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveLabel(Label label)
         {
-            Label findOne = db.Label.Where(x => (x.LabelId == label.LabelId)).FirstOrDefault();
+            Label findOne = db.Label.Where(x => (x.LabelId == label.LabelId&&x.BrandId==label.BrandId)).FirstOrDefault();
             if (findOne == null)
             {
                 label.InDateTime = DateTime.Now;

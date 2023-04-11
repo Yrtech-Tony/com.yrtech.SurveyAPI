@@ -21,7 +21,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
         public int? ExamTypeId { get; set; }
-        public decimal? PhotoScore { get; set; }// 照片得分
+        public decimal? PhotoScore { get; set; }// 得分
+        public string PhotoScoreResult { get; set; }// json 暂时不使用
         public decimal? Score { get; set; }
         public string PhotoCount { get; set; }
         public string PhotoStatus { get; set; } // 1:已拍照 0：未拍照

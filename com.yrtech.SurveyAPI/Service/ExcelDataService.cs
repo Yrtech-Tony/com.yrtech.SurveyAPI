@@ -354,10 +354,10 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 导出
-        // 导出账号
+        // 导出账号-厂商
         public string UserInfoExport(string tenantId, string brandId)
         {
-            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "");
+            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "", true);
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "UserInfo.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];
@@ -499,7 +499,7 @@ namespace com.yrtech.SurveyAPI.Service
                 string feedBackContent = "";
                 if (appeal != null && appeal.Count > 0)
                 {
-                    appealStatus = appeal[0].AppealStatus == true ?"申诉":"不申诉";
+                    appealStatus = appeal[0].AppealStatus == true ? "申诉" : "不申诉";
                     appealReason = appeal[0].AppealReason;
                     feedBackStatus = appeal[0].FeedBackStatusStr;
                     feedBackContent = appeal[0].FeedBackReason;
@@ -525,6 +525,24 @@ namespace com.yrtech.SurveyAPI.Service
         }
         // 得分导出-横向
         public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId, string columnList)
+        {
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+            if (projectList == null || projectList.Count == 0)
+            {
+                return "";
+            }
+            if (projectList[0].ProjectType == "明检")
+            {
+                return ShopAnsewrScoreInfoExport_L_Mingjian(projectId, shopId, columnList);
+            }
+            else
+            {
+                return ShopAnsewrScoreInfoExport_L_Micai(projectId, shopId, columnList);
+            }
+
+        }
+        // 明检报告导出
+        public string ShopAnsewrScoreInfoExport_L_Mingjian(string projectId, string shopId, string columnList)
         {
             List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
@@ -565,7 +583,7 @@ namespace com.yrtech.SurveyAPI.Service
                 //int j = 0;
                 string[] column = columnList.Split(';');
                 sheet.GetCell(head[i * column.Length] + 1).Value = subjectList[i].SubjectCode;
-               
+
                 for (int j = 1; j < column.Length; j++)
                 {
                     if (column[j].Contains("LossCode"))
@@ -586,7 +604,7 @@ namespace com.yrtech.SurveyAPI.Service
                     }
                     if (column[j].Contains("Remark"))
                     {
-                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "备注";
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "得分备注";
                     }
                 }
                 //sheet.GetCell(head[(i * 4 + 2)] + 1).Value = "得分";
@@ -644,6 +662,306 @@ namespace com.yrtech.SurveyAPI.Service
                 sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
                 //经销商名称
                 sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                for (int i = 0; i < head.Length; i++)
+                {
+                    string cellValue = sheet.GetCell(head[i] + 1).Value == null ? "" : sheet.GetCell(head[i] + 1).Value.ToString();
+                    if (!string.IsNullOrEmpty(cellValue))
+                    {
+                        if (cellValue == item.SubjectCode)
+                        {
+                            int j = 0;
+                            if (columnList.Contains("LossCode"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStrCode;
+                                j++;
+                            }
+                            if (columnList.Contains("LossName"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStr;
+                                j++;
+                            }
+                            if (columnList.Contains("LossName2"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = lossResultStr2;
+                                j++;
+                            }
+                            if (columnList.Contains("PhotoScore"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = item.PhotoScore;
+                                j++;
+                            }
+                            if (columnList.Contains("Remark"))
+                            {
+                                sheet.GetCell(head[i + j] + (rowIndex + 2)).Value = item.Remark;
+                            }
+                        }
+                    }
+                }
+            }
+            //保存excel文件
+            string fileName = "经销商得分" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+        // 密采报告导出
+        public string ShopAnsewrScoreInfoExport_L_Micai(string projectId, string shopId, string columnList)
+        {
+            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L_M.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            int shopId_Temp = 0;
+            // 填充表头
+            string[] head = { "AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA","BB","BC","BD","BE","BF"
+                    ,"BG","BH","BI","BJ","BK","BL","BM","BN","BO","BP","BQ","BR","BS","BT","BU","BV","BW","BX","BY","BZ","CA","CB","CC","CD","CE","CF","CG"
+                    ,"CH","CI","CJ","CK","CL","CM","CN","CO","CP","CQ","CR","CS","CT","CU","CV","CW","CX","CY","CZ","DA","DB","DC","DD","DE","DF","DG","DH"
+                    ,"DI","DJ","DK","DL","DM","DN","DO","DP","DQ","DR","DS","DT","DU","DV","DW","DX","DY","DZ","EA","EB","EC","ED","EE","EF","EG","EH","EI"
+                    ,"EJ","EK","EL","EM","EN","EO","EP","EQ","ER","ES","ET","EU","EV","EW","EX","EY","EZ","FA","FB","FC","FD","FE","FF","FG","FH","FI","FJ"
+                    ,"FK","FL","FM","FN","FO","FP","FQ","FR","FS","FT","FU","FV","FW","FX","FY","FZ","GA","GB","GC","GD","GE","GF","GG","GH","GI","GJ","GK"
+                    ,"GL","GM","GN","GO","GP","GQ","GR","GS","GT","GU","GV","GW","GX","GY","GZ","HA","HB","HC","HD","HE","HF","HG","HH","HI","HJ","HK","HL"
+                    ,"HM","HN","HO","HP","HQ","HR","HS","HT","HU","HV","HW","HX","HY","HZ","IA","IB","IC","ID","IE","IF","IG","IH","II","IJ","IK","IL","IM"
+                    ,"IN","IO","IP","IQ","IR","IS","IT","IU","IV","IW","IX","IY","IZ","JA","JB","JC","JD","JE","JF","JG","JH","JI","JJ","JK","JL","JM","JN"
+                    ,"JO","JP","JQ","JR","JS","JT","JU","JV","JW","JX","JY","JZ","KA","KB","KC","KD","KE","KF","KG","KH","KI","KJ","KK","KL","KM","KN","KO"
+                    ,"KP","KQ","KR","KS","KT","KU","KV","KW","KX","KY","KZ","LA","LB","LC","LD","LE","LF","LG","LH","LI","LJ","LK","LL","LM","LN","LO","LP"
+                    ,"LQ","LR","LS","LT","LU","LV","LW","LX","LY","LZ","MA","MB","MC","MD","ME","MF","MG","MH","MI","MJ","MK","ML","MM","MN","MO","MP","MQ"
+                    ,"MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NB","NC","ND","NE","NF","NG","NH","NI","NJ","NK","NL","NM","NN","NO","NP","NQ","NR"
+                    ,"NS","NT","NU","NV","NW","NX","NY","NZ","OA","OB","OC","OD","OE","OF","OG","OH","OI","OJ","OK","OL","OM","ON","OO","OP","OQ","OR","OS"
+                    ,"OT","OU","OV","OW","OX","OY","OZ","PA","PB","PC","PD","PE","PF","PG","PH","PI","PJ","PK","PL","PM","PN","PO","PP","PQ","PR","PS","PT"
+                    ,"PU","PV","PW","PX","PY","PZ","QA","QB","QC","QD","QE","QF","QG","QH","QI","QJ","QK","QL","QM","QN","QO","QP","QQ","QR","QS","QT","QU"
+                    ,"QV","QW","QX","QY","QZ","RA","RB","RC","RD","RE","RF","RG","RH","RI","RJ","RK","RL","RM","RN","RO","RP","RQ","RR","RS","RT","RU","RV"
+                    ,"RW","RX","RY","RZ","SA","SB","SC","SD","SE","SF","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SP","SQ","SR","SS","ST","SU","SV","SW"
+                    ,"SX","SY","SZ","TA","TB","TC","TD","TE","TF","TG","TH","TI","TJ","TK","TL","TM","TN","TO","TP","TQ","TR","TS","TT","TU","TV","TW","TX"
+                    ,"TY","TZ","UA","UB","UC","UD","UE","UF","UG","UH","UI","UJ","UK","UL","UM","UN","UO","UP","UQ","UR","US","UT","UU","UV","UW","UX","UY"
+                    ,"UZ","VA","VB","VC","VD","VE","VF","VG","VH","VI","VJ","VK","VL","VM","VN","VO","VP","VQ","VR","VS","VT","VU","VV","VW","VX","VY","VZ"
+                    ,"WA","WB","WC","WD","WE","WF","WG","WH","WI","WJ","WK","WL","WM","WN","WO","WP","WQ","WR","WS","WT","WU","WV","WW","WX","WY","WZ","XA"
+                    ,"XB","XC","XD","XE","XF","XG","XH","XI","XJ","XK","XL","XM","XN","XO","XP","XQ","XR","XS","XT","XU","XV","XW","XX","XY","XZ","YA","YB"
+                    ,"YC","YD","YE","YF","YG","YH","YI","YJ","YK","YL","YM","YN","YO","YP","YQ","YR","YS","YT","YU","YV","YW","YX","YY","YZ","ZA","ZB","ZC"
+                    ,"ZD","ZE","ZF","ZG","ZH","ZI","ZJ","ZK","ZL","ZM","ZN","ZO","ZP","ZQ","ZR","ZS","ZT","ZU","ZV","ZW","ZX","ZY","ZZ"};
+            for (int i = 0; i < subjectList.Count; i++)
+            {
+                //int j = 0;
+                string[] column = columnList.Split(';');
+                sheet.GetCell(head[i * column.Length] + 1).Value = subjectList[i].SubjectCode;
+
+                for (int j = 1; j < column.Length; j++)
+                {
+                    if (column[j].Contains("LossCode"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-失分代码";
+                    }
+                    if (column[j].Contains("LossName"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-描述";
+                    }
+                    if (column[j].Contains("LossName2"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = subjectList[i].SubjectCode + "-补充描述";
+                    }
+                    if (column[j].Contains("PhotoScore"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "得分";
+                    }
+                    if (column[j].Contains("Remark"))
+                    {
+                        sheet.GetCell(head[(i * column.Length + j)] + 1).Value = "得分备注";
+                    }
+                }
+                //sheet.GetCell(head[(i * 4 + 2)] + 1).Value = "得分";
+                //sheet.GetCell(head[(i * 4 + 3)] + 1).Value = "备注";
+            }
+            // 绑定数据
+            foreach (RecheckDto item in recheckList)
+            {
+                // 判断经销商是否一致，如果不一致的话，开始往下一行写数据，如果一致还在当前行写入数据
+                if (shopId_Temp == 0)
+                {
+                    shopId_Temp = item.ShopId;
+                }
+                else if (shopId_Temp != item.ShopId)
+                {
+                    rowIndex++;
+                    shopId_Temp = item.ShopId;
+                }
+                //失分说明
+                string lossResultStr = "";
+                string lossResultStr2 = "";
+                string lossResultStrCode = "";
+
+                if (!string.IsNullOrEmpty(item.LossResult))
+                {
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                    lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
+                    foreach (LossResultDto lossResult in lossResultList)
+                    {
+                        lossResultStrCode += masterService.GetSubjectLossCodeByAnswerLossName(projectId.ToString(), item.SubjectId.ToString(), lossResult.LossDesc) + ";";
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc))
+                        {
+                            lossResultStr += lossResult.LossDesc + ";";
+                        }
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                        {
+                            lossResultStr2 += lossResult.LossDesc2 + ";";
+                        }
+                    }
+                }
+                // 去掉最后一个分号
+                if (!string.IsNullOrEmpty(lossResultStr))
+                {
+                    lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                }
+                if (!string.IsNullOrEmpty(lossResultStr2))
+                {
+                    lossResultStr2 = lossResultStr2.Substring(0, lossResultStr2.Length - 1);
+                }
+                if (!string.IsNullOrEmpty(lossResultStrCode))
+                {
+                    lossResultStrCode = lossResultStrCode.Substring(0, lossResultStrCode.Length - 1);
+                }
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                // 绑定经销商进店信息
+                List<AnswerShopInfoDto> answerShopInfoList = answerService.GetAnswerShopInfo(projectId, shopId);
+                if (answerShopInfoList != null && answerShopInfoList.Count > 0)
+                {
+                    //省份
+                    sheet.GetCell("C" + (rowIndex + 2)).Value = answerShopInfoList[0].Province;
+                    //城市
+                    sheet.GetCell("D" + (rowIndex + 2)).Value = answerShopInfoList[0].City;
+                    //进店方式
+                    sheet.GetCell("E" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopMode;
+                    //进店地址
+                    sheet.GetCell("F" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopAddress;
+                    //地址是否一致
+                    if (answerShopInfoList[0].AddressCheck == true)
+                    {
+                        sheet.GetCell("G" + (rowIndex + 2)).Value = "是";
+                    }
+                    else
+                    { sheet.GetCell("G" + (rowIndex + 2)).Value = "否"; }
+                    //销售顾问姓名
+                    sheet.GetCell("H" + (rowIndex + 2)).Value = answerShopInfoList[0].SalesName;
+                    //销售顾问姓名确认方式
+                    sheet.GetCell("I" + (rowIndex + 2)).Value = answerShopInfoList[0].SalesNameCheckMode;
+                    //无法确认原因
+                    sheet.GetCell("J" + (rowIndex + 2)).Value = answerShopInfoList[0].SakesNameCheckReason;
+                    //评估员姓名
+                    sheet.GetCell("K" + (rowIndex + 2)).Value = answerShopInfoList[0].ExecuteName;
+                    //籍贯
+                    sheet.GetCell("L" + (rowIndex + 2)).Value = answerShopInfoList[0].ExcuteAddress;
+                    //居住城市
+                    sheet.GetCell("M" + (rowIndex + 2)).Value = answerShopInfoList[0].ExcuteCity;
+                    //虚拟职业
+                    sheet.GetCell("N" + (rowIndex + 2)).Value = answerShopInfoList[0].ExcuteJob;
+                    //购车用途
+                    sheet.GetCell("O" + (rowIndex + 2)).Value = answerShopInfoList[0].CarBuyPurpose;
+                    //购车预算
+                    if (answerShopInfoList[0].CarBuyBudget == null)
+                    {
+                        sheet.GetCell("P" + (rowIndex + 2)).Value = "0";
+                    }
+                    else
+                    {
+                        sheet.GetCell("P" + (rowIndex + 2)).Value = answerShopInfoList[0].CarBuyBudget.ToString();
+                    }
+                    //目标购买车型
+                    sheet.GetCell("Q" + (rowIndex + 2)).Value = answerShopInfoList[0].CarBuyType;
+                    // 对比竞品车型
+                    sheet.GetCell("R" + (rowIndex + 2)).Value = answerShopInfoList[0].CarCompetitor;
+                    // 虚拟家庭住址
+                    sheet.GetCell("S" + (rowIndex + 2)).Value = answerShopInfoList[0].ExcuteHomeAddress;
+                    // 评估员留店电话
+                    sheet.GetCell("T" + (rowIndex + 2)).Value = answerShopInfoList[0].ExcutePhone;
+                    // 调查日期
+                    if (answerShopInfoList[0].InShopStartDate == null)
+                    {
+                        sheet.GetCell("U" + (rowIndex + 2)).Value = "";
+                    }
+                    else
+                    {
+                        sheet.GetCell("U" + (rowIndex + 2)).Value =Convert.ToDateTime(answerShopInfoList[0].InShopStartDate).ToString("yyyy-MM-dd");
+                    }
+                    // 进店时间
+                    if (answerShopInfoList[0].InShopStartDate == null)
+                    {
+                        sheet.GetCell("V" + (rowIndex + 2)).Value = "";
+                    }
+                    else {
+                        sheet.GetCell("V" + (rowIndex + 2)).Value = Convert.ToDateTime(answerShopInfoList[0].InShopStartDate).ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                    // 出店时间
+                    if (answerShopInfoList[0].InShopEndDate == null)
+                    {
+                        sheet.GetCell("W" + (rowIndex + 2)).Value = "";
+                    }
+                    else
+                    {
+                        sheet.GetCell("W" + (rowIndex + 2)).Value = Convert.ToDateTime(answerShopInfoList[0].InShopEndDate).ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                    // 进店时长
+                    if (answerShopInfoList[0].InShopStartDate != null && answerShopInfoList[0].InShopEndDate != null)
+                    {
+                        sheet.GetCell("X" + (rowIndex + 2)).Value = CommonHelper.DiffMinutes(Convert.ToDateTime(answerShopInfoList[0].InShopEndDate), Convert.ToDateTime(answerShopInfoList[0].InShopStartDate)).ToString();
+                    }
+                    else
+                    {
+                        sheet.GetCell("X" + (rowIndex + 2)).Value = "0";
+                    }
+                    // 是否试乘试驾
+                    if (answerShopInfoList[0].TestDriverCheck == true)
+                    {
+                        sheet.GetCell("Y" + (rowIndex + 2)).Value = "是";
+                    }
+                    else {
+                        sheet.GetCell("Y" + (rowIndex + 2)).Value = "否";
+                    }
+                    // 试乘试驾开始时间
+                    if (answerShopInfoList[0].TestDriverStartDate == null)
+                    {
+                        sheet.GetCell("Z" + (rowIndex + 2)).Value = "";
+                    }
+                    else
+                    {
+                        sheet.GetCell("Z" + (rowIndex + 2)).Value = Convert.ToDateTime(answerShopInfoList[0].TestDriverStartDate).ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                    // 试乘试驾结束时间
+                    if (answerShopInfoList[0].TestDriverEndDate == null)
+                    {
+                        sheet.GetCell("AA" + (rowIndex + 2)).Value = "";
+                    }
+                    else
+                    {
+                        sheet.GetCell("AA" + (rowIndex + 2)).Value = Convert.ToDateTime(answerShopInfoList[0].TestDriverEndDate).ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                    // 试乘试驾时长
+                    if (answerShopInfoList[0].TestDriverStartDate != null && answerShopInfoList[0].TestDriverEndDate != null)
+                    {
+                        sheet.GetCell("AB" + (rowIndex + 2)).Value = CommonHelper.DiffMinutes(Convert.ToDateTime(answerShopInfoList[0].TestDriverEndDate), Convert.ToDateTime(answerShopInfoList[0].TestDriverStartDate)).ToString();
+                    }
+                    else { sheet.GetCell("AB" + (rowIndex + 2)).Value = "0"; }
+                    // 天气异常情况
+                    sheet.GetCell("AC" + (rowIndex + 2)).Value = answerShopInfoList[0].WeatherCondition;
+                    // 店外异常情况
+                    sheet.GetCell("AD" + (rowIndex + 2)).Value = answerShopInfoList[0].OutShopCondition;
+                    // 店内异常情况
+                    sheet.GetCell("AE" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopCondition;
+                    // 录音录像是否完整
+                    sheet.GetCell("AF" + (rowIndex + 2)).Value = answerShopInfoList[0].VideoComplete;
+                    // 执行是否被识别
+                    sheet.GetCell("AG" + (rowIndex + 2)).Value = answerShopInfoList[0].ExecuteRecogniz;
+                }
+                
                 for (int i = 0; i < head.Length; i++)
                 {
                     string cellValue = sheet.GetCell(head[i] + 1).Value == null ? "" : sheet.GetCell(head[i] + 1).Value.ToString();

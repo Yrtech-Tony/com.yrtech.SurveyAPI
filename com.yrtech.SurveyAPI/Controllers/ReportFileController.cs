@@ -88,7 +88,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     if (!string.IsNullOrEmpty(reportFileDto.ShopCode))
                     {
-                        List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                        List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
                         if (shopList != null && shopList.Count > 0)
                         {
                             reportFileDto.ShopCodeCheck = true;
@@ -121,7 +121,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ReportFileDto> list = CommonHelper.DecodeString<List<ReportFileDto>>(upload.ListJson);
                 foreach (ReportFileDto reportFileDto in list)
                 {
-                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
                     if (shopList == null || shopList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "上传的文件中存在未知的经销商代码，请确认品牌和经销商代码" };
@@ -132,7 +132,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     ReportFile reportFile = new ReportFile();
                     reportFile.ProjectId = reportFileDto.ProjectId;
                     reportFile.BussinessTypeId = reportFileDto.BussinessTypeId;
-                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "");
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
                     if (shopList != null && shopList.Count > 0)
                     {
                         reportFile.ShopId = shopList[0].ShopId;

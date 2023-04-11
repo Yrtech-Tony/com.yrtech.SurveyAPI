@@ -25,6 +25,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public decimal? Score { get; set; }
         public bool? AppealStatus { get; set; }
         public string LossResult { get; set; }
+        public string FileResult { get; set; }
+        public List<SubjectFile> SubjectFileList { get; set; }
         public string AppealReason { get; set; }
         public string AppealUserName { get; set; }
         public int? AppealUserId { get; set; }

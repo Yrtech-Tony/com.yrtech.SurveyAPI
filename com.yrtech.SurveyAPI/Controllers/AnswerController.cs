@@ -204,7 +204,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string roleTypeCode = "";
-                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "");
+                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "",null);
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     roleTypeCode = userInfoList[0].RoleType;
@@ -343,14 +343,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     // 失分照片信息
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-                    int lossPhotoCount = 0;
+                   
+                    int lossPhotoCount = 0;// 失分照片数量
                     if (lossResultList == null || lossResultList.Count == 0)
                     {
-                        answer.LossPhotoCount = "0";
+                        answer.LossPhotoCount = "无现场/0";
                         answer.LossPhotoStatus = "0";
                     }
                     else
                     {
+                        
                         foreach (LossResultDto lossResult in lossResultList)
                         {
                             if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
@@ -360,12 +362,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                         if (lossPhotoCount == 0)
                         {
-                            answer.LossPhotoCount = "0";
+                            answer.LossPhotoCount = "有现场/0";
                             answer.LossPhotoStatus = "0";
                         }
                         else
                         {
-                            answer.LossPhotoCount = lossPhotoCount.ToString();
+                            answer.LossPhotoCount = "有现场"+lossPhotoCount.ToString();
                             answer.LossPhotoStatus = "1";
                         }
                     }
@@ -552,6 +554,34 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 // answerService.ImportAnswerResult(data.AnswerList[0].TenantId.ToString(), data.AnswerList[0].BrandId.ToString(), data.AnswerList[0].ProjectId.ToString(), data.AnswerList[0].InUserId.ToString(), data.AnswerList);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 运营中心
+        [HttpPost]
+        [Route("Answer/DeleteAnswer")]
+        public APIResult DeleteAnswer(string answerId,string projectId,string shopId,string userId)
+        {
+            try
+            {
+                // 删除前判断是否已经提交复审，如果已经提交复审需要手动回滚状态
+                // 只有未提交复审的打分数据才能删除
+                // 复审状态回滚后，如存在复审信息，则复审信息同时删除 ,在Service层执行
+                
+                List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(projectId, shopId, "");
+                if (list != null && list.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(list[0].Status_S1))
+                    {
+                        throw new Exception("该经销商已提交复审，请先回滚状态后再删除数据");
+                    }
+                }
+                answerService.DeleteAnswer(answerId, userId);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

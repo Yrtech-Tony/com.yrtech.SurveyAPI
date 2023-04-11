@@ -63,7 +63,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 如果传入了UserId，如果是执行人员查询对应权限的经销商，如果是其他角色查询全部
                 if (!string.IsNullOrEmpty(userId))
                 {
-                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "",null);
                     if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
                     {
                         List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
@@ -144,11 +144,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     projectShopExamTypeDto.ImportChk = true;
                     projectShopExamTypeDto.ImportRemark = "";
-                    List<ShopDto> shopList = masterService.GetShop("", brandId, "", projectShopExamTypeDto.ShopCode, "");
+                    List<ShopDto> shopList = masterService.GetShop("", brandId, "", projectShopExamTypeDto.ShopCode, "",true);
                     if (shopList == null || shopList.Count == 0)
                     {
                         projectShopExamTypeDto.ImportChk = false;
-                        projectShopExamTypeDto.ImportRemark += "经销商代码在系统中不存在" + ";";
+                        projectShopExamTypeDto.ImportRemark += "经销商代码在系统中不存在或不可用" + ";";
                     }
                     else {
                         projectShopExamTypeDto.ShopName = shopList[0].ShopName;
@@ -178,10 +178,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //验证Excel中的经销商代码和卷别代码是否在系统存在
                 foreach (ProjectShopExamTypeDto projectShopExamTypeDto in list)
                 {
-                    List<ShopDto> shopList = masterService.GetShop("", projectShopExamTypeDto.BrandId.ToString(), "", projectShopExamTypeDto.ShopCode, "");
+                    List<ShopDto> shopList = masterService.GetShop("", projectShopExamTypeDto.BrandId.ToString(), "", projectShopExamTypeDto.ShopCode, "",true);
                     if (shopList == null || shopList.Count == 0)
                     {
-                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记的经销商代码，请检查文件" };
+                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或不可用的经销商代码，请检查文件" };
                     }
                     List<Label> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
                     if (labelList == null || labelList.Count == 0)
@@ -193,7 +193,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ProjectShopExamType projectShopExamType = new ProjectShopExamType();
                     projectShopExamType.ProjectId = projectShopExamTypeDto.ProjectId;
-                    List<ShopDto> shopList = masterService.GetShop("", projectShopExamTypeDto.BrandId.ToString(), "", projectShopExamTypeDto.ShopCode, "");
+                    List<ShopDto> shopList = masterService.GetShop("", projectShopExamTypeDto.BrandId.ToString(), "", projectShopExamTypeDto.ShopCode, "",true);
                     if (shopList != null && shopList.Count > 0)
                     {
                         projectShopExamType.ShopId = shopList[0].ShopId;
