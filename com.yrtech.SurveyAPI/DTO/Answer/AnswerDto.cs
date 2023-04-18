@@ -28,6 +28,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string PhotoStatus { get; set; } // 1:已拍照 0：未拍照
         public string LossPhotoCount { get; set; }
         public string LossPhotoStatus { get; set; } // 1:已拍照 0：未拍照
+        public string LossResultStatus { get; set;  } // 是否有失分说明
         public string HiddenCode_SubjectType { get; set; } // 题目类型
         public decimal? ConsultantScore { get; set; }
         public string InspectionStandardResult { get; set; }// 检查标准结果Json

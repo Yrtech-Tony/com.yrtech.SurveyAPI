@@ -531,7 +531,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-        #region 执行人员管理经销商
+        #region 执行人员关联经销商
         [HttpGet]
         [Route("Master/UserInfoObjectExcuteShopExcelAnalysis")]
         public APIResult UserInfoObjectExcuteShopExcelAnalysis(string tenantId, string brandId, string ossPath)
@@ -583,7 +583,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), userInfoObjectDto.brandId, "", userInfoObjectDto.AccountId, "", "", "", "",null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", "", userInfoObjectDto.AccountId, "", "", "", "",null);
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;

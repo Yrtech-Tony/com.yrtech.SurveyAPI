@@ -407,7 +407,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,B.Province,B.City,ISNULL(C.TeamLeader,'') AS TeamLeader
                     ,C.StartDate,C.Longitude,C.Latitude,C.InDateTime,C.ModifyDateTime,C.PhotoUrl
                     ,[InShopMode]
-                      ,[InShopAddress]
+                      ,B.Address AS InShopAddress
                       ,[AddressCheck]
                       ,[SalesName]
                       ,[SalesNameCheckMode]

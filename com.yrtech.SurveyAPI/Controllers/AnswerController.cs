@@ -347,12 +347,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                     int lossPhotoCount = 0;// 失分照片数量
                     if (lossResultList == null || lossResultList.Count == 0)
                     {
-                        answer.LossPhotoCount = "无现场/0";
+                        answer.LossPhotoCount = "0";
                         answer.LossPhotoStatus = "0";
+                        answer.LossResultStatus = "0";
                     }
                     else
                     {
-                        
+                        answer.LossResultStatus = "1"; 
                         foreach (LossResultDto lossResult in lossResultList)
                         {
                             if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
@@ -362,12 +363,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                         if (lossPhotoCount == 0)
                         {
-                            answer.LossPhotoCount = "有现场/0";
+                            answer.LossPhotoCount = "0";
                             answer.LossPhotoStatus = "0";
                         }
                         else
                         {
-                            answer.LossPhotoCount = "有现场"+lossPhotoCount.ToString();
+                            answer.LossPhotoCount = lossPhotoCount.ToString();
                             answer.LossPhotoStatus = "1";
                         }
                     }

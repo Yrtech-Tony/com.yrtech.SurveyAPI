@@ -844,12 +844,13 @@ namespace com.yrtech.SurveyAPI.Service
                     //进店地址
                     sheet.GetCell("F" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopAddress;
                     //地址是否一致
-                    if (answerShopInfoList[0].AddressCheck == true)
-                    {
-                        sheet.GetCell("G" + (rowIndex + 2)).Value = "是";
-                    }
-                    else
-                    { sheet.GetCell("G" + (rowIndex + 2)).Value = "否"; }
+                    //if (answerShopInfoList[0].AddressCheck == true)
+                    //{
+                    //    sheet.GetCell("G" + (rowIndex + 2)).Value = "是";
+                    //}
+                    //else
+                    //{ 
+                    sheet.GetCell("G" + (rowIndex + 2)).Value = answerShopInfoList[0].AddressCheck;
                     //销售顾问姓名
                     sheet.GetCell("H" + (rowIndex + 2)).Value = answerShopInfoList[0].SalesName;
                     //销售顾问姓名确认方式
@@ -919,13 +920,13 @@ namespace com.yrtech.SurveyAPI.Service
                         sheet.GetCell("X" + (rowIndex + 2)).Value = "0";
                     }
                     // 是否试乘试驾
-                    if (answerShopInfoList[0].TestDriverCheck == true)
-                    {
-                        sheet.GetCell("Y" + (rowIndex + 2)).Value = "是";
-                    }
-                    else {
-                        sheet.GetCell("Y" + (rowIndex + 2)).Value = "否";
-                    }
+                    //if (answerShopInfoList[0].TestDriverCheck == true)
+                    //{
+                    //    sheet.GetCell("Y" + (rowIndex + 2)).Value = "是";
+                    //}
+                    //else {
+                    sheet.GetCell("Y" + (rowIndex + 2)).Value = answerShopInfoList[0].TestDriverCheck;
+                    //}
                     // 试乘试驾开始时间
                     if (answerShopInfoList[0].TestDriverStartDate == null)
                     {

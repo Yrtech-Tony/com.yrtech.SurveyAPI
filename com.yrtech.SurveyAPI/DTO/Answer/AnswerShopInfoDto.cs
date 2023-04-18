@@ -23,7 +23,7 @@ namespace com.yrtech.SurveyAPI.DTO
       
         public string InShopMode { get; set; } // 进店方式
         public string InShopAddress { get; set; }//进店地址
-        public bool? AddressCheck { get; set; }//实际地址和列表是否一致
+        public string AddressCheck { get; set; }//实际地址和列表是否一致
         public string SalesName { get; set; } // 销售顾问姓名
         public string SalesNameCheckMode { get; set; }// 销售顾问姓名确认方式
         public string SakesNameCheckReason { get; set; }// 如无法确认，请注明原因
@@ -40,7 +40,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public DateTime? InShopStartDate { get; set; } //进店开始时间（包括日期，小时，分）
         public DateTime? InShopEndDate { get; set; } // 进店结束时间（包括日期，小时，分）
         public int InShopM { get; set; } // 进店时长（分钟）
-        public bool? TestDriverCheck { get; set; } // 是否试乘试驾
+        public string TestDriverCheck { get; set; } // 是否试乘试驾
         public DateTime? TestDriverStartDate { get; set; } // 试乘试驾开始时间（包括日期，小时，分）
         public DateTime? TestDriverEndDate { get; set; }// 试乘试驾结束时间（包括日期，小时，分）
         public int TestDriverM { get; set; } // 试驾时长（分钟）
