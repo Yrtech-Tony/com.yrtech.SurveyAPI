@@ -63,6 +63,8 @@ namespace com.yrtech.SurveyAPI.Service
 	                                THEN 'S1'
 	                                ELSE ''
                             END AS Status_S1,
+                            (SELECT IndateTime FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S1') 
+                            AS Status_S1_Date,
                             CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatusDtl WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId)
 	                                THEN 'S2'
 	                                ELSE ''

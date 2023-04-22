@@ -23,7 +23,7 @@ namespace com.yrtech.SurveyDAL
         public string Latitude { get; set; }
         public string InShopMode { get; set; }
         public string InShopAddress { get; set; }
-        public Nullable<bool> AddressCheck { get; set; }
+        public string AddressCheck { get; set; }
         public string SalesName { get; set; }
         public string SalesNameCheckMode { get; set; }
         public string SakesNameCheckReason { get; set; }
@@ -39,7 +39,7 @@ namespace com.yrtech.SurveyDAL
         public string ExcutePhone { get; set; }
         public Nullable<System.DateTime> InShopStartDate { get; set; }
         public Nullable<System.DateTime> InShopEndDate { get; set; }
-        public Nullable<bool> TestDriverCheck { get; set; }
+        public string TestDriverCheck { get; set; }
         public Nullable<System.DateTime> TestDriverStartDate { get; set; }
         public Nullable<System.DateTime> TestDriverEndDate { get; set; }
         public string WeatherCondition { get; set; }

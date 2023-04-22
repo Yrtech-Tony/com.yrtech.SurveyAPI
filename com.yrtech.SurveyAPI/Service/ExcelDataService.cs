@@ -832,7 +832,7 @@ namespace com.yrtech.SurveyAPI.Service
                 //经销商名称
                 sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
                 // 绑定经销商进店信息
-                List<AnswerShopInfoDto> answerShopInfoList = answerService.GetAnswerShopInfo(projectId, shopId);
+                List<AnswerShopInfoDto> answerShopInfoList = answerService.GetAnswerShopInfo(projectId, item.ShopId.ToString());
                 if (answerShopInfoList != null && answerShopInfoList.Count > 0)
                 {
                     //省份
@@ -841,7 +841,7 @@ namespace com.yrtech.SurveyAPI.Service
                     sheet.GetCell("D" + (rowIndex + 2)).Value = answerShopInfoList[0].City;
                     //进店方式
                     sheet.GetCell("E" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopMode;
-                    //进店地址
+                    //进店地址 
                     sheet.GetCell("F" + (rowIndex + 2)).Value = answerShopInfoList[0].InShopAddress;
                     //地址是否一致
                     //if (answerShopInfoList[0].AddressCheck == true)
@@ -1032,24 +1032,27 @@ namespace com.yrtech.SurveyAPI.Service
                 //提交复审
                 if (!string.IsNullOrEmpty(item.Status_S1))
                     sheet.GetCell("D" + (rowIndex + 2)).Value = "√";
+                //提交复审时间
+                if (item.Status_S1_Date != null)
+                    sheet.GetCell("E" + (rowIndex + 2)).Value = Convert.ToDateTime(item.Status_S1_Date).ToString("yyyy-MM-dd HH:mm:ss");
                 //审核进行中
                 if (!string.IsNullOrEmpty(item.Status_S2))
-                    sheet.GetCell("E" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("F" + (rowIndex + 2)).Value = "√";
                 //审核完毕
                 if (!string.IsNullOrEmpty(item.Status_S3))
-                    sheet.GetCell("F" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("G" + (rowIndex + 2)).Value = "√";
                 //审核修改
                 if (!string.IsNullOrEmpty(item.Status_S4))
-                    sheet.GetCell("G" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("H" + (rowIndex + 2)).Value = "√";
                 // 仲裁
                 if (!string.IsNullOrEmpty(item.Status_S5))
-                    sheet.GetCell("H" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("I" + (rowIndex + 2)).Value = "√";
                 // 督导抽查
                 if (!string.IsNullOrEmpty(item.Status_S6))
-                    sheet.GetCell("I" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("J" + (rowIndex + 2)).Value = "√";
                 //PM 抽查
                 if (!string.IsNullOrEmpty(item.Status_S7))
-                    sheet.GetCell("J" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("K" + (rowIndex + 2)).Value = "√";
 
                 rowIndex++;
             }

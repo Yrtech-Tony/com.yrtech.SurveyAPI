@@ -18,6 +18,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string StatusName { get; set; }
         public string Status_S0 { get; set; } // 进店状态
         public string Status_S1 { get; set; } // 提交复审状态
+        public DateTime? Status_S1_Date { get; set; } // 提交复审时间
         public string Status_S2 { get; set; }// 复审进行中
         public string Status_S3 { get; set; }// 复审完毕
         public string Status_S4 { get; set; }// 复审完毕修改完毕
