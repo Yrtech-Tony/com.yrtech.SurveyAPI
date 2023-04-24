@@ -352,6 +352,27 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return list;
         }
+        // 申诉导入
+        public List<AppealDto> AppealImport(string ossPath)
+        { // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<AppealDto> list = new List<AppealDto>();
+            for (int i = 0; i < 20000; i++)
+            {
+                string shopCode = sheet.GetCell("A" + (i+2)).Value == null ? "" : sheet.GetCell("A" + (i + 2)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                AppealDto appeal = new AppealDto();
+                appeal.ShopCode = shopCode;
+                appeal.SubjectCode= sheet.GetCell("B" + (i + 2)).Value == null ? "" : sheet.GetCell("B" + (i + 2)).Value.ToString().Trim();
+                appeal.LossResultImport = sheet.GetCell("C" + (i + 2)).Value == null ? "" : sheet.GetCell("C" + (i + 2)).Value.ToString().Trim();
+                list.Add(appeal);
+            }
+            return list;
+
+        }
         #endregion
         #region 导出
         // 导出账号-厂商
@@ -1156,6 +1177,7 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
+        
         #endregion
     }
 }

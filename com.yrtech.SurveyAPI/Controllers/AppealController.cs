@@ -395,5 +395,71 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Appeal/AppealExcelAnalysis")]
+        public APIResult AppealExcelAnalysis(string brandId,string projectId, string ossPath)
+        {
+            try
+            {
+                List<AppealDto> list = excelDataService.AppealImport(ossPath);
+                foreach (AppealDto appeal in list)
+                {
+                    appeal.ImportChk = true;
+                    appeal.ImportRemark = "";
+                    List<ShopDto> shopList = masterService.GetShop("", brandId, "", appeal.ShopCode, "", true);
+
+                    if (shopList == null || shopList.Count == 0)
+                    {
+                        appeal.ImportChk = false;
+                        appeal.ImportRemark += "经销商代码不存在" + ";";
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", appeal.SubjectCode, "");
+
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        appeal.ImportChk = false;
+                        appeal.ImportRemark += "题目代码不存在" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/AppealImport")]
+        public APIResult AppealImport(UploadData uploadData)
+        {
+            try
+            {
+                List<AppealDto> list = CommonHelper.DecodeString<List<AppealDto>>(uploadData.ListJson);
+                foreach (AppealDto appealDto in list)
+                {
+                    Appeal appeal = new Appeal();
+                    appeal.ProjectId = appealDto.ProjectId;
+                    List<ShopDto> shopList = masterService.GetShop("", appealDto.BrandId.ToString(),"", appealDto.ShopCode,"",true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        appeal.ShopId = shopList[0].ShopId;
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(appealDto.ProjectId.ToString(),"", appealDto.SubjectCode,"");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        appeal.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
+                    }
+                    appeal.LossResultImport = appealDto.LossResultImport;
+                    appealService.SaveAppeal(appeal);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
     }
 }

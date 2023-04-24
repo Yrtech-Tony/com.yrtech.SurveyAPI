@@ -23,7 +23,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql += @"
                    INSERT INTO Appeal 
                     SELECT * FROM 
-                    (SELECT A.ProjectId,A.ShopId,null AS AppealStatus,A.SubjectId,'' AppealReason,null AppealUserId,null AppealDateTime,null FeedBackStatus
+                    (SELECT A.ProjectId,A.ShopId,null AS AppealStatus,A.SubjectId,'' LossResultImport,'' AppealReason,null AppealUserId,null AppealDateTime,null FeedBackStatus
                     ,'' FeedBackReason,null FeedBackUserId,null FeedBackDateTime
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
                     WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore
@@ -178,6 +178,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,Y.Remark
                                   ,Z.[PhotoScore] AS Score
                                   ,Z.LossResult
+                                  ,A.LossResultImport
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -305,6 +306,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,D.[PhotoScore] AS Score
                                   ,C.Remark
                                   ,D.LossResult
+                                  ,A.LossResultImport
                                   ,A.[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
                                   ,A.AppealUserId
@@ -351,6 +353,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,C.Remark
                                   ,D.[PhotoScore] AS Score
                                   ,D.LossResult
+                                  ,A.LossResultImport
                                   ,D.FileResult
                                   ,[AppealReason]
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = AppealUserId),'') AS AppealUserName
@@ -373,6 +376,23 @@ namespace com.yrtech.SurveyAPI.Service
                                                INNER JOIN Project X ON A.ProjectId = X.ProjectId  
                               WHERE A.AppealId = @AppealId";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
+        }
+        /// <summary>
+        /// 插入申诉信息
+        /// </summary>
+        /// <param name="brand"></param>
+        public void SaveAppeal(Appeal appeal)
+        {
+            Appeal findOne = db.Appeal.Where(x => (x.ProjectId==appeal.ProjectId&&x.ShopId==appeal.ShopId&&x.SubjectId==appeal.SubjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                db.Appeal.Add(appeal);
+            }
+            else
+            {
+                findOne.LossResultImport = appeal.LossResultImport;
+            }
+            db.SaveChanges();
         }
         /// <summary>
         /// 申诉

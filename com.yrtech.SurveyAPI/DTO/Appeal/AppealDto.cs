@@ -25,6 +25,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public decimal? Score { get; set; }
         public bool? AppealStatus { get; set; }
         public string LossResult { get; set; }
+        public string LossResultImport { get; set; }
         public string FileResult { get; set; }
         public List<SubjectFile> SubjectFileList { get; set; }
         public string AppealReason { get; set; }
@@ -46,5 +47,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<AppealFile> AppealFileList { get; set; }
         public DateTime? AppealEndDate { get; set; }
         public bool AppealDateCheck { get; set; }
+        public bool ImportChk { get; set; }
+        public string ImportRemark { get; set; }
     }
 }
