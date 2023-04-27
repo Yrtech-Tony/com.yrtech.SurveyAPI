@@ -446,6 +446,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+
+        // 申诉反馈导出
+        [HttpGet]
+        [Route("Appeal/AppealFeedbackExport")]
+        public APIResult AppealFeedbackExport(string projectId, string keyword, int pageNum, int pageCount)
+        {
+            try
+            {
+                string downloadPath = excelDataService.AppealFeedbackExport(projectId, keyword, pageNum, pageCount);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpGet]
         [Route("Appeal/AppealExcelAnalysis")]
         public APIResult AppealExcelAnalysis(string brandId, string projectId, string ossPath)

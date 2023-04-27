@@ -1177,7 +1177,51 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
-        
+        // 申诉导出
+        public string AppealFeedbackExport(string projectId,  string keyword, int pageNum, int pageCoun)
+        {
+            List<AppealDto> list = appealService.GetFeedBackInfoByPage(projectId, keyword, pageNum, pageCoun);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "Appeal.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 1;
+
+            foreach (AppealDto item in list)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                //体系号
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.SubjectCode;
+                // 检查点
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.CheckPoint;
+                //申诉理由
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.AppealReason;
+                //反馈状态
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.FeedBackStatusStr;
+                //反馈意见
+                sheet.GetCell("G" + (rowIndex + 2)).Value = item.FeedBackReason;
+                //反馈人
+                sheet.GetCell("H" + (rowIndex + 2)).Value = item.FeedBackUserName;
+                //反馈时间
+                sheet.GetCell("I" + (rowIndex + 2)).Value = item.FeedBackDateTime;
+
+                rowIndex++;
+            }
+            //保存excel文件
+            string fileName = "申诉反馈" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
         #endregion
     }
 }
