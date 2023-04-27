@@ -688,7 +688,27 @@ namespace com.yrtech.SurveyAPI.Service
                                                      new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(ProjectDto);
             string sql = "";
-            sql = @"SELECT *,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
+            sql = @"SELECT [ProjectId]
+                          ,[TenantId]
+                          ,[BrandId]
+                          ,[ProjectCode]
+                          ,[ProjectName]
+                          ,CASE WHEN [ProjectShortName] IS NULL OR [ProjectShortName] ='' THEN ProjectName 
+                            ELSE [ProjectShortName]
+                           END AS ProjectShortName
+                          ,[Year]
+                          ,[Quarter]
+                          ,[OrderNO]
+                          ,[ReportDeployDate]
+                          ,[RechckShopShow]
+                          ,[PhotoUploadMode]
+                          ,[PhotoSize]
+                          ,[AppealShow]
+                          ,[InUserId]
+                          ,[InDateTime]
+                          ,[ModifyUserId]
+                          ,[ModifyDateTime]
+                            ,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
                              ELSE CAST(1 AS BIT) END AS ReportDeployChk,ISNULL(ProjectType,'明检') AS ProjectType
                     FROM [Project]
                     WHERE 1=1
@@ -720,7 +740,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             sql += " ORDER BY Year,OrderNO DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
-
         }
         /// <summary>
         /// 保存期号信息
@@ -765,6 +784,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.Quarter = project.Quarter;
                 findOne.Year = project.Year;
                 findOne.ProjectType = project.ProjectType;
+                findOne.ProjectShortName = project.ProjectShortName;
+                findOne.AppealShow = project.AppealShow;
             }
             db.SaveChanges();
         }

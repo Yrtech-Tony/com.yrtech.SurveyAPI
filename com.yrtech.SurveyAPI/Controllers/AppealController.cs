@@ -51,7 +51,40 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AppealSetDto> list = appealService.GetAppealShopSet(projectId);
+                List<AppealSetDto> list = appealService.GetAppealShopSet(projectId, "");
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        ///  验证单个经销商申诉期是否已过，经销商申诉页面使用
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Appeal/GetAppealShopSetCheck")]
+        public APIResult GetAppealShopSetCheck(string projectId,string shopId)
+        {
+            try
+            {
+                List<AppealSetDto> list = new List<AppealSetDto>();
+                // 如果设置了申诉时间过期，进行提醒。但是数据还可以查询。在web端调用这个接口
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    list = appealService.GetAppealShopSet(projectId, shopId.Replace(",", ""));
+                    if (list != null && list.Count > 0)
+                    {
+                        if (list[0].AppealEndDate < DateTime.Now)
+                        {
+                            return new APIResult() { Status = false, Body = "申诉时间已过期，无法申诉" };
+                        }
+                    }
+                }
+                
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
@@ -84,7 +117,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     appealSet.ImportChk = true;
                     appealSet.ImportRemark = "";
-                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", appealSet.ShopCode, "",null);
+                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", appealSet.ShopCode, "", null);
                     if (shopList == null || shopList.Count == 0)
                     {
                         appealSet.ImportChk = false;
@@ -115,8 +148,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     AppealShopSet appealSet = new AppealShopSet();
                     appealSet.ProjectId = appeal.ProjectId;
-                   
-                    List<ShopDto> shopList = masterService.GetShop(appeal.TenantId.ToString(),appeal.BrandId.ToString(),"",appeal.ShopCode,"",null);
+
+                    List<ShopDto> shopList = masterService.GetShop(appeal.TenantId.ToString(), appeal.BrandId.ToString(), "", appeal.ShopCode, "", null);
                     if (shopList != null && shopList.Count > 0)
                     {
                         appealSet.ShopId = shopList[0].ShopId;
@@ -152,10 +185,27 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopAppealInfoByPage")]
-        public APIResult GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount)
+        public APIResult GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount, string roleType = "")
         {
             try
             {
+                if (roleType == "B_Shop")
+                {
+                    // 如果没有设置申诉时间，进行提醒，且不能查询到申诉数据
+                    List<AppealSetDto> appealSetlist = appealService.GetAppealShopSet(projectId, shopIdStr.Replace(",", ""));
+                    if (appealSetlist == null || appealSetlist.Count == 0)
+                    {
+                        return new APIResult() { Status = false, Body = "未设置申诉时间，请联系管理员" };
+                    }
+                    else
+                    {
+                        if (appealSetlist[0].AppealEndDate == null)
+                        {
+                            return new APIResult() { Status = false, Body = "未设置申诉时间，请联系管理员" };
+                        }
+
+                    }
+                }
                 List<AppealDto> list = appealService.GetShopAppealInfoByPage(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, pageNum, pageCount);
                 foreach (AppealDto appeal in list)
                 {
@@ -167,7 +217,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         appeal.AppealDateCheck = true; // 不能编辑
                     }
-                    else if(appeal.AppealEndDate < DateTime.Now)
+                    else if (appeal.AppealEndDate < DateTime.Now)
                     {
                         appeal.AppealDateCheck = false;
                     }
@@ -213,12 +263,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         appeal.AppealDateCheck = false;
                     }
-                    
+
                 }
                 if (list != null && list.Count > 0)
                 {
                     list[0].SubjectFileList = masterService.GetSubjectFile(list[0].ProjectId.ToString(), list[0].SubjectId.ToString());
-                    
+
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
@@ -277,7 +327,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         appeal.AppealReason = "经销商对检核扣分：无异议/未反馈";
                     }
-                    else {
+                    else
+                    {
                         appeal.AppealReason = appealDto.AppealReason;
                     }
                     appeal.AppealUserId = appealDto.AppealUserId;
@@ -397,7 +448,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/AppealExcelAnalysis")]
-        public APIResult AppealExcelAnalysis(string brandId,string projectId, string ossPath)
+        public APIResult AppealExcelAnalysis(string brandId, string projectId, string ossPath)
         {
             try
             {
@@ -440,12 +491,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     Appeal appeal = new Appeal();
                     appeal.ProjectId = appealDto.ProjectId;
-                    List<ShopDto> shopList = masterService.GetShop("", appealDto.BrandId.ToString(),"", appealDto.ShopCode,"",true);
+                    List<ShopDto> shopList = masterService.GetShop("", appealDto.BrandId.ToString(), "", appealDto.ShopCode, "", true);
                     if (shopList != null && shopList.Count > 0)
                     {
                         appeal.ShopId = shopList[0].ShopId;
                     }
-                    List<SubjectDto> subjectList = masterService.GetSubject(appealDto.ProjectId.ToString(),"", appealDto.SubjectCode,"");
+                    List<SubjectDto> subjectList = masterService.GetSubject(appealDto.ProjectId.ToString(), "", appealDto.SubjectCode, "");
                     if (subjectList != null && subjectList.Count > 0)
                     {
                         appeal.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);

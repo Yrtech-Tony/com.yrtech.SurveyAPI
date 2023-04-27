@@ -13,6 +13,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> BrandId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }
+        public string ProjectShortName { get; set; }
         public DateTime? ReportDeployDate { get; set; }
         public bool ReportDeployChk { get; set; }
         public string Year { get; set; }
@@ -23,6 +24,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string PhotoSize { get; set; } // 未设置默认300万像素
         public string DataScore { get; set; }
         public DateTime? AppealStartDate { get; set; }
+        public bool? AppealShow { get; set; } // 是否在
         public string ProjectType { get; set; } // 明检、密采
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

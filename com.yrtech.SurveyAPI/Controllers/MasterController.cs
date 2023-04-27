@@ -1243,11 +1243,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId, string projectId, string year)
+        public APIResult GetProject(string brandId, string projectId, string year,string appealShow="")
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", brandId, projectId, "", year, "");
+                List<ProjectDto> projectList = new List<ProjectDto>();
+                if (string.IsNullOrEmpty(appealShow))
+                {
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "");
+                }
+                else if (appealShow == "Y")
+                {
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "").Where(x => x.AppealShow == true).ToList();
+                }
+                else {
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "").Where(x => x.AppealShow == false).ToList();
+                }
+            
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)

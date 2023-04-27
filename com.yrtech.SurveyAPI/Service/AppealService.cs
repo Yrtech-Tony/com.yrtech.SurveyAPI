@@ -82,10 +82,11 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        public List<AppealSetDto> GetAppealShopSet(string projectId)
+        public List<AppealSetDto> GetAppealShopSet(string projectId,string shopId)
         {
             if (projectId == null) projectId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
+            if (shopId == null) shopId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@ShopId", shopId) };
             Type t = typeof(AppealSetDto);
             string sql = "";
             sql = @"SELECT 
@@ -105,6 +106,10 @@ namespace com.yrtech.SurveyAPI.Service
                                                 LEFT JOIN AppealShopSet B ON A.ProjectId = B.ProjectId 
                                                 AND A.ShopId = B.ShopId
                     WHERE A.ProjectId = @ProjectId ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealSetDto>().ToList();
         }
         public void SaveAppealShopSet(AppealShopSet appealSet)
