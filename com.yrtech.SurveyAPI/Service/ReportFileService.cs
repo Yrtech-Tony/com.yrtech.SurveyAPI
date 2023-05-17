@@ -749,7 +749,8 @@ namespace com.yrtech.SurveyAPI.Service
             if (shopId == null) shopId = "";
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@ShopId", shopId),new SqlParameter("@ShopType", shopType)};
+                                                        new SqlParameter("@ShopId", shopId)
+                                                        ,new SqlParameter("@ShopType", shopType)};
             Type t = typeof(ReportChapterScoreDto);
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.ShopCode,C.ShopName

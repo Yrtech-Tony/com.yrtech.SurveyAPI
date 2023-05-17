@@ -346,9 +346,10 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(AppealDto);
             string sql = @"SELECT [AppealId]
                                   ,A.[ProjectId]
-                                  ,ISNULL(A.AppealStatus,1) AppealStatus
+                                  ,A.AppealStatus AppealStatus
                                   ,X.[ProjectCode]
                                   ,X.[ProjectName]
+                                  ,ISNULL(X.ProjectShortName,X.ProjectName) ProjectShortName
                                   ,A.[ShopId]
                                   ,B.[ShopCode]
                                   ,B.[ShopName]
@@ -453,6 +454,19 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealID", appealId) };
             string sql = @"DELETE Appeal WHERE AppealId = @AppealID
                         ";
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        public void AppealDeleteByShopId(string projectId,string shopId)
+        {
+            if (shopId == null) shopId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                ,new SqlParameter("@ShopId", shopId) };
+            string sql = @"DELETE Appeal WHERE ProjectId = @ProjectId 
+                        ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND ShopId = @ShopId";
+            }
             db.Database.ExecuteSqlCommand(sql, para);
         }
         /// <summary>

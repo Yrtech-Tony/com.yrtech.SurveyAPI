@@ -503,6 +503,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<AppealDto> list = CommonHelper.DecodeString<List<AppealDto>>(uploadData.ListJson);
+                // 导入之前先删除当前经销商的申诉信息
+                foreach (AppealDto appealDto in list)
+                {
+                    string shopId = "";
+                    List<ShopDto> shopList = masterService.GetShop("", appealDto.BrandId.ToString(), "", appealDto.ShopCode, "", true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        shopId = shopList[0].ShopId.ToString();
+                    }
+                    if (!string.IsNullOrEmpty(shopId))
+                    {
+                        appealService.AppealDeleteByShopId(appealDto.ProjectId.ToString(), shopId);
+                    }
+                }
                 foreach (AppealDto appealDto in list)
                 {
                     Appeal appeal = new Appeal();
