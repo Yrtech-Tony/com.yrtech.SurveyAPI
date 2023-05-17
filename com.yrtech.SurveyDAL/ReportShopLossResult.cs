@@ -12,20 +12,14 @@ namespace com.yrtech.SurveyDAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Appeal
+    public partial class ReportShopLossResult
     {
-        public long AppealId { get; set; }
+        public int Id { get; set; }
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ShopId { get; set; }
-        public Nullable<bool> AppealStatus { get; set; }
         public Nullable<int> SubjectId { get; set; }
-        public string LossResultImport { get; set; }
-        public string AppealReason { get; set; }
-        public Nullable<int> AppealUserId { get; set; }
-        public Nullable<System.DateTime> AppealDateTime { get; set; }
-        public Nullable<bool> FeedBackStatus { get; set; }
-        public string FeedBackReason { get; set; }
-        public Nullable<int> FeedBackUserId { get; set; }
-        public Nullable<System.DateTime> FeedBackDateTime { get; set; }
+        public string LossResult { get; set; }
+        public Nullable<int> InUserId { get; set; }
+        public Nullable<System.DateTime> InDateTime { get; set; }
     }
 }

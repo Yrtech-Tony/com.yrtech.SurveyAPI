@@ -19,6 +19,7 @@ namespace com.yrtech.SurveyDAL
         public Nullable<int> BrandId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }
+        public string ProjectShortName { get; set; }
         public string Year { get; set; }
         public string Quarter { get; set; }
         public Nullable<int> OrderNO { get; set; }
@@ -27,6 +28,7 @@ namespace com.yrtech.SurveyDAL
         public Nullable<bool> PhotoUploadMode { get; set; }
         public string PhotoSize { get; set; }
         public string ProjectType { get; set; }
+        public Nullable<bool> AppealShow { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
