@@ -3,6 +3,7 @@ using Quartz;
 using Quartz.Impl;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -21,7 +22,8 @@ namespace com.yrtech.SurveyAPI
             //2.创建一个具体的作业即job (具体的job需要单独在一个文件中执行)
             var job = JobBuilder.Create<BakDataJob>().Build();
             //3.创建并配置一个触发器即trigger   1s执行一次
-            var trigger = TriggerBuilder.Create().WithCronSchedule("0/1 * * * * ?").Build();
+            var cron = ConfigurationManager.AppSettings["bak_corn"];
+            var trigger = TriggerBuilder.Create().WithCronSchedule(cron).Build();
             //4.将job和trigger加入到作业调度池中
             scheduler.ScheduleJob(job, trigger);
             //5.开启调度
