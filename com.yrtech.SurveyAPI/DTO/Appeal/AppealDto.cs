@@ -50,5 +50,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public bool AppealDateCheck { get; set; }
         public bool ImportChk { get; set; }
         public string ImportRemark { get; set; }
+        public bool AppealFileChk_Apply { get; set; }
+        public bool AppealFileChk_FeedBack { get; set; }
     }
 }

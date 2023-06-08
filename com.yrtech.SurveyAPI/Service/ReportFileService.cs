@@ -650,7 +650,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (string.IsNullOrEmpty(endDate))
             {
-                endDate = DateTime.Now.ToString("yyyy-MM-dd")+ " 23:59:59";
+                endDate = DateTime.Now.ToString("yyyy-MM-dd") + " 23:59:59";
             }
             else
             {
@@ -798,6 +798,24 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
+        // 区域的最高分和最低分
+        public List<ReportChapterScoreDto> ReportAreaMaxAndMinScore(string projectId, string shopType)
+        {
+            if (shopType == null) shopType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                         new SqlParameter("@ShopType", shopType)};
+            Type t = typeof(ReportChapterScoreDto);
+            string sql = "";
+            sql = @"SELECT ProjectId,ShopType,Max(SumScore) AS SumScore,Min(SumScore) AS MinScore 
+                    FROM ReportAreaChapterSumScore  WHERE ProjectId =@ProjectId 
+                    GROUP BY ProjectId,ShopType ";
+            if (!string.IsNullOrEmpty(shopType))
+            {
+                sql += "HAVING ShopType = @ShopType";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
+        }
+
         // 全国一级指标得分
         public List<ReportChapterScoreDto> ReportCountryChapterScoreSearch(string projectId, string shopType)
         {
@@ -820,6 +838,9 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
         }
+
+        #endregion
+        #region 二级指标得分
         // 经销商二级指标得分
         public List<ReportSubjectScoreDto> ReportShopSubjectScoreSearch(string projectId, string shopId, string chapterId)
         {
@@ -905,6 +926,7 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
+        #endregion
         // 扣分细节项
         public List<AnswerDto> ReportShopLossResult(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopId, string keyword)
         {
@@ -1003,7 +1025,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
-        #endregion
+
         #region 生成报告数据
         public void ReportDataCreate(string brandId, string projectId)
         {

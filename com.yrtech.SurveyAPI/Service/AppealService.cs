@@ -114,7 +114,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveAppealShopSet(AppealShopSet appealSet)
         {
-            if (appealSet.AppealEndDate != null)
+            if (appealSet.AppealEndDate != null&& !appealSet.AppealEndDate.ToString().Contains(":")) // 如果未包含时间
             {
                 appealSet.AppealEndDate = Convert.ToDateTime(Convert.ToDateTime(appealSet.AppealEndDate).ToString("yyyy-MM-dd") + " 23:59:59");
             }
@@ -201,7 +201,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,(SELECT TOP 1 AppealEndDate FROM AppealShopSet WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId) AS AppealEndDate
                               FROM [Appeal] A  INNER JOIN Shop X ON A.ShopId = X.ShopId AND (X.ShopCode LIKE '%'+@KeyWord+'%' OR X.ShopName LIKE '%'+@KeyWord+'%')
                                                 INNER JOIN [Subject] Y ON A.SubjectId = Y.SubjectId AND A.ProjectId = Y.ProjectId
-                                                INNER JOIN Answer Z ON A.ProjectId = Z.ProjectId AND A.ShopId = Z.ShopId AND A.SubjectId =Z.SubjectId
+                                                LEFT JOIN Answer Z ON A.ProjectId = Z.ProjectId AND A.ShopId = Z.ShopId AND A.SubjectId =Z.SubjectId
                                                INNER JOIN Project U ON A.ProjectId = U.ProjectId AND A.ProjectId = @ProjectId  ";
             if (!string.IsNullOrEmpty(shopIdStr))
             {
@@ -279,10 +279,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public List<AppealDto> GetFeedBackInfoByPage(string projectId,string keyword, int pageNum, int pageCount)
+        public List<AppealDto> GetFeedBackInfoByPage(string projectId,string keyword, string appealStatus,int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
-            return GetFeedBackInfoByAll(projectId, keyword).Skip(startIndex).Take(pageCount).ToList();
+            return GetFeedBackInfoByAll(projectId, keyword, appealStatus).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
         /// 查询反馈信息_后台系统
@@ -290,11 +290,13 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword)
+        public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword,string appealStatus)
         {
             if (keyword == null) keyword = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                    new SqlParameter("@KeyWord", keyword)};
+            if (appealStatus == null) appealStatus = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                    ,new SqlParameter("@AppealStatus", appealStatus)
+                                                    ,new SqlParameter("@KeyWord", keyword)};
             Type t = typeof(AppealDto);
             string sql = "";
             sql = @"SELECT [AppealId]
@@ -326,10 +328,21 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = [FeedBackUserId]),'') AS FeedBackUserName
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
+                                  ,CASE WHEN EXISTS(SELECT 1 FROM AppealFile WHERE AppealId = A.AppealId AND FileType = 'Shop') 
+                                        THEN CAST(1 AS BIT)
+                                    ELSE CAST(0 AS BIT) END AS AppealFileChk_Apply
+                                   ,CASE WHEN EXISTS(SELECT 1 FROM AppealFile WHERE AppealId = A.AppealId AND FileType = 'FeedBack') 
+                                        THEN CAST(1 AS BIT)
+                                    ELSE CAST(0 AS BIT) END AS AppealFileChk_FeedBack
                               FROM [Appeal] A WITH(NOLOCK) INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
                                                 INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
-                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
-                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  ";
+                                                LEFT JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  
+                            WHERE 1=1 ";
+            if (!string.IsNullOrEmpty(appealStatus))
+            {
+                sql += " AND A.AppealStatus = @AppealStatus";
+            }
             sql += "  ORDER BY A.ShopId,B.ShopCode,A.SubjectId,C.SubjectCode ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
@@ -378,7 +391,7 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,(SELECT TOP 1 AppealEndDate FROM AppealShopSet WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId) AS AppealEndDate
                               FROM [Appeal] A  INNER JOIN Shop B ON A.ShopId = B.ShopId 
                                                 INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
-                                                INNER JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
+                                                LEFT JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
                                                INNER JOIN Project X ON A.ProjectId = X.ProjectId  
                               WHERE A.AppealId = @AppealId";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
@@ -428,11 +441,9 @@ namespace com.yrtech.SurveyAPI.Service
             return appeal;
         }
         /// <summary>
-        /// 申诉反馈
+        /// 申诉反馈byAppealId
         /// </summary>
-        /// <param name="appealId"></param>
-        /// <param name="appealReason"></param>
-        /// <param name="appealUserId"></param>
+        /// <param name="appeal"></param>
         public void AppealFeedBack(Appeal appeal)
         {
             Appeal findOne = db.Appeal.Where(x => (x.AppealId == appeal.AppealId)).FirstOrDefault();
@@ -441,6 +452,18 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.FeedBackStatus = appeal.FeedBackStatus;
                 findOne.FeedBackReason =appeal.FeedBackReason;
                 findOne.FeedBackUserId =appeal.FeedBackUserId;
+                findOne.FeedBackDateTime = DateTime.Now;
+            }
+            db.SaveChanges();
+        }
+        public void AppealFeedBackBySubjectId(Appeal appeal)
+        {
+            Appeal findOne = db.Appeal.Where(x => (x.ProjectId == appeal.ProjectId&&x.ShopId==appeal.ShopId&&x.SubjectId==appeal.SubjectId)).FirstOrDefault();
+            if (findOne != null)
+            {
+                findOne.FeedBackStatus = appeal.FeedBackStatus;
+                findOne.FeedBackReason = appeal.FeedBackReason;
+                findOne.FeedBackUserId = appeal.FeedBackUserId;
                 findOne.FeedBackDateTime = DateTime.Now;
             }
             db.SaveChanges();

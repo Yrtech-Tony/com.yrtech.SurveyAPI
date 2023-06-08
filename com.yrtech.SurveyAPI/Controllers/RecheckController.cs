@@ -755,7 +755,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Recheck/DeleteRecheckStatus")]
-        public APIResult DeleteRecheckStatus(RecheckStatusDtlDto recheckStatusDtl,string userId)
+        public APIResult DeleteRecheckStatus(RecheckStatusDtlDto recheckStatusDtl)
         {
             try
             {
@@ -776,7 +776,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         throw new Exception("该经销商项目经理已抽查完毕，请先删除项目经理抽查状态");
                     }
-                    recheckService.DeleteRecheckStatusDtl(recheckStatusDtl.RecheckStatusDtlId.ToString(),userId);
+                    recheckService.DeleteRecheckStatusDtl(recheckStatusDtl.RecheckStatusDtlId.ToString(), recheckStatusDtl.ModifyUserId.ToString());
                 }
                 else // 非一审
                 {
@@ -804,7 +804,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                             throw new Exception("该经销商已二审完毕，请先删除二审状态");
                         }
                     }
-                    recheckService.DeleteRecheckStatus(recheckStatusDtl.RecheckStatusId.ToString(), userId);
+                    recheckService.DeleteRecheckStatus(recheckStatusDtl.RecheckStatusId.ToString(), recheckStatusDtl.ModifyUserId.ToString());
                 }
                 return new APIResult() { Status = true, Body = "" };
             }

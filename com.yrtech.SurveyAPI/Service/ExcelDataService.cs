@@ -373,6 +373,40 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+        // 申诉反馈导入
+        public List<AppealDto> AppealFeedBackImport(string ossPath)
+        { // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<AppealDto> list = new List<AppealDto>();
+            for (int i = 0; i < 20000; i++)
+            {
+                string shopCode = sheet.GetCell("A" + (i + 2)).Value == null ? "" : sheet.GetCell("A" + (i + 2)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                AppealDto appeal = new AppealDto();
+                appeal.ShopCode = shopCode;
+                appeal.SubjectCode = sheet.GetCell("B" + (i + 2)).Value == null ? "" : sheet.GetCell("B" + (i + 2)).Value.ToString().Trim();
+                string appealFeedBackStatusStr = sheet.GetCell("C" + (i + 2)).Value == null ? "" : sheet.GetCell("C" + (i + 2)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(appealFeedBackStatusStr))
+                {
+                    appeal.FeedBackStatus = null;
+                }
+                else if (appealFeedBackStatusStr == "1")
+                {
+                    appeal.FeedBackStatus = true;
+                }
+                else
+                {
+                    appeal.FeedBackStatus = false;
+                }
+                appeal.FeedBackReason = sheet.GetCell("D" + (i + 2)).Value == null ? "" : sheet.GetCell("D" + (i + 2)).Value.ToString().Trim();
+                list.Add(appeal);
+            }
+            return list;
+
+        }
         #endregion
         #region 导出
         // 导出账号-厂商
@@ -434,7 +468,7 @@ namespace com.yrtech.SurveyAPI.Service
         public string ShopAnsewrScoreInfoExport(string projectId, string shopId)
         {
             List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
-            List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "");
+            List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "","");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];
@@ -1177,10 +1211,10 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
-        // 申诉导出
-        public string AppealFeedbackExport(string projectId,  string keyword, int pageNum, int pageCoun)
+        // 申诉反馈导出
+        public string AppealFeedbackExport(string projectId,  string keyword, string appealStatus,int pageNum, int pageCoun)
         {
-            List<AppealDto> list = appealService.GetFeedBackInfoByPage(projectId, keyword, pageNum, pageCoun);
+            List<AppealDto> list = appealService.GetFeedBackInfoByPage(projectId, keyword, appealStatus, pageNum, pageCoun);
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "Appeal.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];
@@ -1196,16 +1230,45 @@ namespace com.yrtech.SurveyAPI.Service
                 sheet.GetCell("C" + (rowIndex + 2)).Value = item.SubjectCode;
                 // 检查点
                 sheet.GetCell("D" + (rowIndex + 2)).Value = item.CheckPoint;
+                // 未达标情况说明
+                if (!string.IsNullOrEmpty(item.LossResultImport)) // 导入的失分说明
+                {
+                    sheet.GetCell("E" + (rowIndex + 2)).Value = item.LossResultImport;
+                }// 系统生成的失分说明
+                else
+                {
+                    //失分说明由json转成字符串
+                    string lossResultStr = "";
+                    if (!string.IsNullOrEmpty(item.LossResult))
+                    {
+                        List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(item.LossResult);
+                        lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
+                        foreach (LossResultDto lossResult in lossResultList)
+                        {
+                           
+                            if (!string.IsNullOrEmpty(lossResult.LossDesc))
+                            {
+                                lossResultStr += lossResult.LossDesc + ";";
+                            }
+                        }
+                    }
+                    // 去掉最后一个分号
+                    if (!string.IsNullOrEmpty(lossResultStr))
+                    {
+                        lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
+                    }
+                    sheet.GetCell("E" + (rowIndex + 2)).Value = lossResultStr;
+                }
                 //申诉理由
-                sheet.GetCell("E" + (rowIndex + 2)).Value = item.AppealReason;
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.AppealReason;
                 //反馈状态
-                sheet.GetCell("F" + (rowIndex + 2)).Value = item.FeedBackStatusStr;
+                sheet.GetCell("G" + (rowIndex + 2)).Value = item.FeedBackStatusStr;
                 //反馈意见
-                sheet.GetCell("G" + (rowIndex + 2)).Value = item.FeedBackReason;
+                sheet.GetCell("H" + (rowIndex + 2)).Value = item.FeedBackReason;
                 //反馈人
-                sheet.GetCell("H" + (rowIndex + 2)).Value = item.FeedBackUserName;
+                sheet.GetCell("I" + (rowIndex + 2)).Value = item.FeedBackUserName;
                 //反馈时间
-                sheet.GetCell("I" + (rowIndex + 2)).Value = item.FeedBackDateTime;
+                sheet.GetCell("J" + (rowIndex + 2)).Value = item.FeedBackDateTime;
 
                 rowIndex++;
             }

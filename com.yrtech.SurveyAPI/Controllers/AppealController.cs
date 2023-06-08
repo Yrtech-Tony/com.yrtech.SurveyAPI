@@ -231,11 +231,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetFeedBackInfoByPage")]
-        public APIResult GetFeedBackInfoByPage(string projectId, string keyword, int pageNum, int pageCount)
+        public APIResult GetFeedBackInfoByPage(string projectId, string keyword, string appealStatus="",int pageNum=1, int pageCount=30000)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetFeedBackInfoByPage(projectId, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetFeedBackInfoByPage(projectId, keyword, appealStatus,pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -450,11 +450,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 申诉反馈导出
         [HttpGet]
         [Route("Appeal/AppealFeedbackExport")]
-        public APIResult AppealFeedbackExport(string projectId, string keyword, int pageNum, int pageCount)
+        public APIResult AppealFeedbackExport(string projectId, string keyword, string appealStatus="",int pageNum=1, int pageCount=30000)
         {
             try
             {
-                string downloadPath = excelDataService.AppealFeedbackExport(projectId, keyword, pageNum, pageCount);
+                string downloadPath = excelDataService.AppealFeedbackExport(projectId, keyword, appealStatus,pageNum, pageCount);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
@@ -462,6 +462,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        // 申诉导入
         [HttpGet]
         [Route("Appeal/AppealExcelAnalysis")]
         public APIResult AppealExcelAnalysis(string brandId, string projectId, string ossPath)
@@ -533,6 +534,74 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     appeal.LossResultImport = appealDto.LossResultImport;
                     appealService.SaveAppeal(appeal);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        // 申诉反馈导入
+        [HttpGet]
+        [Route("Appeal/AppealFeedBackExcelAnalysis")]
+        public APIResult AppealFeedBackExcelAnalysis(string brandId, string projectId, string ossPath)
+        {
+            try
+            {
+                List<AppealDto> list = excelDataService.AppealFeedBackImport(ossPath);
+                foreach (AppealDto appeal in list)
+                {
+                    appeal.ImportChk = true;
+                    appeal.ImportRemark = "";
+                    List<ShopDto> shopList = masterService.GetShop("", brandId, "", appeal.ShopCode, "", true);
+                    if (shopList == null || shopList.Count == 0)
+                    {
+                        appeal.ImportChk = false;
+                        appeal.ImportRemark += "经销商代码不存在" + ";";
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", appeal.SubjectCode, "");
+
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        appeal.ImportChk = false;
+                        appeal.ImportRemark += "题目代码不存在" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/AppealFeedBackImport")]
+        public APIResult AppealFeedBackImport(UploadData uploadData)
+        {
+            try
+            {
+                List<AppealDto> list = CommonHelper.DecodeString<List<AppealDto>>(uploadData.ListJson);
+                foreach (AppealDto appealDto in list)
+                {
+                    Appeal appeal = new Appeal();
+                    appeal.ProjectId = appealDto.ProjectId;
+                    List<ShopDto> shopList = masterService.GetShop("", appealDto.BrandId.ToString(), "", appealDto.ShopCode, "", true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        appeal.ShopId = shopList[0].ShopId;
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(appealDto.ProjectId.ToString(), "", appealDto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        appeal.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
+                    }
+                    appeal.FeedBackStatus = appealDto.FeedBackStatus;
+                    appeal.FeedBackReason = appealDto.FeedBackReason;
+                    appeal.FeedBackUserId = appealDto.FeedBackUserId;
+                    appealService.AppealFeedBackBySubjectId(appeal);
                 }
                 return new APIResult() { Status = true, Body = "" };
             }

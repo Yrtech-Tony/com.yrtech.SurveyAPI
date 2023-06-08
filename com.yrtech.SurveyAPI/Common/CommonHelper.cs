@@ -30,7 +30,6 @@ namespace com.yrtech.SurveyAPI.Common
             jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, defaultJsonSetting);
             return jsonString;
         }
-
         public static string EncodeDto<T>(IEnumerable t)
         {
             string jsonString = string.Empty;
@@ -154,6 +153,7 @@ namespace com.yrtech.SurveyAPI.Common
             }
             return fileName;
         }
+        // 开始和结束时间相差的分钟
         public static double DiffMinutes(DateTime endDate, DateTime startDate)
         {
             TimeSpan ts = new TimeSpan(endDate.Ticks - startDate.Ticks);

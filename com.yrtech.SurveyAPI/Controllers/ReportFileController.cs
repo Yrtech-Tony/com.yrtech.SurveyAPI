@@ -390,6 +390,69 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("ReportFile/ReportChapterScoreSearch1")]
+        public APIResult ReportChapterScoreSearch1(string projectId, string areaId, string shopId, string shopType = "")
+        {
+            try
+            {
+                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
+                // 如果经销商不为空，按经销商查询
+                if (!string.IsNullOrEmpty(shopId))
+                {
+
+                    ShopService shopservice = new ShopService();
+                    // 专门针对极狐项目的特殊处理
+                    List<ProjectShopExamTypeDto> shopList = shopservice.GetProjectShopExamType("", projectId, shopId);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        if (shopList[0].ExamTypeId == 18)
+                        {
+                            shopType = "A";
+                        }
+                        else if (shopList[0].ExamTypeId == 19)
+                        {
+                            shopType = "B";
+                        }
+                        else
+                        {
+                            shopType = "C";
+                        }
+                    }
+                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
+                    }
+                    if (list == null || list.Count == 0)
+                    {
+                        return new APIResult() { Status = false, Body = "申诉流程暂未结束，检核快报暂未生成" };
+                    }
+                }
+                // 区域为空查询全国的数量，不为空查询当前区域的数量
+                else if (!string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportAreaChapterScoreSearch(projectId, areaId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportAreaSubjectScoreSearch(projectId, areaId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                else
+                {
+                    list = reportFileService.ReportCountryChapterScoreSearch(projectId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 扣分细项
         [HttpGet]
@@ -452,6 +515,21 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 reportFileService.ReportDataCreate(brandId, projectId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/DBbak")]
+        public APIResult DBbak()
+        {
+            try
+            {
+                FileService fs = new FileService();
+                fs.DBFileBak();
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
