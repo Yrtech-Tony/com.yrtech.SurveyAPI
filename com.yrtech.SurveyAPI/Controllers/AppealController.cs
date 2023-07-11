@@ -388,6 +388,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+
+        [HttpPost]
+        [Route("Appeal/AppealFeedBackDelete")]
+        public APIResult AppealFeedBackDelete(string projectId,string shopId,string userId)
+        {
+            try
+            {
+                string[] shop = shopId.Split(',');
+                foreach (string shopIdStr in shop)
+                {
+                    appealService.AppealFeedBackDelete(projectId, shopId,userId);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Appeal/AppealFileDelete")]
         public APIResult AppealFileDelete(AppealFile appealFile)
@@ -416,20 +435,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        [HttpPost]
-        [Route("Appeal/AppealDelete")]
-        public APIResult AppealDelete(Appeal appeal)
-        {
-            try
-            {
-                appealService.AppealDelete(appeal.AppealId.ToString());
-                return new APIResult() { Status = true, Body = "" };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
+        // 目前Web端未使用到-20230709
+        //[HttpPost]
+        //[Route("Appeal/AppealDelete")]
+        //public APIResult AppealDelete(Appeal appeal)
+        //{
+        //    try
+        //    {
+        //        appealService.AppealDelete(appeal.AppealId.ToString());
+        //        return new APIResult() { Status = true, Body = "" };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
+        //    }
+        //}
 
         // 申诉导出
         [HttpGet]
@@ -515,7 +535,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     if (!string.IsNullOrEmpty(shopId))
                     {
-                        appealService.AppealDeleteByShopId(appealDto.ProjectId.ToString(), shopId);
+                        appealService.AppealDeleteByShopId(appealDto.ProjectId.ToString(), shopId,appealDto.ModifyUserId.ToString());
                     }
                 }
                 foreach (AppealDto appealDto in list)
@@ -533,7 +553,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                         appeal.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
                     }
                     appeal.LossResultImport = appealDto.LossResultImport;
-                    appealService.SaveAppeal(appeal);
+                    
+                    appealService.SaveAppeal(appeal, appealDto.ModifyUserId);
                 }
                 return new APIResult() { Status = true, Body = "" };
             }

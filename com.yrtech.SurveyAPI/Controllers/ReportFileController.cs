@@ -52,10 +52,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                //List<object> resultList = new List<object>();
-                // int total = reportFileService.ReportFileListUploadALLSearch(projectId, keyword).Count;
-                //resultList.Add(total);
-                // resultList.Add(reportFileService.ReportFileListUploadALLByPageSearch(projectId, keyword, pageNum, pageCount));
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch(brandId, projectId, bussinessTypeId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
@@ -88,7 +84,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     if (!string.IsNullOrEmpty(reportFileDto.ShopCode))
                     {
-                        List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
+                        List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "", null);
                         if (shopList != null && shopList.Count > 0)
                         {
                             reportFileDto.ShopCodeCheck = true;
@@ -121,7 +117,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ReportFileDto> list = CommonHelper.DecodeString<List<ReportFileDto>>(upload.ListJson);
                 foreach (ReportFileDto reportFileDto in list)
                 {
-                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "", null);
                     if (shopList == null || shopList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "上传的文件中存在未知的经销商代码，请确认品牌和经销商代码" };
@@ -132,7 +128,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     ReportFile reportFile = new ReportFile();
                     reportFile.ProjectId = reportFileDto.ProjectId;
                     reportFile.BussinessTypeId = reportFileDto.BussinessTypeId;
-                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "",null);
+                    List<ShopDto> shopList = masterservice.GetShop(reportFileDto.TenantId.ToString(), reportFileDto.BrandId.ToString(), "", reportFileDto.ShopCode, "", null);
                     if (shopList != null && shopList.Count > 0)
                     {
                         reportFile.ShopId = shopList[0].ShopId;
@@ -182,6 +178,137 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
 
         #endregion
+        #region 文件上传-区域
+        [HttpGet]
+        [Route("ReportFile/ReportFileListUploadSearchArea")]
+        public APIResult ReportFileListUploadSearchArea(string brandId, string projectId, string keyword, int pageNum, int pageCount)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch_Area(brandId,projectId, keyword, pageNum, pageCount)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportFileSearchArea")]
+        public APIResult ReportFileSearchArea(string projectId, string areaId, string reportFileType)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch_Area(projectId,areaId, reportFileType)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/ReportFileListSaveCheckArea")]
+        public APIResult ReportFileListSaveCheckArea(UploadData upload)
+        {
+            MasterService masterservice = new MasterService();
+            try
+            {
+                List<ReportFileAreaDto> list = CommonHelper.DecodeString<List<ReportFileAreaDto>>(upload.ListJson);
+                foreach (ReportFileAreaDto reportFileDto in list)
+                {
+                    if (!string.IsNullOrEmpty(reportFileDto.AreaCode))
+                    {
+                        List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode,"","", "", null);
+                        if (areaList != null && areaList.Count > 0)
+                        {
+                            reportFileDto.AreaCodeCheck = true;
+                        }
+                        else
+                        {
+                            reportFileDto.AreaCodeCheck = false;
+                        }
+                    }
+                    else
+                    {
+                        reportFileDto.AreaCodeCheck = false;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/ReportFileListSaveArea")]
+        public APIResult ReportFileListSaveArea(UploadData upload)
+        {
+            MasterService masterservice = new MasterService();
+            try
+            {
+                List<ReportFileAreaDto> list = CommonHelper.DecodeString<List<ReportFileAreaDto>>(upload.ListJson);
+                foreach (ReportFileAreaDto reportFileDto in list)
+                {
+                    List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode,"", "","", null);
+                    if (areaList == null || areaList.Count == 0)
+                    {
+                        return new APIResult() { Status = false, Body = "上传的文件中存在未知的区域代码，请确认品牌和区域代码" };
+                    }
+                }
+                foreach (ReportFileAreaDto reportFileDto in list)
+                {
+                    ReportFileArea reportFile = new ReportFileArea();
+                    reportFile.ProjectId = reportFileDto.ProjectId;
+                    List<AreaDto>  areaList= masterservice.GetArea("", reportFileDto.BrandId.ToString(),  reportFileDto.AreaCode,"", "","", null);
+                    if (areaList != null && areaList.Count > 0)
+                    {
+                        reportFile.AreaId = areaList[0].AreaId;
+                        reportFile.InUserId = reportFileDto.InUserId;
+                        reportFile.ReportFileName = reportFileDto.ReportFileName;
+                        reportFile.ReportFileType = reportFileDto.ReportFileType;
+                        reportFile.Url_OSS = reportFileDto.Url_OSS;
+                        reportFileService.ReportFileSave_Area(reportFile);
+                    }
+
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/ReportFileSaveArea")]
+        public APIResult ReportFileSaveArea(ReportFileArea reportFile)
+        {
+            try
+            {
+                reportFileService.ReportFileSave_Area(reportFile);
+
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportFileDeleteArea")]
+        public APIResult ReportFileDeleteArea(string projectId, string areaId, string seqNO)
+        {
+            try
+            {
+                reportFileService.ReportFileDelete_Area(projectId, areaId, seqNO);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        #endregion
         #region 文件下载
         [HttpGet]
         [Route("ReportFile/ReportFileListSearch")]
@@ -208,6 +335,45 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string downloadPath = reportFileService.ReportFileDownLoad(userId, projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword, reportFileType, pageNum, pageCount);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 文件下载-区域
+        [HttpGet]
+        [Route("ReportFile/ReportFileListSearchArea")]
+        public APIResult ReportFileListSearchArea(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string keyword, string reportFileType, int pageNum, int pageCount)
+        {
+            try
+            {
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
+                {
+                    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileDownloadAllByPageSearch_Area(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, keyword, reportFileType, pageNum, pageCount)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportFileDownLoadArea")]
+        public APIResult ReportFileDownLoadArea(string userId, string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string keyword, string reportFileType, int pageNum, int pageCount)
+        {
+            try
+            {
+                string downloadPath = reportFileService.ReportFileDownLoad_Area(userId, projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, keyword, reportFileType, pageNum, pageCount);
                 if (string.IsNullOrEmpty(downloadPath))
                 {
                     return new APIResult() { Status = false, Body = "没有可下载文件" };
@@ -352,68 +518,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             shopType = "B";
                         }
-                        else {
-                            shopType = "C";
-                        }
-                    }
-                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId,shopType);
-                    foreach (ReportChapterScoreDto chapterScore in list)
-                    {
-                        chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
-                    }
-                    if (list == null || list.Count == 0)
-                    {
-                        return new APIResult() { Status = false, Body = "申诉流程暂未结束，检核快报暂未生成" };
-                    }
-                }
-                // 区域为空查询全国的数量，不为空查询当前区域的数量
-                else if (!string.IsNullOrEmpty(areaId))
-                {
-                    list = reportFileService.ReportAreaChapterScoreSearch(projectId, areaId, shopType);
-                    foreach (ReportChapterScoreDto chapterScore in list)
-                    {
-                        chapterScore.ReportSubjectScoreList = reportFileService.ReportAreaSubjectScoreSearch(projectId, areaId, chapterScore.ChapterId.ToString(),shopType);
-                    }
-                }
-                else
-                {
-                    list = reportFileService.ReportCountryChapterScoreSearch(projectId,shopType);
-                    foreach (ReportChapterScoreDto chapterScore in list)
-                    {
-                        chapterScore.ReportSubjectScoreList = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType);
-                    }
-                }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
-            }
-            catch (Exception ex)
-            {
-                return new APIResult() { Status = false, Body = ex.Message.ToString() };
-            }
-        }
-        [HttpGet]
-        [Route("ReportFile/ReportChapterScoreSearch1")]
-        public APIResult ReportChapterScoreSearch1(string projectId, string areaId, string shopId, string shopType = "")
-        {
-            try
-            {
-                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
-                // 如果经销商不为空，按经销商查询
-                if (!string.IsNullOrEmpty(shopId))
-                {
-
-                    ShopService shopservice = new ShopService();
-                    // 专门针对极狐项目的特殊处理
-                    List<ProjectShopExamTypeDto> shopList = shopservice.GetProjectShopExamType("", projectId, shopId);
-                    if (shopList != null && shopList.Count > 0)
-                    {
-                        if (shopList[0].ExamTypeId == 18)
-                        {
-                            shopType = "A";
-                        }
-                        else if (shopList[0].ExamTypeId == 19)
-                        {
-                            shopType = "B";
-                        }
                         else
                         {
                             shopType = "C";
@@ -454,6 +558,207 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #region 数据报告-标准版
+        // 本期得分和经销商排名情况
+        [HttpGet]
+        [Route("ReportFile/ReportProjectScoreSearch")]
+        public APIResult ReportProjectScoreSearch(string year, string brandId, string projectId, string areaId, string provinceId, string shopId, int count, string shopType = "")
+        {
+            try
+            {
+                // 查询当年上期期号Id，用于查询上期得分
+                string preProjectId = "";
+                List<ProjectDto> preProjectList = masterService.GetPreProjectByProjectId(brandId, projectId, year);
+                if (preProjectList != null && preProjectList.Count > 0)
+                {
+                    preProjectId = preProjectList[0].ProjectId.ToString();
+                }
+                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
+                // 查询经销商得分以及对应的区域得分和全国得分
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    list = reportFileService.ReportShopSumScore(projectId, preProjectId, "", "", shopId, shopType);
+                }
+                // 查询省份得分及此省份内得分最高和最低的经销商得分
+                else if (!string.IsNullOrEmpty(provinceId))
+                {
+                    list = reportFileService.ReportProvinceSumScore(projectId, preProjectId, provinceId, shopType);
+                    List<ReportChapterScoreDto> reportChapterScoreDtoList = reportFileService.ReportShopSumScore(projectId, preProjectId, provinceId, "", "", shopType);
+                    if (reportChapterScoreDtoList != null && reportChapterScoreDtoList.Count > 0)
+                    {
+                        ReportChapterScoreDto reportChapterScoreDtoMax = reportChapterScoreDtoList.OrderByDescending(x => x.SumScore).FirstOrDefault();
+                        ReportChapterScoreDto reportChapterScoreDtoMin = reportChapterScoreDtoList.OrderByDescending(x => x.SumScore).LastOrDefault();
+                        foreach (ReportChapterScoreDto dto in list)
+                        {
+                            dto.MaxScore = new ReportScoreMaxAndMin();
+                            dto.MaxScore.ShopCode = reportChapterScoreDtoMax.ShopCode;
+                            dto.MaxScore.ShopName = reportChapterScoreDtoMax.ShopName;
+                            dto.MaxScore.SumScore = reportChapterScoreDtoMax.SumScore;
+                            dto.MaxScore.PreSumScore = reportChapterScoreDtoMax.PreSumScore == null ? 0 : reportChapterScoreDtoMax.PreSumScore;
+                            dto.MinScore = new ReportScoreMaxAndMin();
+                            dto.MinScore.ShopCode = reportChapterScoreDtoMin.ShopCode;
+                            dto.MinScore.ShopName = reportChapterScoreDtoMin.ShopName;
+                            dto.MinScore.SumScore = reportChapterScoreDtoMin.SumScore;
+                            dto.MinScore.PreSumScore = reportChapterScoreDtoMax.PreSumScore == null ? 0 : reportChapterScoreDtoMax.PreSumScore;
+                        }
+                    }
+                }
+
+                // 查询区域得分以及区域内的经销商最高分和最低分
+                else if (!string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportAreaSumScore(projectId, preProjectId, areaId, shopType);
+                    List<ReportChapterScoreDto> reportChapterScoreDtoList_Shop = reportFileService.ReportShopSumScore(projectId, preProjectId, "", areaId, "", shopType);
+                    if (reportChapterScoreDtoList_Shop != null && reportChapterScoreDtoList_Shop.Count > 0)
+                    {
+                        // 区域内最高分和最低分经销商
+                        ReportChapterScoreDto reportChapterScoreDtoMax = reportChapterScoreDtoList_Shop.OrderByDescending(x => x.SumScore).FirstOrDefault();
+                        ReportChapterScoreDto reportChapterScoreDtoMin = reportChapterScoreDtoList_Shop.OrderByDescending(x => x.SumScore).LastOrDefault();
+                        foreach (ReportChapterScoreDto dto in list)
+                        {
+                            dto.MaxScore = new ReportScoreMaxAndMin();
+                            dto.MaxScore.ShopCode = reportChapterScoreDtoMax.ShopCode;
+                            dto.MaxScore.ShopName = reportChapterScoreDtoMax.ShopName;
+                            dto.MaxScore.SumScore = reportChapterScoreDtoMax.SumScore;
+                            dto.MaxScore.PreSumScore = reportChapterScoreDtoMax.PreSumScore == null ? 0 : reportChapterScoreDtoMax.PreSumScore;
+                            dto.MinScore = new ReportScoreMaxAndMin();
+                            dto.MinScore.ShopCode = reportChapterScoreDtoMin.ShopCode;
+                            dto.MinScore.ShopName = reportChapterScoreDtoMin.ShopName;
+                            dto.MinScore.SumScore = reportChapterScoreDtoMin.SumScore;
+                            dto.MinScore.PreSumScore = reportChapterScoreDtoMin.PreSumScore == null ? 0 : reportChapterScoreDtoMin.PreSumScore;
+                            // 区域内经销商排名
+                            dto.ShopRankListTop = reportChapterScoreDtoList_Shop.OrderByDescending(x => x.SumScore).Take(count).ToList();
+                            dto.ShopRankListLast = reportChapterScoreDtoList_Shop.Skip(reportChapterScoreDtoList_Shop.Count - count).Take(count).ToList();
+                        }
+
+                    }
+                }
+                // 查询全国得分最高以及最低的区域
+                else
+                {
+                    list = reportFileService.ReportCountrySumScore(projectId,preProjectId, shopType);
+                    List<ReportChapterScoreDto> reportChapterScoreDtoList_Area = reportFileService.ReportAreaSumScore(projectId, preProjectId, "", shopType);
+                    List<ReportChapterScoreDto> reportChapterScoreDtoList_Shop = reportFileService.ReportShopSumScore(projectId, preProjectId, "", "", "", shopType);
+                    // 得分最高和最低区域
+                    if (reportChapterScoreDtoList_Area != null && reportChapterScoreDtoList_Area.Count > 0)
+                    {
+                        ReportChapterScoreDto reportChapterScoreDtoMax = reportChapterScoreDtoList_Area.OrderByDescending(x => x.SumScore).FirstOrDefault();
+                        ReportChapterScoreDto reportChapterScoreDtoMin = reportChapterScoreDtoList_Area.OrderByDescending(x => x.SumScore).LastOrDefault();
+                        foreach (ReportChapterScoreDto dto in list)
+                        {
+                            dto.MaxScore = new ReportScoreMaxAndMin();
+                            dto.MaxScore.AreaCode = reportChapterScoreDtoMax.AreaCode;
+                            dto.MaxScore.AreaName = reportChapterScoreDtoMax.AreaName;
+                            dto.MaxScore.SumScore = reportChapterScoreDtoMax.SumScore;
+                            dto.MaxScore.PreSumScore = reportChapterScoreDtoMax.PreSumScore == null ? 0 : reportChapterScoreDtoMax.PreSumScore;
+                            dto.MinScore = new ReportScoreMaxAndMin();
+                            dto.MinScore.AreaCode = reportChapterScoreDtoMin.AreaCode;
+                            dto.MinScore.AreaName = reportChapterScoreDtoMin.AreaName;
+                            dto.MinScore.SumScore = reportChapterScoreDtoMin.SumScore;
+                            dto.MinScore.PreSumScore = reportChapterScoreDtoMin.PreSumScore == null ? 0 : reportChapterScoreDtoMin.PreSumScore;
+                        }
+                    }
+
+                    if (reportChapterScoreDtoList_Shop != null && reportChapterScoreDtoList_Shop.Count > 0)
+                    {
+                        foreach (ReportChapterScoreDto dto in list)
+                        {
+                            // 全国经销商排名
+                            dto.ShopRankListTop = reportChapterScoreDtoList_Shop.OrderByDescending(x => x.SumScore).Take(count).ToList();
+                            dto.ShopRankListLast = reportChapterScoreDtoList_Shop.OrderByDescending(x => x.SumScore).Skip(reportChapterScoreDtoList_Shop.Count - count).Take(count).ToList();
+                        }
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        // 当前趋势表现
+        [HttpGet]
+        [Route("ReportFile/ReportYearTrend")]
+        public APIResult ReportYearTrend(string year, string brandId, string areaId, string provinceId, string shopId, string shopType = "")
+        {
+            try
+            {
+                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
+                list = reportFileService.ReportYearCountryAreaTrend(year, brandId, areaId, shopType); // 全国和特定区域得分
+                if (!string.IsNullOrEmpty(shopId)) // 选择经销商时查询：经销商、经销商所属区域、全国的趋势图
+                {
+                    list.AddRange(reportFileService.ReportYearShopTrend(year, brandId, shopId));
+                }
+                else if (!string.IsNullOrEmpty(provinceId)) // 选择省份时查询：省份、省份所属区域、全国趋势图
+                {
+                    list.AddRange(reportFileService.ReportYearProvinceTrend(year, brandId, provinceId, shopType));
+                }
+                else
+                {
+                    // 选择全国或区域的时候都显示全国及所有区域趋势图,
+                    list = reportFileService.ReportYearCountryAreaTrend(year, brandId, "", shopType);
+
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        // 一级指标和二级指标得分
+        [HttpGet]
+        [Route("ReportFile/ReportChapterScoreSearchByProject")]
+        public APIResult ReportChapterScoreSearchByProject(string projectId, string areaId, string provinceId, string shopId, string shopType = "")
+        {
+            try
+            {
+                List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
+                // 经销商得分
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    list = reportFileService.ReportShopChapterScoreSearch(projectId, shopId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportShopSubjectScoreSearch(projectId, shopId, chapterScore.ChapterId.ToString());
+                    }
+                }
+                // 省份得分
+                else if (!string.IsNullOrEmpty(provinceId))
+                {
+                    list = reportFileService.ReportProvinceChapterScoreSearch(projectId, provinceId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportProvinceSubjectScoreSearch(projectId, provinceId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                // 区域得分
+                else if (!string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportAreaChapterScoreSearch(projectId, areaId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportAreaSubjectScoreSearch(projectId, areaId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                else
+                {
+                    list = reportFileService.ReportCountryChapterScoreSearch(projectId, shopType);
+                    foreach (ReportChapterScoreDto chapterScore in list)
+                    {
+                        chapterScore.ReportSubjectScoreList = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType);
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
         #region 扣分细项
         [HttpGet]
         [Route("ReportFile/ReportShopLossResult")]
@@ -510,7 +815,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 数据报告生成
         [HttpGet]
         [Route("ReportFile/ReportDataCreate")]
-        public APIResult ReportDataCreate(string brandId,string projectId)
+        public APIResult ReportDataCreate(string brandId, string projectId)
         {
             try
             {

@@ -207,6 +207,35 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         #endregion
+        #region 省份信息
+        /// <summary>
+        /// 查询租户信息
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+        public List<Province> GetProvince(string provinceId,string provinceName)
+        {
+            if (provinceId == null) provinceId = "";
+            if (provinceName == null) provinceName = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProvinceId", provinceId)
+                                                    ,new SqlParameter("@ProvinceName", provinceName) };
+            Type t = typeof(Province);
+            string sql = "";
+
+            sql = @"SELECT *
+	                    FROM Province WHERE 1=1 ";
+            if (!string.IsNullOrEmpty(provinceId))
+            {
+                sql += " AND ProvinceId = @ProvinceId";
+            }
+            if (!string.IsNullOrEmpty(provinceName))
+            {
+                sql += " AND ProvinceName = @ProvinceName";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<Province>().ToList();
+
+        }
+        #endregion
         #region 品牌信息
         /// <summary>
         /// 查询品牌信息,
@@ -742,6 +771,36 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
         /// <summary>
+        /// 获取期号
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="brandId"></param>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public List<ProjectDto> GetPreProjectByProjectId(string brandId, string projectId,  string year)
+        {
+            
+            brandId = brandId == null ? "" : brandId;
+            projectId = projectId == null ? "" : projectId;
+            year = year == null ? "" : year;
+            SqlParameter[] para = new SqlParameter[] { 
+                                                        new SqlParameter("@BrandId", brandId),
+                                                       new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@Year", year),
+                                                    };
+            Type t = typeof(ProjectDto);
+            string sql = "";
+            sql = @"SELECT * 
+                    FROM Project 
+                    WHERE OrderNO = (
+                                    SELECT MAX(OrderNo) 
+                                    FROM Project A  WHERE OrderNO < (SELECT OrderNO FROM Project WHERE ProjectId = @ProjectId)
+                                    AND YEAR = @Year AND BrandId = @BrandId) 
+                   AND Year =  @Year AND BrandId=@BrandId 
+                    ";
+            return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
+        }
+        /// <summary>
         /// 保存期号信息
         /// </summary>
         /// <param name="project"></param>
@@ -817,12 +876,13 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ShopCode]
                           ,[ShopName]
                           ,[ShopShortName]
-                          ,[Province]
+                          ,(SELECT TOP 1 ProvinceName FROM Province WHERE ProvinceId = A.ProvinceId) Province
+                          ,ProvinceId
                           ,[City]
                           ,[Address]
                           ,[GroupId]
-                           ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId) AS GroupName
-                            ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId) AS GroupCode
+                          ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId) AS GroupName
+                          ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId) AS GroupCode
                           ,[UseChk]
                           ,[InUserId]
                           ,[InDateTime]
@@ -883,6 +943,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ShopShortName = shop.ShopShortName;
                 findOne.Address = shop.Address;
                 findOne.UseChk = shop.UseChk;
+                findOne.ProvinceId = shop.ProvinceId;
             }
             db.SaveChanges();
         }
@@ -897,6 +958,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += shop.ShopName + "','";
                 sql += shop.ShopShortName + "','";
                 sql += shop.Province + "','";
+                sql += shop.ProvinceId+ "','";
                 sql += shop.City + "','";
                 sql += shop.Address + "','";
                 sql += shop.GroupId + "','";
@@ -964,6 +1026,51 @@ namespace com.yrtech.SurveyAPI.Service
         {
             AreaShop findone = db.AreaShop.Where(x => x.AreaShopId == areaShopId).FirstOrDefault();
             db.AreaShop.Remove(findone);
+            db.SaveChanges();
+        }
+        #endregion
+        #region 省份区域设置
+        public List<AreaProvinceDto> GetAreaProvince(string brandId, string provinceId, string areaId)
+        {
+            brandId = brandId == null ? "" : brandId;
+            provinceId = provinceId == null ? "" : provinceId;
+            areaId = areaId == null ? "" : areaId;
+            SqlParameter[] para = new SqlParameter[] { 
+                                                        new SqlParameter("@BrandId", brandId),
+                                                       new SqlParameter("@ProvinceId", provinceId),
+                                                    new SqlParameter("@AreaId", areaId)};
+            Type t = typeof(AreaProvinceDto);
+            string sql = "";
+            sql = @"SELECT A.ProvinceCode,A.ProvinceName,A.ProvinceId,C.AreaCode,C.AreaName,C.AreaId,B.AreaProvinceId
+                      FROM [Province] A INNER JOIN AreaProvince B ON A.ProvinceId = B.ProvinceId 
+                                    INNER JOIN Area C ON B.AreaId = C.AreaId
+                    WHERE  C.BrandId = @BrandId
+                    ";
+            if (!string.IsNullOrEmpty(provinceId))
+            {
+                sql += " AND A.ProvinceId = @ProvinceId";
+            }
+            if (!string.IsNullOrEmpty(areaId))
+            {
+                sql += " AND C.AreaId = @AreaId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AreaProvinceDto>().ToList();
+        }
+        public void SaveAreaProvince(AreaProvince areaProvince)
+        {
+            AreaProvince findOne = db.AreaProvince.Where(x => (x.ProvinceId == areaProvince.ProvinceId && x.AreaId == areaProvince.AreaId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                areaProvince.InDateTime = DateTime.Now;
+                areaProvince.ModifyDateTime = DateTime.Now;
+                db.AreaProvince.Add(areaProvince);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteAreaProvince(int areaProvinceId)
+        {
+            AreaProvince findone = db.AreaProvince.Where(x => x.AreaProvinceId == areaProvinceId).FirstOrDefault();
+            db.AreaProvince.Remove(findone);
             db.SaveChanges();
         }
         #endregion

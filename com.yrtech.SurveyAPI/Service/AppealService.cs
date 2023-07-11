@@ -32,6 +32,7 @@ namespace com.yrtech.SurveyAPI.Service
                     SubjectId = A.SubjectId )";
             sql += @" 
                     UPDATE AppealSet Set AppealCreateDateTime = GETDATE() WHERE ProjectId = @ProjectId";
+
             db.Database.ExecuteSqlCommand(sql,para);
         }
         /// <summary>
@@ -397,20 +398,50 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
         /// <summary>
-        /// 插入申诉信息
+        /// 插入申诉信息,导入时使用的方法
         /// </summary>
         /// <param name="brand"></param>
-        public void SaveAppeal(Appeal appeal)
+        public void SaveAppeal(Appeal appeal,int? modifyUserId)
         {
             Appeal findOne = db.Appeal.Where(x => (x.ProjectId==appeal.ProjectId&&x.ShopId==appeal.ShopId&&x.SubjectId==appeal.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
                 db.Appeal.Add(appeal);
+                db.SaveChanges();
+                SaveAppealLogInfo(appeal,modifyUserId,"I");
             }
             else
             {
                 findOne.LossResultImport = appeal.LossResultImport;
+                db.SaveChanges();
+                SaveAppealLogInfo(findOne, modifyUserId,"U");
             }
+            
+        }
+        /// <summary>
+        /// 插入申诉信息日志
+        /// </summary>
+        /// <param name="appeal"></param>
+        public void SaveAppealLogInfo(Appeal appeal,int? userId,string status)
+        {
+            AppealLog appealLog = new AppealLog();
+            appealLog.AppealDateTime = appeal.AppealDateTime;
+            appealLog.AppealId = appeal.AppealId;
+            appealLog.AppealReason = appeal.AppealReason;
+            appealLog.AppealStatus = appeal.AppealStatus;
+            appealLog.AppealUserId = appeal.AppealUserId;
+            appealLog.FeedBackDateTime = appeal.FeedBackDateTime;
+            appealLog.FeedBackReason = appeal.FeedBackReason;
+            appealLog.FeedBackStatus = appeal.FeedBackStatus;
+            appealLog.FeedBackUserId = appeal.FeedBackUserId;
+            appealLog.LossResultImport = appeal.LossResultImport;
+            appealLog.ProjectId = appeal.ProjectId;
+            appealLog.ShopId = appeal.ShopId;
+            appealLog.SubjectId = appeal.SubjectId;
+            appealLog.DataStatus = status;
+            appealLog.InUserId = userId;
+            appealLog.InDateTime = DateTime.Now;
+            db.AppealLog.Add(appealLog);
             db.SaveChanges();
         }
         /// <summary>
@@ -426,6 +457,8 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 appeal.AppealDateTime = DateTime.Now;
                 db.Appeal.Add(appeal);
+                db.SaveChanges();
+                SaveAppealLogInfo(appeal,appeal.AppealUserId,"I");
             }
             else {
                 findOne.AppealReason = appeal.AppealReason;
@@ -436,8 +469,11 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.AppealStatus = appeal.AppealStatus;
                 findOne.SubjectId = appeal.SubjectId;
                 appeal = findOne;
+                db.SaveChanges();
+                SaveAppealLogInfo(findOne,appeal.AppealUserId, "U");
             }
-            db.SaveChanges();
+            
+            
             return appeal;
         }
         /// <summary>
@@ -455,6 +491,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.FeedBackDateTime = DateTime.Now;
             }
             db.SaveChanges();
+            SaveAppealLogInfo(findOne, appeal.FeedBackUserId,"U");
         }
         public void AppealFeedBackBySubjectId(Appeal appeal)
         {
@@ -469,23 +506,114 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         /// <summary>
+        /// 删除反馈和申诉的信息，重新申诉
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        public void AppealFeedBackDelete(string projectId, string shopId,string userId)
+        {
+            if (shopId == null) shopId = "";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@ShopId", shopId)
+                                                         , new SqlParameter("@UserId", userId)};
+            string sql = @"UPDATE Appeal SET AppealStatus = null
+                            ,AppealReason = null
+                            ,AppealUserid=null
+                            ,AppealDatetime=null
+                            ,FeedbackStatus=null
+                            ,FeedbackReason=null
+                            ,FeedbackUserid=null
+                            ,FeedbackDatetime=null 
+                            WHERE ProjectId=@ProjectId AND ShopId= @ShopId
+                        ";
+            db.Database.ExecuteSqlCommand(sql, para);
+
+            // 更新后，插入日志
+            sql = @" INSERT INTO AppealLog 
+                      SELECT [AppealId]
+                              ,[ProjectId]
+                              ,[ShopId]
+                              ,[AppealStatus]
+                              ,[SubjectId]
+                              ,[LossResultImport]
+                              ,[AppealReason]
+                              ,[AppealUserId]
+                              ,[AppealDateTime]
+                              ,[FeedBackStatus]
+                              ,[FeedBackReason]
+                              ,[FeedBackUserId]
+                              ,[FeedBackDateTime]
+                              ,'U'
+                              ,@UserId
+                              ,GETDATE()
+                       FROM Appeal WHERE ProjectId=@ProjectId AND ShopId= @ShopId";
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        /// <summary>
         /// 申诉删除
         /// </summary>
         /// <param name="appealId"></param>
-        public void AppealDelete(string appealId)
+        public void AppealDelete(string appealId,string userId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealID", appealId) };
-            string sql = @"DELETE Appeal WHERE AppealId = @AppealID
-                        ";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppealID", appealId), new SqlParameter("@UserId", userId) };
+            // 删除前，先插入日志
+            string sql = "";
+            sql = @" INSERT INTO AppealLog 
+                      SELECT [AppealId]
+                              ,[ProjectId]
+                              ,[ShopId]
+                              ,[AppealStatus]
+                              ,[SubjectId]
+                              ,[LossResultImport]
+                              ,[AppealReason]
+                              ,[AppealUserId]
+                              ,[AppealDateTime]
+                              ,[FeedBackStatus]
+                              ,[FeedBackReason]
+                              ,[FeedBackUserId]
+                              ,[FeedBackDateTime]
+                              ,'D'
+                              ,@UserId
+                              ,GETDATE()
+                       FROM Appeal WHERE AppealId = @AppealId";
+            db.Database.ExecuteSqlCommand(sql, para);
+            sql = @"DELETE Appeal WHERE AppealId = @AppealID      ";
             db.Database.ExecuteSqlCommand(sql, para);
         }
-        public void AppealDeleteByShopId(string projectId,string shopId)
+        public void AppealDeleteByShopId(string projectId,string shopId,string userId)
         {
             if (shopId == null) shopId = "";
+            string sql = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                 ,new SqlParameter("@ShopId", shopId) };
-            string sql = @"DELETE Appeal WHERE ProjectId = @ProjectId 
-                        ";
+            // 删除前先把数据插入到日志表
+            sql = @" INSERT INTO AppealLog 
+                      SELECT [AppealId]
+                              ,[ProjectId]
+                              ,[ShopId]
+                              ,[AppealStatus]
+                              ,[SubjectId]
+                              ,[LossResultImport]
+                              ,[AppealReason]
+                              ,[AppealUserId]
+                              ,[AppealDateTime]
+                              ,[FeedBackStatus]
+                              ,[FeedBackReason]
+                              ,[FeedBackUserId]
+                              ,[FeedBackDateTime]
+                              ,'D'
+                              ,@UserId
+                              ,GETDATE()
+                       FROM Appeal WHERE ProjectId = @ProjectId ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND ShopId = @ShopId";
+            }
+            db.Database.ExecuteSqlCommand(sql, para);
+            // 删除数据
+            sql = @"DELETE Appeal WHERE ProjectId = @ProjectId        ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND ShopId = @ShopId";
@@ -576,8 +704,5 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE ProjectId = @ProjectId) X GROUP BY ShopId,ShopCode,ShopName ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealCountDto>().ToList();
         }
-
-
-
     }
 }

@@ -30,5 +30,10 @@ namespace com.yrtech.SurveyAPI
             //5.开启调度
             scheduler.Start();
         }
+        protected void Application_End(object sender, EventArgs e)
+        {
+            System.Threading.Thread.Sleep(5000);
+            //string strUrl = ProjectPara.ProPath;
+        }
     }
 }
