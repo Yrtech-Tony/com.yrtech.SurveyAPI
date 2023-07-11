@@ -23,6 +23,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopName { get; set; }
         public string ShopShortName { get; set; }
         public string Province { get; set; }
+        public int? ProvinceId { get; set; }
         public string City { get; set; }
         public int SubjectTypeExamId { get; set; }
         public string SubjectTypeExamName { get; set; }
