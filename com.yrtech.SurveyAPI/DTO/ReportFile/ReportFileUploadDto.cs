@@ -14,6 +14,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public int ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
+        public int AreaId { get; set; }
+        public string AreaCode { get; set; }
+        public string AreaName { get; set; }
         public int ReportFileCount_File { get; set; }
         public int ReportFileCount_Video { get; set; }
     }

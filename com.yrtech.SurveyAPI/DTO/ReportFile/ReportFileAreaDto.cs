@@ -5,17 +5,16 @@ using System.Web;
 
 namespace com.yrtech.SurveyAPI.DTO
 {
-    public class ReportFileDto
+    public class ReportFileAreaDto
     {
         public int TenantId { get; set; }
         public int BrandId { get; set; }
         public int ProjectId { get; set; }
-        public int BussinessTypeId { get; set; }
-        public int ShopId { get; set; }
-        public string ShopCode { get; set; }
-        public bool ShopCodeCheck { get; set; }
-        public string ShopName { get; set; }
-        public string ShopShortName { get; set; }
+        public int AreaId { get; set; }
+        public string AreaCode { get; set; }
+        public bool AreaCodeCheck { get; set; }
+        public string AreaName { get; set; }
+        public string AreaType { get; set; }
         public string ReportFileType { get; set; }
         public string ReportFileName { get; set; }
         public string Url_OSS { get; set; }
