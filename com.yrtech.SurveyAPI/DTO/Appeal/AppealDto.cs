@@ -52,5 +52,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ImportRemark { get; set; }
         public bool AppealFileChk_Apply { get; set; }
         public bool AppealFileChk_FeedBack { get; set; }
+        public int? ModifyUserId { get; set; }
     }
 }
