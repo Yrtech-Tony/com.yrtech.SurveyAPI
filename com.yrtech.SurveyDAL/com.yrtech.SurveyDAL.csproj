@@ -72,10 +72,16 @@
     <Compile Include="AnswerShopInfo.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
+    <Compile Include="AnswerShopInfoFile.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="Appeal.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AppealFile.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AppealLog.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AppealSet.cs">
@@ -88,6 +94,9 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Area.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AreaProvince.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="AreaShop.cs">
@@ -143,6 +152,9 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Province.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
     <Compile Include="ReCheck.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
@@ -177,6 +189,18 @@
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ReportFileActionLog.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportFileArea.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportProvinceChapterScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportProvinceChapterSumScore.cs">
+      <DependentUpon>Survey.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportProvinceSubjectScore.cs">
       <DependentUpon>Survey.tt</DependentUpon>
     </Compile>
     <Compile Include="ReportSet.cs">

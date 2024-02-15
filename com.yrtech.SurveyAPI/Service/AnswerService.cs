@@ -396,15 +396,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId)
+        public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId,string key)
         {
             shopId = shopId == null ? "" : shopId;
             projectId = projectId == null ? "" : projectId;
+            key = key == null ? "" : key;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId)};
+                                                       new SqlParameter("@ShopId", shopId),new SqlParameter("@Key", key)};
             Type t = typeof(AnswerShopInfoDto);
             string sql = "";
-            sql = @"SELECT A.ProjectId,A.ShopId,B.ShopCode,B.ShopName,B.Province,B.City,ISNULL(C.TeamLeader,'') AS TeamLeader
+            sql = @"SELECT A.Id,A.ProjectId,X.ProjectCode,X.ProjectName,A.ShopId,B.ShopCode,B.ShopName,B.Province,B.City,ISNULL(C.TeamLeader,'') AS TeamLeader
                     ,C.StartDate,C.Longitude,C.Latitude,C.InDateTime,C.ModifyDateTime,C.PhotoUrl
                     ,[InShopMode]
                       ,B.Address AS InShopAddress
@@ -433,11 +434,16 @@ namespace com.yrtech.SurveyAPI.Service
                       ,[VideoComplete]
                       ,[ExecuteRecogniz]
                        FROM ProjectShopExamType A INNER JOIN Shop B ON A.ShopId  = B.ShopId
+                                                  INNER JOIN Project X ON A.ProjectId = X.ProjectId
 							                      LEFT JOIN AnswerShopInfo C ON A.ProjectId = C.ProjectId AND A.ShopId = C.ShopId
-                            WHERE A.ProjectId = @ProjectId";
+                            WHERE A.ProjectId = @ProjectId  ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId =@ShopId";
+            }
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoDto>().ToList();
         }
@@ -492,6 +498,63 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ExecuteRecogniz = shopInfo.ExecuteRecogniz;
             }
             db.SaveChanges();
+        }
+
+        /// <summary>
+        /// 查询附件信息
+        /// </summary>
+        /// <param name="appealId"></param>
+        /// <returns></returns>
+        public List<AnswerShopInfoFileDto> AnswerShopInfoFileSearch(string answerShopInfoId, string fileType)
+        {
+            if (fileType == null) fileType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AnswerShopInfoId", answerShopInfoId), new SqlParameter("@FileType", fileType) };
+            Type t = typeof(AnswerShopInfoFileDto);
+            string sql = @"SELECT FileId,AnswerShopInfoId,SeqNO,
+                                    [FileName],ServerFileName
+                                ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = A.InUserId),'') AS InUserName
+                                ,InUserId,InDateTime
+                         FROM AnswerShopInfoFile A
+	                    WHERE AnswerShopInfoId = @AnswerShopInfoId";
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoFileDto>().ToList();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appealFile"></param>
+        public void AnswerShopInfoFileSave(AnswerShopInfoFile answerShopInfoFile)
+        {
+            if (answerShopInfoFile.SeqNO == 0)
+            {
+                AnswerShopInfoFile findOneMax = db.AnswerShopInfoFile.Where(x => (x.AnswerShopInfoId == answerShopInfoFile.AnswerShopInfoId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    answerShopInfoFile.SeqNO = 1;
+                }
+                else
+                {
+                    answerShopInfoFile.SeqNO = findOneMax.SeqNO + 1;
+                }
+                answerShopInfoFile.InDateTime = DateTime.Now;
+                db.AnswerShopInfoFile.Add(answerShopInfoFile);
+
+            }
+            else
+            {
+
+            }
+            db.SaveChanges();
+
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileId"></param>
+        public void AnswerShopInfoFileDelete(string fileId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@FileId", fileId) };
+            string sql = @"DELETE AnswerShopInfoFile WHERE FileId = @FileId        ";
+            db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
         #region 销售顾问信息

@@ -488,13 +488,96 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="shopId"></param>
         /// <returns></returns>
         [Route("Answer/GetAnswerShopInfo")]
-        public APIResult GetAnswerShopInfo(string projectId, string shopId)
+        public APIResult GetAnswerShopInfo(string projectId, string shopId,string shopkey="",string userId="")
         {
             try
             {
-                // 获取进店基本信息
-                List<AnswerShopInfoDto> answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId);
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(answershopInfoList) };
+                List<AnswerShopInfoDto> result = new List<AnswerShopInfoDto>();
+
+                List<AnswerShopInfoDto>  answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId, shopkey);
+               
+
+                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null);
+                if (string.IsNullOrEmpty(userId) || (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType != "S_Execute"))
+                    {
+                    result = answershopInfoList;
+                }
+                else {
+                    List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", "S_Execute");
+                    if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
+                    {
+                        foreach (AnswerShopInfoDto answerShopInfoDto in answershopInfoList)
+                        {
+                            List<UserInfoObjectDto> userInfoObjectList = userInfoObjectDtoList.Where(x => x.ObjectId == answerShopInfoDto.ShopId).ToList();
+                            if (userInfoObjectList != null && userInfoObjectList.Count > 0)
+                            {
+                                result.Add(answerShopInfoDto);
+                            }
+                        }
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/AnswerShopInfoFileSearch")]
+        public APIResult AnswerShopInfoFileSearch(string answerShopInfoFileId, string fileType)
+        {
+            try
+            {
+                List<AnswerShopInfoFileDto> list = answerService.AnswerShopInfoFileSearch(answerShopInfoFileId, fileType);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Answer/AnswerShopInfoFileDelete")]
+        public APIResult AnswerShopInfoFileDelete(AnswerShopInfoFile answerShopInfoFile)
+        {
+            try
+            {
+                answerService.AnswerShopInfoFileDelete(answerShopInfoFile.FileId.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Answer/AnswerShopInfolFileSave")]
+        public APIResult AnswerShopInfolFileSave(AnswerShopInfoFile answerShopInfoFile)
+        {
+            try
+            {
+                answerService.AnswerShopInfoFileSave(answerShopInfoFile);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/AnswerShpoInfoFileDownLoad")]
+        public APIResult AnswerShpoInfoFileDownLoad(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = photoService.AnswerShopInfoFileDownLoad(projectId, shopId);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {

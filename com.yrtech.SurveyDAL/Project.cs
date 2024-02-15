@@ -29,6 +29,8 @@ namespace com.yrtech.SurveyDAL
         public string PhotoSize { get; set; }
         public string ProjectType { get; set; }
         public Nullable<bool> AppealShow { get; set; }
+        public string ScoreShowType { get; set; }
+        public Nullable<bool> SelfTestChk { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

@@ -408,7 +408,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-
         #region 首页统计
         [HttpGet]
         [Route("ReportFile/ReportFileCountYear")]
@@ -504,7 +503,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 如果经销商不为空，按经销商查询
                 if (!string.IsNullOrEmpty(shopId))
                 {
-
                     ShopService shopservice = new ShopService();
                     // 专门针对极狐项目的特殊处理
                     List<ProjectShopExamTypeDto> shopList = shopservice.GetProjectShopExamType("", projectId, shopId);
@@ -683,6 +681,13 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<ReportYearTrendDto> yearTrendList = new List<ReportYearTrendDto>();
+                List<ProjectDto> projectList = masterService.GetProject("", brandId, "", "", year, "");
+                List<AreaDto> areaList = new List<AreaDto>();
+                if (projectList != null)
+                {
+                    yearTrendList[0].ProjectList = projectList;
+                }
                 List<ReportChapterScoreDto> list = new List<ReportChapterScoreDto>();
                 list = reportFileService.ReportYearCountryAreaTrend(year, brandId, areaId, shopType); // 全国和特定区域得分
                 if (!string.IsNullOrEmpty(shopId)) // 选择经销商时查询：经销商、经销商所属区域、全国的趋势图
@@ -697,9 +702,18 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     // 选择全国或区域的时候都显示全国及所有区域趋势图,
                     list = reportFileService.ReportYearCountryAreaTrend(year, brandId, "", shopType);
-
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+                yearTrendList[0].YearTrendDataList = list;
+                foreach (ReportChapterScoreDto reportChapterScoreDto in list)
+                {
+                    AreaDto area = new AreaDto();
+                    area.AreaCode = reportChapterScoreDto.AreaCode;
+                    area.AreaName = reportChapterScoreDto.AreaName;
+                    areaList.Add(area);
+                }
+                areaList.GroupBy(d => new { d.AreaCode, d.AreaName }).Select(d => d.FirstOrDefault()).ToList(); // 去重
+                yearTrendList[0].AreaList = areaList;
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(yearTrendList) };
             }
             catch (Exception ex)
             {
@@ -758,7 +772,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
-
         #region 扣分细项
         [HttpGet]
         [Route("ReportFile/ReportShopLossResult")]
@@ -766,11 +779,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                //List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
-                //if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
-                //{
-                //    return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
-                //}
                 List<AnswerDto> answerList = reportFileService.ReportShopLossResult(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword);
                 if (answerList == null || answerList.Count == 0)
                 {
@@ -780,6 +788,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     //失分说明
                     string lossResultStr = "";
+                    string lossResultFileNameUrl = "";
                     if (!string.IsNullOrEmpty(answer.LossResult))
                     {
                         List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
@@ -791,9 +800,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                             {
                                 lossResultStr += lossResult.LossDesc + ";";
                             }
-                            if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                            //if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                            //{
+                            //    lossResultStr += lossResult.LossDesc2 + ";";
+                            //}
+                            if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
                             {
-                                lossResultStr += lossResult.LossDesc2 + ";";
+                                lossResultFileNameUrl += lossResult.LossFileNameUrl + ";";
                             }
                         }
                     }
@@ -802,7 +815,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
                     }
+                    if (!string.IsNullOrEmpty(lossResultFileNameUrl))
+                    {
+                        lossResultFileNameUrl = lossResultFileNameUrl.Substring(0, lossResultFileNameUrl.Length - 1);
+                    }
                     answer.LossResultStr = lossResultStr;
+                    answer.LossResultPicStr = lossResultFileNameUrl;
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
             }

@@ -177,6 +177,7 @@
     <Compile Include="DTO\Answer\AnswerDto.cs" />
     <Compile Include="DTO\Answer\AnswerPhotoLogDto.cs" />
     <Compile Include="DTO\Answer\AnswerShopInfoDto.cs" />
+    <Compile Include="DTO\Answer\AnswerShopInfoFileDto.cs" />
     <Compile Include="DTO\Answer\FileResultDto.cs" />
     <Compile Include="DTO\Answer\FileRenameDto.cs" />
     <Compile Include="DTO\Answer\ShopConsultantDto.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="DTO\Appeal\AppealCountDto.cs" />
     <Compile Include="DTO\Appeal\AppealFileDto.cs" />
     <Compile Include="DTO\Appeal\AppealDto.cs" />
+    <Compile Include="DTO\Master\AreaProvinceDto.cs" />
     <Compile Include="DTO\Master\RoleProgramDto.cs" />
     <Compile Include="DTO\Master\LabelDto.cs" />
     <Compile Include="DTO\Master\ProjectDto.cs" />
@@ -197,10 +199,12 @@
     <Compile Include="DTO\Recheck\RecheckDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />
     <Compile Include="DTO\ReportFile\ReporSetDto..cs" />
+    <Compile Include="DTO\ReportFile\ReportFileAreaDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportYearTrendDto.cs" />
     <Compile Include="DTO\ReportFile\ReportShopCompleteCountDto.cs" />
-    <Compile Include="DTO\ReportFile\ReporSubjectScoreDto..cs" />
-    <Compile Include="DTO\ReportFile\ReportChapterScoreDto..cs" />
-    <Compile Include="DTO\ReportFile\ReportFileActionLogDto..cs" />
+    <Compile Include="DTO\ReportFile\ReporSubjectScoreDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportChapterScoreDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportFileActionLogDto.cs" />
     <Compile Include="DTO\ReportFile\ReportFileDto.cs" />
     <Compile Include="DTO\ReportFile\ReportFileUploadDto.cs" />
     <Compile Include="DTO\Shop\GroupDto.cs" />
@@ -219,6 +223,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Service\AnswerService.cs" />
+    <Compile Include="Service\FileService.cs" />
     <Compile Include="Service\ExcelDataService.cs" />
     <Compile Include="Service\PhotoService.cs" />
     <Compile Include="Service\RecheckService.cs" />

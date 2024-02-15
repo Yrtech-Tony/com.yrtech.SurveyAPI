@@ -176,6 +176,10 @@ namespace com.yrtech.SurveyAPI.Controllers
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
             bool platformCheck = false;
+            if (platform == "A" && roleTypeCode == "B_Shop") // 登录时，允许经销商账号使用APP
+            {
+                platformCheck = true;
+            }
             List<RoleType> roleTypeList = masterService.GetRoleType(platform, "", "");// 通过平台类型获取对应的权限
             foreach (RoleType roleType in roleTypeList)
             {

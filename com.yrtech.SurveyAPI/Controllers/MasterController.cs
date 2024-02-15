@@ -1076,7 +1076,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                     shop.InUserId = shopDto.InUserId;
                     shop.ModifyUserId = shopDto.ModifyUserId;
                     shop.Province = shopDto.Province;
-                    shop.ProvinceId = shopDto.ProvinceId;
                     shop.ShopCode = shopDto.ShopCode;
                     shop.ShopName = shopDto.ShopName;
                     shop.ShopShortName = shopDto.ShopShortName;

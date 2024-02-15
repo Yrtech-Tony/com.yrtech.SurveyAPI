@@ -83,11 +83,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        public List<AppealSetDto> GetAppealShopSet(string projectId,string shopId)
+        public List<AppealSetDto> GetAppealShopSet(string projectId,string shopId,string shopCode)
         {
             if (projectId == null) projectId = "";
             if (shopId == null) shopId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@ShopId", shopId) };
+            if (shopCode == null) shopCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        , new SqlParameter("@ShopId", shopId)
+                                                        , new SqlParameter("@ShopCode", shopCode)};
             Type t = typeof(AppealSetDto);
             string sql = "";
             sql = @"SELECT 
@@ -101,15 +104,17 @@ namespace com.yrtech.SurveyAPI.Service
                         ,B.AppealEndDate
                         ,B.InDateTime
                         ,B.ModifyDateTime
-                        
                     FROM ProjectShopExamType A INNER JOIN Project C ON A.ProjectId = C.ProjectId
                                                INNER JOIN Shop D ON A.ShopId = D.ShopId
-                                                LEFT JOIN AppealShopSet B ON A.ProjectId = B.ProjectId 
-                                                AND A.ShopId = B.ShopId
+                                               LEFT JOIN AppealShopSet B ON A.ProjectId = B.ProjectId AND A.ShopId = B.ShopId
                     WHERE A.ProjectId = @ProjectId ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(shopCode))
+            {
+                sql += " AND A.ShopCode = @ShopCode";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<AppealSetDto>().ToList();
         }
@@ -280,10 +285,10 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="pageNum"></param>
         /// <param name="pageCount"></param>
         /// <returns></returns>
-        public List<AppealDto> GetFeedBackInfoByPage(string projectId,string keyword, string appealStatus,int pageNum, int pageCount)
+        public List<AppealDto> GetFeedBackInfoByPage(string projectId,string keyword,string userId, string appealStatus,string feedbackStatus,int pageNum, int pageCount)
         {
             int startIndex = (pageNum - 1) * pageCount;
-            return GetFeedBackInfoByAll(projectId, keyword, appealStatus).Skip(startIndex).Take(pageCount).ToList();
+            return GetFeedBackInfoByAll(projectId, keyword, userId, appealStatus, feedbackStatus).Skip(startIndex).Take(pageCount).ToList();
         }
         /// <summary>
         /// 查询反馈信息_后台系统
@@ -291,13 +296,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword,string appealStatus)
+        public List<AppealDto> GetFeedBackInfoByAll(string projectId, string keyword,string userId,string appealStatus,string feedbackStatus)
         {
             if (keyword == null) keyword = "";
             if (appealStatus == null) appealStatus = "";
+            if (feedbackStatus == null) feedbackStatus = "";
+            if (userId == null) userId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                     ,new SqlParameter("@AppealStatus", appealStatus)
-                                                    ,new SqlParameter("@KeyWord", keyword)};
+                                                    ,new SqlParameter("@FeedbackStatus", feedbackStatus)
+                                                    ,new SqlParameter("@KeyWord", keyword) };
             Type t = typeof(AppealDto);
             string sql = "";
             sql = @"SELECT [AppealId]
@@ -338,12 +346,69 @@ namespace com.yrtech.SurveyAPI.Service
                               FROM [Appeal] A WITH(NOLOCK) INNER JOIN Shop B ON A.ShopId = B.ShopId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')
                                                 INNER JOIN [Subject] C ON A.SubjectId = C.SubjectId AND A.ProjectId = C.ProjectId
                                                 LEFT JOIN Answer D ON A.ProjectId = D.ProjectId AND A.ShopId = D.ShopId AND A.SubjectId =D.SubjectId
-                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  
-                            WHERE 1=1 ";
+                                               INNER JOIN Project X ON A.ProjectId = X.ProjectId AND A.ProjectId = @ProjectId  ";
+                           // WHERE 1=1 ";
+            //Jeep 申诉反馈临时使用
+            if (!string.IsNullOrEmpty(userId))
+            {
+                string  areaId = "";
+                string parentAreaId = "";
+                
+                 if (userId == "2990")
+                {
+                    areaId = "(476,477)";
+                }
+                else if (userId == "2992")
+                {
+                    areaId = "(473)";
+                }
+                else if (userId == "4056")
+                {
+                    areaId = "(474)";
+                }
+                else if (userId == "4057")
+                {
+                    areaId = "(475)";
+                }
+                else if (userId == "4058")
+                {
+                    areaId = "(478)";
+                }
+                if (!string.IsNullOrEmpty(areaId))
+                {
+                    sql += " INNER JOIN AreaShop Y ON B.ShopId = Y.ShopId AND Y.AreaId IN " + areaId;
+                }
+                if (userId == "3333")
+                {
+                    parentAreaId = "(472)";
+                }
+                else if (userId == "2988")
+                {
+                    parentAreaId = "(398)";
+                }
+                if (!string.IsNullOrEmpty(parentAreaId))
+                {
+                    sql += " INNER JOIN AreaShop Y ON B.ShopId = Y.ShopId  " ;
+                    sql += " INNER JOIN Area Z ON Z.AreaId = Y.AreaId AND Z.ParentId IN " + parentAreaId;
+                }
+            }
+            sql += " WHERE 1=1 ";
             if (!string.IsNullOrEmpty(appealStatus))
             {
                 sql += " AND A.AppealStatus = @AppealStatus";
             }
+            if (!string.IsNullOrEmpty(feedbackStatus))
+            {
+                if (feedbackStatus == "0")
+                {
+                    sql += " AND A.FeedBackStatus = @FeedbackStatus";
+                }
+                else
+                {
+                    sql += " AND (A.FeedBackStatus = @FeedbackStatus OR A.FeedBackStatus IS NULL)";
+                }
+            }
+           
             sql += "  ORDER BY A.ShopId,B.ShopCode,A.SubjectId,C.SubjectCode ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealDto>().ToList();
         }
@@ -587,7 +652,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (shopId == null) shopId = "";
             string sql = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
-                                                ,new SqlParameter("@ShopId", shopId) };
+                                                ,new SqlParameter("@ShopId", shopId),new SqlParameter("@UserId", userId) };
             // 删除前先把数据插入到日志表
             sql = @" INSERT INTO AppealLog 
                       SELECT [AppealId]
@@ -611,9 +676,9 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ShopId = @ShopId";
             }
-            db.Database.ExecuteSqlCommand(sql, para);
+           // db.Database.ExecuteSqlCommand(sql, para);
             // 删除数据
-            sql = @"DELETE Appeal WHERE ProjectId = @ProjectId        ";
+            sql += @" DELETE Appeal WHERE ProjectId = @ProjectId        ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND ShopId = @ShopId";

@@ -36,7 +36,6 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<HiddenColumn> HiddenColumn { get; set; }
         public virtual DbSet<Label> Label { get; set; }
         public virtual DbSet<LabelObject> LabelObject { get; set; }
-        public virtual DbSet<ProjectShopExamType> ProjectShopExamType { get; set; }
         public virtual DbSet<RecheckStatusDtl> RecheckStatusDtl { get; set; }
         public virtual DbSet<ReportFile> ReportFile { get; set; }
         public virtual DbSet<ReportFileActionLog> ReportFileActionLog { get; set; }
@@ -66,10 +65,8 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<FileTypeFileNameOption> FileTypeFileNameOption { get; set; }
         public virtual DbSet<SubjectLossResult> SubjectLossResult { get; set; }
         public virtual DbSet<ReCheck> ReCheck { get; set; }
-        public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ChapterSubject> ChapterSubject { get; set; }
         public virtual DbSet<RoleProgram> RoleProgram { get; set; }
-        public virtual DbSet<Appeal> Appeal { get; set; }
         public virtual DbSet<ReportSet> ReportSet { get; set; }
         public virtual DbSet<AppealShopSet> AppealShopSet { get; set; }
         public virtual DbSet<ReportAreaChapterScore> ReportAreaChapterScore { get; set; }
@@ -88,6 +85,17 @@ namespace com.yrtech.SurveyDAL
         public virtual DbSet<AnswerLog> AnswerLog { get; set; }
         public virtual DbSet<RecheckStatusLog> RecheckStatusLog { get; set; }
         public virtual DbSet<AnswerShopInfo> AnswerShopInfo { get; set; }
+        public virtual DbSet<Appeal> Appeal { get; set; }
+        public virtual DbSet<ReportProvinceChapterScore> ReportProvinceChapterScore { get; set; }
+        public virtual DbSet<ReportProvinceChapterSumScore> ReportProvinceChapterSumScore { get; set; }
+        public virtual DbSet<ReportProvinceSubjectScore> ReportProvinceSubjectScore { get; set; }
+        public virtual DbSet<AreaProvince> AreaProvince { get; set; }
+        public virtual DbSet<Province> Province { get; set; }
+        public virtual DbSet<ReportFileArea> ReportFileArea { get; set; }
+        public virtual DbSet<AppealLog> AppealLog { get; set; }
+        public virtual DbSet<Shop> Shop { get; set; }
+        public virtual DbSet<AnswerShopInfoFile> AnswerShopInfoFile { get; set; }
+        public virtual DbSet<ProjectShopExamType> ProjectShopExamType { get; set; }
         public virtual DbSet<Project> Project { get; set; }
     }
 }

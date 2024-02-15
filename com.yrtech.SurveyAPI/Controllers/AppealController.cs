@@ -15,6 +15,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         AppealService appealService = new AppealService();
         ExcelDataService excelDataService = new ExcelDataService();
         MasterService masterService = new MasterService();
+        PhotoService photoService = new PhotoService();
 
         #region 申诉设置
         [HttpGet]
@@ -47,11 +48,24 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetAppealShopSet")]
-        public APIResult GetAppealShopSet(string projectId)
+        public APIResult GetAppealShopSet(string projectId, string shopCode = "")
         {
             try
             {
-                List<AppealSetDto> list = appealService.GetAppealShopSet(projectId, "");
+                List<AppealSetDto> list = new List<AppealSetDto>();
+                if (!string.IsNullOrEmpty(shopCode))
+                {
+                    string[] shopCodeStr = shopCode.Replace("，",",").Split(',');
+                    foreach (string shop in shopCodeStr)
+                    {
+                        list.AddRange(appealService.GetAppealShopSet(projectId, "", shop));
+                    }
+                }
+                else
+                {
+                    list = appealService.GetAppealShopSet(projectId, "", shopCode);
+                }
+               
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
@@ -75,7 +89,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 如果设置了申诉时间过期，进行提醒。但是数据还可以查询。在web端调用这个接口
                 if (!string.IsNullOrEmpty(shopId))
                 {
-                    list = appealService.GetAppealShopSet(projectId, shopId.Replace(",", ""));
+                    list = appealService.GetAppealShopSet(projectId, shopId.Replace(",", ""),"");
                     if (list != null && list.Count > 0)
                     {
                         if (list[0].AppealEndDate < DateTime.Now)
@@ -192,7 +206,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (roleType == "B_Shop")
                 {
                     // 如果没有设置申诉时间，进行提醒，且不能查询到申诉数据
-                    List<AppealSetDto> appealSetlist = appealService.GetAppealShopSet(projectId, shopIdStr.Replace(",", ""));
+                    List<AppealSetDto> appealSetlist = appealService.GetAppealShopSet(projectId, shopIdStr.Replace(",", ""),"");
                     if (appealSetlist == null || appealSetlist.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "未设置申诉时间，请联系管理员" };
@@ -231,11 +245,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetFeedBackInfoByPage")]
-        public APIResult GetFeedBackInfoByPage(string projectId, string keyword, string appealStatus="",int pageNum=1, int pageCount=30000)
+        public APIResult GetFeedBackInfoByPage(string projectId, string keyword, string userId="",string appealStatus="",string feedbackStatus="",int pageNum=1, int pageCount=30000)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetFeedBackInfoByPage(projectId, keyword, appealStatus,pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(appealService.GetFeedBackInfoByPage(projectId, keyword,userId, appealStatus, feedbackStatus,pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -285,6 +299,25 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<AppealFileDto> list = appealService.AppealFileSearch(appealId, fileType);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Appeal/AppealFileDownLoad")]
+        public APIResult AppealFileDownLoad(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = photoService.AppealFileDownLoad(projectId, shopId);
+                if (string.IsNullOrEmpty(downloadPath))
+                {
+                    return new APIResult() { Status = false, Body = "没有可下载文件" };
+                }
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)
             {
@@ -470,11 +503,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 申诉反馈导出
         [HttpGet]
         [Route("Appeal/AppealFeedbackExport")]
-        public APIResult AppealFeedbackExport(string projectId, string keyword, string appealStatus="",int pageNum=1, int pageCount=30000)
+        public APIResult AppealFeedbackExport(string projectId, string keyword, string userId,string appealStatus="",int pageNum=1, int pageCount=30000)
         {
             try
             {
-                string downloadPath = excelDataService.AppealFeedbackExport(projectId, keyword, appealStatus,pageNum, pageCount);
+                string downloadPath = excelDataService.AppealFeedbackExport(projectId, keyword,userId, appealStatus,pageNum, pageCount);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
             }
             catch (Exception ex)

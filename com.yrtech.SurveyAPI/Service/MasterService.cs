@@ -730,6 +730,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[OrderNO]
                           ,[ReportDeployDate]
                           ,[RechckShopShow]
+                          ,[SelfTestChk]
+                          ,[ScoreShowType]
                           ,[PhotoUploadMode]
                           ,[PhotoSize]
                           ,[AppealShow]

@@ -44,12 +44,6 @@ namespace com.yrtech.SurveyAPI.Service
                                     CASE WHEN B.ProjectId IS NULL THEN ''
                                          ELSE(SELECT TOP 1 ProjectCode FROM Project WHERE ProjectId = @ProjectId)
                                     END AS ProjectCode,B.ExamTypeId,
-                                    CASE WHEN B.ExamTypeId IS NULL THEN ''
-                                         ELSE(SELECT TOP 1 LabelCode FROM Label WHERE  LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
-                                    END AS ExamTypeCode,
-                                    CASE WHEN B.ExamTypeId IS NULL THEN ''
-                                         ELSE(SELECT TOP 1 LabelName FROM Label WHERE  LabelType = 'ExamType' AND LabelId = B.ExamTypeId)
-                                    END AS ExamTypeName,
                                     B.InDateTime,B.ModifyDateTime
                             FROM Shop A  LEFT JOIN  ProjectShopExamType B ON A.ShopId = B.ShopId AND B.ProjectId = @ProjectId
                             WHERE A.BrandId = @BrandId ";

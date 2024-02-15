@@ -26,6 +26,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public DateTime? AppealStartDate { get; set; }
         public bool? AppealShow { get; set; } // 是否在
         public string ProjectType { get; set; } // 明检、密采
+        public string ScoreShowType { get; set; } // 默认显示得分：L：最低分；F:最高分；空：默认不显示分数
+        public bool? SelfTestChk { get; set; } // true:可以自检 false和null:不能自检
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

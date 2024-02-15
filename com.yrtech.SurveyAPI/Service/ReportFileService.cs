@@ -979,7 +979,11 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = @" SELECT A.*,B.AccountId,B.AccountName,C.ProjectCode,C.ProjectName
                             FROM ReportFileActionLog A INNER JOIN UserInfo B ON A.InUserId = B.Id
                                                        INNER JOIN Project C ON A.ProjectId = C.ProjectId
-                            WHERE 1=1 AND A.ProjectId = @Project";
+                            WHERE 1=1 ";
+            if (!string.IsNullOrEmpty(project))
+            {
+                sql += " AND A.ProjectId = @Project";
+            }
             if (!string.IsNullOrEmpty(action))
             {
                 sql += " AND Action = @Action";
@@ -1561,7 +1565,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(provinceId))
             {
-                sql += " AND B.Province = @ProvinceId";
+                sql += " AND B.ProvinceId = @ProvinceId";
             }
             if (!string.IsNullOrEmpty(shopId))
             {

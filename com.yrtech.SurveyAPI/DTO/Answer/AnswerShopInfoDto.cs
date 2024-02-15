@@ -8,7 +8,10 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class AnswerShopInfoDto
     {
+        public long Id { get; set; }
         public int ProjectId { get; set; }
+        public string ProjectCode { get; set; }
+        public string ProjectName { get; set; }
         public int ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
