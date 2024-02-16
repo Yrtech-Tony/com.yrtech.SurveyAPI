@@ -127,29 +127,32 @@ namespace com.yrtech.SurveyAPI.Controllers
                                 }
                             }
                         }
-                        else if (userInfoList[0].RoleType == "B_Shop"&&selfTestChk)// 允许经销商自检时，经销商也可以使用APP
+                        else if (userInfoList[0].RoleType == "B_Shop")// 允许经销商自检时，经销商也可以使用APP
                         {
-                            List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
-                            foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
+                            if (selfTestChk)
                             {
-                                foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
+                                List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
+                                foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
                                 {
-                                    if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
+                                    foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
                                     {
-                                        // 如果未设置了复审后，执行人员不能查看，直接添加
-                                        if (rechckShopShow)
+                                        if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
                                         {
-                                            result.Add(projectShopExamTypeDto);
-                                        }
-                                        else
-                                        {
-                                            //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
-                                            // 是否提交审核
-                                            //bool recheckStatus_S1 = false;
-                                            List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
-                                            if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
+                                            // 如果未设置了复审后，执行人员不能查看，直接添加
+                                            if (rechckShopShow)
                                             {
                                                 result.Add(projectShopExamTypeDto);
+                                            }
+                                            else
+                                            {
+                                                //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
+                                                // 是否提交审核
+                                                //bool recheckStatus_S1 = false;
+                                                List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
+                                                if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
+                                                {
+                                                    result.Add(projectShopExamTypeDto);
+                                                }
                                             }
                                         }
                                     }

@@ -34,7 +34,9 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@SubjectType", subjectType)};
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
+            sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId
+                            ,B.PhotoScore
+                            ,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore
                             ,A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
                     FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId

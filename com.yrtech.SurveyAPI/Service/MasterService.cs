@@ -836,6 +836,8 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.RechckShopShow = project.RechckShopShow;
                 findOne.PhotoUploadMode = project.PhotoUploadMode;
                 findOne.PhotoSize = project.PhotoSize;
+                findOne.ScoreShowType = project.ScoreShowType;
+                findOne.SelfTestChk = project.SelfTestChk;
                 //findOne.DataScore = project.DataScore;
                 //findOne.AppealStartDate = project.AppealStartDate;
                 //findOne.AppealEndDate = project.AppealEndDate;

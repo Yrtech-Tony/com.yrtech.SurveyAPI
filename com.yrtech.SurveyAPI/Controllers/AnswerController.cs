@@ -19,6 +19,37 @@ namespace com.yrtech.SurveyAPI.Controllers
         ExcelDataService excelDataService = new ExcelDataService();
         PhotoService photoService = new PhotoService();
         #region 得分登记
+        public List<AnswerDto> AnswerScoreReset(List<AnswerDto> answerList)
+        {
+            if (answerList == null) return new List<AnswerDto>();
+            string projectId = answerList[0].ProjectId.ToString();
+            // 打分默认显示
+            string scoreShowType = "";
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+            if (projectList != null && projectList.Count > 0)
+            {
+                scoreShowType = projectList[0].ScoreShowType;
+            }
+            foreach (AnswerDto answer in answerList)
+            {
+                if (answer.PhotoScore == null)
+                {
+                    List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString(), "", "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        if (scoreShowType == "L")
+                        {
+                            answer.PhotoScore = subjectList[0].LowScore;
+                        }
+                        else if (scoreShowType == "F")
+                        {
+                            answer.PhotoScore = subjectList[0].FullScore;
+                        }
+                    }
+                }
+            }
+            return answerList;
+        }
         ///// <summary>
         ///// 查询经销商需要打分的体系信息
         ///// </summary>
@@ -34,19 +65,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId, subjectType);
-                //List<AnswerDto> result = new List<AnswerDto>();
-                //if (!string.IsNullOrEmpty(subjectType))
-                //{
-                //    foreach (AnswerDto answerDto in answerList)
-                //    {
-                //        if (answerDto.HiddenCode_SubjectType == subjectType)
-                //        {
-                //            result.Add(answerDto);
-                //        }
-                //    }
-                //}
-                //else { result = answerList; }
+                List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId, subjectType));
 
                 if (answerList != null && answerList.Count > 0)
                 {
@@ -78,7 +97,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType);
+                List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -125,7 +144,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
 
-                List<AnswerDto> answerList = answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType);
+                List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -162,7 +181,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
 
-                List<AnswerDto> answerList = answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO, subjectType);
+                List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO, subjectType));
                 //List<AnswerDto> result = new List<AnswerDto>();
                 //if (!string.IsNullOrEmpty(subjectType))
                 //{
@@ -204,7 +223,13 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string roleTypeCode = "";
+                bool selfTestChk = false;
                 List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "",null);
+                List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "");
+                if (projectList != null && projectList.Count > 0)
+                {
+                    selfTestChk = projectList[0].SelfTestChk == null ? false : Convert.ToBoolean(projectList[0].SelfTestChk);
+                }
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     roleTypeCode = userInfoList[0].RoleType;
@@ -226,6 +251,25 @@ namespace com.yrtech.SurveyAPI.Controllers
                         else if (!string.IsNullOrEmpty(list[0].Status_S1))
                         {
                             throw new Exception("已提交复审，不能进行修改");
+                        }
+                    }
+                }
+                else if (roleTypeCode == "B_Shop") // 允许经销商自检的情况
+                {
+                    if (selfTestChk)
+                    {
+                        List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(), "");
+                        if (list != null && list.Count > 0)
+                        {
+
+                            if (!string.IsNullOrEmpty(list[0].Status_S4))
+                            {
+                                throw new Exception("已复审修改完毕，不能进行修改");
+                            }
+                            else if (!string.IsNullOrEmpty(list[0].Status_S1))
+                            {
+                                throw new Exception("已提交复审，不能进行修改");
+                            }
                         }
                     }
                 }
