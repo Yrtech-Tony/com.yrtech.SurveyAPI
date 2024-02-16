@@ -21,7 +21,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 得分登记
         public List<AnswerDto> AnswerScoreReset(List<AnswerDto> answerList)
         {
-            if (answerList == null) return new List<AnswerDto>();
+            if (answerList == null||answerList.Count==0) return new List<AnswerDto>();
             string projectId = answerList[0].ProjectId.ToString();
             // 打分默认显示
             string scoreShowType = "";
