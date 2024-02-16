@@ -180,7 +180,6 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-
         // 导入执行人员关联的经销商
         public List<UserInfoObjectDto> UserInfoObjectImport_ExcuteShop(string ossPath)
         {
@@ -317,6 +316,28 @@ namespace com.yrtech.SurveyAPI.Service
                 list.Add(loss);
             }
             return list;
+        }
+        
+        // 导入章节下体系信息
+        public List<ChapterSubjectDto> ChapterSubjectImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ChapterSubjectDto> list = new List<ChapterSubjectDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string chapterCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(chapterCode)) break;
+                ChapterSubjectDto chapterSubject = new ChapterSubjectDto();
+                chapterSubject.ChapterCode = chapterCode;
+                chapterSubject.SubjectCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(chapterSubject);
+            }
+            return list;
+
         }
         // 申诉设置导入
         public List<AppealSetDto> AppealShopSetImport(string ossPath)

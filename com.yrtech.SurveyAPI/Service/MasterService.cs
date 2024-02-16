@@ -1449,6 +1449,22 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Chapter>().ToList();
         }
+        public void SaveChapter(Chapter chapter)
+        {
+            Chapter findOne = db.Chapter.Where(x => (x.ChapterId == chapter.ChapterId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                chapter.InDateTime = DateTime.Now;
+                db.Chapter.Add(chapter);
+            }
+            else
+            {
+                findOne.ChapterCode = chapter.ChapterCode;
+                findOne.ChapterName = chapter.ChapterName;
+                findOne.FullScore = chapter.FullScore;
+            }
+            db.SaveChanges();
+        }
         public List<ChapterSubjectDto> GetChapterSubject(string projectId, string chapterId, string subjectId)
         {
             if (chapterId == null) chapterId = "";
@@ -1471,6 +1487,23 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " AND B.SubjectId = @SubjectId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ChapterSubjectDto>().ToList();
+        }
+        public void SaveChapterSubject(ChapterSubject chapterSubject)
+        {
+            ChapterSubject findOne = db.ChapterSubject.Where(x => (x.ChapterId == chapterSubject.ChapterId&&x.SubjectId== chapterSubject.SubjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                chapterSubject.InDateTime = DateTime.Now;
+                db.ChapterSubject.Add(chapterSubject);
+            }
+           
+            db.SaveChanges();
+        }
+        public void DeleteChapterSubject(int chapterSubjectId)
+        {
+            ChapterSubject findone = db.ChapterSubject.Where(x => x.Id == chapterSubjectId).FirstOrDefault();
+            db.ChapterSubject.Remove(findone);
+            db.SaveChanges();
         }
         #endregion
         #region 标签管理

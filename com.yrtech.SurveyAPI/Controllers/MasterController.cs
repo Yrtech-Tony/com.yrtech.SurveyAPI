@@ -496,7 +496,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                         else if (roleTypeCode == "B_Bussiness")
                         {
                             userInfo.ObjectId = masterService.GetArea("", userInfoObjectDto.brandId, userInfoObjectDto.ObjectCode, "", "Bussiness", "", null)[0].AreaId;
-
                         }
                         else if (roleTypeCode == "B_WideArea")
                         {
@@ -2164,6 +2163,111 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<Chapter> chapterList = masterService.GetChapter(projectId, chapterId, chapterCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveChapter")]
+        public APIResult SaveChapter(Chapter chapter)
+        {
+            try
+            {
+                masterService.SaveChapter(chapter);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetChapterSubject")]
+        public APIResult GetChapterSubject(string projectId, string chapterId = "", string subjectId = "")
+        {
+            try
+            {
+                List<ChapterSubjectDto> chapterList = masterService.GetChapterSubject(projectId, chapterId, subjectId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/DeleteChapterSubject")]
+        public APIResult DeleteChapterSubject(ChapterSubject chapterSubject)
+        {
+            try
+            {
+                masterService.DeleteChapterSubject(chapterSubject.Id);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/ChapterSubjectExcelAnalysis")]
+        public APIResult ChapterSubjectExcelAnalysis(string projectId,string ossPath)
+        {
+            try
+            {
+                List<ChapterSubjectDto> list = excelDataService.ChapterSubjectImport(ossPath);
+                foreach (ChapterSubjectDto chapterSubjectDto in list)
+                {
+                    chapterSubjectDto.ImportChk = true;
+                    chapterSubjectDto.ImportRemark = "";
+                    List<Chapter> chapterList = masterService.GetChapter(projectId,"", chapterSubjectDto.ChapterCode);
+                    if (chapterList == null || chapterList.Count == 0)
+                    {
+                        chapterSubjectDto.ImportChk = false;
+                        chapterSubjectDto.ImportRemark += "该章节未在系统登记" + ";";
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId,"",chapterSubjectDto.SubjectCode,"");
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        chapterSubjectDto.ImportChk = false;
+                        chapterSubjectDto.ImportRemark += "该体系未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/ChapterSubjectImport")]
+        public APIResult ChapterSubjectImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ChapterSubjectDto> list = CommonHelper.DecodeString<List<ChapterSubjectDto>>(uploadData.ListJson);
+                foreach (ChapterSubjectDto chapterSubjectDto in list)
+                {
+                    ChapterSubject chapterSubject = new ChapterSubject();
+                    List<Chapter> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "", chapterSubjectDto.ChapterCode);
+                    if (chapterList != null && chapterList.Count > 0)
+                    {
+                        chapterSubject.ChapterId = chapterList[0].ChapterId;
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(chapterSubjectDto.ProjectId.ToString(), "", chapterSubjectDto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        chapterSubject.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
+                    }        
+                  masterService.SaveChapterSubject(chapterSubject);
+                }
+                return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
             {
