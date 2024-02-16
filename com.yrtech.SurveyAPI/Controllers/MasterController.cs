@@ -2205,6 +2205,15 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (chapterSubject == null)
+                {
+                    CommonHelper.log("kong ");
+                }
+                else
+                {
+
+                    CommonHelper.log(chapterSubject.ToString());
+                }
                 masterService.DeleteChapterSubject(chapterSubject.Id);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -2264,7 +2273,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     if (subjectList != null && subjectList.Count > 0)
                     {
                         chapterSubject.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
-                    }        
+                    }
+                    chapterSubject.InUserId = chapterSubjectDto.InUserId;
                   masterService.SaveChapterSubject(chapterSubject);
                 }
                 return new APIResult() { Status = true, Body = "" };

@@ -8,12 +8,13 @@ namespace com.yrtech.SurveyAPI.DTO
     [Serializable]
     public class ChapterSubjectDto
     {
-        public long SubjectId { get; set; }
+        public int SubjectId { get; set; }
+        public int Id { get; set; }
         public string SubjectCode { get; set; } // 题目代码
         public Nullable<int> ProjectId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }
-        public string ChapterId { get; set; }
+        public int ChapterId { get; set; }
         public string ChapterCode { get; set; }
         public string ChapterName { get; set; }
         public Nullable<int> OrderNO { get; set; }//序号
@@ -38,7 +39,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<LossResultDto> LossResultList { get; set; }
         public bool ImportChk { get; set; }
         public string ImportRemark { get; set; }
-
+        public Nullable<int> InUserId { get; set; }
 
 
     }

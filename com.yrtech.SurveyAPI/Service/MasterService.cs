@@ -1439,11 +1439,11 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT A.*
                     FROM Chapter A
                    WHERE A.ProjectId=@ProjectId ";
-            if (string.IsNullOrEmpty(chapterId))
+            if (!string.IsNullOrEmpty(chapterId))
             {
                 sql += " AND A.ChapterId = @ChapterId";
             }
-            if (string.IsNullOrEmpty(chapterCode))
+            if (!string.IsNullOrEmpty(chapterCode))
             {
                 sql += " AND A.ChapterCode = @ChapterCode";
             }
@@ -1472,17 +1472,17 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                                         ,new SqlParameter("@ChapterId", chapterId)
                                                         ,new SqlParameter("@SubjectId", subjectId)};
-            Type t = typeof(Chapter);
+            Type t = typeof(ChapterSubjectDto);
             string sql = "";
             sql = @"SELECT B.*,A.ChapterCode,A.ChapterName,C.SubjectCode
                     FROM Chapter A INNER JOIN ChapterSubject B ON A.ChapterId = B.ChapterId
                                     INNER JOIN Subject C ON B.SubjectId = C.SubjectId
-                   WHERE A.ProjectId=@ProjectId ";
-            if (string.IsNullOrEmpty(chapterId))
+                   WHERE 1=1";
+            if (!string.IsNullOrEmpty(chapterId))
             {
                 sql += " AND A.ChapterId = @ChapterId";
             }
-            if (string.IsNullOrEmpty(subjectId))
+            if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND B.SubjectId = @SubjectId";
             }
@@ -1494,6 +1494,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (findOne == null)
             {
                 chapterSubject.InDateTime = DateTime.Now;
+                chapterSubject.InUserId = chapterSubject.InUserId;
                 db.ChapterSubject.Add(chapterSubject);
             }
            
