@@ -1449,6 +1449,29 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<Chapter>().ToList();
         }
+        public List<ChapterSubjectDto> GetChapterSubject(string projectId, string chapterId, string subjectId)
+        {
+            if (chapterId == null) chapterId = "";
+            if (subjectId == null) subjectId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ChapterId", chapterId)
+                                                        ,new SqlParameter("@SubjectId", subjectId)};
+            Type t = typeof(Chapter);
+            string sql = "";
+            sql = @"SELECT B.*,A.ChapterCode,A.ChapterName,C.SubjectCode
+                    FROM Chapter A INNER JOIN ChapterSubject B ON A.ChapterId = B.ChapterId
+                                    INNER JOIN Subject C ON B.SubjectId = C.SubjectId
+                   WHERE A.ProjectId=@ProjectId ";
+            if (string.IsNullOrEmpty(chapterId))
+            {
+                sql += " AND A.ChapterId = @ChapterId";
+            }
+            if (string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND B.SubjectId = @SubjectId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ChapterSubjectDto>().ToList();
+        }
         #endregion
         #region 标签管理
         public List<Label> GetLabel(string brandId, string labelId, string labelType, bool? useChk, string labelCode)
