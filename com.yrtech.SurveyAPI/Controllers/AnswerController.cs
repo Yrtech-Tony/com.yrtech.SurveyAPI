@@ -628,6 +628,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Answer/AnswerShopInfoExport")]
+        public APIResult AnswerShopInfoExport(string projectId, string shopId)
+        {
+            try
+            {
+                string downloadPath = excelDataService.AnswerShopInfoExport(projectId, shopId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 销售顾问信息
         /// <summary>

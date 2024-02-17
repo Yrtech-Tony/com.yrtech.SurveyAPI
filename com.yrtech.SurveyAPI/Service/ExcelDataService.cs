@@ -1215,6 +1215,44 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
+        // 进店信息导出
+        public string AnswerShopInfoExport(string projectId, string shopId)
+        {
+            List<AnswerShopInfoDto> list = answerService.GetAnswerShopInfo(projectId, shopId, "");
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "AnswerShopInfo.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            foreach (AnswerShopInfoDto item in list)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                // 执行组长
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.TeamLeader;
+                // 开始时间
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.InShopStartDate;
+                // 添加时间
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.InDateTime;
+                // 修改时间
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.ModifyDateTime;
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "进店信息" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
         // 报告下载日志导出
         public string ReportLogExport(string project, string reportFileName, string startDate, string endDate)
         {
