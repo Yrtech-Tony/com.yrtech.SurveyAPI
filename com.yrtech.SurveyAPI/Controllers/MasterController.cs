@@ -599,7 +599,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", "", userInfoObjectDto.AccountId, "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), "", "", userInfoObjectDto.AccountId, "", "", "", "", null);
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;
