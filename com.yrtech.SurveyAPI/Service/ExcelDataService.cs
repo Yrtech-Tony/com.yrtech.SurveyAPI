@@ -1232,11 +1232,11 @@ namespace com.yrtech.SurveyAPI.Service
                 // 执行组长
                 sheet.GetCell("C" + (rowIndex + 2)).Value = item.TeamLeader;
                 // 开始时间
-                sheet.GetCell("D" + (rowIndex + 2)).Value = item.InShopStartDate;
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.StartDate;
                 // 添加时间
-                sheet.GetCell("D" + (rowIndex + 2)).Value = item.InDateTime;
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.InDateTime;
                 // 修改时间
-                sheet.GetCell("D" + (rowIndex + 2)).Value = item.ModifyDateTime;
+                sheet.GetCell("F" + (rowIndex + 2)).Value = item.ModifyDateTime;
                 rowIndex++;
             }
 
