@@ -2205,15 +2205,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                if (chapterSubject == null)
-                {
-                    CommonHelper.log("kong ");
-                }
-                else
-                {
-
-                    CommonHelper.log(chapterSubject.ToString());
-                }
                 masterService.DeleteChapterSubject(chapterSubject.Id);
                 return new APIResult() { Status = true, Body = "" };
             }

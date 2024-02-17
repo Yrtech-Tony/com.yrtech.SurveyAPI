@@ -498,6 +498,9 @@ namespace com.yrtech.SurveyAPI.Service
                     recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
                 }
             }
+            else {
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            }
             List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "", "", "", "");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo.xlsx", false);
             //填充数据
@@ -649,7 +652,10 @@ namespace com.yrtech.SurveyAPI.Service
                     recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
                 }
             }
-            // List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            else {
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            }
+            
 
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L.xlsx", false);
@@ -839,7 +845,10 @@ namespace com.yrtech.SurveyAPI.Service
                     recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
                 }
             }
-            // List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            else {
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+            }
+           
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L_M.xlsx", false);
             //填充数据
