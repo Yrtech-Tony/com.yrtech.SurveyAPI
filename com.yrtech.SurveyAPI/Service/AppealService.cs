@@ -120,7 +120,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveAppealShopSet(AppealShopSet appealSet)
         {
-            if (appealSet.AppealEndDate != null&& !appealSet.AppealEndDate.ToString().Contains(":")) // 如果未包含时间
+            if (appealSet.AppealEndDate != null) // 如果未包含时间
             {
                 appealSet.AppealEndDate = Convert.ToDateTime(Convert.ToDateTime(appealSet.AppealEndDate).ToString("yyyy-MM-dd") + " 23:59:59");
             }
@@ -205,6 +205,9 @@ namespace com.yrtech.SurveyAPI.Service
                                   ,[FeedBackUserId]
                                   ,CONVERT(VARCHAR(19),[FeedBackDateTime],120) AS FeedBackDateTime
                                   ,(SELECT TOP 1 AppealEndDate FROM AppealShopSet WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId) AS AppealEndDate
+                                  ,(SELECT TOP 1 ShopType FROM ChapterShopType I INNER JOIN Chapter L ON I.ChapterId = L.ChapterId 
+                                                                                 INNER JOIN ChapterSubject K ON L.ChapterId = K.ChapterId
+                                    WHERE Y.SubjectId = K.SubjectId) AS ShopType
                               FROM [Appeal] A  INNER JOIN Shop X ON A.ShopId = X.ShopId AND (X.ShopCode LIKE '%'+@KeyWord+'%' OR X.ShopName LIKE '%'+@KeyWord+'%')
                                                 INNER JOIN [Subject] Y ON A.SubjectId = Y.SubjectId AND A.ProjectId = Y.ProjectId
                                                 LEFT JOIN Answer Z ON A.ProjectId = Z.ProjectId AND A.ShopId = Z.ShopId AND A.SubjectId =Z.SubjectId

@@ -190,9 +190,11 @@
     <Compile Include="DTO\Appeal\AppealFileDto.cs" />
     <Compile Include="DTO\Appeal\AppealDto.cs" />
     <Compile Include="DTO\Master\AreaProvinceDto.cs" />
+    <Compile Include="DTO\Master\ReportTypeShopDto.cs" />
     <Compile Include="DTO\Master\RoleProgramDto.cs" />
     <Compile Include="DTO\Master\LabelDto.cs" />
     <Compile Include="DTO\Master\ProjectDto.cs" />
+    <Compile Include="DTO\Master\ChapterSubjectDto.cs" />
     <Compile Include="DTO\Master\SubjectDto.cs" />
     <Compile Include="DTO\Master\HiddenColumDto.cs" />
     <Compile Include="DTO\Recheck\RecheckStatusDtlDto.cs" />
@@ -200,12 +202,13 @@
     <Compile Include="DTO\Recheck\RecheckStatusDto.cs" />
     <Compile Include="DTO\ReportFile\ReporSetDto..cs" />
     <Compile Include="DTO\ReportFile\ReportFileAreaDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportFileDto.cs" />
     <Compile Include="DTO\ReportFile\ReportYearTrendDto.cs" />
     <Compile Include="DTO\ReportFile\ReportShopCompleteCountDto.cs" />
     <Compile Include="DTO\ReportFile\ReporSubjectScoreDto.cs" />
     <Compile Include="DTO\ReportFile\ReportChapterScoreDto.cs" />
     <Compile Include="DTO\ReportFile\ReportFileActionLogDto.cs" />
-    <Compile Include="DTO\ReportFile\ReportFileDto.cs" />
+    <Compile Include="DTO\ReportFile\ReportJobRateDto.cs" />
     <Compile Include="DTO\ReportFile\ReportFileUploadDto.cs" />
     <Compile Include="DTO\Shop\GroupDto.cs" />
     <Compile Include="DTO\Shop\AreaDto.cs" />

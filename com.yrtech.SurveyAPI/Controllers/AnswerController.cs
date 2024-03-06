@@ -223,13 +223,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string roleTypeCode = "";
-                bool selfTestChk = false;
                 List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "",null);
-                List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "");
-                if (projectList != null && projectList.Count > 0)
-                {
-                    selfTestChk = projectList[0].SelfTestChk == null ? false : Convert.ToBoolean(projectList[0].SelfTestChk);
-                }
+               
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     roleTypeCode = userInfoList[0].RoleType;
@@ -248,7 +243,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             throw new Exception("已复审修改完毕，不能进行修改");
                         }
-                        else if (!string.IsNullOrEmpty(list[0].Status_S1))
+                        else if (!string.IsNullOrEmpty(list[0].Status_S1)&& string.IsNullOrEmpty(list[0].Status_S3))
                         {
                             throw new Exception("已提交复审，不能进行修改");
                         }
@@ -256,6 +251,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else if (roleTypeCode == "B_Shop") // 允许经销商自检的情况
                 {
+                    bool selfTestChk = false;
+                    List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "");
+                    if (projectList != null && projectList.Count > 0)
+                    {
+                        selfTestChk = projectList[0].SelfTestChk == null ? false : Convert.ToBoolean(projectList[0].SelfTestChk);
+                    }
                     if (selfTestChk)
                     {
                         List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(), "");
@@ -271,6 +272,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                                 throw new Exception("已提交复审，不能进行修改");
                             }
                         }
+                    }
+                    else {
+                        throw new Exception("该项目不允许经销商自检，请联系管理员");
                     }
                 }
 

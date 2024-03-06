@@ -1426,12 +1426,92 @@ namespace com.yrtech.SurveyAPI.Service
             }
         }
         #endregion
-        #region 章节管理
-        public List<Chapter> GetChapter(string projectId, string chapterId, string chapterCode)
+        #region 章节和报告类型管理
+        public List<ReportType> GetReportType(string projectId, string reportTypeId, string reportTypeCode)
         {
+            if (reportTypeId == null) reportTypeId = "";
+            if (reportTypeCode == null) reportTypeCode = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ReportTypeId", reportTypeId)
+                                                        ,new SqlParameter("@ReportTypeCode", reportTypeCode)};
+            Type t = typeof(ReportType);
+            string sql = "";
+            sql = @"SELECT A.*
+                    FROM ReportType A
+                   WHERE A.ProjectId=@ProjectId ";
+            if (!string.IsNullOrEmpty(reportTypeId))
+            {
+                sql += " AND A.ReportTypeId = @ReportTypeId";
+            }
+            if (!string.IsNullOrEmpty(reportTypeCode))
+            {
+                sql += " AND A.ReportTypeCode = @ReportTypeCode";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportType>().ToList();
+        }
+        public void SaveReportType(ReportType reportType)
+        {
+            ReportType findOne = db.ReportType.Where(x => (x.ReportTypeId == reportType.ReportTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                reportType.InDateTime = DateTime.Now;
+                db.ReportType.Add(reportType);
+            }
+            else
+            {
+                findOne.ReportTypeCode = reportType.ReportTypeCode;
+                findOne.ReportTypeName = reportType.ReportTypeName;
+                findOne.FullScore = reportType.FullScore;
+            }
+            db.SaveChanges();
+        }
+        public List<ReportTypeShopDto> GetReportTypeShop(string projectId, string reportTypeId, string shopId)
+        {
+            if (reportTypeId == null) reportTypeId = "";
+            if (shopId == null) shopId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ReportTypeId", reportTypeId)
+                                                        ,new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(ReportTypeShopDto);
+            string sql = "";
+            sql = @"SELECT B.*,A.ReportTypeCode,A.ReportTypeName,C.ShopCode
+                    FROM ReportType A INNER JOIN ReportTypeShop B ON A.ReportTypeId = B.ReportTypeId
+                                    INNER JOIN Shop C ON B.ShopId = C.ShopId
+                   WHERE 1=1 AND A.ProjectId = @ProjectId ";
+            if (!string.IsNullOrEmpty(reportTypeId))
+            {
+                sql += " AND A.ReportTypeId = @ReportTypeId";
+            }
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND B.ShopId = @ShopId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportTypeShopDto>().ToList();
+        }
+        public void SaveReportTypeShop(ReportTypeShop reportTypeShop)
+        {
+            ReportTypeShop findOne = db.ReportTypeShop.Where(x => (x.ReportTypeId == reportTypeShop.ReportTypeId && x.ShopId == reportTypeShop.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                reportTypeShop.InDateTime = DateTime.Now;
+                db.ReportTypeShop.Add(reportTypeShop);
+            }
+
+            db.SaveChanges();
+        }
+        public void DeleteReportTypeShop(int reportTypeShopId)
+        {
+            ReportTypeShop findone = db.ReportTypeShop.Where(x => x.ReportShopId == reportTypeShopId).FirstOrDefault();
+            db.ReportTypeShop.Remove(findone);
+            db.SaveChanges();
+        }
+        public List<Chapter> GetChapter(string projectId, string reportTypeId,string chapterId, string chapterCode)
+        {
+            if (reportTypeId == null) reportTypeId = "";
             if (chapterId == null) chapterId = "";
             if (chapterCode == null) chapterCode = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ReportTypeId", reportTypeId)
                                                         ,new SqlParameter("@ChapterId", chapterId)
                                                         ,new SqlParameter("@ChapterCode", chapterCode)};
             Type t = typeof(Chapter);
@@ -1439,6 +1519,10 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT A.*
                     FROM Chapter A
                    WHERE A.ProjectId=@ProjectId ";
+            if (!string.IsNullOrEmpty(reportTypeId))
+            {
+                sql += " AND A.ReportTypeId = @ReportTypeId";
+            }
             if (!string.IsNullOrEmpty(chapterId))
             {
                 sql += " AND A.ChapterId = @ChapterId";
@@ -1462,6 +1546,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ChapterCode = chapter.ChapterCode;
                 findOne.ChapterName = chapter.ChapterName;
                 findOne.FullScore = chapter.FullScore;
+                findOne.ReportTypeId = chapter.ReportTypeId;
             }
             db.SaveChanges();
         }
@@ -1494,7 +1579,6 @@ namespace com.yrtech.SurveyAPI.Service
             if (findOne == null)
             {
                 chapterSubject.InDateTime = DateTime.Now;
-                chapterSubject.InUserId = chapterSubject.InUserId;
                 db.ChapterSubject.Add(chapterSubject);
             }
            

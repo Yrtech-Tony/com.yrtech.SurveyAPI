@@ -19,8 +19,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public string SubjectCode { get; set; } // 题目代码
         public string CheckPoint { get; set; } // 二级指标检查点
         public Nullable<decimal> Score { get; set; } // 得分
-        public Nullable<decimal> SumScore { get; set; } // 得分
+        public Nullable<decimal> SumScore { get; set; } // 总分
         public Nullable<decimal> FullScore { get; set; } // 标准分
+        public Nullable<decimal> CountrySumScore { get; set; } // 全国得分
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

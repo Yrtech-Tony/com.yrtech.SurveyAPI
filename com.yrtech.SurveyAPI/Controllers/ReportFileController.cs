@@ -185,7 +185,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch_Area(brandId,projectId, keyword, pageNum, pageCount)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileListUploadALLByPageSearch_Area(brandId, projectId, keyword, pageNum, pageCount)) };
             }
             catch (Exception ex)
             {
@@ -198,7 +198,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch_Area(projectId,areaId, reportFileType)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportFileSearch_Area(projectId, areaId, reportFileType)) };
             }
             catch (Exception ex)
             {
@@ -217,7 +217,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     if (!string.IsNullOrEmpty(reportFileDto.AreaCode))
                     {
-                        List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode,"","", "", null);
+                        List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode, "", "", "", null);
                         if (areaList != null && areaList.Count > 0)
                         {
                             reportFileDto.AreaCodeCheck = true;
@@ -249,7 +249,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ReportFileAreaDto> list = CommonHelper.DecodeString<List<ReportFileAreaDto>>(upload.ListJson);
                 foreach (ReportFileAreaDto reportFileDto in list)
                 {
-                    List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode,"", "","", null);
+                    List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode, "", "", "", null);
                     if (areaList == null || areaList.Count == 0)
                     {
                         return new APIResult() { Status = false, Body = "上传的文件中存在未知的区域代码，请确认品牌和区域代码" };
@@ -259,7 +259,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ReportFileArea reportFile = new ReportFileArea();
                     reportFile.ProjectId = reportFileDto.ProjectId;
-                    List<AreaDto>  areaList= masterservice.GetArea("", reportFileDto.BrandId.ToString(),  reportFileDto.AreaCode,"", "","", null);
+                    List<AreaDto> areaList = masterservice.GetArea("", reportFileDto.BrandId.ToString(), reportFileDto.AreaCode, "", "", "", null);
                     if (areaList != null && areaList.Count > 0)
                     {
                         reportFile.AreaId = areaList[0].AreaId;
@@ -491,6 +491,29 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("ReportFile/ReportShopCompleteCountAppealSearch")]
+        public APIResult ReportShopCompleteCountAppealSearch(string projectId, string areaId, string shopType = "")
+        {
+            try
+            {
+                List<ReportShopCompleteCountDto> list = new List<ReportShopCompleteCountDto>();
+                // 为空查询全国的数量，不为空查询当前区域的数量
+                if (string.IsNullOrEmpty(areaId))
+                {
+                    list = reportFileService.ReportShopCompleteCountCountrySearch_Appeal(projectId, shopType);
+                }
+                else
+                {
+                    list = reportFileService.ReportShopCompleteCountSearch_Appeal(projectId, areaId, shopType);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 获取一级指标和二级指标的得分
         [HttpGet]
@@ -634,7 +657,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 查询全国得分最高以及最低的区域
                 else
                 {
-                    list = reportFileService.ReportCountrySumScore(projectId,preProjectId, shopType);
+                    list = reportFileService.ReportCountrySumScore(projectId, preProjectId, shopType);
                     List<ReportChapterScoreDto> reportChapterScoreDtoList_Area = reportFileService.ReportAreaSumScore(projectId, preProjectId, "", shopType);
                     List<ReportChapterScoreDto> reportChapterScoreDtoList_Shop = reportFileService.ReportShopSumScore(projectId, preProjectId, "", "", "", shopType);
                     // 得分最高和最低区域
@@ -764,6 +787,24 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterScore.ReportSubjectScoreList = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType);
                     }
                 }
+                // 重新绑定全国得分
+                foreach (ReportChapterScoreDto chapterScore in list)
+                {
+                    List<ReportChapterScoreDto> list_CountryChapter = reportFileService.ReportCountryChapterScoreSearch(projectId, shopType).Where(x => x.ChapterId == chapterScore.ChapterId).ToList();
+                    if (list_CountryChapter != null && list_CountryChapter.Count > 0)
+                    {
+                        chapterScore.CountrySumScore = list_CountryChapter[0].Score;
+                    }
+                    foreach (ReportSubjectScoreDto subjectScore in chapterScore.ReportSubjectScoreList)
+                    {
+                        List<ReportSubjectScoreDto> list_CountrySubject = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType).Where(x => x.SubjectId == subjectScore.SubjectId).ToList();
+                        if (list_CountrySubject != null && list_CountrySubject.Count > 0)
+                        {
+                            subjectScore.CountrySumScore = list_CountrySubject[0].Score;
+                        }
+
+                    }
+                }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
@@ -782,7 +823,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<AnswerDto> answerList = reportFileService.ReportShopLossResult(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword);
                 if (answerList == null || answerList.Count == 0)
                 {
-                    return new APIResult() { Status = false, Body = "申诉流程暂未结束，扣分细节页暂未开放" };
+                    // kavos极狐项目使用，其他项目不使用
+                    //  return new APIResult() { Status = false, Body = "申诉流程暂未结束，扣分细节页暂未开放" };
                 }
                 foreach (AnswerDto answer in answerList)
                 {
@@ -861,6 +903,98 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #endregion
+        #region 岗位满足率
+        [HttpGet]
+        [Route("ReportFile/ReportBaseJobRateSearch")]
+        public APIResult ReportBaseJobRateSearch(string projectId, string smallArea)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportBaseJobRateSearcht(projectId, smallArea)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportJobRateSearch")]
+        public APIResult ReportJobRateSearch(string projectId, string smallArea)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportJobRateSearcht(projectId, smallArea)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("ReportFile/ReportJobRateExcelAnalysis")]
+        public APIResult ReportJobRateExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<ReportJobRateDto> list = excelDataService.ReportJobRateImport(ossPath);
+                foreach (ReportJobRateDto reportJobRateDto in list)
+                {
+                    reportJobRateDto.ImportChk = true;
+                    reportJobRateDto.ImportRemark = "";
+
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<AreaDto> areaList = masterService.GetArea("", projectList[0].BrandId.ToString(), reportJobRateDto.AreaCode, "", "", "", true);
+                    if (areaList == null || areaList.Count == 0)
+                    {
+                        reportJobRateDto.ImportChk = false;
+                        reportJobRateDto.ImportRemark += "区域代码未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/ReportJobRateImport")]
+        public APIResult ReportJobRateImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ReportJobRateDto> list = CommonHelper.DecodeString<List<ReportJobRateDto>>(uploadData.ListJson);
+                // 先按区域删除数据
+                foreach (ReportJobRateDto reportJobRateDto in list)
+                {
+                    reportFileService.ReportJobRateDelete(reportJobRateDto.ProjectId.ToString(), reportJobRateDto.AreaId.ToString());
+                }
+                // 导入数据
+                foreach (ReportJobRateDto reportJobRateDto in list)
+                {
+                    ReportJobRate reportJobRate = new ReportJobRate();
+                    reportJobRate.ProjectId = reportJobRateDto.ProjectId;
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportJobRateDto.ProjectId.ToString(), "", "", "");
+                    List<AreaDto> areaList = masterService.GetArea("", projectList[0].BrandId.ToString(), reportJobRateDto.AreaCode, "", "", "", true);
+                    if (areaList != null && areaList.Count > 0)
+                    {
+                        reportJobRate.AreaId = areaList[0].AreaId;
+                    }
+                    reportJobRate.JobName = reportJobRateDto.JobName;
+                    reportJobRate.JobFullCount = reportJobRateDto.JobFullCount;
+                    reportJobRate.JobActualCount = reportJobRateDto.JobActualCount;
+                    reportJobRate.InUserId = reportJobRateDto.InUserId;
+                    reportFileService.SaveReportJobRate(reportJobRate);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
     }
 }

@@ -2154,14 +2154,141 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         }
         #endregion
-        #region 章节管理
+        #region 章节和报告类型管理
         [HttpGet]
-        [Route("Master/GetChapter")]
-        public APIResult GetChapter(string projectId, string chapterId = "", string chapterCode = "")
+        [Route("Master/GetReportType")]
+        public APIResult GetReportType(string projectId, string reportTypeId, string reportTypeCode = "")
         {
             try
             {
-                List<Chapter> chapterList = masterService.GetChapter(projectId, chapterId, chapterCode);
+                List<ReportType> reportTypeList = masterService.GetReportType(projectId, reportTypeId, reportTypeCode);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveReportType")]
+        public APIResult SaveReportType(ReportType reportType)
+        {
+            try
+            {
+                List<ReportType> reportList = masterService.GetReportType(reportType.ProjectId.ToString(),"",reportType.ReportTypeCode);
+                if (reportList != null && reportList.Count > 0 && reportList[0].ReportTypeId != reportType.ReportTypeId)
+                {
+                    return new APIResult() { Status = false, Body = "报告类型代码重复" };
+                }
+                masterService.SaveReportType(reportType);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetReportTypeShop")]
+        public APIResult GetReportTypeShop(string projectId, string reportTypeId = "", string shopId = "")
+        {
+            try
+            {
+                List<ReportTypeShopDto> reportTypeShop = masterService.GetReportTypeShop(projectId, reportTypeId, shopId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportTypeShop) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/DeleteReportTypeShop")]
+        public APIResult DeleteReportTypeShop(ReportTypeShop reportTypeShop)
+        {
+            try
+            {
+                masterService.DeleteReportTypeShop(reportTypeShop.ReportShopId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/ReportTypeShopExcelAnalysis")]
+        public APIResult ReportTypeShopExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<ReportTypeShopDto> list = excelDataService.ReportTypeShopImport(ossPath);
+                foreach (ReportTypeShopDto reportTypeShopDto in list)
+                {
+                    reportTypeShopDto.ImportChk = true;
+                    reportTypeShopDto.ImportRemark = "";
+                    List<ReportType> reportTypeList = masterService.GetReportType(projectId,"",reportTypeShopDto.ReportTypeCode);
+                    if (reportTypeList == null || reportTypeList.Count == 0)
+                    {
+                        reportTypeShopDto.ImportChk = false;
+                        reportTypeShopDto.ImportRemark += "该类型未在系统登记" + ";";
+                    }
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "",reportTypeShopDto.ShopCode,"",true);
+                    if (shopList == null || shopList.Count == 0)
+                    {
+                        reportTypeShopDto.ImportChk = false;
+                        reportTypeShopDto.ImportRemark += "该经销商未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/ReportTypeShopImport")]
+        public APIResult ReportTypeShopImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ReportTypeShopDto> list = CommonHelper.DecodeString<List<ReportTypeShopDto>>(uploadData.ListJson);
+                foreach (ReportTypeShopDto reportTypeShopDto in list)
+                {
+                    ReportTypeShop reportTypeShop = new ReportTypeShop();
+                    List<ReportType> reportTypeList = masterService.GetReportType(reportTypeShopDto.ProjectId.ToString(),"",reportTypeShopDto.ReportTypeCode);
+                    if (reportTypeList != null && reportTypeList.Count > 0)
+                    {
+                        reportTypeShop.ReportTypeId = reportTypeList[0].ReportTypeId;
+                    }
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
+                    List<ShopDto> shopList = masterService.GetShop("",projectList[0].BrandId.ToString(),"", reportTypeShopDto.ShopCode,"",true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        reportTypeShop.ShopId = shopList[0].ShopId;
+                    }
+                    reportTypeShop.InUserId = reportTypeShopDto.InUserId;
+                    masterService.SaveReportTypeShop(reportTypeShop);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetChapter")]
+        public APIResult GetChapter(string projectId, string chapterId = "", string chapterCode = "",string reportTypeId="")
+        {
+            try
+            {
+                List<Chapter> chapterList = masterService.GetChapter(projectId, reportTypeId,chapterId, chapterCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
             }
             catch (Exception ex)
@@ -2176,6 +2303,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                List<Chapter> chapterList_ChapterCode = masterService.GetChapter(chapter.ProjectId.ToString(),"", "", chapter.ChapterCode);
+                if (chapterList_ChapterCode != null && chapterList_ChapterCode.Count > 0 && chapterList_ChapterCode[0].ChapterId != chapter.ChapterId)
+                {
+                    return new APIResult() { Status = false, Body = "章节代码重复" };
+                }
                 masterService.SaveChapter(chapter);
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -2224,7 +2356,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     chapterSubjectDto.ImportChk = true;
                     chapterSubjectDto.ImportRemark = "";
-                    List<Chapter> chapterList = masterService.GetChapter(projectId,"", chapterSubjectDto.ChapterCode);
+                    List<Chapter> chapterList = masterService.GetChapter(projectId,"","", chapterSubjectDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
                         chapterSubjectDto.ImportChk = false;
@@ -2255,7 +2387,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (ChapterSubjectDto chapterSubjectDto in list)
                 {
                     ChapterSubject chapterSubject = new ChapterSubject();
-                    List<Chapter> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "", chapterSubjectDto.ChapterCode);
+                    List<Chapter> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "","", chapterSubjectDto.ChapterCode);
                     if (chapterList != null && chapterList.Count > 0)
                     {
                         chapterSubject.ChapterId = chapterList[0].ChapterId;

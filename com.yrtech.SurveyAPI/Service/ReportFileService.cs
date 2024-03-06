@@ -228,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="areaId"></param>
         /// <param name="reportFileType"></param>
         /// <returns></returns>
-        public List<ReportFileArea> ReportFileSearch_Area(string projectId,string areaId, string reportFileType)
+        public List<ReportFileArea> ReportFileSearch_Area(string projectId, string areaId, string reportFileType)
         {
             if (projectId == null) projectId = "";
             if (areaId == null || areaId == "0") areaId = "";
@@ -538,17 +538,17 @@ namespace com.yrtech.SurveyAPI.Service
             else if (!string.IsNullOrEmpty(bigArea))
             {
                 sql += @" AND (B.AreaId IN (SELECT AreaId FROM Area WHERE ParentId = @BigArea OR AreaId = @BigArea)
-                               OR B.AreaId IN (SELECT AreaId 
+                               OR B.AreaId IN (SELECT D.AreaId 
                                                FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
-                                                           INNER JOIN Area F ON E.ParentId = F.AreaId AND F.AreaId = @BigAreaId)) ";
+                                                           INNER JOIN Area F ON E.ParentId = F.AreaId AND F.AreaId = @BigArea)) ";
             }
             else if (!string.IsNullOrEmpty(wideArea))
             {
                 sql += @" AND (B.AreaId IN (SELECT AreaId FROM Area WHERE ParentId = @WideArea OR AreaId = @WideArea) 
-                               OR B.AreaId IN (SELECT AreaId 
+                               OR B.AreaId IN (SELECT D.AreaId 
                                                FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
                                                            INNER JOIN Area F ON E.ParentId = F.AreaId AND F.AreaId = @WideArea)
-                               OR B.AreaId IN (SELECT AreaId 
+                               OR B.AreaId IN (SELECT D.AreaId 
                                                FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
                                                            INNER JOIN Area F ON E.ParentId = F.AreaId 
                                                            INNER JOIN Area G ON F.ParentId = G.AreaId AND G.AreaId = @WideArea))";
@@ -556,14 +556,14 @@ namespace com.yrtech.SurveyAPI.Service
             else if (!string.IsNullOrEmpty(bussinessType))
             {
                 sql += @" AND (B.AreaId IN (SELECT AreaId FROM Area WHERE ParentId = @BussinessType OR AreaId = @BussinessType) 
-                               OR B.AreaId IN (SELECT AreaId 
+                               OR B.AreaId IN (SELECT D.AreaId 
                                                FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
                                                            INNER JOIN Area F ON E.ParentId = F.AreaId AND F.AreaId = @BussinessType)
-                               OR B.AreaId IN (SELECT AreaId 
+                               OR B.AreaId IN (SELECT D.AreaId 
                                                FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
                                                            INNER JOIN Area F ON E.ParentId = F.AreaId 
                                                            INNER JOIN Area G ON F.ParentId = G.AreaId AND G.AreaId = @BussinessType)
-                              OR B.AreaId IN (SELECT AreaId 
+                              OR B.AreaId IN (SELECT D.AreaId 
                                               FROM Area D INNER JOIN Area E ON D.ParentId = E.AreaId
                                                           INNER JOIN Area F ON E.ParentId = F.AreaId 
                                                           INNER JOIN Area G ON F.ParentId = G.AreaId 
@@ -1036,6 +1036,28 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCountDto>().ToList();
         }
+        // 各区域类型每个区域Appeal数量
+        public List<ReportShopCompleteCountDto> ReportShopCompleteCountSearch_Appeal(string projectId, string areaId, string shopType)
+        {
+            if (areaId == null) areaId = "";
+            if (shopType == null) shopType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@AreaId", areaId),
+                                                        new SqlParameter("@ShopType", shopType)};
+            Type t = typeof(ReportShopCompleteCountDto);
+            string sql = "";
+            sql = @"SELECT * FROM ReportShopCompleteCount_Appeal
+                   WHERE ProjectId=@ProjectId ";
+            if (!string.IsNullOrEmpty(areaId))
+            {
+                sql += @" AND AreaId=@AreaId";
+            }
+            if (!string.IsNullOrEmpty(shopType))
+            {
+                sql += " AND ShopType = @ShopType";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCountDto>().ToList();
+        }
         // 全国数量
         public List<ReportShopCompleteCountDto> ReportShopCompleteCountCountrySearch(string projectId, string shopType)
         {
@@ -1046,6 +1068,23 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
                     FROM ReportShopCompleteCount A INNER JOIN Area B ON A.AreaId = B.AreaId AND B.AreaType='SmallArea' 
+                   WHERE A.ProjectId=@ProjectId ";
+            if (!string.IsNullOrEmpty(shopType))
+            {
+                sql += " AND ShopType = @ShopType";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportShopCompleteCountDto>().ToList();
+        }
+        // 全国Appeal数量
+        public List<ReportShopCompleteCountDto> ReportShopCompleteCountCountrySearch_Appeal(string projectId, string shopType)
+        {
+            if (shopType == null) shopType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@ShopType", shopType)};
+            Type t = typeof(ReportShopCompleteCountDto);
+            string sql = "";
+            sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
+                    FROM ReportShopCompleteCount_Appeal A INNER JOIN Area B ON A.AreaId = B.AreaId AND B.AreaType='SmallArea' 
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
@@ -1067,9 +1106,10 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ChapterCode,B.ChapterName,C.ShopCode,C.ShopName
                  , (SELECT ISNULL(FullScore,0) FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) FullScore
-                  ,  (SELECT ISNULL(SumScore,0) FROM ReportShopChapterSumScore WHERE ProjectId = @ProjectId AND ShopId = A.ShopId) SumScore
+                  ,  (SELECT ISNULL(SumScore,0) FROM ReportShopChapterSumScore WHERE ProjectId = @ProjectId AND ShopId = A.ShopId AND ShopType = @ShopType) SumScore
                     FROM ReportShopChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
+                                                   INNER JOIN ChapterShopType D ON B.ChapterId = D.ChapterId AND D.ShopType = @ShopType
                                                    INNER JOIN Shop C ON A.ShopId = C.ShopId
         
                    WHERE A.ProjectId=@ProjectId ";
@@ -1095,7 +1135,9 @@ namespace com.yrtech.SurveyAPI.Service
 			            ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
 			            ,(SELECT SumScore FROM ReportProvinceChapterSumScore WHERE ProjectId =@ProjectId AND ShopType=@ShopType AND ProvinceId = A.ProvinceId) AS SumScore
                     FROM ReportProvinceChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
-                                                                            AND A.ChapterId = B.ChapterId    
+                                                                            AND A.ChapterId = B.ChapterId  
+                                                      INNER JOIN ChapterShopType D ON B.ChapterId = D.ChapterId 
+                                                                            AND D.ShopType = @ShopType  
                                                      INNER JOIN Province C ON A.ProvinceId = C.ProvinceId
                     WHERE A.ProjectId=@ProjectId ";
 
@@ -1105,7 +1147,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(shopType))
             {
-                sql += @" AND ShopType=@ShopType";
+                sql += @" AND A.ShopType=@ShopType";
             }
             sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
@@ -1124,8 +1166,10 @@ namespace com.yrtech.SurveyAPI.Service
             ,(SELECT FullScore FROM ChapterShopType WHERE ChapterId = B.ChapterId AND ShopType=@ShopType) AS FullScore
             ,(SELECT SumScore FROM ReportAreaChapterSumScore WHERE ProjectId =@ProjectId AND ShopType=@ShopType AND AreaId = A.AreaId) AS SumScore
                 FROM ReportAreaChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
-                                                                       AND A.ChapterId = B.ChapterId    
-                                                   INNER JOIN Area C ON A.AreaId = C.AreaId
+                                                                       AND A.ChapterId = B.ChapterId 
+                                              INNER JOIN ChapterShopType D ON B.ChapterId = D.ChapterId 
+                                                                        AND D.ShopType = @ShopType   
+                                              INNER JOIN Area C ON A.AreaId = C.AreaId
                 WHERE A.ProjectId=@ProjectId ";
 
             if (!string.IsNullOrEmpty(areaId))
@@ -1134,7 +1178,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(shopType))
             {
-                sql += @" AND ShopType=@ShopType";
+                sql += @" AND A.ShopType=@ShopType";
             }
             sql += " ORDER BY B.ChapterId ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportChapterScoreDto>().ToList();
@@ -1152,6 +1196,8 @@ namespace com.yrtech.SurveyAPI.Service
                 ,(SELECT SumScore FROM ReportCountryChapterSumScore WHERE ProjectId = @ProjectId AND ShopType=@ShopType) AS SumScore
                  FROM ReportCountryChapterScore A INNER JOIN Chapter B ON A.ProjectId = B.ProjectId 
                                                                        AND A.ChapterId = B.ChapterId
+                                                INNER JOIN ChapterShopType D ON B.ChapterId = D.ChapterId 
+                                                                        AND D.ShopType = @ShopType
                                                                        
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
@@ -1577,15 +1623,96 @@ namespace com.yrtech.SurveyAPI.Service
         #region 生成报告数据
         public void ReportDataCreate(string brandId, string projectId)
         {
+
             if (brandId == null) brandId = "";
             if (projectId == null) projectId = "";
+
+            int intBrandId = Convert.ToInt32(brandId);
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
                                         , new SqlParameter("@BrandId", brandId)};
-            string sql = @" EXEC sp_ARCFOX_Report  @BrandId = @BrandId,@ProjectId = @ProjectId
+            string sql = "";
+            if (intBrandId == 32)
+            {
+                sql = @" EXEC sp_Lotus_Report  @BrandId = @BrandId,@ProjectId = @ProjectId";
+            }
+            else if (intBrandId == 18)
+            {
+                sql = @" EXEC sp_ARCFOX_Report  @BrandId = @BrandId,@ProjectId = @ProjectId
                         ";
+            }
             db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
+        #endregion
+        #region 岗位满足率
+        public List<ReportJobRateDto> ReportJobRateSearcht(string projectId, string smallArea)
+        {
+            if (smallArea == null) smallArea = "";
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SmallArea", smallArea)};
+            Type t = typeof(ReportJobRateDto);
+            string sql = "";
+            sql = @"SELECT A.AreaId,B.AreaCode,B.AreaName,A.JobName,A.JobFullCount,A.JobActualCount,
+                    CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
+                         THEN '是'
+                          ELSe '否'
+                    END AS MeetChk
+                    FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
+                    WHERE ProjectId = @ProjectId";
+            if (!string.IsNullOrEmpty(smallArea))
+            {
+                sql += " AND A.AreaId = @SmallArea";
+            }
+
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportJobRateDto>().ToList();
+        }
+        public List<ReportJobRateDto> ReportBaseJobRateSearcht(string projectId, string smallArea)
+        {
+            if (smallArea == null) smallArea = "";
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@SmallArea", smallArea)};
+            Type t = typeof(ReportJobRateDto);
+            string sql = "";
+            sql = @"SELECT X.ProjectId,X.AreaId,X.AreaCode,X.AreaName,X.JobFullCount,X.JobActualCount,
+                        CASE WHEN X.JobFullCount=0 OR X.JobFullCount IS NULL THEN 0
+                            ELSE CAST(X.JobActualCount/X.JobFullCount AS DECIMAL(19,2))
+                        END AS MeetRate
+                    FROM (
+                            SELECT A.ProjectId,A.AreaId,B.AreaCode,B.AreaName,Count(A.JobName) AS JobFullCount,
+                                    SUM(CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
+                                         THEN 1
+                                         ELSE 0
+                                    END) AS JobActualCount
+                             FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
+                             WHERE ProjectId = @ProjectId
+                             GROUP BY A.ProjectId,A.AreaId,B.AreaCode,B.AreaName) X";
+            if (!string.IsNullOrEmpty(smallArea))
+            {
+                sql += " AND X.AreaId = @SmallArea";
+            }
+
+            return db.Database.SqlQuery(t, sql, para).Cast<ReportJobRateDto>().ToList();
+        }
+        public void SaveReportJobRate(ReportJobRate reportJobRate)
+        {
+            reportJobRate.InDateTime = DateTime.Now;
+            db.ReportJobRate.Add(reportJobRate);
+            db.SaveChanges();
+        }
+        public void ReportJobRateDelete(string projectId, string areaId)
+        {
+            if (areaId == null || areaId == "0") areaId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@AreaId", areaId) };
+            string sql = @"DELETE ReportJobRate WHERE ProjectId = @ProjectId   
+                        ";
+            if (!string.IsNullOrEmpty(areaId))
+            {
+                sql += " AND AreaId = @AreaId";
+            }
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
         #endregion
     }
 }

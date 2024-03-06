@@ -317,7 +317,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return list;
         }
-        
         // 导入章节下体系信息
         public List<ChapterSubjectDto> ChapterSubjectImport(string ossPath)
         {
@@ -335,6 +334,27 @@ namespace com.yrtech.SurveyAPI.Service
                 chapterSubject.ChapterCode = chapterCode;
                 chapterSubject.SubjectCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(chapterSubject);
+            }
+            return list;
+
+        }
+        // 导入报告类型下经销商
+        public List<ReportTypeShopDto> ReportTypeShopImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ReportTypeShopDto> list = new List<ReportTypeShopDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string reportTypeCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(reportTypeCode)) break;
+                ReportTypeShopDto reportTypeShop = new ReportTypeShopDto();
+                reportTypeShop.ReportTypeCode = reportTypeCode;
+                reportTypeShop.ShopCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(reportTypeShop);
             }
             return list;
 
@@ -424,6 +444,43 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 appeal.FeedBackReason = sheet.GetCell("D" + (i + 2)).Value == null ? "" : sheet.GetCell("D" + (i + 2)).Value.ToString().Trim();
                 list.Add(appeal);
+            }
+            return list;
+
+        }
+        // 导入区域岗位
+        public List<ReportJobRateDto> ReportJobRateImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ReportJobRateDto> list = new List<ReportJobRateDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string areaCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(areaCode)) break;
+                ReportJobRateDto reportJobRate = new ReportJobRateDto();
+                reportJobRate.AreaCode = areaCode;
+                reportJobRate.JobName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                if (sheet.GetCell("C" + (i + 3)).Value == null)
+                {
+                    reportJobRate.JobFullCount = 0;
+                }
+                else
+                {
+                    reportJobRate.JobFullCount = Convert.ToInt32(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
+                }
+                if (sheet.GetCell("D" + (i + 3)).Value == null)
+                {
+                    reportJobRate.JobActualCount = 0;
+                }
+                else
+                {
+                    reportJobRate.JobActualCount = Convert.ToInt32(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
+                }
+                list.Add(reportJobRate);
             }
             return list;
 

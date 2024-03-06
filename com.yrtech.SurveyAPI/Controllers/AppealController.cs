@@ -199,7 +199,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Appeal/GetShopAppealInfoByPage")]
-        public APIResult GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount, string roleType = "")
+        public APIResult GetShopAppealInfoByPage(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword, int pageNum, int pageCount, string roleType = "",string shopType="")
         {
             try
             {
@@ -235,6 +235,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         appeal.AppealDateCheck = false;
                     }
+                }
+                if (!string.IsNullOrEmpty(shopType))
+                {
+                    list = list.Where(x => x.ShopType == shopType).ToList().OrderBy(x => x.ShopType).ThenBy(x=>x.SubjectCode).ToList();
+                }
+                else {
+                    list = list.OrderBy(x => x.SubjectCode).ToList();
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }

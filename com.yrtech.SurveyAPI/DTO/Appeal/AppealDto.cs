@@ -20,6 +20,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopName { get; set; }
         public int SubjectId { get; set; }
         public string SubjectCode { get; set; }
+        public string ShopType { get; set; }
         public string CheckPoint { get; set; }
         public string Remark { get; set; }
         public decimal? FullScore { get; set; }
