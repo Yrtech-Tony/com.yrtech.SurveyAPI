@@ -1658,6 +1658,7 @@ namespace com.yrtech.SurveyAPI.Service
                          THEN '是'
                           ELSe '否'
                     END AS MeetChk
+                    ,A.InDateTime
                     FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
                     WHERE ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(smallArea))
@@ -1690,7 +1691,7 @@ namespace com.yrtech.SurveyAPI.Service
                              GROUP BY A.ProjectId,A.AreaId,B.AreaCode,B.AreaName) X";
             if (!string.IsNullOrEmpty(smallArea))
             {
-                sql += " AND X.AreaId = @SmallArea";
+                sql += " WHERE X.AreaId = @SmallArea";
             }
 
             return db.Database.SqlQuery(t, sql, para).Cast<ReportJobRateDto>().ToList();

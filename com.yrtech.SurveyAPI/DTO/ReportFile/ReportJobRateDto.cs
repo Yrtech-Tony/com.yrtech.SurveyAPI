@@ -14,10 +14,10 @@ namespace com.yrtech.SurveyAPI.DTO
        
         public string AreaName { get; set; }
         public string JobName { get; set; }
-        public int JobFullCount { get; set; }
-        public int JobActualCount { get; set; }
-        public string MeetChk { get; set; }
-        public decimal MeetRate { get; set; }
+        public int JobFullCount { get; set; }// 标准人数
+        public int JobActualCount { get; set; }//到港人数
+        public string MeetChk { get; set; }// 人数是否达标
+        public decimal MeetRate { get; set; } // 岗位满足率
         public bool? ImportChk { get; set; }
         public string ImportRemark { get; set; }
         public Nullable<int> InUserId { get; set; }
