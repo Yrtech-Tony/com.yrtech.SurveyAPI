@@ -2261,6 +2261,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (ReportTypeShopDto reportTypeShopDto in list)
                 {
                     ReportTypeShop reportTypeShop = new ReportTypeShop();
+                    reportTypeShop.ProjectId = reportTypeShopDto.ProjectId;
                     List<ReportType> reportTypeList = masterService.GetReportType(reportTypeShopDto.ProjectId.ToString(),"",reportTypeShopDto.ReportTypeCode);
                     if (reportTypeList != null && reportTypeList.Count > 0)
                     {

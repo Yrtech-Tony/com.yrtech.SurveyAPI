@@ -1067,7 +1067,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
-                    FROM ReportShopCompleteCount A INNER JOIN Area B ON A.AreaId = B.AreaId AND B.AreaType='SmallArea' 
+                    FROM ReportShopCompleteCount A INNER JOIN Shop B ON A.AreaId = B.ShopId  
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
@@ -1084,7 +1084,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
-                    FROM ReportShopCompleteCount_Appeal A INNER JOIN Area B ON A.AreaId = B.AreaId AND B.AreaType='SmallArea' 
+                    FROM ReportShopCompleteCount_Appeal A INNER JOIN Shop B ON A.AreaId = B.ShopId  
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
@@ -1676,18 +1676,19 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@SmallArea", smallArea)};
             Type t = typeof(ReportJobRateDto);
             string sql = "";
-            sql = @"SELECT X.ProjectId,X.AreaId,X.AreaCode,X.AreaName,X.JobFullCount,X.JobActualCount,
+            sql = @"SELECT X.ProjectId,X.AreaId,X.AreaCode,X.AreaName,CAST(X.JobFullCount AS INT) AS JobFullCount
+                    ,CAST(X.JobActualCount AS INT) AS JobActualCount,
                         CASE WHEN X.JobFullCount=0 OR X.JobFullCount IS NULL THEN 0
-                            ELSE CAST(X.JobActualCount/X.JobFullCount AS DECIMAL(19,2))
+                            ELSE CAST(100*(X.JobActualCount/X.JobFullCount) AS DECIMAL(19,2))
                         END AS MeetRate
                     FROM (
-                            SELECT A.ProjectId,A.AreaId,B.AreaCode,B.AreaName,Count(A.JobName) AS JobFullCount,
-                                    SUM(CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
+                            SELECT A.ProjectId,A.AreaId,B.AreaCode,B.AreaName,CAST(Count(A.JobName) AS DECIMAL(19,2)) AS JobFullCount,
+                                    CAST(SUM(CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
                                          THEN 1
                                          ELSE 0
-                                    END) AS JobActualCount
+                                    END)AS DECIMAL(19,2)) AS JobActualCount
                              FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
-                             WHERE ProjectId = @ProjectId
+                             WHERE ProjectId = 187
                              GROUP BY A.ProjectId,A.AreaId,B.AreaCode,B.AreaName) X";
             if (!string.IsNullOrEmpty(smallArea))
             {
