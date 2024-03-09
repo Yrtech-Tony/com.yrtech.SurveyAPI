@@ -1654,7 +1654,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ReportJobRateDto);
             string sql = "";
             sql = @"SELECT A.AreaId,B.AreaCode,B.AreaName,A.JobName,A.JobFullCount,A.JobActualCount,
-                    CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
+                    CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND (A.JobFullCount=A.JobActualCount OR A.JobFullCount<A.JobActualCount)
                          THEN '是'
                           ELSe '否'
                     END AS MeetChk
@@ -1683,7 +1683,7 @@ namespace com.yrtech.SurveyAPI.Service
                         END AS MeetRate
                     FROM (
                             SELECT A.ProjectId,A.AreaId,B.AreaCode,B.AreaName,CAST(Count(A.JobName) AS DECIMAL(19,2)) AS JobFullCount,
-                                    CAST(SUM(CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND A.JobFullCount=A.JobActualCount
+                                    CAST(SUM(CASE WHEN A.JobFullCount IS NOT NULL AND A.JobActualCount IS NOT NULL AND (A.JobFullCount=A.JobActualCount OR A.JobFullCount<A.JobActualCount)
                                          THEN 1
                                          ELSE 0
                                     END)AS DECIMAL(19,2)) AS JobActualCount

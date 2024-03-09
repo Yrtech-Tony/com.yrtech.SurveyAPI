@@ -29,6 +29,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string LossResult { get; set; }
         public string LossResultImport { get; set; }
         public string FileResult { get; set; }
+        public string LossPhotoCount { get; set; }
         public List<SubjectFile> SubjectFileList { get; set; }
         public string AppealReason { get; set; }
         public string AppealUserName { get; set; }

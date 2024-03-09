@@ -285,6 +285,33 @@ namespace com.yrtech.SurveyAPI.Controllers
                         appeal.AppealDateCheck = false;
                     }
 
+                    // 失分照片信息数量绑定
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(appeal.LossResult);
+
+                    int lossPhotoCount = 0;// 失分照片数量
+                    if (lossResultList == null || lossResultList.Count == 0)
+                    {
+                        appeal.LossPhotoCount = "0";
+                    }
+                    else
+                    {
+                        foreach (LossResultDto lossResult in lossResultList)
+                        {
+                            if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
+                            {
+                                lossPhotoCount += lossResult.LossFileNameUrl.Split(';').Length;
+                            }
+                        }
+                        if (lossPhotoCount == 0)
+                        {
+                            appeal.LossPhotoCount = "0";
+                        }
+                        else
+                        {
+                            appeal.LossPhotoCount = lossPhotoCount.ToString();
+                        }
+                    }
+
                 }
                 if (list != null && list.Count > 0)
                 {
