@@ -18,6 +18,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string LossDesc { get; set; }
         public string LossDesc2 { get; set; }
         public string LossFileNameUrl { get; set; }
+        public string LossPhotoCount { get; set; }
         public DateTime InDateTime { get; set; }
         public int InUserId { get; set; }
         public DateTime ModifyDateTime { get; set; }
