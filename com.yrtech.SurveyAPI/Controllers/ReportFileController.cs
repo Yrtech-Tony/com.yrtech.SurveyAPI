@@ -830,6 +830,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     //失分说明
                     string lossResultStr = "";
+                    string lossResultAddStr = "";
                     string lossResultFileNameUrl = "";
                     if (!string.IsNullOrEmpty(answer.LossResult))
                     {
@@ -842,10 +843,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                             {
                                 lossResultStr += lossResult.LossDesc + ";";
                             }
-                            //if (!string.IsNullOrEmpty(lossResult.LossDesc2))
-                            //{
-                            //    lossResultStr += lossResult.LossDesc2 + ";";
-                            //}
+                            if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                            {
+                                lossResultAddStr += lossResult.LossDesc2 + ";";
+                            }
                             if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))
                             {
                                 lossResultFileNameUrl += lossResult.LossFileNameUrl + ";";
@@ -857,11 +858,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         lossResultStr = lossResultStr.Substring(0, lossResultStr.Length - 1);
                     }
+                    if (!string.IsNullOrEmpty(lossResultAddStr))
+                    {
+                        lossResultAddStr = lossResultAddStr.Substring(0, lossResultAddStr.Length - 1);
+                    }
                     if (!string.IsNullOrEmpty(lossResultFileNameUrl))
                     {
                         lossResultFileNameUrl = lossResultFileNameUrl.Substring(0, lossResultFileNameUrl.Length - 1);
                     }
                     answer.LossResultStr = lossResultStr;
+                    answer.LossResultAdd = lossResultAddStr;
                     answer.LossResultPicStr = lossResultFileNameUrl;
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };

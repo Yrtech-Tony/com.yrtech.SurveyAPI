@@ -731,6 +731,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[ReportDeployDate]
                           ,[RechckShopShow]
                           ,[SelfTestChk]
+                          ,LossCopyToSupplyChk
                           ,[ScoreShowType]
                           ,[PhotoUploadMode]
                           ,[PhotoSize]
@@ -838,6 +839,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.PhotoSize = project.PhotoSize;
                 findOne.ScoreShowType = project.ScoreShowType;
                 findOne.SelfTestChk = project.SelfTestChk;
+                findOne.LossCopyToSupplyChk = project.LossCopyToSupplyChk;
                 //findOne.DataScore = project.DataScore;
                 //findOne.AppealStartDate = project.AppealStartDate;
                 //findOne.AppealEndDate = project.AppealEndDate;

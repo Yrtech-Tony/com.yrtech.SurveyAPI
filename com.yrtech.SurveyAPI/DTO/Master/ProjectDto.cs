@@ -28,6 +28,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ProjectType { get; set; } // 明检、密采
         public string ScoreShowType { get; set; } // 默认显示得分：L：最低分；F:最高分；空：默认不显示分数
         public bool? SelfTestChk { get; set; } // true:可以自检 false和null:不能自检
+        public bool? LossCopyToSupplyChk { get; set; } // true 失分说明自动生成补充失分说明，false和null 不生成
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }
