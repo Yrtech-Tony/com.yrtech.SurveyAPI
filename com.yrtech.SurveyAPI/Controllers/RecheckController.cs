@@ -91,7 +91,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     // 验证是否已经复审完毕
                     List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"");
-                    if (recheckStatusList == null || (recheckStatusList != null && recheckStatusList.Count > 0 && recheckStatusList[0].Status_S3 == ""))
+                    if (recheckStatusList == null || recheckStatusList.Count == 0 || (recheckStatusList != null && recheckStatusList.Count > 0 && recheckStatusList[0].Status_S3 == ""))
                     {
                         throw new Exception("该经销商还未复审完毕,不能进行提交");
                     }

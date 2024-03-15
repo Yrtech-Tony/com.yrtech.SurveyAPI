@@ -60,6 +60,7 @@ namespace com.yrtech.SurveyAPI.Service
                 para = para.Concat(new SqlParameter[] { new SqlParameter("@PassRecheck", passRecheck) }).ToArray();
                 sql += " AND A.PassRecheck = @PassRecheck";
             }
+            sql += " ORDER BY C.OrderNO";
 
             return db.Database.SqlQuery(t, sql, para).Cast<RecheckDto>().ToList();
         }
