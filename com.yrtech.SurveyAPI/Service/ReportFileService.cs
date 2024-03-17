@@ -1688,7 +1688,7 @@ namespace com.yrtech.SurveyAPI.Service
                                          ELSE 0
                                     END)AS DECIMAL(19,2)) AS JobActualCount
                              FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
-                             WHERE ProjectId = 187
+                             WHERE ProjectId = @ProjectId
                              GROUP BY A.ProjectId,A.AreaId,B.AreaCode,B.AreaName) X";
             if (!string.IsNullOrEmpty(smallArea))
             {

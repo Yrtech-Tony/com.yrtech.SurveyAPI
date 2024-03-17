@@ -1449,6 +1449,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ReportTypeCode = @ReportTypeCode";
             }
+            sql += " ORDER BY ReportTypeId";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportType>().ToList();
         }
         public void SaveReportType(ReportType reportType)

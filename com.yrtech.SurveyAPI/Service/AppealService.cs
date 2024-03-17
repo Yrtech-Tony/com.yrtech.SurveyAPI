@@ -120,9 +120,14 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveAppealShopSet(AppealShopSet appealSet)
         {
-            if (appealSet.AppealEndDate != null) // 如果未包含时间
+            if (appealSet.AppealEndDate != null) // 判断是否包含时间
             {
-                appealSet.AppealEndDate = Convert.ToDateTime(Convert.ToDateTime(appealSet.AppealEndDate).ToString("yyyy-MM-dd") + " 23:59:59");
+                DateTime dt;
+                dt = Convert.ToDateTime(appealSet.AppealEndDate);
+                if (dt.Hour == 0 && dt.Minute==0&&dt.Second==0)
+                {
+                    appealSet.AppealEndDate = Convert.ToDateTime(Convert.ToDateTime(appealSet.AppealEndDate).ToString("yyyy-MM-dd") + " 23:59:59");
+                }
             }
             AppealShopSet findOne = db.AppealShopSet.Where(x => (x.ProjectId == appealSet.ProjectId&&x.ShopId==appealSet.ShopId)).FirstOrDefault();
             if (findOne == null)
