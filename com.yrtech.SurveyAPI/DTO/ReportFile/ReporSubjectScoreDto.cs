@@ -22,6 +22,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<decimal> SumScore { get; set; } // 总分
         public Nullable<decimal> FullScore { get; set; } // 标准分
         public Nullable<decimal> CountrySumScore { get; set; } // 全国得分
+        public Nullable<decimal> CountryChapterScore { get; set; } // 全国章节得分
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

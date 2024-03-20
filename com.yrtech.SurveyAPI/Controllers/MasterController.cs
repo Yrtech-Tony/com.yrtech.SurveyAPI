@@ -2283,6 +2283,101 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        
+        [HttpGet]
+        [Route("Master/GetChapterReportType")]
+        public APIResult GetChapterReportType(string projectId, string reportTypeId = "", string chapter = "")
+        {
+            try
+            {
+                List<ChapterReportTypeDto> chapterReportType = masterService.GetChapterReportType(projectId, reportTypeId, chapter);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterReportType) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/DeleteChapterReportType")]
+        public APIResult DeleteChapterReportType(ChapterShopType chapterShopType)
+        {
+            try
+            {
+                masterService.DeleteChapterReportType(chapterShopType.ShopType, chapterShopType.ChapterId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/ChapterReportTypeExcelAnalysis")]
+        public APIResult ChapterReportTypeExcelAnalysis(string projectId, string ossPath)
+        {
+            try
+            {
+                List<ChapterReportTypeDto> list = excelDataService.ChapterReportTypeImport(ossPath);
+                foreach (ChapterReportTypeDto chapterReportTypeDto in list)
+                {
+                    chapterReportTypeDto.ImportChk = true;
+                    chapterReportTypeDto.ImportRemark = "";
+                    List<ReportType> reportTypeList = masterService.GetReportType(projectId, "", chapterReportTypeDto.ReportTypeCode);
+                    if (reportTypeList == null || reportTypeList.Count == 0)
+                    {
+                        chapterReportTypeDto.ImportChk = false;
+                        chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
+                    }
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<Chapter> chapterList = masterService.GetChapter(projectId,"", chapterReportTypeDto.ChapterId.ToString(), chapterReportTypeDto.ChapterCode);
+                    if (chapterList == null || chapterList.Count == 0)
+                    {
+                        chapterReportTypeDto.ImportChk = false;
+                        chapterReportTypeDto.ImportRemark += "该章节未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/ChapterReportTypeImport")]
+        public APIResult RChapterReportTypeImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ChapterReportTypeDto> list = CommonHelper.DecodeString<List<ChapterReportTypeDto>>(uploadData.ListJson);
+                foreach (ChapterReportTypeDto chapterReportTypeDto in list)
+                {
+                    ChapterShopType chapterShopType = new ChapterShopType();
+                    List<ReportType> reportTypeList = masterService.GetReportType(chapterReportTypeDto.ProjectId.ToString(), "", chapterReportTypeDto.ReportTypeCode);
+                    if (reportTypeList != null && reportTypeList.Count > 0)
+                    {
+                        chapterShopType.ShopType = reportTypeList[0].ReportTypeId.ToString();
+                    }
+                   // List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
+                    List<Chapter> chapteList = masterService.GetChapter(chapterReportTypeDto.ProjectId.ToString(),"","", chapterReportTypeDto.ChapterCode);
+                    if (chapteList != null && chapteList.Count > 0)
+                    {
+                        chapterShopType.ChapterId = chapteList[0].ChapterId;
+                    }
+                    chapterShopType.InUserId = chapterReportTypeDto.InUserId;
+                    masterService.SaveChapterReportType(chapterShopType);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
         [HttpGet]
         [Route("Master/GetChapter")]
         public APIResult GetChapter(string projectId, string chapterId = "", string chapterCode = "",string reportTypeId="")

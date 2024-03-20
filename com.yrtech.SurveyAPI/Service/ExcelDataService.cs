@@ -201,7 +201,6 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-
         // 导入题目
         public List<SubjectDto> SubjectImport(string ossPath)
         {
@@ -355,6 +354,27 @@ namespace com.yrtech.SurveyAPI.Service
                 reportTypeShop.ReportTypeCode = reportTypeCode;
                 reportTypeShop.ShopCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
                 list.Add(reportTypeShop);
+            }
+            return list;
+
+        }
+        // 导入章节和报告类型关系
+        public List<ChapterReportTypeDto> ChapterReportTypeImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ChapterReportTypeDto> list = new List<ChapterReportTypeDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string reportTypeCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(reportTypeCode)) break;
+                ChapterReportTypeDto chapterReportTypeDto = new ChapterReportTypeDto();
+                chapterReportTypeDto.ReportTypeCode = reportTypeCode;
+                chapterReportTypeDto.ChapterCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                list.Add(chapterReportTypeDto);
             }
             return list;
 
@@ -1246,15 +1266,21 @@ namespace com.yrtech.SurveyAPI.Service
                 //审核修改
                 if (!string.IsNullOrEmpty(item.Status_S4))
                     sheet.GetCell("H" + (rowIndex + 2)).Value = "√";
+                //一审确认
+                if (!string.IsNullOrEmpty(item.Status_S8))
+                    sheet.GetCell("I" + (rowIndex + 2)).Value = "√";
+                //二审完毕
+                if (!string.IsNullOrEmpty(item.Status_S9))
+                    sheet.GetCell("J" + (rowIndex + 2)).Value = "√";
                 // 仲裁
                 if (!string.IsNullOrEmpty(item.Status_S5))
-                    sheet.GetCell("I" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("K" + (rowIndex + 2)).Value = "√";
                 // 督导抽查
                 if (!string.IsNullOrEmpty(item.Status_S6))
-                    sheet.GetCell("J" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("L" + (rowIndex + 2)).Value = "√";
                 //PM 抽查
                 if (!string.IsNullOrEmpty(item.Status_S7))
-                    sheet.GetCell("K" + (rowIndex + 2)).Value = "√";
+                    sheet.GetCell("M" + (rowIndex + 2)).Value = "√";
 
                 rowIndex++;
             }

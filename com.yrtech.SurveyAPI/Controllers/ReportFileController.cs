@@ -793,14 +793,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<ReportChapterScoreDto> list_CountryChapter = reportFileService.ReportCountryChapterScoreSearch(projectId, shopType).Where(x => x.ChapterId == chapterScore.ChapterId).ToList();
                     if (list_CountryChapter != null && list_CountryChapter.Count > 0)
                     {
-                        chapterScore.CountrySumScore = list_CountryChapter[0].Score;
+                        chapterScore.CountryChapterScore = list_CountryChapter[0].Score;
+                        chapterScore.CountrySumScore = list_CountryChapter[0].SumScore;
                     }
                     foreach (ReportSubjectScoreDto subjectScore in chapterScore.ReportSubjectScoreList)
                     {
                         List<ReportSubjectScoreDto> list_CountrySubject = reportFileService.ReportCountrySubjectScoreSearch(projectId, chapterScore.ChapterId.ToString(), shopType).Where(x => x.SubjectId == subjectScore.SubjectId).ToList();
                         if (list_CountrySubject != null && list_CountrySubject.Count > 0)
                         {
-                            subjectScore.CountrySumScore = list_CountrySubject[0].Score;
+                            subjectScore.CountryChapterScore = list_CountrySubject[0].Score;
+                            subjectScore.CountrySumScore = list_CountrySubject[0].SumScore;
                         }
 
                     }
@@ -910,14 +912,22 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         #endregion
-        #region 岗位满足率
+        #region 岗位满足率-lotus项目使用
         [HttpGet]
         [Route("ReportFile/ReportBaseJobRateSearch")]
-        public APIResult ReportBaseJobRateSearch(string projectId, string smallArea)
+        public APIResult ReportBaseJobRateSearch(string projectId, string smallArea,string middleArea="",string shopId="")
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportBaseJobRateSearcht(projectId, smallArea)) };
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    List<AreaDto> list = masterService.GetSaleAreaIdByShopId(shopId);
+                    if (list != null && list.Count > 0)
+                    {
+                        smallArea = list[0].AreaId.ToString();
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportBaseJobRateSearcht(projectId, smallArea, middleArea)) };
             }
             catch (Exception ex)
             {
@@ -926,11 +936,19 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("ReportFile/ReportJobRateSearch")]
-        public APIResult ReportJobRateSearch(string projectId, string smallArea)
+        public APIResult ReportJobRateSearch(string projectId, string smallArea,string middleArea="", string shopId = "")
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportJobRateSearcht(projectId, smallArea)) };
+                if (!string.IsNullOrEmpty(shopId))
+                {
+                    List<AreaDto> list = masterService.GetSaleAreaIdByShopId(shopId);
+                    if (list != null && list.Count > 0)
+                    {
+                        smallArea = list[0].AreaId.ToString();
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(reportFileService.ReportJobRateSearcht(projectId, smallArea, middleArea)) };
             }
             catch (Exception ex)
             {

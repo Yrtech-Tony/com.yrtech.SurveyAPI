@@ -980,6 +980,24 @@ namespace com.yrtech.SurveyAPI.Service
             db.Shop.Remove(findone);
             db.SaveChanges();
         }
+        // 只针对lotus项目使用，其他项目不使用
+        public List<AreaDto> GetSaleAreaIdByShopId(string shopId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(AreaDto);
+            string sql = "";
+            sql = @"SELECT B.AreaId,C.AreaCode,C.AreaName
+                      FROM [Shop] A INNER JOIN AreaShop B ON A.ShopId = B.ShopId
+                                    INNER JOIN Area C ON B.AreaId = C.AreaId
+                                    INNER JOIN Area D ON C.ParentId = D.AreaId
+                                    INNER JOIN Area E ON D.ParentId = E.AreaId
+                                    INNER JOIN Area F ON E.ParentId = F.AreaId
+                                    INNER JOIN Area G ON F.ParentId = G.AreaId AND G.AreaCode = '销售' AND A.BrandId=32 
+                    WHERE  A.ShopId = @ShopId
+                    ";
+            return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList();
+        }
+
         #endregion
         #region 经销商区域设置
         public List<ShopDto> GetAreaShop(string tenantId, string brandId, string shopId, string areaId)
@@ -1506,6 +1524,46 @@ namespace com.yrtech.SurveyAPI.Service
         {
             ReportTypeShop findone = db.ReportTypeShop.Where(x => x.ReportShopId == reportTypeShopId).FirstOrDefault();
             db.ReportTypeShop.Remove(findone);
+            db.SaveChanges();
+        }
+        public List<ChapterReportTypeDto> GetChapterReportType(string projectId, string reportTypeId, string chapterId)
+        {
+            if (reportTypeId == null) reportTypeId = "";
+            if (chapterId == null) chapterId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                        ,new SqlParameter("@ReportTypeId", reportTypeId)
+                                                        ,new SqlParameter("@ChapterId", chapterId)};
+            Type t = typeof(ChapterReportTypeDto);
+            string sql = "";
+            sql = @"SELECT B.ChapterId,CAST(B.ShopType AS INT) AS ReportTypeId,
+                        B.FullScore,A.ReportTypeCode,A.ReportTypeName,C.ChapterCode,C.ChapterName
+                    FROM ReportType A INNER JOIN ChapterShopType B ON A.ReportTypeId = B.ShopType
+                                      INNER JOIN Chapter C ON B.ChapterId = C.ChapterId
+                   WHERE 1=1 AND A.ProjectId = @ProjectId ";
+            if (!string.IsNullOrEmpty(reportTypeId))
+            {
+                sql += " AND A.ReportTypeId = @ReportTypeId";
+            }
+            if (!string.IsNullOrEmpty(chapterId))
+            {
+                sql += " AND B.ChapterId = @ChapterId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ChapterReportTypeDto>().ToList();
+        }
+        public void SaveChapterReportType(ChapterShopType chapterShopType)
+        {
+            ChapterShopType findOne = db.ChapterShopType.Where(x => (x.ShopType == chapterShopType.ShopType && x.ChapterId == chapterShopType.ChapterId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                chapterShopType.InDateTime = DateTime.Now;
+                db.ChapterShopType.Add(chapterShopType);
+            }
+            db.SaveChanges();
+        }
+        public void DeleteChapterReportType(string reportTypeId,int chapterId)
+        {
+            ChapterShopType findone = db.ChapterShopType.Where(x => x.ShopType == reportTypeId&&x.ChapterId== chapterId).FirstOrDefault();
+            db.ChapterShopType.Remove(findone);
             db.SaveChanges();
         }
         public List<Chapter> GetChapter(string projectId, string reportTypeId,string chapterId, string chapterCode)

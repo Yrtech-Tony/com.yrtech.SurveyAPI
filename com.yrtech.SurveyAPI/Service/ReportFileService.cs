@@ -1233,7 +1233,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND B.ChapterId=@ChapterId";
             }
-            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
+            sql += " ORDER BY B.ChapterId,C.SubjectCode ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 区域二级指标得分
@@ -1266,7 +1266,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopType=@ShopType";
             }
-            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
+            sql += " ORDER BY B.ChapterId,C.SubjectCode ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 省份二级指标得分
@@ -1299,7 +1299,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopType=@ShopType";
             }
-            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
+            sql += " ORDER BY B.ChapterId,C.SubjectCode ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         // 全国二级指标得分
@@ -1324,7 +1324,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += @" AND A.ShopType=@ShopType";
             }
-            sql += " ORDER BY B.ChapterId,B.SubjectId ASC";
+            sql += " ORDER BY B.ChapterId,C.SubjectCode ASC";
             return db.Database.SqlQuery(t, sql, para).Cast<ReportSubjectScoreDto>().ToList();
         }
         #endregion
@@ -1424,6 +1424,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += " WHERE 1=2"; // 业务类型也没有选择的情况下什么都不查询，未设置区域信息不能查询数据
                                      // sql += " WHERE A.ProjectId = @ProjectId AND (B.ShopCode LIKE '%'+@KeyWord+'%' OR B.ShopName LIKE '%'+@KeyWord+'%')";
             }
+            sql += " ORDER BY X.ShopCode,Y.SubjectCode";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
         #region 数据分析
@@ -1645,12 +1646,13 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #endregion
         #region 岗位满足率
-        public List<ReportJobRateDto> ReportJobRateSearcht(string projectId, string smallArea)
+        public List<ReportJobRateDto> ReportJobRateSearcht(string projectId, string smallArea,string middleArea)
         {
             if (smallArea == null) smallArea = "";
-
+            if (middleArea == null) middleArea = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@SmallArea", smallArea)};
+                                                        new SqlParameter("@SmallArea", smallArea),
+                                                        new SqlParameter("@MiddleArea", middleArea)};
             Type t = typeof(ReportJobRateDto);
             string sql = "";
             sql = @"SELECT A.AreaId,B.AreaCode,B.AreaName,A.JobName,A.JobFullCount,A.JobActualCount,
@@ -1659,21 +1661,30 @@ namespace com.yrtech.SurveyAPI.Service
                           ELSe '否'
                     END AS MeetChk
                     ,A.InDateTime
-                    FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId
-                    WHERE ProjectId = @ProjectId";
+                    FROM ReportJobRate A INNER JOIN Area B ON A.AreaId = B.AreaId";
             if (!string.IsNullOrEmpty(smallArea))
             {
-                sql += " AND A.AreaId = @SmallArea";
+                sql += " WHERE A.ProjectId = @ProjectId AND A.AreaId = @SmallArea";
+            }
+            else if (!string.IsNullOrEmpty(middleArea))
+            {
+                sql += @" INNER JOIN Area Y ON B.ParentId = Y.AreaId 
+                    WHERE A.ProjectId = @ProjectId AND Y.AreaId = @MiddleArea";
+            }
+            else {
+                sql += " WHERE A.ProjectId = @ProjectId";
             }
 
             return db.Database.SqlQuery(t, sql, para).Cast<ReportJobRateDto>().ToList();
         }
-        public List<ReportJobRateDto> ReportBaseJobRateSearcht(string projectId, string smallArea)
+        public List<ReportJobRateDto> ReportBaseJobRateSearcht(string projectId , string smallArea,string middleArea)
         {
             if (smallArea == null) smallArea = "";
+            if (middleArea == null) middleArea = "";
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@SmallArea", smallArea)};
+                                                        new SqlParameter("@SmallArea", smallArea),
+                                                       new SqlParameter("@MiddleArea", middleArea) };
             Type t = typeof(ReportJobRateDto);
             string sql = "";
             sql = @"SELECT X.ProjectId,X.AreaId,X.AreaCode,X.AreaName,CAST(X.JobFullCount AS INT) AS JobFullCount
@@ -1694,7 +1705,16 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " WHERE X.AreaId = @SmallArea";
             }
+            else if (!string.IsNullOrEmpty(middleArea))
+            {
+                sql += @" INNER JOIN Area Y ON X.AreaId = Y.AreaId
+                          INNER JOIN Area Z ON Y.ParentId = Z.AreaId 
+                    WHERE Z.AreaId = @MiddleArea";
+            }
+            else
+            {
 
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<ReportJobRateDto>().ToList();
         }
         public void SaveReportJobRate(ReportJobRate reportJobRate)
@@ -1707,8 +1727,7 @@ namespace com.yrtech.SurveyAPI.Service
         {
             if (areaId == null || areaId == "0") areaId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId), new SqlParameter("@AreaId", areaId) };
-            string sql = @"DELETE ReportJobRate WHERE ProjectId = @ProjectId   
-                        ";
+            string sql = @"DELETE ReportJobRate WHERE ProjectId = @ProjectId   ";
             if (!string.IsNullOrEmpty(areaId))
             {
                 sql += " AND AreaId = @AreaId";

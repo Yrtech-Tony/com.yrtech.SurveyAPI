@@ -29,6 +29,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<decimal> SumScore { get; set; } // 总得分
         public Nullable<decimal> PreSumScore { get; set; } // 上期得分
         public Nullable<decimal> AreaSumScore { get; set; } // 区域总得分
+        public Nullable<decimal> CountryChapterScore { get; set; } // 全国章节得分
         public Nullable<decimal> CountrySumScore { get; set; } // 全国总得分
         public Nullable<decimal> PreAreaSumScore { get; set; } // 上期区域总得分
         public Nullable<decimal> PreCountrySumScore { get; set; } // 上期全国总得分
