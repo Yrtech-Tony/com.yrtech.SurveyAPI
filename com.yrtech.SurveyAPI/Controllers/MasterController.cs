@@ -2348,7 +2348,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Master/ChapterReportTypeImport")]
-        public APIResult RChapterReportTypeImport(UploadData uploadData)
+        public APIResult ChapterReportTypeImport(UploadData uploadData)
         {
             try
             {

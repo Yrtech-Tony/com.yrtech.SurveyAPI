@@ -919,6 +919,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                //因lotus的特殊处理导入的销售城市数据
                 if (!string.IsNullOrEmpty(shopId))
                 {
                     List<AreaDto> list = masterService.GetSaleAreaIdByShopId(shopId);
@@ -940,6 +941,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                //因lotus的特殊处理导入的销售城市数据
                 if (!string.IsNullOrEmpty(shopId))
                 {
                     List<AreaDto> list = masterService.GetSaleAreaIdByShopId(shopId);

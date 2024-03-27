@@ -1039,6 +1039,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 各区域类型每个区域Appeal数量
         public List<ReportShopCompleteCountDto> ReportShopCompleteCountSearch_Appeal(string projectId, string areaId, string shopType)
         {
+
             if (areaId == null) areaId = "";
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
@@ -1061,13 +1062,24 @@ namespace com.yrtech.SurveyAPI.Service
         // 全国数量
         public List<ReportShopCompleteCountDto> ReportShopCompleteCountCountrySearch(string projectId, string shopType)
         {
+            string brandId = "";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                MasterService masterService = new MasterService();
+                List<ProjectDto> projectList = masterService.GetProject("","", projectId, "", "", "");
+                if (projectList != null && projectList.Count > 0)
+                {
+                    brandId = projectList[0].BrandId.ToString();
+                }
+            }
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@ShopType", shopType)};
+                                                        new SqlParameter("@ShopType", shopType),
+                                                        new SqlParameter("@BrandId", brandId)};
             Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
-                    FROM ReportShopCompleteCount A INNER JOIN Shop B ON A.AreaId = B.ShopId  
+                    FROM ReportShopCompleteCount A INNER JOIN Shop B ON A.AreaId = B.ShopId AND B.BrandId = @BrandId
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
@@ -1078,13 +1090,24 @@ namespace com.yrtech.SurveyAPI.Service
         // 全国Appeal数量
         public List<ReportShopCompleteCountDto> ReportShopCompleteCountCountrySearch_Appeal(string projectId, string shopType)
         {
+            string brandId = "";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                MasterService masterService = new MasterService();
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                if (projectList != null && projectList.Count > 0)
+                {
+                    brandId = projectList[0].BrandId.ToString();
+                }
+            }
             if (shopType == null) shopType = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                        new SqlParameter("@ShopType", shopType)};
+                                                        new SqlParameter("@ShopType", shopType),
+                                                        new SqlParameter("@BrandId", brandId)};
             Type t = typeof(ReportShopCompleteCountDto);
             string sql = "";
             sql = @"SELECT ISNULL(SUM(Count_Complete),0) AS Count_Complete,ISNULL(SUM(Count_UnComplete),0) AS Count_UnComplete
-                    FROM ReportShopCompleteCount_Appeal A INNER JOIN Shop B ON A.AreaId = B.ShopId  
+                    FROM ReportShopCompleteCount_Appeal A INNER JOIN Shop B ON A.AreaId = B.ShopId AND B.BrandId = @BrandId 
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(shopType))
             {
