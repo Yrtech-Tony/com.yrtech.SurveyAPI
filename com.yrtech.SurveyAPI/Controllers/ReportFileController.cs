@@ -817,6 +817,20 @@ namespace com.yrtech.SurveyAPI.Controllers
         #endregion
         #region 扣分细项
         [HttpGet]
+        [Route("ReportFile/ReportShopLossResultExport")]
+        public APIResult ReportShopLossResultExport(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
+        {
+            try
+            {
+                string downloadPath = excelDataService.ReportShopLossResultExport(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopIdStr, keyword);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
         [Route("ReportFile/ReportShopLossResult")]
         public APIResult ReportShopLossResult(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
         {

@@ -1496,6 +1496,67 @@ namespace com.yrtech.SurveyAPI.Service
 
             return filePath.Replace(basePath, ""); ;
         }
+        // 报告平台导出扣分细项
+        public string ReportShopLossResultExport(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopId, string keyword)
+        {
+            List<AnswerDto> list = reportService.ReportShopLossResult(projectId, bussinessType, wideArea, bigArea, middleArea, smallArea, shopId, keyword);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "ReportLossResult.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 1;
+
+            foreach (AnswerDto answer in list)
+            {
+                //失分说明
+                string lossResultAddStr = "";
+                if (!string.IsNullOrEmpty(answer.LossResult))
+                {
+                    List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                    // 去掉重复项，有可能2条失分说明中勾选了重复的失分说明
+                    lossResultList = lossResultList.Where((x, i) => lossResultList.FindIndex(z => z.LossDesc == x.LossDesc && z.LossDesc2 == x.LossDesc2) == i).ToList();
+                    foreach (LossResultDto lossResult in lossResultList)
+                    {
+                        if (!string.IsNullOrEmpty(lossResult.LossDesc2))
+                        {
+                            lossResultAddStr += lossResult.LossDesc2 + ";";
+                        }
+                    }
+                }
+                // 去掉最后一个分号
+                if (!string.IsNullOrEmpty(lossResultAddStr))
+                {
+                    lossResultAddStr = lossResultAddStr.Substring(0, lossResultAddStr.Length - 1);
+                }
+                answer.LossResultAdd = lossResultAddStr;
+            }
+            foreach (AnswerDto item in list)
+            {
+                //经销商代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ShopName;
+                //一级指标
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.ChapterName;
+                // 检查点
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.CheckPoint;
+                //检查点是否达标
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.LossResultAdd;
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "检核细节" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
         #endregion
     }
 }
