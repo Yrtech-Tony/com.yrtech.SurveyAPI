@@ -98,18 +98,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
-                //List<AnswerDto> result = new List<AnswerDto>();
-                //if (!string.IsNullOrEmpty(subjectType))
-                //{
-                //    foreach (AnswerDto answerDto in answerList)
-                //    {
-                //        if (answerDto.HiddenCode_SubjectType == subjectType)
-                //        {
-                //            result.Add(answerDto);
-                //        }
-                //    }
-                //}
-                //else { result = answerList; }
                 if (answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
@@ -145,18 +133,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
 
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopPreAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
-                //List<AnswerDto> result = new List<AnswerDto>();
-                //if (!string.IsNullOrEmpty(subjectType))
-                //{
-                //    foreach (AnswerDto answerDto in answerList)
-                //    {
-                //        if (answerDto.HiddenCode_SubjectType == subjectType)
-                //        {
-                //            result.Add(answerDto);
-                //        }
-                //    }
-                //}
-                //else { result = answerList; }
                 if (answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
@@ -182,18 +158,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
 
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopTransAnswerSubject(projectId, shopId, orderNO, subjectType));
-                //List<AnswerDto> result = new List<AnswerDto>();
-                //if (!string.IsNullOrEmpty(subjectType))
-                //{
-                //    foreach (AnswerDto answerDto in answerList)
-                //    {
-                //        if (answerDto.HiddenCode_SubjectType == subjectType)
-                //        {
-                //            result.Add(answerDto);
-                //        }
-                //    }
-                //}
-                //else { result = answerList; }
                 if (answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
@@ -401,7 +365,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     else
                     {
-                        answer.LossResultStatus = "1"; 
+                        if (!string.IsNullOrEmpty(lossResultList[0].LossDesc) || !string.IsNullOrEmpty(lossResultList[0].LossDesc2))
+                        {
+                            answer.LossResultStatus = "1";
+                        }
+                        else
+                        {
+                            answer.LossResultStatus = "0";
+                        }
                         foreach (LossResultDto lossResult in lossResultList)
                         {
                             if (!string.IsNullOrEmpty(lossResult.LossFileNameUrl))

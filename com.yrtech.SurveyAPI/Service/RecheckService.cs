@@ -98,6 +98,10 @@ namespace com.yrtech.SurveyAPI.Service
 	                                THEN 'S9'
 	                                ELSE ''
                             END AS Status_S9
+                            ,CASE WHEN EXISTS(SELECT 1 FROM ReCheckStatus WHERE ProjectId = A.ProjectId AND ShopId = A.ShopId AND StatusCode = 'S10')
+	                                THEN 'S10'
+	                                ELSE ''
+                            END AS Status_S10
                             FROM ReCheckStatus A INNER JOIN Shop B ON A.ShopId = B.ShopId
                     WHERE A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(shopId))
@@ -203,7 +207,7 @@ namespace com.yrtech.SurveyAPI.Service
                              StatusCode,
                              'D',
                              '',
-                            " + userId + ",GETDATE() WHERE RecheckStatusId=" + recheckStatusId;
+                            " + userId + ",GETDATE() FROM RecheckStatus WHERE RecheckStatusId=" + recheckStatusId;
             sql += " DELETE RecheckStatus WHERE RecheckStatusId = " + recheckStatusId;
             db.Database.ExecuteSqlCommand(sql, para);
         }

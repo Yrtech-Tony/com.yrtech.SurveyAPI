@@ -15,6 +15,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         ReportFileService reportFileService = new ReportFileService();
         MasterService masterService = new MasterService();
         ExcelDataService excelDataService = new ExcelDataService();
+        RecheckService recheckService = new RecheckService();
         #region 报告设置
         [HttpGet]
         [Route("ReportFile/GetReportSet")]
@@ -925,6 +926,47 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #region 经销商报告发布
+        [HttpGet]
+        [Route("ReportFile/ReportFileShopSearch")]
+        public APIResult ReportFileShopSearch(string projectId, string shopId, string shopCode = "")
+        {
+            try
+            {
+                List<RecheckStatusDto> recheckStatusDtoList = recheckService.GetShopRecheckStatus(projectId, shopId, shopCode).Where(x=>!string.IsNullOrEmpty(x.Status_S0)).ToList();
+                foreach (RecheckStatusDto recheckStatus in recheckStatusDtoList)
+                {
+                    if (!string.IsNullOrEmpty(recheckStatus.Status_S10))
+                    { recheckStatus.Status_S10 = "已发布"; }
+                   else {
+                        recheckStatus.Status_S10 = "未发布";
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckStatusDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("ReportFile/ReportFileShopDelete")]
+        public APIResult ReportFileShopDelete(RecheckStatusDto recheckStatus)
+        {
+            try
+            {
+                List<RecheckStatusDto> recheckStatusList_S10 = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "S10");
+                if (recheckStatusList_S10 != null && recheckStatusList_S10.Count > 0)
+                {
+                    recheckService.DeleteRecheckStatus(recheckStatusList_S10[0].RecheckStatusId.ToString(), recheckStatus.RecheckUserId.ToString());
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 岗位满足率-lotus项目使用
         [HttpGet]
@@ -1035,6 +1077,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #endregion
         #endregion
     }
 }

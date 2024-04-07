@@ -27,6 +27,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Status_S5 { get; set; }// 仲裁完毕
         public string Status_S6 { get; set; }// 督导复审抽查
         public string Status_S7 { get; set; }// 项目经理抽查
+        public string Status_S10 { get; set; }// 报告发布
         public string Status_S0_Name{ get; set; }
         public string Status_S1_Name { get; set; }
         public string Status_S2_Name { get; set; }
@@ -37,6 +38,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string Status_S5_Name { get; set; }
         public string Status_S6_Name { get; set; }
         public string Status_S7_Name { get; set; }
+        public string Status_S10_Name { get; set; }
         public int? RecheckUserId { get; set; } // 复审人员Id
         public string RecheckUserName { get; set; } // 复审人员名称
         public DateTime? RecheckDateTime { get; set; }// 复审时间
