@@ -270,6 +270,7 @@ namespace com.yrtech.SurveyAPI.Service
                 FileResultDto file = new FileResultDto();
                 file.SubjectCode = subjectCode;
                 file.FileName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                file.FileDemoDesc = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
                 list.Add(file);
             }
             return list;
@@ -505,12 +506,34 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+        // 申诉改善
+        public List<ImproveDto> ImproveImport(string ossPath)
+        { // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ImproveDto> list = new List<ImproveDto>();
+            for (int i = 0; i < 20000; i++)
+            {
+                string shopCode = sheet.GetCell("A" + (i + 2)).Value == null ? "" : sheet.GetCell("A" + (i + 2)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                ImproveDto improve = new ImproveDto();
+                improve.ShopCode = shopCode;
+                improve.SubjectCode = sheet.GetCell("B" + (i + 2)).Value == null ? "" : sheet.GetCell("B" + (i + 2)).Value.ToString().Trim();
+                improve.ImproveContent = sheet.GetCell("C" + (i + 2)).Value == null ? "" : sheet.GetCell("C" + (i + 2)).Value.ToString().Trim();
+                improve.ImproveCycle = sheet.GetCell("D" + (i + 2)).Value == null ? "" : sheet.GetCell("D" + (i + 2)).Value.ToString().Trim();
+                list.Add(improve);
+            }
+            return list;
+
+        }
         #endregion
         #region 导出
         // 导出账号-厂商
         public string UserInfoExport(string tenantId, string brandId)
         {
-            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "", true);
+            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "", true,"");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "UserInfo.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];

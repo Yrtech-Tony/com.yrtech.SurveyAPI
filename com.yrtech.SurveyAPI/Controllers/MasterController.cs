@@ -189,11 +189,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 账号管理
         [HttpGet]
         [Route("Master/GetUserInfo")]
-        public APIResult GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk = true)
+        public APIResult GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk = true,string openId="")
         {
             try
             {
-                List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, userId, accountId, accountName, roleTypeCode, telNO, email, useChk);
+                List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, userId, accountId, accountName, roleTypeCode, telNO, email, useChk,openId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoList) };
             }
             catch (Exception ex)
@@ -220,7 +220,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "权限不能为空" };
                 }
-                List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "", null);
+                List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "", null,"");
                 if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].Id != userInfo.Id)
                 {
                     return new APIResult() { Status = false, Body = "账号重复" };
@@ -244,10 +244,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     UserInfo userInfo = new UserInfo();
                     userInfo.AccountId = userInfoDto.AccountId;
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoDto.TenantId.ToString(), "", "", userInfoDto.AccountId, "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoDto.TenantId.ToString(), "", "", userInfoDto.AccountId, "", "", "", "", null,"");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
+                        // 已经绑定的OpenId，在导入时不进行更新，只能在小程序进行绑定或者在后台管理系统解绑
                         userInfo.Id = userInfoList[0].Id;
+                        userInfo.OpenId = userInfoList[0].OpenId;
                     }
                     userInfo.AccountName = userInfoDto.AccountName;
                     userInfo.BrandId = userInfoDto.BrandId;
@@ -391,7 +393,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     userInfoObjectDto.ImportChk = true;
                     userInfoObjectDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, "", userInfoObjectDto.AccountId, "", "", "", "", true);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, "", userInfoObjectDto.AccountId, "", "", "", "", true,"");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         userInfoObjectDto.ImportChk = false;
@@ -484,7 +486,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), userInfoObjectDto.brandId, "", userInfoObjectDto.AccountId, "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), userInfoObjectDto.brandId, "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;
@@ -559,7 +561,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     userInfoObjectDto.ImportChk = true;
                     userInfoObjectDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", userInfoObjectDto.AccountId, "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         userInfoObjectDto.ImportChk = false;
@@ -599,7 +601,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), "", "", userInfoObjectDto.AccountId, "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), "", "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;
@@ -2008,7 +2010,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subjectFile.SubjectId = subjectList[0].SubjectId;
                     }
                     subjectFile.FileName = dto.FileName;
+                    subjectFile.FileDemoDesc = dto.FileDemoDesc;
                     subjectFile.InUserId = dto.InUserId;
+                    
                     subjectFile.ModifyUserId = dto.ModifyUserId;
                     masterService.SaveSubjectFile(subjectFile);
                 }
@@ -2331,7 +2335,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
                     List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
-                    List<Chapter> chapterList = masterService.GetChapter(projectId,"", chapterReportTypeDto.ChapterId.ToString(), chapterReportTypeDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(projectId,"","", chapterReportTypeDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
                         chapterReportTypeDto.ImportChk = false;
@@ -2362,7 +2366,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterShopType.ShopType = reportTypeList[0].ReportTypeId.ToString();
                     }
                    // List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
-                    List<Chapter> chapteList = masterService.GetChapter(chapterReportTypeDto.ProjectId.ToString(),"","", chapterReportTypeDto.ChapterCode);
+                    List<ChapterDto> chapteList = masterService.GetChapter(chapterReportTypeDto.ProjectId.ToString(),"","", chapterReportTypeDto.ChapterCode);
                     if (chapteList != null && chapteList.Count > 0)
                     {
                         chapterShopType.ChapterId = chapteList[0].ChapterId;
@@ -2384,7 +2388,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Chapter> chapterList = masterService.GetChapter(projectId, reportTypeId,chapterId, chapterCode);
+                List<ChapterDto> chapterList = masterService.GetChapter(projectId, reportTypeId,chapterId, chapterCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
             }
             catch (Exception ex)
@@ -2399,7 +2403,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Chapter> chapterList_ChapterCode = masterService.GetChapter(chapter.ProjectId.ToString(),"", "", chapter.ChapterCode);
+                List<ChapterDto> chapterList_ChapterCode = masterService.GetChapter(chapter.ProjectId.ToString(),"", "", chapter.ChapterCode);
                 if (chapterList_ChapterCode != null && chapterList_ChapterCode.Count > 0 && chapterList_ChapterCode[0].ChapterId != chapter.ChapterId)
                 {
                     return new APIResult() { Status = false, Body = "章节代码重复" };
@@ -2452,7 +2456,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     chapterSubjectDto.ImportChk = true;
                     chapterSubjectDto.ImportRemark = "";
-                    List<Chapter> chapterList = masterService.GetChapter(projectId,"","", chapterSubjectDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(projectId,"","", chapterSubjectDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
                         chapterSubjectDto.ImportChk = false;
@@ -2483,7 +2487,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (ChapterSubjectDto chapterSubjectDto in list)
                 {
                     ChapterSubject chapterSubject = new ChapterSubject();
-                    List<Chapter> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "","", chapterSubjectDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "","", chapterSubjectDto.ChapterCode);
                     if (chapterList != null && chapterList.Count > 0)
                     {
                         chapterSubject.ChapterId = chapterList[0].ChapterId;

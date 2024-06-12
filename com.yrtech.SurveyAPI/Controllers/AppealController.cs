@@ -16,7 +16,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         ExcelDataService excelDataService = new ExcelDataService();
         MasterService masterService = new MasterService();
         PhotoService photoService = new PhotoService();
-
+        ImproveService improveService = new ImproveService();
+        #region 申诉
         #region 申诉设置
         [HttpGet]
         [Route("Appeal/GetAppealSet")]
@@ -448,7 +449,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         [HttpPost]
         [Route("Appeal/AppealFeedBackDelete")]
         public APIResult AppealFeedBackDelete(string projectId,string shopId,string userId)
@@ -692,5 +692,220 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
 
         }
+        #endregion
+        #region 改善
+        #region 导入改善
+        [HttpGet]
+        [Route("Appeal/ImproveExcelAnalysis")]
+        public APIResult ImproveExcelAnalysis(string brandId, string projectId, string ossPath)
+        {
+            try
+            {
+                List<ImproveDto> list = excelDataService.ImproveImport(ossPath);
+                foreach (ImproveDto improve in list)
+                {
+                    improve.ImportChk = true;
+                    improve.ImportRemark = "";
+                    List<ShopDto> shopList = masterService.GetShop("", brandId, "", improve.ShopCode, "", true);
+                    if (shopList == null || shopList.Count == 0)
+                    {
+                        improve.ImportChk = false;
+                        improve.ImportRemark += "经销商代码不存在" + ";";
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", improve.SubjectCode, "");
+                    if (subjectList == null || subjectList.Count == 0)
+                    {
+                        improve.ImportChk = false;
+                        improve.ImportRemark += "题目代码不存在" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Appeal/ImproveImport")]
+        public APIResult ImproveImport(UploadData uploadData)
+        {
+            try
+            {
+                List<ImproveDto> list = CommonHelper.DecodeString<List<ImproveDto>>(uploadData.ListJson);
+                // 导入之前先删除当前经销商的申诉信息
+                foreach (ImproveDto improveDto in list)
+                {
+                    string shopId = "";
+                    List<ShopDto> shopList = masterService.GetShop("", improveDto.BrandId.ToString(), "", improveDto.ShopCode, "", true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        shopId = shopList[0].ShopId.ToString();
+                    }
+                    if (!string.IsNullOrEmpty(shopId))
+                    {
+                        improveService.DeleteImproveByShopId(improveDto.ProjectId.ToString(), shopId, improveDto.ModifyUserId.ToString());
+                    }
+                }
+                foreach (ImproveDto improveDto in list)
+                {
+                    Improve improve = new Improve();
+                    improve.ProjectId = improveDto.ProjectId;
+                    List<ShopDto> shopList = masterService.GetShop("", improveDto.BrandId.ToString(), "", improveDto.ShopCode, "", true);
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        improve.ShopId = shopList[0].ShopId;
+                    }
+                    List<SubjectDto> subjectList = masterService.GetSubject(improveDto.ProjectId.ToString(), "", improveDto.SubjectCode, "");
+                    if (subjectList != null && subjectList.Count > 0)
+                    {
+                        improve.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
+                    }
+                    improve.ImproveContent = improveDto.ImproveContent;
+                    improve.ImproveCycle = improveDto.ImproveCycle;
+                    improve.ImproveStatus = improveDto.ImproveStatus;
+                    improve.InUserId = improveDto.InUserId;
+                    improve.ModifyUserId = improveDto.ModifyUserId;
+                    improveService.ImproveSave(improve);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
+        #region 改善查询
+        [HttpGet]
+        [Route("Appeal/GetImprove")]
+        public APIResult GetImprove(string projectId, string keyword, string improveStatus,string userId = "")
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(improveService.GetImprove(projectId, keyword, improveStatus, userId)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Appeal/GetShopImprove")]
+        public APIResult GetShopImprove(string projectId, string bussinessType, string wideArea, string bigArea, string middleArea, string smallArea, string shopIdStr, string keyword)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(improveService.GetShopImprove(projectId,bussinessType,wideArea,bigArea,middleArea,smallArea,shopIdStr,"")) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Appeal/GetImproveDetail")]
+        public APIResult GetImproveDetail(string improveId)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(improveService.GetShopImproveDetail(improveId)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Appeal/GetImproveDetailFile")]
+        public APIResult GetImproveDetailFile(string improveId,string seqNO)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(improveService.GetShopImproveDetailFile(improveId,seqNO)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 改善保存
+        [HttpPost]
+        [Route("Appeal/SaveImprove")]
+        public APIResult SaveImprove(Improve improve)
+        {
+            try
+            {
+                improveService.ImproveSave(improve);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        //[HttpPost]
+        //[Route("Appeal/SaveImproveDetail")]
+        //public APIResult SaveImproveDetail(UploadData uploadData)
+        //{
+        //    try
+        //    {
+        //        List<ImproveDetailDto> list = CommonHelper.DecodeString<List<ImproveDetailDto>>(uploadData.ListJson);
+        //        foreach (ImproveDetailDto improveDetailDto in list)
+        //        {
+        //            ImproveDetail improveDetail = new ImproveDetail();
+        //            improveDetail.ImproveId = improveDetailDto.ImproveId;
+        //            improveDetail.SeqNO = improveDetailDto.SeqNO;
+        //            improveDetail.CommitDateTime = improveDetailDto.CommitDateTime;
+        //            improveDetail.CommitUserId = improveDetailDto.CommitUserId;
+        //            improveDetail.EndDate = improveDetailDto.EndDate;
+        //            improveDetail.ImproveDesc = improveDetailDto.ImproveDesc;
+        //            improveDetail.ImproveFeedBackDateTime = improveDetailDto.ImproveFeedBackDateTime;
+        //            improveDetail.ImproveFeedBackDesc = improveDetailDto.ImproveFeedBackDesc;
+        //            improveDetail.ImproveFeedBackStatus = improveDetailDto.ImproveFeedBackStatus;
+        //            improveDetail.ImproveFeedBackUserId = improveDetailDto.ImproveFeedBackUserId;
+        //            improveDetail.InUserId = improveDetailDto.InUserId;
+
+        //            if (improveDetail.SeqNO == 0)
+        //            {
+        //                improveDetail = improveService.ImproveDetailSave(improveDetail);
+        //                foreach (AppealFile appealFile in appealDto.AppealFileList)
+        //                {
+        //                    appealFile.AppealId = appeal.AppealId;
+        //                    appealService.AppealFileSave(appealFile);
+        //                }
+        //            }
+        //            else// 申诉编辑时只保存申诉信息，文件信息在上传时会进行保存
+        //            {
+        //                appeal = appealService.AppealApply(appeal);
+        //            }
+        //            return new APIResult() { Status = true, Body = "" };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
+        //    }
+        //}
+        [HttpPost]
+        [Route("Appeal/SaveImproveDetailFile")]
+        public APIResult SaveImproveDetailFile(ImproveFile improveFile)
+        {
+            try
+            {
+                improveService.ImproveFileSave(improveFile);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #endregion
     }
+
 }

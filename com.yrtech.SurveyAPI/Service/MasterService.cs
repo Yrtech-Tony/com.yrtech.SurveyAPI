@@ -304,7 +304,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk)
+        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk,string openId)
         {
             if (tenantId == null) tenantId = "";
             if (brandId == null) brandId = "";
@@ -314,6 +314,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (roleTypeCode == null) roleTypeCode = "";
             if (telNO == null) telNO = "";
             if (email == null) email = "";
+            if (openId == null) openId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@BrandId", brandId),
                                                         new SqlParameter("@UserId", userId),
@@ -321,7 +322,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@AccountName", accountName),
                                                         new SqlParameter("@RoleType", roleTypeCode),
                                                         new SqlParameter("@TelNO", telNO),
-                                                        new SqlParameter("@Email", email)
+                                                        new SqlParameter("@Email", email),
+                                                        new SqlParameter("@OpenId", openId)
                                                         };
             Type t = typeof(UserInfo);
             string sql = @"SELECT A.*
@@ -364,6 +366,10 @@ namespace com.yrtech.SurveyAPI.Service
                 para = para.Concat(new SqlParameter[] { new SqlParameter("@UseChk", useChk) }).ToArray();
                 sql += " AND UseChk = @UseChk";
             }
+            if (!string.IsNullOrEmpty(openId))
+            {
+                sql += " AND OpenId = @OpenId";
+            }
             return db.Database.SqlQuery(t, sql, para).Cast<UserInfo>().ToList();
         }
         /// <summary>
@@ -391,6 +397,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.BrandId = userinfo.BrandId;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = userinfo.ModifyUserId;
+                findOne.OpenId = userinfo.OpenId;
             }
             db.SaveChanges();
         }
@@ -1117,7 +1124,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@OrderNO", orderNO)};
             Type t = typeof(SubjectDto);
             string sql = "";
-            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName
+            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName,[Desc]
                         ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName,E.HiddenName AS HiddenCode_SubjectTypeName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
                                     LEFT JOIN Label C ON   ISNULL(A.LabelId,0)  =  C.LabelId
@@ -1238,6 +1245,8 @@ namespace com.yrtech.SurveyAPI.Service
                 else
                 {
                     findOne.FileName = subjectFile.FileName;
+                    findOne.FileDemo = subjectFile.FileDemo;
+                    findOne.FileDemoDesc = subjectFile.FileDemoDesc;
                     findOne.ModifyDateTime = DateTime.Now;
                     findOne.ModifyUserId = subjectFile.ModifyUserId;
                 }
@@ -1566,7 +1575,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.ChapterShopType.Remove(findone);
             db.SaveChanges();
         }
-        public List<Chapter> GetChapter(string projectId, string reportTypeId,string chapterId, string chapterCode)
+        public List<ChapterDto> GetChapter(string projectId, string reportTypeId,string chapterId, string chapterCode)
         {
             if (reportTypeId == null) reportTypeId = "";
             if (chapterId == null) chapterId = "";
@@ -1575,10 +1584,10 @@ namespace com.yrtech.SurveyAPI.Service
                                                         ,new SqlParameter("@ReportTypeId", reportTypeId)
                                                         ,new SqlParameter("@ChapterId", chapterId)
                                                         ,new SqlParameter("@ChapterCode", chapterCode)};
-            Type t = typeof(Chapter);
+            Type t = typeof(ChapterDto);
             string sql = "";
-            sql = @"SELECT A.*
-                    FROM Chapter A
+            sql = @"SELECT A.*,B.ProjectCode,B.ProjectName
+                    FROM Chapter A INNER JOIN Project B ON A.ProjectId = B.ProjectId
                    WHERE A.ProjectId=@ProjectId ";
             if (!string.IsNullOrEmpty(reportTypeId))
             {
@@ -1592,7 +1601,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ChapterCode = @ChapterCode";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<Chapter>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<ChapterDto>().ToList();
         }
         public void SaveChapter(Chapter chapter)
         {
@@ -1761,16 +1770,7 @@ namespace com.yrtech.SurveyAPI.Service
         //    }
         //    return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
         //}
-        public void SaveLabelObject(LabelObject labelObject)
-        {
-            LabelObject findOne = db.LabelObject.Where(x => (x.LabelId == labelObject.LabelId && x.ObjectId == labelObject.ObjectId)).FirstOrDefault();
-            if (findOne == null)
-            {
-                labelObject.InDateTime = DateTime.Now;
-                db.LabelObject.Add(labelObject);
-            }
-            db.SaveChanges();
-        }
+        
         #endregion
         #region 照片下载命名
         public List<FileType> GetFileType()

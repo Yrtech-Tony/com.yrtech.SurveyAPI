@@ -14,12 +14,11 @@ namespace com.yrtech.SurveyAPI.Service
     public class AppealService
     {
         Survey db = new Survey();
-
+        #region 申诉
         public void CreateAppeal(string projectId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId) };
             string sql = "";
-            //sql = "DELETE Appeal WHERE ProjectId = @ProjectId ";
             sql += @"
                    INSERT INTO Appeal 
                     SELECT * FROM 
@@ -28,8 +27,7 @@ namespace com.yrtech.SurveyAPI.Service
                     FROM Answer A INNER JOIN Subject B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId
                     WHERE A.ProjectId = @ProjectId AND A.PhotoScore<B.FullScore
                     AND EXISTS(SELECT 1 FROM RecheckStatus WHERE ProjectId = @ProjectId AND StatusCode = 'S9' AND ShopId = A.ShopId)) A
-                    WHERE 1=1 AND NOT EXISTS(SELECT 1 FROM Appeal WHERE Projectid= A.ProjectId AND ShopId=A.ShopId AND
-                    SubjectId = A.SubjectId )";
+                    WHERE 1=1 AND NOT EXISTS(SELECT 1 FROM Appeal WHERE Projectid= A.ProjectId AND ShopId=A.ShopId AND SubjectId = A.SubjectId )";
             sql += @" 
                     UPDATE AppealSet Set AppealCreateDateTime = GETDATE() WHERE ProjectId = @ProjectId";
 
@@ -362,37 +360,41 @@ namespace com.yrtech.SurveyAPI.Service
                 string  areaId = "";
                 string parentAreaId = "";
                 
-                 if (userId == "2990")
+                 if (userId == "4055") // 王志
                 {
-                    areaId = "(476,477)";
+                    areaId = "(478)";// 北京
                 }
-                else if (userId == "2992")
+                else if (userId == "2998") // 胡克娟
                 {
-                    areaId = "(473)";
+                    areaId = "(476)"; // 华北
                 }
-                else if (userId == "4056")
+                else if (userId == "4213") // 刘伟
                 {
-                    areaId = "(474)";
+                    areaId = "(477)"; // 西北
                 }
-                else if (userId == "4057")
+                else if (userId == "2997")// 方颖
                 {
-                    areaId = "(475)";
+                    areaId = "(474)";// 华东
                 }
-                else if (userId == "4058")
+                else if (userId == "3000") // 牛博文
                 {
-                    areaId = "(478)";
+                    areaId = "(473)";//沪浙
+                }
+                else if (userId == "2999") // 林道
+                {
+                    areaId = "(475)";//华南
                 }
                 if (!string.IsNullOrEmpty(areaId))
                 {
                     sql += " INNER JOIN AreaShop Y ON B.ShopId = Y.ShopId AND Y.AreaId IN " + areaId;
                 }
-                if (userId == "3333")
+                if (userId == "2995")
                 {
-                    parentAreaId = "(472)";
+                    parentAreaId = "(398,472)";
                 }
-                else if (userId == "2988")
+                else if (userId == "4215")
                 {
-                    parentAreaId = "(398)";
+                    parentAreaId = "(398,472)";
                 }
                 if (!string.IsNullOrEmpty(parentAreaId))
                 {
@@ -777,5 +779,6 @@ namespace com.yrtech.SurveyAPI.Service
                         WHERE ProjectId = @ProjectId) X GROUP BY ShopId,ShopCode,ShopName ";
             return db.Database.SqlQuery(t, sql, para).Cast<AppealCountDto>().ToList();
         }
+        #endregion
     }
 }

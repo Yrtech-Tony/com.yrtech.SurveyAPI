@@ -19,7 +19,7 @@ namespace com.yrtech.SurveyAPI.DTO
 
         public bool ImportChk { get; set; }
         public string ImportRemark { get; set; }
-        public Nullable<int> InUserId { get; set; }
+        public int InUserId { get; set; }
 
 
     }

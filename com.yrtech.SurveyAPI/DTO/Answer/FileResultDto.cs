@@ -14,7 +14,10 @@ namespace com.yrtech.SurveyAPI.DTO
         public string SubjectCode { get; set; }
         public int SeqNO { get; set; }
         public string FileName { get; set; }
+        public string FileDemo { get; set; }
+        public string FileDemoDesc { get; set; }
         public string Url { get; set; }
+        public string Status { get; set; }
         public DateTime InDateTime { get; set; }
         public int InUserId { get; set; }
         public DateTime ModifyDateTime { get; set; }

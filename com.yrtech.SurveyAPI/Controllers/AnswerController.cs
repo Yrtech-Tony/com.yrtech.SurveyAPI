@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
+using System.IO;
+using System.Threading;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -21,7 +23,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 得分登记
         public List<AnswerDto> AnswerScoreReset(List<AnswerDto> answerList)
         {
-            if (answerList == null||answerList.Count==0) return new List<AnswerDto>();
+            if (answerList == null || answerList.Count == 0) return new List<AnswerDto>();
             string projectId = answerList[0].ProjectId.ToString();
             // 打分默认显示
             string scoreShowType = "";
@@ -186,13 +188,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                #region 获取操作人权限
                 string roleTypeCode = "";
-                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "",null);
-               
+                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", answer.ModifyUserId.ToString(), "", "", "", "", "", null, "");
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     roleTypeCode = userInfoList[0].RoleType;
                 }
+                #endregion
                 if (roleTypeCode == "S_SurperVision" || roleTypeCode == "S_Customer")
                 {
                     throw new Exception("无修改得分权限");
@@ -207,7 +210,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             throw new Exception("已复审修改完毕，不能进行修改");
                         }
-                        else if (!string.IsNullOrEmpty(list[0].Status_S1)&& string.IsNullOrEmpty(list[0].Status_S3))
+                        else if (!string.IsNullOrEmpty(list[0].Status_S1) && string.IsNullOrEmpty(list[0].Status_S3))
                         {
                             throw new Exception("已提交复审，不能进行修改");
                         }
@@ -237,23 +240,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         throw new Exception("该项目不允许经销商自检，请联系管理员");
                     }
                 }
-
-                //List<SubjectDto> subjectList = masterService.GetSubject(answer.ProjectId.ToString(), answer.SubjectId.ToString(), "", "");
-                //if (subjectList != null && subjectList.Count > 0)
-                //{
-                //    decimal fullScore = subjectList[0].FullScore==null?0:Convert.ToDecimal(subjectList[0].FullScore);
-                //    decimal lowScore = subjectList[0].LowScore == null ? 0 : Convert.ToDecimal(subjectList[0].LowScore);
-                //    decimal photoScore = answer.PhotoScore == null ? 0 : Convert.ToDecimal(answer.PhotoScore);
-                //    if (photoScore < lowScore|| photoScore> fullScore) {
-                //        throw new Exception("输入的分数不在分值范围内");
-                //    }
-                //}
                 answerService.SaveAnswerInfo(answer);
-
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -261,7 +253,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
         // 照片上传记录
         [HttpPost]
         [Route("Answer/SaveAnswerPhotoLog")]
@@ -289,7 +280,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     photoList = photoList.Where(x => x.UploadStatus == uploadStatus).ToList();
                 }
-                
+
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(photoList) };
             }
             catch (Exception ex)
@@ -299,14 +290,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Answer/GetFolderName")]
-        public APIResult GetFolderName(string projectId, string shopCode, string shopName, string subectCode, string photoName, string photoOrder,  string photoType, string subjectOrder)
+        public APIResult GetFolderName(string projectId, string shopCode, string shopName, string subectCode, string photoName, string photoOrder, string photoType, string subjectOrder)
         {
             try
             {
                 // photoName:（标准照片：照片名称；失分照片：失分描述）
                 // photoOrder:（标准照片：标准照片SeqNO；失分照片：失分描述Id）
                 // photoType:(标准照片：1; 失分照片：2)
-                string folder4 =photoService.GetFolderName(projectId, "4", shopCode, shopName, subectCode, photoName, photoOrder, "", photoType, subjectOrder,"");
+                string folder4 = photoService.GetFolderName(projectId, "4", shopCode, shopName, subectCode, photoName, photoOrder, "", photoType, subjectOrder, "");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(folder4) };
             }
             catch (Exception ex)
@@ -330,9 +321,31 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key);
+                // 因特殊原因导致失分描述json中，有字段但无对应的数据
+                // 对于无失分说明，无补充失分说明，且无照片的失分描述的数据排除在外，不显示在页面上
                 foreach (AnswerDto answer in answerList)
                 {
-                    // 标准照片信息
+                    List<LossResultDto> lossResultList_Answer = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
+                    if (lossResultList_Answer != null && lossResultList_Answer.Count > 0)
+                    {
+                        List<LossResultDto> lossResultList = new List<LossResultDto>();
+                        foreach (LossResultDto lossResult in lossResultList_Answer)
+                        {
+                            if (!string.IsNullOrEmpty(lossResult.LossDesc)
+                                || !string.IsNullOrEmpty(lossResult.LossDesc2)
+                                || !string.IsNullOrEmpty(lossResult.LossFileNameUrl))
+                            {
+                                lossResultList.Add(lossResult);
+                            }
+                        }
+                        answer.LossResult = CommonHelper.EncodeDto<string>(lossResultList);
+                    }
+                }
+                // 1. 统计标准照片的拍照状态及具体数量
+                // 2. 统计失分描述填写状态，失分照片状态及具体数量
+                foreach (AnswerDto answer in answerList)
+                {
+                    #region 标准照片
                     List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
                     List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
                     if (subjectFileList == null || subjectFileList.Count == 0)
@@ -342,7 +355,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     else
                     {
-                        int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
+                        int fileResutlCount = 0;
+                        if (fileResultList != null)
+                        {
+                            foreach (FileResultDto fileResult in fileResultList)
+                            {
+                                if (!string.IsNullOrEmpty(fileResult.Url))
+                                {
+                                    fileResutlCount = fileResutlCount + 1;
+                                }
+                            }
+                        }
                         answer.PhotoCount = fileResutlCount.ToString() + "/" + subjectFileList.Count.ToString();
                         if (fileResutlCount != 0)
                         {
@@ -353,9 +376,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                             answer.PhotoStatus = "0";
                         }
                     }
-                    // 失分照片信息
+                    #endregion
+                    #region 失分照片信息
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(answer.LossResult);
-                   
+
                     int lossPhotoCount = 0;// 失分照片数量
                     if (lossResultList == null || lossResultList.Count == 0)
                     {
@@ -391,11 +415,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                             answer.LossPhotoStatus = "1";
                         }
                     }
+                    #endregion 
                 }
                 // 在查询特定Subject得分时，返回题目的信息
                 if (!string.IsNullOrEmpty(subjectId) && answerList != null && answerList.Count > 0)
                 {
-                    answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
+                    foreach (SubjectFile subjectFile in subjectFileList)
+                    {
+                        if (string.IsNullOrEmpty(subjectFile.FileDemo))
+                        {
+                            subjectFile.FileDemo = "Survey/ImportTemplate/示例.jpg";
+                        }
+                    }
+                    answerList[0].SubjectFileList = subjectFileList;
                     answerList[0].SubjectInspectionStandardList = masterService.GetSubjectInspectionStandard(projectId, answerList[0].SubjectId.ToString());
                     answerList[0].SubjectLossResultList = masterService.GetSubjectLossResult(projectId, answerList[0].SubjectId.ToString());
                 }
@@ -422,7 +455,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Answer/ShopAnswerScoreInfoExportL")]
-        public APIResult ShopAnswerScoreInfoExportL(string projectId, string shopId,string columnList="")
+        public APIResult ShopAnswerScoreInfoExportL(string projectId, string shopId, string columnList = "")
         {
             try
             {
@@ -472,6 +505,71 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 经销商标准照片上传信息,暂时未用到
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="uploadStatus"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Answer/GetShopAnswerPhotoInfo")]
+        public APIResult GetShopAnswerPhotoInfo(string projectId, string shopId)
+        {
+            try
+            {
+                List<FileResultDto> fileResultList = new List<FileResultDto>();
+                List<SubjectFile> subjectList = masterService.GetSubjectFile(projectId, "");
+                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
+                foreach (SubjectFile subjectFile in subjectList)
+                {
+                    FileResultDto fileResult = new FileResultDto();
+                    fileResult.ProjectId = projectId;
+                    fileResult.ShopId = shopId;
+                    fileResult.SubjectId = subjectFile.SubjectId.ToString();
+                    fileResult.FileName = subjectFile.FileName;
+                    fileResult.SeqNO = subjectFile.SeqNO;
+                    if (answerList == null || answerList.Count == 0)
+                    {
+                        fileResult.Url = "";
+                        fileResult.Status = "未上传";
+                    }
+                    else
+                    {
+                        List<AnswerDto> answerListSubject = answerList.Where(x => x.SubjectId == subjectFile.SubjectId).ToList();
+                        if (answerListSubject == null || answerListSubject.Count == 0 || answerListSubject[0].FileResult == null)
+                        {
+                            fileResult.Url = "";
+                            fileResult.Status = "未上传";
+                        }
+                        else
+                        {
+                            List<FileResultDto> fileResultSubjectList = CommonHelper.DecodeString<List<FileResultDto>>(answerListSubject[0].FileResult);
+
+                            foreach (FileResultDto fileResultSubject in fileResultSubjectList)
+                            {
+                                if (subjectFile.SubjectId.ToString() == fileResultSubject.SubjectId
+                                    && subjectFile.SeqNO == fileResultSubject.SeqNO
+                                    && !string.IsNullOrEmpty(fileResultSubject.Url))
+                                {
+                                    fileResult.Url = fileResultSubject.Url;
+                                    fileResult.Status = "已上传";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    fileResultList.Add(fileResult);
+                }
+
+
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(fileResultList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         #endregion
         #region 进店信息
         /// <summary>
@@ -507,21 +605,22 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <param name="shopId"></param>
         /// <returns></returns>
         [Route("Answer/GetAnswerShopInfo")]
-        public APIResult GetAnswerShopInfo(string projectId, string shopId,string shopkey="",string userId="")
+        public APIResult GetAnswerShopInfo(string projectId, string shopId, string shopkey = "", string userId = "")
         {
             try
             {
                 List<AnswerShopInfoDto> result = new List<AnswerShopInfoDto>();
 
-                List<AnswerShopInfoDto>  answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId, shopkey);
-               
+                List<AnswerShopInfoDto> answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId, shopkey);
 
-                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null);
+
+                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null, "");
                 if (string.IsNullOrEmpty(userId) || (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType != "S_Execute"))
-                    {
+                {
                     result = answershopInfoList;
                 }
-                else {
+                else
+                {
                     List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", "S_Execute");
                     if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
                     {
@@ -682,14 +781,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 运营中心
         [HttpPost]
         [Route("Answer/DeleteAnswer")]
-        public APIResult DeleteAnswer(string answerId,string projectId,string shopId,string userId)
+        public APIResult DeleteAnswer(string answerId, string projectId, string shopId, string userId)
         {
             try
             {
                 // 删除前判断是否已经提交复审，如果已经提交复审需要手动回滚状态
                 // 只有未提交复审的打分数据才能删除
                 // 复审状态回滚后，如存在复审信息，则复审信息同时删除 ,在Service层执行
-                
+
                 List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(projectId, shopId, "");
                 if (list != null && list.Count > 0)
                 {
@@ -700,6 +799,170 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 answerService.DeleteAnswer(answerId, userId);
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 自检
+        [HttpGet]
+        [Route("Answer/GetShopChapterStatus")]
+        public APIResult GetShopChapterStatus(string shopId)
+        {
+            try
+            {
+                List<ChapterDto> chapterList = answerService.GetShopChapter(shopId);
+                if (chapterList != null && chapterList.Count > 0)
+                {
+                    foreach (ChapterDto chapter in chapterList)
+                    {
+                        int answerCount = 0;
+                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(chapter.ProjectId.ToString(), shopId, chapter.ChapterId.ToString());
+                        //answerList = answerList.Where(x => x.ChapterId == chapter.ChapterId).ToList();
+                        foreach (AnswerDto answer in answerList)
+                        {
+                            List<FileResultDto> fileResult = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                            if (fileResult != null && fileResult.Count > 0)
+                            {
+                                if (!string.IsNullOrEmpty(fileResult[0].Url))
+                                {
+                                    answerCount = answerCount + 1;
+                                }
+                            }
+                        }
+                        chapter.SubjectAnswerCount = answerCount;
+                        if (chapter.SubjectAnswerCount == chapter.SubjectCount)
+                        {
+                            chapter.Status = "已完成";
+                        }
+                        else
+                        {
+                            chapter.Status = "未完成";
+                        }
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Answer/GetShopAnswerInfoByChapter")]
+        public APIResult GetShopAnswerInfoByChapter(string projectId, string shopId, string chapterId)
+        {
+            try
+            {
+                List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(projectId, shopId, chapterId);
+                foreach (AnswerDto answer in answerList)
+                {
+                    // 标准照片信息
+                    List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
+                    List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                    if (subjectFileList == null || subjectFileList.Count == 0)
+                    {
+                        answer.PhotoCount = "0/0";
+                        answer.PhotoStatus = "已上传";
+                    }
+                    else
+                    {
+                        int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
+                        answer.PhotoCount = fileResutlCount.ToString() + "/" + subjectFileList.Count.ToString();
+                        if (fileResutlCount != 0 && !string.IsNullOrEmpty(fileResultList[0].Url))
+                        {
+                            answer.PhotoStatus = "已上传";
+                        }
+                        else
+                        {
+                            answer.PhotoStatus = "未上传";
+                        }
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(answerList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 特殊案例
+        [HttpGet]
+        [Route("Answer/GetSpecialCase")]
+        public APIResult GetSpecialCase(string projectId, string shopId, string subjectId, string content)
+        {
+            try
+            {
+                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase(projectId, shopId, subjectId, content);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(specialCaseList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Answer/SaveSpecialCase")]
+        public APIResult SaveSpecialCase(SpecialCase specialCase)
+        {
+            try
+            {
+                answerService.SaveSpecialCase(specialCase);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 图片上传
+        public byte[] Base64ToBytes(string base64Img)
+        {
+            if (!string.IsNullOrEmpty(base64Img))
+            {
+                byte[] bytes = Convert.FromBase64String(base64Img);
+                return bytes;
+            }
+            return null;
+        }
+        public Stream BytesToStream(byte[] dataBytes)
+        {
+            if (dataBytes == null)
+            {
+                return null;
+            }
+            MemoryStream ms = new MemoryStream(dataBytes);
+            return ms;
+        }
+        public string UploadBase64Pic(string filePath, string base64Img)
+        {
+            if (!string.IsNullOrEmpty(base64Img) && base64Img.Contains("data:image"))
+            {
+                base64Img = base64Img.Trim().Replace("%", "").Replace(",", "").Replace(" ", "+");
+                base64Img = base64Img.Substring(base64Img.IndexOf("base64") + 6);
+                if (base64Img.Length % 4 > 0)
+                {
+                    base64Img = base64Img.PadRight(base64Img.Length + 4 - base64Img.Length % 4, '=');
+                }
+                Stream stream = BytesToStream(Base64ToBytes(base64Img));
+                OSSClientHelper.UploadOSSFile(filePath, stream, stream.Length);
+                Thread.Sleep(10);
+            }
+            return filePath;
+        }
+        [HttpGet]
+        [Route("Answer/UploadFilePic")]
+        public APIResult UploadFilePic(string projectId, string shopId, string subjectCode, string base64Img)
+        {
+            try
+            {
+                string filePath = @"Survey/" + projectId + @"/" + shopId + @"/" + subjectCode + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                filePath = UploadBase64Pic(filePath, base64Img);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(filePath) };
             }
             catch (Exception ex)
             {

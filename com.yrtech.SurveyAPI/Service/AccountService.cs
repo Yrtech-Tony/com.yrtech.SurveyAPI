@@ -26,13 +26,23 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password),new SqlParameter("@TenantId",tenantId)};
             Type t = typeof(AccountDto);
-            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType
+            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType,A.OpenId
                             FROM UserInfo A
                             WHERE AccountId = @AccountId AND[Password] = @Password AND TenantId = @TenantId
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
         }
-        
+      
+        public List<AccountDto> LoginByOpenId(string openId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@OpenId", openId)};
+            Type t = typeof(AccountDto);
+            string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType,A.Password,A.BrandId
+                            FROM UserInfo A
+                            WHERE OpenId = @OpenId
+                            AND UseChk = 1";
+            return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
+        }
         /// <summary>
         ///更新密码
         /// </summary>
@@ -45,6 +55,22 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@Password", password)};
             Type t = typeof(UserInfo);
             string sql = @"UPDATE [UserInfo] SET Password=@Password Where Id = @UserId";
+            return db.Database.ExecuteSqlCommand(sql, para) > 0;
+        }
+        /// <summary>
+        ///OpenId
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool UpdateOpenId(string userId, string openId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@OpenId", openId)};
+            Type t = typeof(UserInfo);
+            string sql = @"
+UPDATE [UserInfo] SET OpenId = NULL WHERE OpenId = @OpenId   
+UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
             return db.Database.ExecuteSqlCommand(sql, para) > 0;
         }
         #region 根据权限查询基本信息

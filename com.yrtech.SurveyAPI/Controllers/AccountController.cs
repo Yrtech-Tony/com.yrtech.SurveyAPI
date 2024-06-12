@@ -26,7 +26,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Account/Login")]
-        public APIResult Login(string accountId, string password, string tenantCode,string platformType)
+        public APIResult Login(string accountId, string password, string tenantCode, string platformType)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "租户代码不存在" };
                 }
                 tenantId = tenantList[0].TenantId.ToString();
-               
+
                 List<AccountDto> accountlist = accountService.Login(accountId, password, tenantId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
@@ -56,6 +56,59 @@ namespace com.yrtech.SurveyAPI.Controllers
                 else
                 {
                     return new APIResult() { Status = false, Body = "用户不存在或者密码不正确" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="openId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/LoginByOpenId")]
+        public APIResult LoginByOpenId(string openId, string platformType)
+        {
+            try
+            {
+                List<AccountDto> accountlistOpenId = accountService.LoginByOpenId(openId);
+                if (accountlistOpenId == null || accountlistOpenId.Count == 0)
+                {
+                    return new APIResult() { Status = false, Body = "未绑定账号" };
+                }
+                if (accountlistOpenId != null && accountlistOpenId.Count != 0)
+                {
+                    List<AccountDto> accountlist = accountService.Login(accountlistOpenId[0].AccountId, accountlistOpenId[0].Password, accountlistOpenId[0].TenantId.ToString());
+                    if (accountlist != null && accountlist.Count != 0)
+                    {
+                        AccountDto account = accountlist[0];
+                        if (!platformTypeCheck(platformType, account.RoleType))
+                        {
+                            return new APIResult() { Status = false, Body = "该用户无此平台权限" };
+                        }
+                        List<Tenant> tenantList = masterService.GetTenant(accountlistOpenId[0].TenantId.ToString(), "", "");
+                        account.TenantList = tenantList;
+                        account.BrandList = accountService.GetBrandByRole(accountlistOpenId[0].TenantId.ToString(), account.Id.ToString(), account.RoleType.ToString());
+                        account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
+                        account.RoleProgramList = masterService.GetRoleProgram_Tree(accountlistOpenId[0].TenantId.ToString(), account.RoleType);
+                        // 自检时只会有一个品牌
+                        if (account.RoleType == "B_Shop")
+                        {
+                            account.ShopList = accountService.GetShopListByRole(accountlistOpenId[0].BrandId.ToString(), accountlistOpenId[0].Id.ToString(), accountlistOpenId[0].RoleType);
+                        }
+                        return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
+                    }
+                    else
+                    {
+                        return new APIResult() { Status = false, Body = "绑定账号信息有误" };
+                    }
+                }
+                else
+                {
+                    return new APIResult() { Status = false, Body = "绑定账号信息有误" };
                 }
             }
             catch (Exception ex)
@@ -84,7 +137,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 account.BigAreaList = accountService.GetBigAreaByRole(brandId, userId, roleType);
                 account.WideAreaList = accountService.GetWideAreaByRole(brandId, userId, roleType);
                 account.BussinessAreaList = accountService.GetBussinessListByRole(brandId, userId, roleType);
-                if (roleType == "B_Shop" && (account.ShopList == null ||account.ShopList.Count == 0))
+                if (roleType == "B_Shop" && (account.ShopList == null || account.ShopList.Count == 0))
                 {
                     return new APIResult() { Status = false, Body = "此用户无经销商信息" };
                 }
@@ -152,7 +205,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfo> userList = masterService.GetUserInfo("", "", obj.UserId, "", "", "", "", "",null);
+                List<UserInfo> userList = masterService.GetUserInfo("", "", obj.UserId, "", "", "", "", "", null, "");
                 if (userList != null && userList.Count > 0)
                 {
                     if (userList[0].Password != obj.sOldPassword)
@@ -173,6 +226,52 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = "密码修改失败！ " + ex.Message };
             }
         }
+        /// <summary>
+        /// 绑定OpenId
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/BindOpenId")]
+        public APIResult BindOpenId(string tenantCode, string accountId, string password, string platformType, string openId)
+        {
+            try
+            {
+                // 获取租户信息
+                string tenantId = "";
+                List<Tenant> tenantList = masterService.GetTenant("", tenantCode, "");
+                if (tenantList == null || tenantList.Count == 0)
+                {
+                    return new APIResult() { Status = false, Body = "租户代码不存在" };
+                }
+                tenantId = tenantList[0].TenantId.ToString();
+
+                List<AccountDto> accountlist = accountService.Login(accountId, password, tenantId);
+                if (accountlist != null && accountlist.Count != 0)
+                {
+                    AccountDto account = accountlist[0];
+                    if (!platformTypeCheck(platformType, account.RoleType))
+                    {
+                        return new APIResult() { Status = false, Body = "该用户无此平台权限" };
+                    }
+                    accountService.UpdateOpenId(accountlist[0].Id.ToString(), openId);
+                    account.OpenId = openId;
+                    account.TenantList = tenantList;
+                    account.BrandList = accountService.GetBrandByRole(tenantId, account.Id.ToString(), account.RoleType.ToString());
+                    account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
+                    account.RoleProgramList = masterService.GetRoleProgram_Tree(tenantId, account.RoleType);
+                    return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
+                }
+                else
+                {
+                    return new APIResult() { Status = false, Body = "用户不存在或者密码不正确" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = "绑定失败！ " + ex.Message };
+            }
+        }
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
             bool platformCheck = false;
@@ -183,7 +282,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             List<RoleType> roleTypeList = masterService.GetRoleType(platform, "", "");// 通过平台类型获取对应的权限
             foreach (RoleType roleType in roleTypeList)
             {
-                if (roleType.RoleTypeCode == roleTypeCode) {
+                if (roleType.RoleTypeCode == roleTypeCode)
+                {
                     platformCheck = true;
                     break;
                 }
@@ -208,7 +308,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode, "");
-                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "", "", userInfoList[0].TelNO, "", "", "", "",null); // 注册时初始化登陆账号为手机号
+                    List<UserInfo> userInfo_TelNO = masterService.GetUserInfo("", "", "", userInfoList[0].TelNO, "", "", "", "", null, ""); // 注册时初始化登陆账号为手机号
                     if (tenantList_Name != null && tenantList_Name.Count > 0 && tenantList_Name[0].TenantId != userInfoList[0].TenantId)
                     {
                         return new APIResult() { Status = false, Body = "该租户名称已存在,请更换其他租户名称" };

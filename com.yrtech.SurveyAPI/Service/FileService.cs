@@ -20,26 +20,26 @@ namespace com.yrtech.SurveyAPI.Service
             string filePath = @"D:\Survey\DBLog";
             try
             {
-                DateTime now = DateTime.Now;
+                DateTime now = DateTime.Now.AddDays(-4);
                 string file = now.ToString("yyyy-MM-dd");
                 DirectoryInfo dr = new DirectoryInfo(filePath);
                 FileSystemInfo[] fsInfo = dr.GetFileSystemInfos();//返回文件夹所有的文件和子目录
-                // 备份文件到OSS
-                CommonHelper.log("开始上传");
-                foreach (FileSystemInfo fs in fsInfo)
-                {
-                    if (fs is DirectoryInfo)
-                    {
-                    }
-                    else
-                    {
-                        if (fs.LastWriteTime < now)
-                        {
-                            OSSClientHelper.PutObjectMultipart("DBLog" + @"/" +file + @"/" + fs.Name, fs.FullName);
-                        }
-                    }
-                }
-                CommonHelper.log("上传完毕");
+                //// 备份文件到OSS
+                //CommonHelper.log("开始上传");
+                //foreach (FileSystemInfo fs in fsInfo)
+                //{
+                //    if (fs is DirectoryInfo)
+                //    {
+                //    }
+                //    else
+                //    {
+                //        if (fs.LastWriteTime < now)
+                //        {
+                //            OSSClientHelper.PutObjectMultipart("DBLog" + @"/" +file + @"/" + fs.Name, fs.FullName);
+                //        }
+                //    }
+                //}
+                //CommonHelper.log("上传完毕");
                 CommonHelper.log("开始删除");
                 foreach (FileSystemInfo fs in fsInfo)
                 {

@@ -95,7 +95,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 else
                 {
                     // 如果传入了UserId，若是执行人员或者经销商查询对应权限的经销商，如果是其他角色查询全部
-                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null);
+                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null,"");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         if (userInfoList[0].RoleType == "S_Execute")

@@ -170,12 +170,14 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId, string key)
         {
             // 获取打分的信息
+            projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             subjectId = subjectId == null ? "" : subjectId;
             key = key == null ? "" : key;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectId", subjectId)
+                                                       
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -195,10 +197,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
-            sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO,A.SubjectId";
+                sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO,A.SubjectId";
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
+       
         /// <summary>
         /// 获取经销商还未打分的题目
         /// </summary>
@@ -313,6 +316,36 @@ namespace com.yrtech.SurveyAPI.Service
             return photoList;
         }
         /// <summary>
+        /// 更新标准照片结果
+        /// </summary>
+        /// <param name="fileId"></param>
+        public void SaveAnswerInfo_FileResult(string projectId, string shopId, string subjectId, string userId,string fileResult)
+        {
+            int projectId_Int = Convert.ToInt32(projectId);
+            int shopId_Int = Convert.ToInt32(shopId);
+            int subjectId_Int = Convert.ToInt32(subjectId);
+            Answer findOne = db.Answer.Where(x => (x.ProjectId == projectId_Int && x.ShopId == shopId_Int && x.SubjectId == subjectId_Int)).FirstOrDefault();
+            if (findOne == null)
+            {
+                Answer answer = new Answer();
+                answer.InDateTime = DateTime.Now;
+                answer.ModifyDateTime = DateTime.Now;
+                answer.InUserId = Convert.ToInt32(userId);
+                answer.ModifyUserId = Convert.ToInt32(userId);
+                answer.FileResult = fileResult;
+                db.Answer.Add(answer);
+                SaveAnswerLogInfo(answer, "I");
+            }
+            else {
+                findOne.FileResult = fileResult;
+                findOne.ModifyUserId = Convert.ToInt32(userId);
+                findOne.ModifyDateTime = DateTime.Now;
+                db.SaveChanges();
+                SaveAnswerLogInfo(findOne, "U");
+            }
+        }
+        
+        /// <summary>
         /// 保存打分信息
         /// </summary>
         /// <param name="answerDto"></param>
@@ -359,15 +392,6 @@ namespace com.yrtech.SurveyAPI.Service
                 db.SaveChanges();
                 SaveAnswerLogInfo(findOne, "U");
             }
-            
-            //if (answerDto.AnswerId == null || answerDto.AnswerId == 0) // 插入
-            //{
-               
-            //}
-            //else
-            //{
-                
-            //}
         }
         public void SaveAnswerLogInfo(Answer answer, string dataStatus)
         {
@@ -389,7 +413,6 @@ namespace com.yrtech.SurveyAPI.Service
             db.AnswerLog.Add(answerLog);
             db.SaveChanges();
         }
-
         #endregion
         #region 经销商进店信息
         /// <summary>
@@ -706,6 +729,128 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " DELETE AnswerShopInfo WHERE ProjectId = " + projectId;
             sql += " AND ShopId = " + shopId;
             db.Database.ExecuteSqlCommand(sql, para);
+        }
+        #endregion
+        #region 自检任务
+        /// <summary>
+        /// 根据经销商ID获取章节任务
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
+        public List<ChapterDto> GetShopChapter(string shopId)
+        {
+            shopId = shopId == null ? "" : shopId;
+            
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(ChapterDto);
+            string sql = "";
+            sql = @"SELECT DISTINCT A.ProjectId,A.ShopId, B.ProjectCode,B.ProjectName,C.ChapterId,C.ChapterCode,C.ChapterName,
+                    (SELECT COUNT(*) 
+                    FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
+										AND Y.ChapterId = C.ChapterId AND X.ProjectId = C.ProjectId )
+                    AS SubjectCount
+                    FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId                                                     
+                    INNER JOIN Chapter C ON B.ProjectId = C.ProjectId
+                    INNER JOIN ChapterSubject D ON C.ChapterId = D.ChapterId  ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId =@ShopId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ChapterDto>().ToList();
+        }
+       /// <summary>
+       /// 查询环节下题目打分数据
+       /// </summary>
+       /// <param name="shopId"></param>
+       /// <param name="chapterId"></param>
+       /// <returns></returns>
+        public List<AnswerDto> GetShopAnswerByChapterId(string projectId,string shopId,string chapterId)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            chapterId = chapterId == null ? "" : chapterId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)
+                                                    , new SqlParameter("@ChapterId", chapterId)
+                                                    , new SqlParameter("@ProjectId", projectId) };
+           
+            Type t = typeof(AnswerDto);
+            string sql = "";
+            sql = @" SELECT A.SubjectId,A.ProjectId
+                    ,CAST(@ShopId AS INT) AS ShopId
+                    ,(SELECT FileResult FROM Answer WHERE ProjectId = @ProjectId AND SubjectId = A.SubjectId AND ShopId = @ShopId) AS FileResult
+                    ,B.ChapterId,A.[CheckPoint],A.OrderNO,A.HiddenCode_SubjectType,A.LabelId AS ExamTypeId,A.SubjectCode,A.InspectionDesc
+                     FROM  [Subject] A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
+                    WHERE 1=1";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(chapterId))
+            {
+                sql += " AND B.ChapterId = @ChapterId";
+            }
+            sql += " Order By A.OrderNO";
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
+        }
+        #endregion
+        #region 特殊案例
+        public List<SpecialCaseDto> GetSpecialCase(string projectId, string shopId, string subjectId,string content)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            subjectId = subjectId == null ? "" : subjectId;
+            content = content == null ? "" : content;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@SubjectId", subjectId),
+                                                        new SqlParameter("@Content", content)};
+            Type t = typeof(SpecialCaseDto);
+            string sql = "";
+
+            sql = @" SELECT A.ProjectId,A.ShopId,A.SubjectId,A.SpecialCaseId,A.SpecialCaseFile,A.SpecialCaseContent,SpecialCaseCode
+		                    ,C.ShopCode,C.ShopName
+		                    ,D.SubjectCode,D.[CheckPoint],D.InspectionDesc
+                    FROM SpecialCase A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+					                    INNER JOIN Shop C ON A.ShopId = C.ShopId
+					                    INNER JOIN [Subject] D ON A.SubjectId = D.SubjectId 
+											                    AND A.ProjectId = D.ProjectId
+
+                    WHERE A.ProjectId = @ProjectId ";
+
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(subjectId))
+            {
+                sql += " AND A.SubjectId = @SubjectId";
+            }
+            if (!string.IsNullOrEmpty(content))
+            {
+                sql += " AND A.SpecialCaseContent LIKE '%'+@Content+'%'";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<SpecialCaseDto>().ToList();
+
+        }
+        public void SaveSpecialCase(SpecialCase specialCase)
+        {
+            SpecialCase findOne = db.SpecialCase.Where(x => (x.ProjectId == specialCase.ProjectId&&x.ShopId==specialCase.ShopId&&x.SubjectId==specialCase.SubjectId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                specialCase.InDateTime = DateTime.Now;
+                specialCase.ModifyDateTime = DateTime.Now;
+                db.SpecialCase.Add(specialCase);
+            }
+            else
+            {
+                findOne.SpecialCaseCode = specialCase.SpecialCaseCode;
+                findOne.SpecialCaseContent = specialCase.SpecialCaseContent;
+                findOne.SpecialCaseFile = specialCase.SpecialCaseFile;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = specialCase.ModifyUserId;
+            }
+            db.SaveChanges();
         }
         #endregion
     }
