@@ -27,7 +27,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string InShopMode { get; set; } // 进店方式
         public string InShopAddress { get; set; }//进店地址
         public string AddressCheck { get; set; }//实际地址和列表是否一致
-        public string SalesName { get; set; } // 销售顾问姓名
+        public string SalesName { get; set; } // 销售顾问姓名/
         public string SalesNameCheckMode { get; set; }// 销售顾问姓名确认方式
         public string SakesNameCheckReason { get; set; }// 如无法确认，请注明原因
         public string ExecuteName { get; set; }// 评估员姓名

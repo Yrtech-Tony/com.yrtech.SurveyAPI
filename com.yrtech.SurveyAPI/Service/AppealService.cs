@@ -360,27 +360,27 @@ namespace com.yrtech.SurveyAPI.Service
                 string  areaId = "";
                 string parentAreaId = "";
                 
-                 if (userId == "4055") // 王志
+                 if (userId == "4058") // 王志
                 {
                     areaId = "(478)";// 北京
                 }
-                else if (userId == "2998") // 胡克娟
+                else if (userId == "2990") // 胡克娟
                 {
                     areaId = "(476)"; // 华北
                 }
-                else if (userId == "4213") // 刘伟
+                else if (userId == "4214") // 刘伟
                 {
-                    areaId = "(477)"; // 西北
+                    areaId = "(477,473)"; // 西北和沪浙
                 }
-                else if (userId == "2997")// 方颖
+                else if (userId == "4056")// 方颖
                 {
                     areaId = "(474)";// 华东
                 }
-                else if (userId == "3000") // 牛博文
-                {
-                    areaId = "(473)";//沪浙
-                }
-                else if (userId == "2999") // 林道
+                //else if (userId == "2992") // 牛博文
+                //{
+                //    areaId = "(473)";//沪浙
+                //}
+                else if (userId == "4057") // 林道
                 {
                     areaId = "(475)";//华南
                 }
@@ -388,11 +388,11 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     sql += " INNER JOIN AreaShop Y ON B.ShopId = Y.ShopId AND Y.AreaId IN " + areaId;
                 }
-                if (userId == "2995")
+                if (userId == "3333")
                 {
                     parentAreaId = "(398,472)";
                 }
-                else if (userId == "4215")
+                else if (userId == "4216")
                 {
                     parentAreaId = "(398,472)";
                 }

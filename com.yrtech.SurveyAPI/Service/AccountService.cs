@@ -21,7 +21,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="accountId"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public List<AccountDto> Login(string accountId, string password,string tenantId)
+        public List<AccountDto> Login(string accountId, string password, string tenantId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
                                                        new SqlParameter("@Password",password),new SqlParameter("@TenantId",tenantId)};
@@ -32,10 +32,10 @@ namespace com.yrtech.SurveyAPI.Service
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
         }
-      
+        // 暂时不用
         public List<AccountDto> LoginByOpenId(string openId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@OpenId", openId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@OpenId", openId) };
             Type t = typeof(AccountDto);
             string sql = @"SELECT A.Id,A.TenantId,AccountId,AccountName,ISNULL(UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType,A.Password,A.BrandId
                             FROM UserInfo A
@@ -58,20 +58,90 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.ExecuteSqlCommand(sql, para) > 0;
         }
         /// <summary>
-        ///OpenId
+        /// 
+        /// </summary>
+        /// <param name="userInfoOpenId"></param>
+        public void UserIdOpenIdSave(UserInfoOpenId userInfoOpenId)
+        {
+            UserInfoOpenId findOne = db.UserInfoOpenId.Where(x => (x.UserId == userInfoOpenId.UserId && x.OpenId == userInfoOpenId.OpenId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                userInfoOpenId.InDateTime = DateTime.Now;
+                userInfoOpenId.ModifyDateTime = DateTime.Now;
+                db.UserInfoOpenId.Add(userInfoOpenId);
+            }
+            else
+            {
+                findOne.TelNO = userInfoOpenId.TelNO;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = userInfoOpenId.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 
         /// </summary>
         /// <param name="userId"></param>
-        /// <param name="password"></param>
+        /// <param name="openId"></param>
         /// <returns></returns>
-        public bool UpdateOpenId(string userId, string openId)
+        public List<UserInfoOpenId> GetUserIdOpenId(string userId, string openId)
         {
+            userId = userId == null ? "" : userId;
+            openId = openId == null ? "" : openId;
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@UserId", userId),
-                                                        new SqlParameter("@OpenId", openId)};
-            Type t = typeof(UserInfo);
-            string sql = @"
-UPDATE [UserInfo] SET OpenId = NULL WHERE OpenId = @OpenId   
-UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
-            return db.Database.ExecuteSqlCommand(sql, para) > 0;
+                                                        new SqlParameter("@OpenId", openId)
+                                                       };
+            Type t = typeof(UserInfoOpenId);
+            string sql = "";
+            sql = @" SELECT * FROM UserInfoOpenId A
+                    WHERE  1=1";
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND UserId = @UserId";
+            }
+            if (!string.IsNullOrEmpty(openId))
+            {
+                sql += " AND OpenId = @OpenId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<UserInfoOpenId>().ToList();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appInfo"></param>
+        public void AppInfoSave(AppInfo appInfo)
+        {
+            AppInfo findOne = db.AppInfo.Where(x => (x.AppId == appInfo.AppId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                appInfo.InDateTime = DateTime.Now;
+                appInfo.ModifyDateTime = DateTime.Now;
+                db.AppInfo.Add(appInfo);
+            }
+            else
+            {
+                findOne.Token = appInfo.Token;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = appInfo.ModifyUserId;
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        public List<AppInfo> GetAppInfo(string appId)
+        {
+            appId = appId == null ? "" : appId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AppId", appId)                                        };
+            Type t = typeof(AppInfo);
+            string sql = "";
+            sql = @" SELECT * FROM AppInfo A
+                    WHERE  AppId = @AppId
+                    ";
+            return db.Database.SqlQuery(t, sql, para).Cast<AppInfo>().ToList();
         }
         #region 根据权限查询基本信息
         /// <summary>
@@ -418,7 +488,7 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
             if (string.IsNullOrEmpty(sql))
             { return new List<AreaDto>(); }
             else { return db.Database.SqlQuery(t, sql, para).Cast<AreaDto>().ToList(); }
-            
+
         }
         /// <summary>
         /// 根据权限和账号查询对应的中区区域
@@ -435,7 +505,7 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
             string sql = "";
             if (roleType == "B_Brand")
             {
-                 sql = @"SELECT DISTINCT A.* 
+                sql = @"SELECT DISTINCT A.* 
                         FROM Area A 
                                     INNER JOIN Area B ON B.AreaId = A.ParentId 
                                     INNER JOIN Area C ON C.AreaId = B.ParentId 
@@ -598,7 +668,7 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
                 sql = @"SELECT DISTINCT A.* 
                         FROM [Group] A 
                         WHERE A.BrandId = @BrandId AND A.UseChk = 1";
-                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
+                list = db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
             else if (roleType == "B_Group")
             {
@@ -606,7 +676,7 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
                         FROM [Group] A 
 			                        INNER JOIN UserInfoObject H ON A.GroupId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
-                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
+                list = db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
             else if (roleType == "B_Shop")
             {
@@ -615,17 +685,17 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
                                     INNER JOIN Shop B ON A.GroupId = B.GroupId
 			                        INNER JOIN UserInfoObject H ON B.ShopId = H.ObjectId
                         WHERE A.BrandId = @BrandId AND H.UserId = @UserId AND A.UseChk = 1";
-                list= db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
+                list = db.Database.SqlQuery(t, sql, para).Cast<GroupDto>().ToList();
             }
             return list;
-           
+
         }
         public List<Brand> GetBrandByRole(string tenantId, string userId, string roleType)
         {
             tenantId = tenantId == null ? "" : tenantId;
             userId = userId == null ? "" : userId;
             roleType = roleType == null ? "" : roleType;
-           // brandId = brandId == null ? "" : brandId;
+            // brandId = brandId == null ? "" : brandId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                        new SqlParameter("@UserId", userId)};
             Type t = typeof(Brand);
@@ -636,8 +706,8 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
                 sql = @"SELECT DISTINCT A.* FROM Brand A WHERE A.TenantId = @TenantId";
             }
             else if (roleType == "S_BrandSysadmin" ||
-                roleType == "S_Execute" || roleType== "S_SurperVision"|| roleType == "S_Customer"
-                ||roleType == "S_Recheck")
+                roleType == "S_Execute" || roleType == "S_SurperVision" || roleType == "S_Customer"
+                || roleType == "S_Recheck")
             {
                 sql = @"SELECT DISTINCT A.* 
                         FROM Brand A INNER JOIN UserInfoBrand B ON A.BrandId = B.BrandId 
@@ -650,10 +720,12 @@ UPDATE [UserInfo] SET OpenId=@OpenId Where Id = @UserId";
             }
             if (string.IsNullOrEmpty(sql))
             { return new List<Brand>(); }
-            else {
+            else
+            {
                 sql += @" ORDER BY A.BrandId DESC ";
-                return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList(); }
-           
+                return db.Database.SqlQuery(t, sql, para).Cast<Brand>().ToList();
+            }
+
 
         }
         #endregion

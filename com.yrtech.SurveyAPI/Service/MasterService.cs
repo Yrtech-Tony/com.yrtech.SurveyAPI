@@ -743,6 +743,8 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[PhotoUploadMode]
                           ,[PhotoSize]
                           ,[AppealShow]
+                          ,StartDate
+                          ,EndDate
                           ,[InUserId]
                           ,[InDateTime]
                           ,[ModifyUserId]
@@ -858,6 +860,9 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ProjectType = project.ProjectType;
                 findOne.ProjectShortName = project.ProjectShortName;
                 findOne.AppealShow = project.AppealShow;
+                // 经销商自检任务开始和结束时间
+                findOne.StartDate = project.StartDate;
+                findOne.EndDate = project.EndDate;
             }
             db.SaveChanges();
         }
@@ -1884,6 +1889,261 @@ namespace com.yrtech.SurveyAPI.Service
         //    }
         //    db.SaveChanges();
         //}
+        #endregion
+        #region 通知公告
+        // 公告查询
+        public List<NoticeDto> GetNotice(string brandId, string noticeId,string noticeCode, string content, DateTime? startDate, DateTime? endDate,string userId)
+        {
+            brandId = brandId == null ? "" : brandId;
+            noticeId = noticeId == null ? "" : noticeId;
+            content = content == null ? "" : content;
+            noticeCode = noticeCode == null ? "" : noticeCode;
+            userId = userId == null ? "" : userId;
+            startDate = startDate == null ? new DateTime(2024, 1, 1) : startDate;
+            endDate = endDate == null ? new DateTime(9999, 12, 31) : endDate;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@Content", content),
+                                                        new SqlParameter("@NoticeCode", noticeCode),
+                                                        new SqlParameter("@StartDate", startDate),
+                                                        new SqlParameter("@EndDate", endDate),
+                                                        new SqlParameter("@UserId", userId)};
+            Type t = typeof(NoticeDto);
+            string sql = "";
+
+            sql = @"SELECT A.*,B.BrandCode,B.BrandName
+                    FROM [Notice] A INNER JOIN Brand B ON A.BrandId = B.BrandId
+                    WHERE 1=1 AND A.PublishDate BETWEEN @StartDate AND @EndDate ";
+
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND A.BrandId = @BrandId";
+            }
+            if (!string.IsNullOrEmpty(noticeId))
+            {
+                sql += " AND A.NoticeId = @NoticeId";
+            }
+            if (!string.IsNullOrEmpty(content))
+            {
+                sql += " AND A.NoticeContent LIKE '%'+ @Content+'%'";
+            }
+            if (!string.IsNullOrEmpty(noticeCode))
+            {
+                sql += " AND A.NoticeCode LIKE '%'+ @NoticeCode+'%'";
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += @" AND (  EXISTS(SELECT 1 
+                                         FROM NoticeUserId 
+                                         WHERE NoticeId = A.NoticeId 
+                                                AND UserId = @UserId
+                                          )
+                               OR EXISTS(SELECT 1 
+                                         FROM NoticeRoleType X INNER JOIN RoleType Y ON X.RoleTypeId = Y.RoleTypeId
+                                                             INNER JOIN UserInfo Z ON Y.RoleTypeCode = Z.RoleType
+                                         WHERE NoticeId = A.NoticeId  
+                                                AND Z.Id = @UserId
+                                          )
+                                )";
+            }
+
+            sql += " ORDER BY PublishDate DESC";
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeDto>().ToList();
+        }
+        // 公告附件查询
+        public List<NoticeFile> GetNoticeFile(string noticeId)
+        {
+            if (noticeId == null) noticeId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId) };
+            Type t = typeof(NoticeFile);
+            string sql = @"SELECT A.*
+                         FROM NoticeFile A
+	                    WHERE NoticeId = @NoticeId";
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeFile>().ToList();
+        }
+        // 公告有权限查看人员-User
+        public List<NoticeUserDto> GetNoticeUserId(string noticeId)
+        {
+            if (noticeId == null) noticeId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId) };
+            Type t = typeof(NoticeUserDto);
+            string sql = @"SELECT A.*,B.AccountId,B.AccountName
+                         FROM NoticeUserId A INNER JOIN UserInfo B ON A.UserId = B.Id
+	                    WHERE NoticeId = @NoticeId";
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeUserDto>().ToList();
+        }
+        // 公告有权限查看人员-RoleType
+        public List<NoticeRoleTypeDto> GetNoticeRoleType(string noticeId)
+        {
+            if (noticeId == null) noticeId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId) };
+            Type t = typeof(NoticeRoleTypeDto);
+            string sql = @"SELECT A.*,B.RoleTypeCode,B.RoleTypeName
+                         FROM NoticeRoleType A INNER JOIN RoleType B ON A.RoleTypeId = B.RoleTypeId
+	                    WHERE NoticeId = @NoticeId";
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeRoleTypeDto>().ToList();
+        }
+        //公告有权限查看人员-RoleType-userId
+        public List<NoticeUserDto> GetNoticeRoleTypeUser(string noticeId,string tenantId,string brandId)
+        {
+            if (noticeId == null) noticeId = "";
+            if (brandId == null) brandId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@BrandId", brandId),
+                                                        new SqlParameter("@TenantId", tenantId)};
+            Type t = typeof(NoticeUserDto);
+            string sql = @"SELECT A.*,B.RoleTypeCode,B.RoleTypeName,C.AccountId,C.AccountName
+                         FROM NoticeRoleType A INNER JOIN RoleType B ON A.RoleTypeId = B.RoleTypeId
+                                               INNER JOIN UserInfo C ON B.RoleTypeCode = C.RoleType
+	                    WHERE A.NoticeId = @NoticeId AND C.TenantId = @TenantId";
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND C.BrandId = @BrandId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeUserDto>().ToList();
+        }
+        // 公告阅读统计
+        public List<NoticeUserDto> GetNoticeView(string noticeId,string userId)
+        {
+            if (noticeId == null) noticeId = "";
+            if (userId == null) userId = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@UserId", userId) };
+            Type t = typeof(NoticeUserDto);
+            string sql = @"SELECT A.*,B.AccountId,B.AccountName
+                         FROM NoticeView A INNER JOIN UserInfo B ON A.UserId = B.Id
+	                    WHERE NoticeId = @NoticeId";
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND A.UserId = @UserId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<NoticeUserDto>().ToList();
+        }
+        // 公告保存
+        public Notice SaveNotice(Notice notice)
+        {
+            Notice findOne = db.Notice.Where(x => (x.NoticeId== notice.NoticeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                notice.InDateTime = DateTime.Now;
+                notice.ModifyDateTime = DateTime.Now;
+                db.Notice.Add(notice);
+                db.SaveChanges();
+            }
+            else
+            {
+                findOne.BrandId = notice.BrandId;
+                findOne.NoticeCode = notice.NoticeCode;
+                findOne.NoticeContent = notice.NoticeContent;
+                findOne.PublishDate = notice.PublishDate;
+                findOne.ModifyUserId = notice.ModifyUserId;
+                findOne.ModifyDateTime = DateTime.Now;
+                notice = findOne;
+                db.SaveChanges();
+            }
+            return notice;
+        }
+        // 公告附件保存
+        public void SaveNoticeFile(NoticeFile noticeFile)
+        {
+            if (noticeFile.SeqNO == 0)
+            {
+                NoticeFile findOneMax = db.NoticeFile.Where(x => (x.NoticeId == noticeFile.NoticeId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    noticeFile.SeqNO = 1;
+                }
+                else
+                {
+                    noticeFile.SeqNO = findOneMax.SeqNO + 1;
+                }
+                noticeFile.InDateTime = DateTime.Now;
+                db.NoticeFile.Add(noticeFile);
+
+            }
+            else
+            {
+
+            }
+            db.SaveChanges();
+        }
+        // 公告附件删除
+        public void NoticeFileDelete(string noticeId,string seqNO)
+        {
+            seqNO = seqNO == null ? "" : seqNO;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@SeqNO", seqNO)};
+            string sql = @"DELETE NoticeFile WHERE NoticeId = @NoticeId
+                        ";
+            if (!string.IsNullOrEmpty(seqNO))
+            {
+                sql += " AND SeqNO = @SeqNO";
+            }
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        // 公告用户保存
+        public void SaveNoticeUserId(NoticeUserId noticeUserId)
+        {
+            NoticeUserId findOne = db.NoticeUserId.Where(x => (x.NoticeId == noticeUserId.NoticeId&&x.UserId==noticeUserId.UserId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                noticeUserId.InDateTime = DateTime.Now;
+                db.NoticeUserId.Add(noticeUserId);
+            }
+            db.SaveChanges();
+        }
+        // 公告用户删除
+        public void NoticeUserIdDelete(string noticeId, string userId)
+        {
+            userId = userId == null ? "" : userId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@UserId", userId)};
+            string sql = @"DELETE NoticeUserId WHERE NoticeId = @NoticeId
+                        ";
+            if (!string.IsNullOrEmpty(userId))
+            {
+                sql += " AND UserId = @UserId";
+            }
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        // 公告权限保存
+        public void SaveNoticeRoleType(NoticeRoleType noticeRoleType)
+        {
+            NoticeRoleType findOne = db.NoticeRoleType.Where(x => (x.NoticeId == noticeRoleType.NoticeId && x.RoleTypeId == noticeRoleType.RoleTypeId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                noticeRoleType.InDateTime = DateTime.Now;
+                db.NoticeRoleType.Add(noticeRoleType);
+            }
+            db.SaveChanges();
+        }
+        // 公告权限删除
+        public void NoticeRoleTypeDelete(string noticeId, string roleTypeId)
+        {
+            roleTypeId = roleTypeId == null ? "" : roleTypeId;
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
+                                                        new SqlParameter("@RoleTypeId", roleTypeId)};
+            string sql = @"DELETE NoticeRoleType WHERE NoticeId = @NoticeId
+                        ";
+            if (!string.IsNullOrEmpty(roleTypeId))
+            {
+                sql += " AND RoleTypeId = @RoleTypeId";
+            }
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        // 公告查看保存
+        public void SaveNoticeView(NoticeView noticeView)
+        {
+            NoticeView findOne = db.NoticeView.Where(x => (x.NoticeId == noticeView.NoticeId && x.UserId == noticeView.UserId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                noticeView.InDateTime = DateTime.Now;
+                db.NoticeView.Add(noticeView);
+            }
+            db.SaveChanges();
+        }
+
         #endregion
     }
 }

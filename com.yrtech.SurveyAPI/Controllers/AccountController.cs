@@ -6,6 +6,8 @@ using com.yrtech.SurveyAPI.Service;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
 using com.yrtech.SurveyAPI.DTO.Account;
+using System.Net.Http;
+using System.Text;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -226,14 +228,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = "密码修改失败！ " + ex.Message };
             }
         }
+        #region 小程序
         /// <summary>
-        /// 绑定OpenId
+        /// 登陆并绑定OpenId和TelNO
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="tenantCode"></param>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <param name="platformType"></param>
+        /// <param name="openId"></param>
+        /// <param name="telNO"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Account/BindOpenId")]
-        public APIResult BindOpenId(string tenantCode, string accountId, string password, string platformType, string openId)
+        [Route("Account/LoginForWechat")]
+        public APIResult LoginForWechat(string accountId, string password, string tenantCode, string platformType, string openId, string telNO)
         {
             try
             {
@@ -245,7 +253,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "租户代码不存在" };
                 }
                 tenantId = tenantList[0].TenantId.ToString();
-
                 List<AccountDto> accountlist = accountService.Login(accountId, password, tenantId);
                 if (accountlist != null && accountlist.Count != 0)
                 {
@@ -254,7 +261,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         return new APIResult() { Status = false, Body = "该用户无此平台权限" };
                     }
-                    accountService.UpdateOpenId(accountlist[0].Id.ToString(), openId);
+                    // 保存小程序和UserId的关系
+                    UserInfoOpenId userInfoOpenId = new UserInfoOpenId();
+                    userInfoOpenId.UserId = account.Id;
+                    userInfoOpenId.OpenId = openId;
+                    userInfoOpenId.TelNO = telNO;
+                    accountService.UserIdOpenIdSave(userInfoOpenId);
+                    // 返回值信息的赋值
                     account.OpenId = openId;
                     account.TenantList = tenantList;
                     account.BrandList = accountService.GetBrandByRole(tenantId, account.Id.ToString(), account.RoleType.ToString());
@@ -272,6 +285,158 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = "绑定失败！ " + ex.Message };
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jsCode"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/GetWXOpenId")]
+        public APIResult GetWXOpenId(string jsCode)
+        {
+            try
+            {
+                List<UserInfoOpenId> userInfoOpenIdList = new List<UserInfoOpenId>();
+                WxToken wt = new WxToken();
+                wt = GetAppIdAndSecret();
+                HttpClient client = new HttpClient();
+                Uri uri = new Uri("https://api.weixin.qq.com/");
+                client.BaseAddress = uri;
+                //添加请求的头文件
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                string getUserApi = string.Format("sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type={3}", wt.AppId, wt.AppSecret, jsCode, "authorization_code");
+                HttpResponseMessage message = client.GetAsync(getUserApi).Result;
+                string json = message.Content.ReadAsStringAsync().Result;
+                WxToken wxToken = CommonHelper.DecodeString<WxToken>(json);
+                if (wxToken != null)
+                {
+                    // 验证openId在DB是否有保存过，如保存过返回OpenId信息
+                    userInfoOpenIdList = accountService.GetUserIdOpenId("", wxToken.openid);
+                }
+                // 如未保存过，把当前获取的OpenId返回
+                if (userInfoOpenIdList.Count == 0)
+                {
+                    UserInfoOpenId userInfoOpenId = new UserInfoOpenId();
+                    userInfoOpenId.OpenId = wxToken.openid;
+                    userInfoOpenIdList.Add(userInfoOpenId);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoOpenIdList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message };
+            }
+        }
+        [HttpGet]
+        [Route("Account/GetWXTeNO")]
+        public APIResult GetWXTeNO(string code)
+        {
+            try
+            {
+                string token = GetWXToken();
+                HttpClient client = new HttpClient();
+                string url = "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token="+token;
+                //Uri uri = new Uri("https://api.weixin.qq.com/");
+               // client.BaseAddress = uri;
+                //添加请求的头文件
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                //string getUserApi = string.Format("wxa/business/getuserphonenumber", wt.AppId, wt.AppSecret, jsCode, "authorization_code");
+                var par = new {code = code };
+                var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(par), Encoding.UTF8, "application/json");
+                HttpResponseMessage message = client.PostAsync(url, content).Result;
+                string json = message.Content.ReadAsStringAsync().Result;
+                WxToken wxToken = CommonHelper.DecodeString<WxToken>(json);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(wxToken) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message };
+            }
+        }
+        #region 获取小程序的Token
+        public string AppInfoSave()
+        {
+            string token = "";
+            WxToken wt = new WxToken();
+            wt = GetAppIdAndSecret();
+            HttpClient client = new HttpClient();
+            Uri uri = new Uri("https://api.weixin.qq.com/");
+            client.BaseAddress = uri;
+            //添加请求的头文件
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            string getUserApi = string.Format("cgi-bin/token?grant_type={0}&appid={1}&secret={2}", "client_credential", wt.AppId, wt.AppSecret);
+            HttpResponseMessage message = client.GetAsync(getUserApi).Result;
+            string json = message.Content.ReadAsStringAsync().Result;
+            WxToken wxToken = CommonHelper.DecodeString<WxToken>(json);
+            if (wxToken != null)
+            {
+                AppInfo appInfo = new AppInfo();
+                appInfo.AppId = wt.AppId;
+                appInfo.Token = wxToken.access_token;
+                accountService.AppInfoSave(appInfo);
+                token = wxToken.access_token;
+            }
+            return token;
+        }
+        
+        public string GetWXToken()
+        {
+            try
+            {
+                string token = "";
+                WxToken wt = new WxToken();
+                wt = GetAppIdAndSecret();
+                // 从数据库获取Token
+                List<AppInfo> appInfoList = accountService.GetAppInfo(wt.AppId);
+                if (appInfoList == null || appInfoList.Count == 0)
+                {
+                    token = AppInfoSave();
+                }
+                else
+                {
+                    TimeSpan ts = DateTime.Now - Convert.ToDateTime(appInfoList[0].ModifyDateTime);
+                    double second = ts.TotalSeconds;
+                    // 如未超时，直接使用数据库token，已超时重新获取
+                    if (second < 7000)
+                    {
+                        token = appInfoList[0].Token;
+                    }
+                    else
+                    {
+                        token = AppInfoSave();
+                    }
+                }
+                return token;
+                //return new APIResult() { Status = true, Body = CommonHelper.Encode(token) };
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.ToString();
+                //return new APIResult() { Status = false, Body = "绑定失败！ " + ex.Message };
+            }
+        }
+        #endregion
+        /// <summary>
+        /// 获取AppId和secret
+        /// </summary>
+        /// <returns></returns>
+        public WxToken GetAppIdAndSecret()
+        {
+            // 获取wx appId和secret
+            WxToken wt = new WxToken();
+            List<HiddenColumn> appInfoList_Id = masterService.GetHiddenCode("轻智巡", "AppId");
+            if (appInfoList_Id != null && appInfoList_Id.Count > 0)
+            {
+                wt.AppId = appInfoList_Id[0].HiddenName;
+            }
+            List<HiddenColumn> appInfoList_secret = masterService.GetHiddenCode("轻智巡", "AppSecret");
+            if (appInfoList_secret != null && appInfoList_secret.Count > 0)
+            {
+                wt.AppSecret = appInfoList_secret[0].HiddenName;
+            }
+            return wt;
+        }
+        #endregion
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
             bool platformCheck = false;
@@ -344,5 +509,24 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+    }
+    [Serializable]
+    public class WxToken
+    {
+        public string AppId { get; set; }
+        public string AppSecret { get; set; }
+        public string access_token { get; set; }
+        public string expires_in { get; set; }
+        public string openid { get; set; }
+        public string errcode { get; set; }
+        public string errmsg { get; set; }
+        public WxTelNO phone_info { get; set; }
+
+    }
+    public class WxTelNO
+    {
+        public string phoneNumber { get; set; }
+        public string purePhoneNumber { get; set; }
+        public string countryCode { get; set; }
     }
 }

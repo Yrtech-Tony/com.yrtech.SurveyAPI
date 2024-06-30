@@ -39,7 +39,9 @@ namespace com.yrtech.SurveyAPI.Service
                             ,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore
                             ,A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
-                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
+                            ,A.ImproveAdvice,A.PreSubjectId,C.PreProjectId
+                    FROM  [Subject] A INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                                        LEFT JOIN Answer B ON A.ProjectId = B.ProjectId AND A.SubjectId = B.SubjectId AND B.ShopId = @ShopId
                     WHERE A.ProjectId  = @ProjectId AND  A.OrderNO = 
                                                                 (SELECT 
                                                                 CASE WHEN EXISTS(SELECT 1 FROM Answer X INNER JOIN [Subject] Y ON X.SubjectId = Y.SubjectId 
@@ -81,7 +83,9 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
                             A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
-                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
+                            ,A.ImproveAdvice,A.PreSubjectId,C.PreProjectId
+                    FROM  [Subject] A INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                                      LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                             AND A.SubjectId = B.SubjectId 
                                                             AND B.ShopId =  @ShopId
                     WHERE A.ProjectId  = @ProjectId 
@@ -118,7 +122,9 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.LossResultAdd,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
                             A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
-                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
+                            ,A.ImproveAdvice,A.PreSubjectId,C.PreProjectId
+                    FROM  [Subject] A INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                                        LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
                     WHERE A.ProjectId  = @ProjectId 
@@ -151,7 +157,9 @@ namespace com.yrtech.SurveyAPI.Service
             sql = @"SELECT B.AnswerId,A.ProjectId,CAST(@ShopId AS INT) AS ShopId,A.SubjectId,B.PhotoScore,B.InspectionStandardResult,
                             B.FileResult,B.LossResult,B.Remark,B.Indatetime,B.ModifyDateTime,ISNULL(A.MustScore,0) AS MustScore,
                             A.SubjectCode,A.OrderNO,a.Remark AS [Desc],a.FullScore,a.LowScore,a.[CheckPoint],a.Implementation,a.Inspectiondesc,A.HiddenCode_SubjectType
-                    FROM  [Subject] A LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
+                            ,A.ImproveAdvice,A.PreSubjectId,C.PreProjectId
+                    FROM  [Subject] A INNER JOIN Project C ON A.ProjectId = C.ProjectId
+                                        LEFT JOIN Answer B ON A.ProjectId = B.ProjectId 
                                                         AND A.SubjectId = B.SubjectId 
                                                         AND B.ShopId =  @ShopId
                     WHERE A.ProjectId  = @ProjectId 
@@ -183,10 +191,11 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                              ,ISNULL(C.AnswerId,0) AS AnswerId,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
-                             ,a.FullScore,a.LowScore
+                             ,a.FullScore,a.LowScore,a.ImproveAdvice,E.PreProjectId,A.PreSubjectId
                     FROM [Subject] A CROSS JOIN 
                                     (SELECT * FROM Shop WHERE ShopId = @ShopId ) B 
 							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId AND D.ProjectId=@ProjectId
+                            INNER JOIN Project E ON A.ProjectId = E.ProjectId
                            LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
                     WHERE A.ProjectId = @ProjectId AND ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) ";
             if (!string.IsNullOrEmpty(subjectId))
@@ -315,35 +324,36 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return photoList;
         }
+        // 暂时不使用
         /// <summary>
         /// 更新标准照片结果
         /// </summary>
         /// <param name="fileId"></param>
-        public void SaveAnswerInfo_FileResult(string projectId, string shopId, string subjectId, string userId,string fileResult)
-        {
-            int projectId_Int = Convert.ToInt32(projectId);
-            int shopId_Int = Convert.ToInt32(shopId);
-            int subjectId_Int = Convert.ToInt32(subjectId);
-            Answer findOne = db.Answer.Where(x => (x.ProjectId == projectId_Int && x.ShopId == shopId_Int && x.SubjectId == subjectId_Int)).FirstOrDefault();
-            if (findOne == null)
-            {
-                Answer answer = new Answer();
-                answer.InDateTime = DateTime.Now;
-                answer.ModifyDateTime = DateTime.Now;
-                answer.InUserId = Convert.ToInt32(userId);
-                answer.ModifyUserId = Convert.ToInt32(userId);
-                answer.FileResult = fileResult;
-                db.Answer.Add(answer);
-                SaveAnswerLogInfo(answer, "I");
-            }
-            else {
-                findOne.FileResult = fileResult;
-                findOne.ModifyUserId = Convert.ToInt32(userId);
-                findOne.ModifyDateTime = DateTime.Now;
-                db.SaveChanges();
-                SaveAnswerLogInfo(findOne, "U");
-            }
-        }
+        //public void SaveAnswerInfo_FileResult(string projectId, string shopId, string subjectId, string userId,string fileResult)
+        //{
+        //    int projectId_Int = Convert.ToInt32(projectId);
+        //    int shopId_Int = Convert.ToInt32(shopId);
+        //    int subjectId_Int = Convert.ToInt32(subjectId);
+        //    Answer findOne = db.Answer.Where(x => (x.ProjectId == projectId_Int && x.ShopId == shopId_Int && x.SubjectId == subjectId_Int)).FirstOrDefault();
+        //    if (findOne == null)
+        //    {
+        //        Answer answer = new Answer();
+        //        answer.InDateTime = DateTime.Now;
+        //        answer.ModifyDateTime = DateTime.Now;
+        //        answer.InUserId = Convert.ToInt32(userId);
+        //        answer.ModifyUserId = Convert.ToInt32(userId);
+        //        answer.FileResult = fileResult;
+        //        db.Answer.Add(answer);
+        //        SaveAnswerLogInfo(answer, "I");
+        //    }
+        //    else {
+        //        findOne.FileResult = fileResult;
+        //        findOne.ModifyUserId = Convert.ToInt32(userId);
+        //        findOne.ModifyDateTime = DateTime.Now;
+        //        db.SaveChanges();
+        //        SaveAnswerLogInfo(findOne, "U");
+        //    }
+        //}
         
         /// <summary>
         /// 保存打分信息
@@ -375,7 +385,7 @@ namespace com.yrtech.SurveyAPI.Service
                 answer.ModifyDateTime = DateTime.Now;
                 db.Answer.Add(answer);
                 db.SaveChanges();
-                SaveAnswerLogInfo(answer, "I");
+                SaveAnswerLogInfo(answer, "I", answerDto.OpenId);
             }
             else
             {
@@ -390,10 +400,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = answer.ModifyUserId;
                 db.SaveChanges();
-                SaveAnswerLogInfo(findOne, "U");
+                SaveAnswerLogInfo(findOne, "U",answerDto.OpenId);
             }
         }
-        public void SaveAnswerLogInfo(Answer answer, string dataStatus)
+        public void SaveAnswerLogInfo(Answer answer, string dataStatus,string openId)
         {
             AnswerLog answerLog = new AnswerLog();
             answerLog.AnswerId = answer.AnswerId;
@@ -410,6 +420,7 @@ namespace com.yrtech.SurveyAPI.Service
             answerLog.InDateTime = DateTime.Now;
             answerLog.InUserId = Convert.ToInt32(answer.ModifyUserId);
             answerLog.DataStatus = dataStatus;
+            answerLog.OpenId = openId;
             db.AnswerLog.Add(answerLog);
             db.SaveChanges();
         }
@@ -732,29 +743,74 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 自检任务
+        #region 获取任务（期号）
+        public List<ProjectDto> GetTaskProject(string projectId, string shopId,string taskType)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            taskType = taskType == null ? "" : taskType;
+
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId),
+                                                       new SqlParameter("@ProjectId", projectId)};
+            Type t = typeof(ProjectDto);
+            string sql = "";
+            sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
+                    ,(SELECT COUNT(*) 
+                    FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
+                                     INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId)
+                    AS SubjectCount
+                    FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+                    WHERE 1=1 AND B.StartDate<GETDATE()
+                     ";
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId =@ShopId";
+            }
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId =@ProjectId";
+            }
+            if (taskType == "1")// 查询改善措施
+            {
+                sql += " AND (B.PreProjectId IS NOT NULL OR B.PreProjectId<>'')";
+            }
+            else {
+                sql += " AND (B.PreProjectId IS NULL OR B.PreProjectId='')";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
+        }
+        #endregion
         /// <summary>
-        /// 根据经销商ID获取章节任务
+        /// 根据经销商ID获取章节（子任务）
         /// </summary>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<ChapterDto> GetShopChapter(string shopId)
+        public List<ChapterDto> GetSubtaskChapter(string projectId,string shopId)
         {
+            projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
-            
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@ProjectId", projectId)};
             Type t = typeof(ChapterDto);
             string sql = "";
-            sql = @"SELECT DISTINCT A.ProjectId,A.ShopId, B.ProjectCode,B.ProjectName,C.ChapterId,C.ChapterCode,C.ChapterName,
+            sql = @"SELECT DISTINCT A.ProjectId,A.ShopId, B.ProjectCode,B.ProjectName
+                    ,C.ChapterId,C.ChapterCode,C.ChapterName,
+                    C.StartDate,C.EndDate,
                     (SELECT COUNT(*) 
                     FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
 										AND Y.ChapterId = C.ChapterId AND X.ProjectId = C.ProjectId )
                     AS SubjectCount
                     FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId                                                     
-                    INNER JOIN Chapter C ON B.ProjectId = C.ProjectId
-                    INNER JOIN ChapterSubject D ON C.ChapterId = D.ChapterId  ";
+                    INNER JOIN Chapter C ON B.ProjectId = C.ProjectId 
+                    WHERE 1=1 
+                     ";
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId =@ShopId";
+            }
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId =@ProjectId";
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ChapterDto>().ToList();
         }
@@ -775,10 +831,25 @@ namespace com.yrtech.SurveyAPI.Service
            
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @" SELECT A.SubjectId,A.ProjectId
+            sql = @" SELECT A.SubjectId
+                    ,A.ProjectId
                     ,CAST(@ShopId AS INT) AS ShopId
-                    ,(SELECT FileResult FROM Answer WHERE ProjectId = @ProjectId AND SubjectId = A.SubjectId AND ShopId = @ShopId) AS FileResult
-                    ,B.ChapterId,A.[CheckPoint],A.OrderNO,A.HiddenCode_SubjectType,A.LabelId AS ExamTypeId,A.SubjectCode,A.InspectionDesc
+                    ,A.SubjectCode
+                    ,A.[CheckPoint]
+                    ,A.OrderNO
+                    ,A.HiddenCode_SubjectType
+                    ,A.LabelId AS ExamTypeId
+                    ,A.LabelId_RecheckType AS RecheckTypeId
+                    ,(SELECT PhotoScore FROM Answer WHERE ShopId = @ShopId 
+                                                    AND ProjectId = A.ProjectId
+                                                    AND SubjectId = A.SubjectId)
+                    AS PhotoScore
+                    ,(SELECT FileResult FROM Answer WHERE ShopId = @ShopId 
+                                                    AND ProjectId = A.ProjectId
+                                                    AND SubjectId = A.SubjectId)
+                    AS FileResult
+                    ,B.ChapterId
+                    ,A.InspectionDesc
                      FROM  [Subject] A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                     WHERE 1=1";
             if (!string.IsNullOrEmpty(projectId))
@@ -794,30 +865,42 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 特殊案例
-        public List<SpecialCaseDto> GetSpecialCase(string projectId, string shopId, string subjectId,string content)
+        // 特殊案例查询
+        public List<SpecialCaseDto> GetSpecialCase(string projectId, string shopId, string subjectId,string content,string shopKey)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             subjectId = subjectId == null ? "" : subjectId;
             content = content == null ? "" : content;
+            shopKey = shopKey == null ? "" : shopKey;
             SqlParameter[] para = new SqlParameter[] {
                                                         new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@ShopId", shopId),
                                                         new SqlParameter("@SubjectId", subjectId),
-                                                        new SqlParameter("@Content", content)};
+                                                        new SqlParameter("@Content", content),
+                                                        new SqlParameter("@ShopKey", shopKey)};
             Type t = typeof(SpecialCaseDto);
             string sql = "";
 
-            sql = @" SELECT A.ProjectId,A.ShopId,A.SubjectId,A.SpecialCaseId,A.SpecialCaseFile,A.SpecialCaseContent,SpecialCaseCode
+            sql = @" SELECT A.ProjectId,A.ShopId,A.SubjectId
+                            ,B.ProjectCode,B.ProjectName,F.ChapterCode,F.ChapterName
+                            ,A.SpecialCaseId,A.SpecialCaseFile
+                            ,A.SpecialCaseContent,SpecialCaseCode
+                            ,A.SpecialFeedBack,SpecialFeedBackUserId,SpecialFeedBackDateTime
 		                    ,C.ShopCode,C.ShopName
 		                    ,D.SubjectCode,D.[CheckPoint],D.InspectionDesc
                     FROM SpecialCase A INNER JOIN Project B ON A.ProjectId = B.ProjectId
 					                    INNER JOIN Shop C ON A.ShopId = C.ShopId
 					                    INNER JOIN [Subject] D ON A.SubjectId = D.SubjectId 
 											                    AND A.ProjectId = D.ProjectId
+                                        INNER JOIN ChapterSubject E ON D.SubjectId = E.SubjectId
+                                        INNER JOIN Chapter F ON E.ChapterId = F.ChapterId
 
-                    WHERE A.ProjectId = @ProjectId ";
-
+                    WHERE  1=1 ";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId";
+            }
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
@@ -830,9 +913,15 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.SpecialCaseContent LIKE '%'+@Content+'%'";
             }
+            if (!string.IsNullOrEmpty(shopKey))
+            {
+                sql += " AND (C.ShopCode LIKE '%'+@ShopKey+'%' OR C.ShopName LIKE '%'+@ShopKey+'%')";
+            }
+            sql += " ORDER BY A.ProjectId,C.ShopCode,D.SubjectCode,A.InDateTime";
             return db.Database.SqlQuery(t, sql, para).Cast<SpecialCaseDto>().ToList();
 
         }
+        // 特殊保存
         public void SaveSpecialCase(SpecialCase specialCase)
         {
             SpecialCase findOne = db.SpecialCase.Where(x => (x.ProjectId == specialCase.ProjectId&&x.ShopId==specialCase.ShopId&&x.SubjectId==specialCase.SubjectId)).FirstOrDefault();
@@ -847,10 +936,72 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.SpecialCaseCode = specialCase.SpecialCaseCode;
                 findOne.SpecialCaseContent = specialCase.SpecialCaseContent;
                 findOne.SpecialCaseFile = specialCase.SpecialCaseFile;
+                findOne.SpecialFeedBack = specialCase.SpecialFeedBack;
+                findOne.SpecialFeedBackUserId = specialCase.SpecialFeedBackUserId;
+                findOne.SpecialFeedBackDateTime = DateTime.Now;
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = specialCase.ModifyUserId;
             }
             db.SaveChanges();
+        }
+
+        public List<SpecialCaseFileDto> SpecailCaseFileSearch(string specialCaseId, string fileType)
+        {
+            if (fileType == null) fileType = "";
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@SpecialCaseId", specialCaseId), new SqlParameter("@FileType", fileType) };
+            Type t = typeof(SpecialCaseFileDto);
+            string sql = @"SELECT SpecialCaseId,SeqNO
+                                ,Case WHEN FileType = 'FeedBack' THEN '审核'
+                                      WHEN FileType = 'Shop' THEN '经销商'
+                                END AS FileTypeName,
+                                FileType,[FileName],Url
+                                ,ISNULL((SELECT AccountName FROM UserInfo WHERE Id = A.InUserId),'') AS InUserName
+                                ,InUserId,InDateTime
+                         FROM SpecialCaseFile A
+	                    WHERE SpecialCaseId = @SpecialCaseId";
+            if (!string.IsNullOrEmpty(fileType))
+            {
+                sql += " AND FileType = @FileType";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<SpecialCaseFileDto>().ToList();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="specialCaseFile"></param>
+        public void SpecailCaseFileSave(SpecialCaseFile specialCaseFile)
+        {
+            if (specialCaseFile.SeqNO == 0)
+            {
+                SpecialCaseFile findOneMax = db.SpecialCaseFile.Where(x => (x.SpecialCaseId == specialCaseFile.SpecialCaseId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
+                if (findOneMax == null)
+                {
+                    specialCaseFile.SeqNO = 1;
+                }
+                else
+                {
+                    specialCaseFile.SeqNO = findOneMax.SeqNO + 1;
+                }
+                specialCaseFile.InDateTime = DateTime.Now;
+                db.SpecialCaseFile.Add(specialCaseFile);
+            }
+            else
+            {
+            }
+            db.SaveChanges();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="specialCaseId"></param>
+        /// <param name="seqNO"></param>
+        public void SpecialCaseFileDelete(string specialCaseId,string seqNO)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@SpecialCaseId", specialCaseId),
+                                                        new SqlParameter("@SeqNO", seqNO)};
+            string sql = @"DELETE SpecialCaseFile WHERE SpecialCaseId = @SpecialCaseId AND SeqNO =@SeqNO 
+                        ";
+            db.Database.ExecuteSqlCommand(sql, para);
         }
         #endregion
     }

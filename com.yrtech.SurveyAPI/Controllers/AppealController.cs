@@ -287,24 +287,26 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     // 失分照片信息数量绑定
                     List<LossResultDto> lossResultList = CommonHelper.DecodeString<List<LossResultDto>>(appeal.LossResult);
-
-                    foreach (LossResultDto lossResultDto in lossResultList)
+                    if (lossResultList != null && lossResultList.Count > 0)
                     {
-                        int lossPhotoCount = 0;// 失分照片数量
-                        if (!string.IsNullOrEmpty(lossResultDto.LossFileNameUrl))
+                        foreach (LossResultDto lossResultDto in lossResultList)
                         {
-                            lossPhotoCount += lossResultDto.LossFileNameUrl.Split(';').Length;
+                            int lossPhotoCount = 0;// 失分照片数量
+                            if (!string.IsNullOrEmpty(lossResultDto.LossFileNameUrl))
+                            {
+                                lossPhotoCount += lossResultDto.LossFileNameUrl.Split(';').Length;
+                            }
+                            if (lossPhotoCount == 0)
+                            {
+                                lossResultDto.LossPhotoCount = "0";
+                            }
+                            else
+                            {
+                                lossResultDto.LossPhotoCount = lossPhotoCount.ToString();
+                            }
                         }
-                        if (lossPhotoCount == 0)
-                        {
-                            lossResultDto.LossPhotoCount = "0";
-                        }
-                        else
-                        {
-                            lossResultDto.LossPhotoCount = lossPhotoCount.ToString();
-                        }
+                        appeal.LossResult = CommonHelper.EncodeDto<string>(lossResultList);
                     }
-                    appeal.LossResult = CommonHelper.EncodeDto<string>(lossResultList);
 
                 }
                 if (list != null && list.Count > 0)

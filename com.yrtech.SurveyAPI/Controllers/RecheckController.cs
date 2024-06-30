@@ -41,7 +41,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         throw new Exception("已提交审核，请勿重复提交");
                     }
-                    
                     // 获取经销商的试卷类型
                     string labelId = "";
                     List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType("", recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
@@ -57,18 +56,23 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                     // 验证照片是否已经全部上传
                     bool photoUpload = true;
-                    List<AnswerPhotoLogDto> photoList = answerService.GetShopAnsewrPhotoLog(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
-                    foreach (AnswerPhotoLogDto answerPhoto in photoList)
+                    // 经销商自检不进行照片上传验证
+                    List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "");
+                    if (projectList != null && projectList.Count > 0 && projectList[0].SelfTestChk == false)
                     {
-                        if (answerPhoto.UploadStatus == "0")
+                        List<AnswerPhotoLogDto> photoList = answerService.GetShopAnsewrPhotoLog(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
+                        foreach (AnswerPhotoLogDto answerPhoto in photoList)
                         {
-                            photoUpload = false;
-                            break;
+                            if (answerPhoto.UploadStatus == "0")
+                            {
+                                photoUpload = false;
+                                break;
+                            }
                         }
-                    }
-                    if (!photoUpload)
-                    {
-                        throw new Exception("存在未上传的照片，请先在上传管理一键上传");
+                        if (!photoUpload)
+                        {
+                            throw new Exception("存在未上传的照片，请先在上传管理一键上传");
+                        }
                     }
                 }
                 /*一审复审完毕是按照类型提交的，不在此处进行验证*/
@@ -333,6 +337,20 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStautsDtlForAllType(projectId, shopId)) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        // 按状态查询复审信息
+        [HttpGet]
+        [Route("Recheck/GetShopRecheckStatus")]
+        public APIResult GetShopRecheckStatus(string projectId, string shopId,string statusCode)
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatusInfo(projectId,shopId,statusCode)) };
             }
             catch (Exception ex)
             {

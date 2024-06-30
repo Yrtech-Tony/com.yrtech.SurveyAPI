@@ -189,11 +189,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 账号管理
         [HttpGet]
         [Route("Master/GetUserInfo")]
-        public APIResult GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk = true,string openId="")
+        public APIResult GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk = true, string openId = "")
         {
             try
             {
-                List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, userId, accountId, accountName, roleTypeCode, telNO, email, useChk,openId);
+                List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, userId, accountId, accountName, roleTypeCode, telNO, email, useChk, openId);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(userInfoList) };
             }
             catch (Exception ex)
@@ -220,7 +220,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "权限不能为空" };
                 }
-                List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "", null,"");
+                List<UserInfo> userInfoList = masterService.GetUserInfo(userInfo.TenantId.ToString(), "", "", userInfo.AccountId, "", "", "", "", null, "");
                 if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].Id != userInfo.Id)
                 {
                     return new APIResult() { Status = false, Body = "账号重复" };
@@ -244,7 +244,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     UserInfo userInfo = new UserInfo();
                     userInfo.AccountId = userInfoDto.AccountId;
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoDto.TenantId.ToString(), "", "", userInfoDto.AccountId, "", "", "", "", null,"");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoDto.TenantId.ToString(), "", "", userInfoDto.AccountId, "", "", "", "", null, "");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         // 已经绑定的OpenId，在导入时不进行更新，只能在小程序进行绑定或者在后台管理系统解绑
@@ -393,7 +393,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     userInfoObjectDto.ImportChk = true;
                     userInfoObjectDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, "", userInfoObjectDto.AccountId, "", "", "", "", true,"");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, brandId, "", userInfoObjectDto.AccountId, "", "", "", "", true, "");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         userInfoObjectDto.ImportChk = false;
@@ -486,7 +486,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), userInfoObjectDto.brandId, "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), userInfoObjectDto.brandId, "", userInfoObjectDto.AccountId, "", "", "", "", null, "");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;
@@ -561,7 +561,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     userInfoObjectDto.ImportChk = true;
                     userInfoObjectDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", userInfoObjectDto.AccountId, "", "", "", "", null, "");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         userInfoObjectDto.ImportChk = false;
@@ -601,7 +601,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (UserInfoObjectDto userInfoObjectDto in list)
                 {
                     UserInfoObject userInfo = new UserInfoObject();
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), "", "", userInfoObjectDto.AccountId, "", "", "", "", null,"");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(userInfoObjectDto.TenantId.ToString(), "", "", userInfoObjectDto.AccountId, "", "", "", "", null, "");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
                         userInfo.UserId = userInfoList[0].Id;
@@ -1394,8 +1394,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         #region 期号
-
-
         /// <summary>
         /// 获取品牌下期号的信息，也可以获取单个期号的信息
         /// </summary>
@@ -1439,11 +1437,11 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 if (string.IsNullOrEmpty(project.ProjectCode))
                 {
-                    return new APIResult() { Status = false, Body = "期号代码不能为空" };
+                    return new APIResult() { Status = false, Body = "代码不能为空" };
                 }
                 if (string.IsNullOrEmpty(project.ProjectName))
                 {
-                    return new APIResult() { Status = false, Body = "期号名称不能为空" };
+                    return new APIResult() { Status = false, Body = "名称不能为空" };
                 }
                 if (project.OrderNO == null || project.OrderNO == 0)
                 {
@@ -1452,7 +1450,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "");
                 if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
                 {
-                    return new APIResult() { Status = false, Body = "期号代码重复" };
+                    return new APIResult() { Status = false, Body = "代码重复" };
                 }
                 List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString());
                 if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
@@ -2012,7 +2010,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subjectFile.FileName = dto.FileName;
                     subjectFile.FileDemoDesc = dto.FileDemoDesc;
                     subjectFile.InUserId = dto.InUserId;
-                    
+
                     subjectFile.ModifyUserId = dto.ModifyUserId;
                     masterService.SaveSubjectFile(subjectFile);
                 }
@@ -2180,7 +2178,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ReportType> reportList = masterService.GetReportType(reportType.ProjectId.ToString(),"",reportType.ReportTypeCode);
+                List<ReportType> reportList = masterService.GetReportType(reportType.ProjectId.ToString(), "", reportType.ReportTypeCode);
                 if (reportList != null && reportList.Count > 0 && reportList[0].ReportTypeId != reportType.ReportTypeId)
                 {
                     return new APIResult() { Status = false, Body = "报告类型代码重复" };
@@ -2233,14 +2231,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     reportTypeShopDto.ImportChk = true;
                     reportTypeShopDto.ImportRemark = "";
-                    List<ReportType> reportTypeList = masterService.GetReportType(projectId,"",reportTypeShopDto.ReportTypeCode);
+                    List<ReportType> reportTypeList = masterService.GetReportType(projectId, "", reportTypeShopDto.ReportTypeCode);
                     if (reportTypeList == null || reportTypeList.Count == 0)
                     {
                         reportTypeShopDto.ImportChk = false;
                         reportTypeShopDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
                     List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
-                    List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "",reportTypeShopDto.ShopCode,"",true);
+                    List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList == null || shopList.Count == 0)
                     {
                         reportTypeShopDto.ImportChk = false;
@@ -2266,13 +2264,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ReportTypeShop reportTypeShop = new ReportTypeShop();
                     reportTypeShop.ProjectId = reportTypeShopDto.ProjectId;
-                    List<ReportType> reportTypeList = masterService.GetReportType(reportTypeShopDto.ProjectId.ToString(),"",reportTypeShopDto.ReportTypeCode);
+                    List<ReportType> reportTypeList = masterService.GetReportType(reportTypeShopDto.ProjectId.ToString(), "", reportTypeShopDto.ReportTypeCode);
                     if (reportTypeList != null && reportTypeList.Count > 0)
                     {
                         reportTypeShop.ReportTypeId = reportTypeList[0].ReportTypeId;
                     }
                     List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
-                    List<ShopDto> shopList = masterService.GetShop("",projectList[0].BrandId.ToString(),"", reportTypeShopDto.ShopCode,"",true);
+                    List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList != null && shopList.Count > 0)
                     {
                         reportTypeShop.ShopId = shopList[0].ShopId;
@@ -2287,7 +2285,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        
+
         [HttpGet]
         [Route("Master/GetChapterReportType")]
         public APIResult GetChapterReportType(string projectId, string reportTypeId = "", string chapter = "")
@@ -2335,7 +2333,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
                     List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
-                    List<ChapterDto> chapterList = masterService.GetChapter(projectId,"","", chapterReportTypeDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(projectId, "", "", chapterReportTypeDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
                         chapterReportTypeDto.ImportChk = false;
@@ -2365,8 +2363,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         chapterShopType.ShopType = reportTypeList[0].ReportTypeId.ToString();
                     }
-                   // List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
-                    List<ChapterDto> chapteList = masterService.GetChapter(chapterReportTypeDto.ProjectId.ToString(),"","", chapterReportTypeDto.ChapterCode);
+                    // List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
+                    List<ChapterDto> chapteList = masterService.GetChapter(chapterReportTypeDto.ProjectId.ToString(), "", "", chapterReportTypeDto.ChapterCode);
                     if (chapteList != null && chapteList.Count > 0)
                     {
                         chapterShopType.ChapterId = chapteList[0].ChapterId;
@@ -2384,11 +2382,11 @@ namespace com.yrtech.SurveyAPI.Controllers
 
         [HttpGet]
         [Route("Master/GetChapter")]
-        public APIResult GetChapter(string projectId, string chapterId = "", string chapterCode = "",string reportTypeId="")
+        public APIResult GetChapter(string projectId, string chapterId = "", string chapterCode = "", string reportTypeId = "")
         {
             try
             {
-                List<ChapterDto> chapterList = masterService.GetChapter(projectId, reportTypeId,chapterId, chapterCode);
+                List<ChapterDto> chapterList = masterService.GetChapter(projectId, reportTypeId, chapterId, chapterCode);
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
             }
             catch (Exception ex)
@@ -2403,7 +2401,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ChapterDto> chapterList_ChapterCode = masterService.GetChapter(chapter.ProjectId.ToString(),"", "", chapter.ChapterCode);
+                List<ChapterDto> chapterList_ChapterCode = masterService.GetChapter(chapter.ProjectId.ToString(), "", "", chapter.ChapterCode);
                 if (chapterList_ChapterCode != null && chapterList_ChapterCode.Count > 0 && chapterList_ChapterCode[0].ChapterId != chapter.ChapterId)
                 {
                     return new APIResult() { Status = false, Body = "章节代码重复" };
@@ -2447,7 +2445,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Master/ChapterSubjectExcelAnalysis")]
-        public APIResult ChapterSubjectExcelAnalysis(string projectId,string ossPath)
+        public APIResult ChapterSubjectExcelAnalysis(string projectId, string ossPath)
         {
             try
             {
@@ -2456,13 +2454,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     chapterSubjectDto.ImportChk = true;
                     chapterSubjectDto.ImportRemark = "";
-                    List<ChapterDto> chapterList = masterService.GetChapter(projectId,"","", chapterSubjectDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(projectId, "", "", chapterSubjectDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
                         chapterSubjectDto.ImportChk = false;
                         chapterSubjectDto.ImportRemark += "该章节未在系统登记" + ";";
                     }
-                    List<SubjectDto> subjectList = masterService.GetSubject(projectId,"",chapterSubjectDto.SubjectCode,"");
+                    List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", chapterSubjectDto.SubjectCode, "");
                     if (subjectList == null || subjectList.Count == 0)
                     {
                         chapterSubjectDto.ImportChk = false;
@@ -2487,7 +2485,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 foreach (ChapterSubjectDto chapterSubjectDto in list)
                 {
                     ChapterSubject chapterSubject = new ChapterSubject();
-                    List<ChapterDto> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "","", chapterSubjectDto.ChapterCode);
+                    List<ChapterDto> chapterList = masterService.GetChapter(chapterSubjectDto.ProjectId.ToString(), "", "", chapterSubjectDto.ChapterCode);
                     if (chapterList != null && chapterList.Count > 0)
                     {
                         chapterSubject.ChapterId = chapterList[0].ChapterId;
@@ -2498,7 +2496,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterSubject.SubjectId = Convert.ToInt32(subjectList[0].SubjectId);
                     }
                     chapterSubject.InUserId = chapterSubjectDto.InUserId;
-                  masterService.SaveChapterSubject(chapterSubject);
+                    masterService.SaveChapterSubject(chapterSubject);
                 }
                 return new APIResult() { Status = true, Body = "" };
             }
@@ -2553,7 +2551,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
-
         }
         [HttpPost]
         [Route("Master/SaveFileRename")]
@@ -2576,6 +2573,215 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 masterService.DeleteFileRename(fileRename);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 公告
+        [HttpGet]
+        [Route("Master/GetNotice")]
+        public APIResult GetNotice(string tenantId, string brandId, string noticeId, string noticeCode, string content, DateTime? startDate, DateTime? endDate, string userId)
+        {
+            try
+            {
+                List<NoticeDto> noticeList = masterService.GetNotice(brandId, noticeId, noticeCode, content, startDate, endDate, userId);
+                if (noticeList != null && noticeList.Count > 0)
+                {
+                    foreach (NoticeDto notice in noticeList)
+                    {
+                        notice.NoticeFileList = masterService.GetNoticeFile(notice.NoticeId.ToString());
+                        // 公告通知人员
+                        List<NoticeUserDto> userList = new List<NoticeUserDto>();
+                        userList = masterService.GetNoticeUserId(notice.NoticeId.ToString());
+                        // 去除重复的AccountId
+                        List<NoticeUserDto> roleUserList = masterService.GetNoticeRoleTypeUser(notice.NoticeId.ToString(), tenantId, brandId);
+                        foreach (NoticeUserDto noticeUserId in roleUserList)
+                        {
+                            
+                            if (userList.Where(x => x.UserId == noticeUserId.UserId).ToList().Count == 0)
+                            {
+                                userList.Add(noticeUserId);
+                            }
+                        }
+                        notice.NoticeObjectList = userList;
+                        // 公告查看人员
+                        notice.NoticeViewList = masterService.GetNoticeView(notice.NoticeId.ToString(), "");
+                        // 公告查看状态
+                        if (!string.IsNullOrEmpty(userId))
+                        {
+                            List<NoticeUserDto> list = masterService.GetNoticeView(notice.NoticeId.ToString(), userId);
+                            if (list != null && list.Count > 0)
+                            {
+                                notice.ViewStatus = "1";
+                            }
+                            else {
+                                notice.ViewStatus = "0";
+                            }
+                        }
+                        // 人员总数及查看人员数量
+                        notice.PublishObjectCount = notice.NoticeObjectList.Count;
+                        notice.PublishViewCount = notice.NoticeViewList.Count;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(noticeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        [HttpPost]
+        [Route("Master/SaveNotice")]
+        public APIResult SaveNotice(UploadData uploadData)
+        {
+            try
+            {
+                List<NoticeDto> list = CommonHelper.DecodeString<List<NoticeDto>>(uploadData.ListJson);
+                foreach (NoticeDto noticeDto in list)
+                {
+                    Notice notice = new Notice();
+                    notice.BrandId = noticeDto.BrandId;
+                    notice.InUserId = noticeDto.InUserId;
+                    notice.ModifyUserId = noticeDto.ModifyUserId;
+                    notice.NoticeCode = noticeDto.NoticeCode;
+                    notice.NoticeContent = noticeDto.NoticeContent;
+                    notice.PublishDate = noticeDto.PublishDate;
+                    notice.NoticeId = noticeDto.NoticeId;
+
+                    if (noticeDto.NoticeId == 0)// 新增时保存附件
+                    {
+                        notice = masterService.SaveNotice(notice);
+                        foreach (NoticeFile noticeFile in noticeDto.NoticeFileList)
+                        {
+                            noticeFile.NoticeId = notice.NoticeId;
+                            masterService.SaveNoticeFile(noticeFile);
+                        }
+                    }
+                    else// 编辑时只保存公告信息，附件信息在上传时自动保存
+                    {
+                        notice = masterService.SaveNotice(notice);
+                    }
+
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeFileDelete")]
+        public APIResult NoticeFileDelete(NoticeFile noticeFile)
+        {
+            try
+            {
+                masterService.NoticeFileDelete(noticeFile.NoticeId.ToString(), noticeFile.SeqNO.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeFileSave")]
+        public APIResult NoticeFileSave(NoticeFile noticeFile)
+        {
+            try
+            {
+                masterService.SaveNoticeFile(noticeFile);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeUserIdDelete")]
+        public APIResult NoticeUserIdDelete(NoticeUserId noticeUserId)
+        {
+            try
+            {
+                masterService.NoticeUserIdDelete(noticeUserId.NoticeId.ToString(), noticeUserId.UserId.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeUserIdSave")]
+        public APIResult NoticeUserIdSave(string noticeId,string tenantId,string noticeAccount,string userId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(noticeAccount))
+                {
+                    string[] noticeAccountList = noticeAccount.Split(';');
+                    foreach (string account in noticeAccountList)
+                    {
+                        List<UserInfo> accountList = masterService.GetUserInfo(tenantId, "", "", account, "", "", "", "", true, "");
+                        if (accountList != null && accountList.Count > 0)
+                        {
+                            NoticeUserId noticeUser = new NoticeUserId();
+                            noticeUser.NoticeId = Convert.ToInt32(noticeId);
+                            noticeUser.UserId = accountList[0].Id;
+                            noticeUser.InUserId = Convert.ToInt32(userId);
+                            masterService.SaveNoticeUserId(noticeUser);
+                        }
+                    }
+
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeRoleTypeDelete")]
+        public APIResult NoticeRoleTypeDelete(NoticeRoleType noticeRoleType)
+        {
+            try
+            {
+                masterService.NoticeRoleTypeDelete(noticeRoleType.NoticeId.ToString(), noticeRoleType.RoleTypeId.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeRoleTypeSave")]
+        public APIResult NoticeRoleTypeSave(NoticeRoleType noticeRoleType)
+        {
+            try
+            {
+                masterService.SaveNoticeRoleType(noticeRoleType);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeViewSave")]
+        public APIResult NoticeViewSave(NoticeView noticeView)
+        {
+            try
+            {
+                masterService.SaveNoticeView(noticeView);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)

@@ -13,14 +13,18 @@ namespace com.yrtech.SurveyAPI.DTO
         public int BrandId { get; set; }
         public long? AnswerId { get; set; }
         public int ProjectId { get; set; }
+        public int? PreProjectId { get; set; }
         public long? SubjectId { get; set; }
+        public int? PreSubjectId { get; set; }
         public int ChapterId { get; set; }
+        public int PreChapterId { get; set; }
         public string ChapterCode { get; set; }
         public string ChapterName { get; set; }
         public int? ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }
         public int? ExamTypeId { get; set; }
+        public int? RecheckTypeId { get; set; } //复审类型
         public decimal? PhotoScore { get; set; }// 得分
         public string PhotoScoreResult { get; set; }// json 暂时不使用
         public decimal? Score { get; set; }
@@ -48,6 +52,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? InUserId { get; set; }
         public DateTime? InDateTime { get; set; }
         public int? ModifyUserId { get; set; }
+        public string OpenId { get; set; }
         public DateTime? ModifyDateTime { get; set; }
         public string SubjectCode { get; set; }//题目代码
         public int? OrderNO { get; set; }//题目序号
@@ -58,6 +63,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public bool MustScore { get; set; }
         public string Desc { get; set; }//说明
         public string InspectionDesc { get; set; }//检查标准说明
+        public string ImproveAdvice { get; set; }// 改善建议，在Subject导入
         public List<SubjectFile> SubjectFileList { get; set; } //体系对应的标准照片
         public List<SubjectInspectionStandard> SubjectInspectionStandardList { get; set; }// 体系对应的检查标准
         public List<SubjectLossResult> SubjectLossResultList { get; set; } // 体系对应的失分说明

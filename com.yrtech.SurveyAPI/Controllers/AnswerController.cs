@@ -612,10 +612,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<AnswerShopInfoDto> result = new List<AnswerShopInfoDto>();
 
                 List<AnswerShopInfoDto> answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId, shopkey);
-
-
                 List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null, "");
-                if (string.IsNullOrEmpty(userId) || (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType != "S_Execute"))
+                if (string.IsNullOrEmpty(userId)
+                    || (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType != "S_Execute"
+                    && userInfoList[0].RoleType != "B_Shop")
+                    )
                 {
                     result = answershopInfoList;
                 }
@@ -632,6 +633,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                                 result.Add(answerShopInfoDto);
                             }
                         }
+                    }
+                    else if(userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "B_Shop"){
+                        result = answershopInfoList;
                     }
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
@@ -807,40 +811,176 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         #region 自检
+        // 任务查询
+        // taskType = 1
         [HttpGet]
-        [Route("Answer/GetShopChapterStatus")]
-        public APIResult GetShopChapterStatus(string shopId)
+        [Route("Answer/GetTaskProject")]
+        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType="")
         {
             try
             {
-                List<ChapterDto> chapterList = answerService.GetShopChapter(shopId);
-                if (chapterList != null && chapterList.Count > 0)
+                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId,taskType);
+                foreach (ProjectDto project in projectList)
                 {
-                    foreach (ChapterDto chapter in chapterList)
+                    #region 计算拍照点完成数量
+                    // 已拍照或者无照片都认为已完成
+                    int subjectCompleteCount = 0;
+                    // 当前任务，当前经销商下所有拍照点
+                    List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(project.ProjectId.ToString(), shopId, "", "");
+                    foreach (AnswerDto answer in answerList)
                     {
-                        int answerCount = 0;
-                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(chapter.ProjectId.ToString(), shopId, chapter.ChapterId.ToString());
-                        //answerList = answerList.Where(x => x.ChapterId == chapter.ChapterId).ToList();
-                        foreach (AnswerDto answer in answerList)
+                        if (answer.PhotoScore == 9999)// 无照片
+                        {
+                            subjectCompleteCount = subjectCompleteCount + 1;
+                        }
+                        else
                         {
                             List<FileResultDto> fileResult = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
                             if (fileResult != null && fileResult.Count > 0)
                             {
                                 if (!string.IsNullOrEmpty(fileResult[0].Url))
                                 {
-                                    answerCount = answerCount + 1;
+                                    subjectCompleteCount = subjectCompleteCount + 1;
                                 }
                             }
                         }
-                        chapter.SubjectAnswerCount = answerCount;
-                        if (chapter.SubjectAnswerCount == chapter.SubjectCount)
+                    }
+                    project.SubjectCompleteCount = subjectCompleteCount;
+                    #endregion
+                    #region 剩余时间
+                    if (project.EndDate == null)
+                    {
+                        project.LeftTime = "未设置";
+                    }
+                    else
+                    {
+                        if (DateTime.Now >= project.EndDate)
+                        {
+                            project.LeftTime = "0";
+                        }
+                        else
+                        {
+                            TimeSpan ts = Convert.ToDateTime(project.EndDate) - DateTime.Now;
+                            project.LeftTime = ts.Days.ToString() + "天" + ts.Hours.ToString() + "小时" + ts.Minutes.ToString() + "分";
+                        }
+                    }
+
+                    #endregion
+                    #region 任务状态
+                    List<RecheckStatusDto> statusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), shopId, "S1");
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        project.Status = "已提交";
+                    }
+                    else if (project.SubjectCompleteCount == project.SubjectCount)
+                    {
+                        project.Status = "已完成";
+                    }
+                    else
+                    {
+                        DateTime now = DateTime.Now;
+                        if (now > project.StartDate)
+                        {
+                            project.Status = "待开始";
+                        }
+                        if (project.SubjectCompleteCount != 0
+                           && project.SubjectCompleteCount < project.SubjectCount)
+                        {
+                            project.Status = "进行中";
+                        }
+                        if (now > project.EndDate)
+                        {
+                            project.Status = "超时";
+                        }
+                    }
+                    #endregion
+                }
+                projectList = projectList.OrderByDescending(x => x.StartDate).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        // 子任务查询
+        [HttpGet]
+        [Route("Answer/GetSubtaskChapter")]
+        public APIResult GetSubtaskChapter(string shopId, string projectId = "")
+        {
+            try
+            {
+                List<ChapterDto> chapterList = answerService.GetSubtaskChapter(projectId, shopId);
+                if (chapterList != null && chapterList.Count > 0)
+                {
+
+                    foreach (ChapterDto chapter in chapterList)
+                    {
+                        #region 计算拍照点完成数量
+                        // 已拍照或者无照片都认为已完成
+                        int answerCount = 0;
+                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(chapter.ProjectId.ToString(), shopId, chapter.ChapterId.ToString());
+                        foreach (AnswerDto answer in answerList)
+                        {
+                            if (answer.PhotoScore == 9999) // 无照片
+                            {
+                                answerCount = answerCount + 1;
+                            }
+                            else
+                            {
+                                List<FileResultDto> fileResult = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                                if (fileResult != null && fileResult.Count > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(fileResult[0].Url))
+                                    {
+                                        answerCount = answerCount + 1;
+                                    }
+                                }
+                            }
+                        }
+                        chapter.SubjectCompleteCount = answerCount;
+                        #endregion
+                        #region 剩余时间
+                        if (chapter.EndDate == null)
+                        {
+                            chapter.LeftTime = "未设置";
+                        }
+                        else
+                        {
+                            if (DateTime.Now >= chapter.EndDate)
+                            {
+                                chapter.LeftTime = "0";
+                            }
+                            else
+                            {
+                                TimeSpan ts = Convert.ToDateTime(chapter.EndDate) - DateTime.Now;
+                                chapter.LeftTime = ts.Days.ToString() + "天" + ts.Hours.ToString() + "小时" + ts.Minutes.ToString() + "分";
+                            }
+                        }
+                        #endregion
+                        #region 任务状态
+                        if (chapter.SubjectCompleteCount == chapter.SubjectCount)
                         {
                             chapter.Status = "已完成";
                         }
                         else
                         {
-                            chapter.Status = "未完成";
+                            DateTime now = DateTime.Now;
+                            if (now > chapter.StartDate)
+                            {
+                                chapter.Status = "待开始";
+                            }
+                            if (chapter.SubjectCompleteCount != 0
+                               && chapter.SubjectCompleteCount < chapter.SubjectCount)
+                            {
+                                chapter.Status = "进行中";
+                            }
+                            if (now > chapter.EndDate)
+                            {
+                                chapter.Status = "超时";
+                            }
                         }
+                        #endregion
                     }
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(chapterList) };
@@ -850,9 +990,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        // 拍照点查询
         [HttpGet]
-        [Route("Answer/GetShopAnswerInfoByChapter")]
-        public APIResult GetShopAnswerInfoByChapter(string projectId, string shopId, string chapterId)
+        [Route("Answer/GetPhotoPoint")]
+        public APIResult GetPhotoPoint(string projectId, string shopId, string chapterId)
         {
             try
             {
@@ -864,13 +1005,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
                     if (subjectFileList == null || subjectFileList.Count == 0)
                     {
-                        answer.PhotoCount = "0/0";
-                        answer.PhotoStatus = "已上传";
+                        answer.PhotoStatus = "已上传";// 未设置标准照片默认已上传
                     }
                     else
                     {
                         int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
-                        answer.PhotoCount = fileResutlCount.ToString() + "/" + subjectFileList.Count.ToString();
                         if (fileResutlCount != 0 && !string.IsNullOrEmpty(fileResultList[0].Url))
                         {
                             answer.PhotoStatus = "已上传";
@@ -888,15 +1027,79 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #region 待办
+        // 数据采集
+        [HttpGet]
+        [Route("Answer/GetTaskProjectStat")]
+        public APIResult GetTaskProjectStat(string shopId, string projectId = "",string taskType="")
+        {
+            try
+            {
+                CountDto count = new CountDto();
+                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId, taskType);
+                foreach (ProjectDto project in projectList)
+                {
+                    #region 已完成和未完成数量统计
+                    List<RecheckStatusDto> statusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), shopId, "S1");
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        count.CompleteCount = count.CompleteCount + 1;
+                    }
+                    else
+                    {
+                        count.UnCompleteCount = count.UnCompleteCount + 1;
+                    }
+
+                    #endregion
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(count) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        // 特殊案例
+        [HttpGet]
+        [Route("Answer/GetSpecialCaseStat")]
+        public APIResult GetSpecialCaseStat(string shopId)
+        {
+            try
+            {
+                CountDto count = new CountDto();
+                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase("", shopId, "", "","");
+                foreach (SpecialCaseDto specialCase in specialCaseList)
+                {
+                    if (!string.IsNullOrEmpty(specialCase.SpecialFeedBack))
+                    {
+                        count.CompleteCount = count.CompleteCount + 1;
+                    }
+                    else {
+                        count.UnCompleteCount = count.UnCompleteCount + 1;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(count) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
         #endregion
         #region 特殊案例
         [HttpGet]
         [Route("Answer/GetSpecialCase")]
-        public APIResult GetSpecialCase(string projectId, string shopId, string subjectId, string content)
+        public APIResult GetSpecialCase(string projectId, string shopId, string subjectId, string content,string shopkey="")
         {
             try
             {
-                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase(projectId, shopId, subjectId, content);
+                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase(projectId, shopId, subjectId, content,shopkey);
+                foreach (SpecialCaseDto special in specialCaseList)
+                {
+                    special.SpecialCaseFileList = answerService.SpecailCaseFileSearch(special.SpecialCaseId.ToString(), "");
+                }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(specialCaseList) };
             }
             catch (Exception ex)
@@ -918,6 +1121,51 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        #region 暂时不使用
+        [HttpGet]
+        [Route("Answer/SpecialCaseFileSearch")]
+        public APIResult SpecialCaseFileSearch(string specialCaseId, string fileType)
+        {
+            try
+            {
+                List<SpecialCaseFileDto> list = answerService.SpecailCaseFileSearch(specialCaseId, fileType);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Answer/SpecialCaseFileDelete")]
+        public APIResult SpecialCaseFileDelete(SpecialCaseFile specialCaseFile)
+        {
+            try
+            {
+                answerService.SpecialCaseFileDelete(specialCaseFile.SpecialCaseId.ToString(), specialCaseFile.SeqNO.ToString());
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Answer/SpecialCaseFileSave")]
+        public APIResult SpecialCaseFileSave(SpecialCaseFile specialCaseFile)
+        {
+            try
+            {
+                answerService.SpecailCaseFileSave(specialCaseFile);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+
         #endregion
         #region 图片上传
         public byte[] Base64ToBytes(string base64Img)
