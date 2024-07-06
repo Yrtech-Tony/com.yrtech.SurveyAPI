@@ -247,9 +247,22 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
                 subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
                 subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
-                subject.CheckPoint = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
-                subject.InspectionDesc = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
-                subject.Remark = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
+                string mustScore =  sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(mustScore))
+                {
+                    subject.MustScore = null;
+                }
+                else if (mustScore == "1")
+                {
+                    subject.MustScore = true;
+                }
+                else {
+                    subject.MustScore = false;
+                }
+                subject.CheckPoint = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
+                subject.InspectionDesc = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
+                subject.Remark = sheet.GetCell("L" + (i + 3)).Value == null ? "" : sheet.GetCell("L" + (i + 3)).Value.ToString().Trim();
+                subject.ImproveAdvice = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
                 list.Add(subject);
             }
             return list;
@@ -270,7 +283,9 @@ namespace com.yrtech.SurveyAPI.Service
                 FileResultDto file = new FileResultDto();
                 file.SubjectCode = subjectCode;
                 file.FileName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
-                file.FileDemoDesc = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
+                file.FileDemo = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
+                file.FileDemoDesc = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+                file.FileRemark = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
                 list.Add(file);
             }
             return list;
@@ -724,7 +739,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 得分导出-横向
         public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId, string columnList)
         {
-            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
             if (projectList == null || projectList.Count == 0)
             {
                 return "";

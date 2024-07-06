@@ -30,6 +30,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string InspectionDesc { get; set; }//检查标准说明
         public string Remark { get; set; }//备注
         public string Desc { get; set; }//备注
+        public string ImproveAdvice { get; set; } // 改善建议
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

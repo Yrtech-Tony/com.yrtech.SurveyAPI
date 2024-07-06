@@ -27,7 +27,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             string projectId = answerList[0].ProjectId.ToString();
             // 打分默认显示
             string scoreShowType = "";
-            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "");
             if (projectList != null && projectList.Count > 0)
             {
                 scoreShowType = projectList[0].ScoreShowType;
@@ -218,13 +218,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 else if (roleTypeCode == "B_Shop") // 允许经销商自检的情况
                 {
-                    bool selfTestChk = false;
-                    List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "");
+                    string projectType = "";
+                    List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "", "");
                     if (projectList != null && projectList.Count > 0)
                     {
-                        selfTestChk = projectList[0].SelfTestChk == null ? false : Convert.ToBoolean(projectList[0].SelfTestChk);
+                        projectType = projectList[0].ProjectType;
                     }
-                    if (selfTestChk)
+                    if (projectType == "自检")
                     {
                         List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(), "");
                         if (list != null && list.Count > 0)
@@ -634,7 +634,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                             }
                         }
                     }
-                    else if(userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "B_Shop"){
+                    else if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "B_Shop")
+                    {
                         result = answershopInfoList;
                     }
                 }
@@ -812,14 +813,14 @@ namespace com.yrtech.SurveyAPI.Controllers
         #endregion
         #region 自检
         // 任务查询
-        // taskType = 1
+        // 查询改善事项 taskType = 1 
         [HttpGet]
         [Route("Answer/GetTaskProject")]
-        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType="")
+        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType = "")
         {
             try
             {
-                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId,taskType);
+                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId, taskType);
                 foreach (ProjectDto project in projectList)
                 {
                     #region 计算拍照点完成数量
@@ -1027,11 +1028,52 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Answer/ImproveCreate")]
+        public APIResult ImproveCreate(string projectId, string shopId, string userId)
+        {
+            try
+            {
+                answerService.ImproveCreate(projectId, shopId, userId);
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
+        //[HttpPost]
+        //[Route("Answer/CheckData365")]
+        //public APIResult CheckData365(string shopCode)
+        //{
+        //    try
+        //    {
+        //        //1. 上报是按照当天的数据全部上报,
+        //        //2. 
+        //        List<ShopDto> shopList = masterService.GetShop("", "32", "", shopCode, "", null);
+        //        if (shopList != null && shopList.Count > 0)
+        //        {
+        //            List<AnswerShopInfoDto> shopInfoList = answerService.GetAnswerShopInfo("", shopList[0].ShopId.ToString(), "");
+        //            shopInfoList.Where(x => !string.IsNullOrEmpty(x.TeamLeader)
+        //                                && x.ModifyDateTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
+        //                                && x.ModifyDateTime < new DateTime(DateTime.Now.AddDays(1).Year, DateTime.Now.AddDays(1).Month, DateTime.Now.AddDays(1).Day)).ToList();
+
+        //            return CommonHelper.Encode(shopInfoList);
+
+        //        }
+        //        return new APIResult() { Status = true, Body = "" };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
+        //    }
+        //}
         #region 待办
         // 数据采集
         [HttpGet]
         [Route("Answer/GetTaskProjectStat")]
-        public APIResult GetTaskProjectStat(string shopId, string projectId = "",string taskType="")
+        public APIResult GetTaskProjectStat(string shopId, string projectId = "", string taskType = "")
         {
             try
             {
@@ -1068,14 +1110,15 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 CountDto count = new CountDto();
-                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase("", shopId, "", "","");
+                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase("", shopId, "", "", "");
                 foreach (SpecialCaseDto specialCase in specialCaseList)
                 {
                     if (!string.IsNullOrEmpty(specialCase.SpecialFeedBack))
                     {
                         count.CompleteCount = count.CompleteCount + 1;
                     }
-                    else {
+                    else
+                    {
                         count.UnCompleteCount = count.UnCompleteCount + 1;
                     }
                 }
@@ -1091,11 +1134,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 特殊案例
         [HttpGet]
         [Route("Answer/GetSpecialCase")]
-        public APIResult GetSpecialCase(string projectId, string shopId, string subjectId, string content,string shopkey="")
+        public APIResult GetSpecialCase(string projectId, string shopId, string subjectId, string content, string shopkey = "")
         {
             try
             {
-                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase(projectId, shopId, subjectId, content,shopkey);
+                List<SpecialCaseDto> specialCaseList = answerService.GetSpecialCase(projectId, shopId, subjectId, content, shopkey);
                 foreach (SpecialCaseDto special in specialCaseList)
                 {
                     special.SpecialCaseFileList = answerService.SpecailCaseFileSearch(special.SpecialCaseId.ToString(), "");

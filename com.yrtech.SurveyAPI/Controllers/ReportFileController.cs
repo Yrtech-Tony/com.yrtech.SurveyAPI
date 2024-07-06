@@ -317,7 +317,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
@@ -356,7 +356,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
@@ -395,7 +395,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                 if (projectList != null && projectList.Count > 0 && !projectList[0].ReportDeployChk)
                 {
                     return new APIResult() { Status = false, Body = "该期报告还未发布，请耐心等待通知" };
@@ -706,7 +706,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<ReportYearTrendDto> yearTrendList = new List<ReportYearTrendDto>();
-                List<ProjectDto> projectList = masterService.GetProject("", brandId, "", "", year, "");
+                List<ProjectDto> projectList = masterService.GetProject("", brandId, "", "", year, "","");
                 List<AreaDto> areaList = new List<AreaDto>();
                 if (projectList != null)
                 {
@@ -1025,7 +1025,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     reportJobRateDto.ImportChk = true;
                     reportJobRateDto.ImportRemark = "";
 
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                     List<AreaDto> areaList = masterService.GetArea("", projectList[0].BrandId.ToString(), reportJobRateDto.AreaCode, "", "", "", true);
                     if (areaList == null || areaList.Count == 0)
                     {
@@ -1058,7 +1058,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     ReportJobRate reportJobRate = new ReportJobRate();
                     reportJobRate.ProjectId = reportJobRateDto.ProjectId;
-                    List<ProjectDto> projectList = masterService.GetProject("", "", reportJobRateDto.ProjectId.ToString(), "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportJobRateDto.ProjectId.ToString(), "", "", "","");
                     List<AreaDto> areaList = masterService.GetArea("", projectList[0].BrandId.ToString(), reportJobRateDto.AreaCode, "", "", "", true);
                     if (areaList != null && areaList.Count > 0)
                     {

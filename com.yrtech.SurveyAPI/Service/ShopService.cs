@@ -29,7 +29,7 @@ namespace com.yrtech.SurveyAPI.Service
             if (string.IsNullOrEmpty(brandId))
             {
                 MasterService masterService = new MasterService();
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                 if (projectList != null && projectList.Count > 0)
                 {
                     brandId = projectList[0].BrandId.ToString();

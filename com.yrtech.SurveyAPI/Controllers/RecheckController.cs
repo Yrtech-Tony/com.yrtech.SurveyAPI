@@ -48,17 +48,41 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         labelId = projectShopExamTypeList[0].ExamTypeId.ToString();
                     }
-                    List<AnswerDto> answerList = answerService.GetShopScoreInfo_NotAnswer(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), labelId);
-                    if (answerList != null && answerList.Count > 0)
+                    // 获取期号信息
+                    List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "","");
+                    if (projectList != null && projectList.Count > 0 && projectList[0].ProjectType == "自检")
                     {
-                        throw new Exception("存在未打分的题目，请先打分完毕");
+                        // 验证是否所有照片都已上传
+                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
+                        foreach (AnswerDto answer in answerList)
+                        {
+                            // 标准照片信息
+                            List<SubjectFile> subjectFileList = masterService.GetSubjectFile(recheckStatus.ProjectId.ToString(), answer.SubjectId.ToString());
+                            List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                            if (subjectFileList != null && subjectFileList.Count > 0)
+                            {
+                                int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
+                                if (fileResutlCount == 0 || string.IsNullOrEmpty(fileResultList[0].Url))
+                                {
+                                    throw new Exception("存在未拍照的题目，请先拍照再提交");
+                                }
+                            }
+                        }
                     }
-
+                    else
+                    {
+                        List<AnswerDto> answerList = answerService.GetShopScoreInfo_NotAnswer(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), labelId);
+                        if (answerList != null && answerList.Count > 0)
+                        {
+                            throw new Exception("存在未打分的题目，请先打分完毕");
+                        }
+                    }
                     // 验证照片是否已经全部上传
                     bool photoUpload = true;
-                    // 经销商自检不进行照片上传验证
-                    List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "");
-                    if (projectList != null && projectList.Count > 0 && projectList[0].SelfTestChk == false)
+                    
+                    if (projectList != null
+                        && projectList.Count > 0
+                        && projectList[0].ProjectType != "自检")// 经销商自检不进行照片上传验证
                     {
                         List<AnswerPhotoLogDto> photoList = answerService.GetShopAnsewrPhotoLog(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString());
                         foreach (AnswerPhotoLogDto answerPhoto in photoList)
@@ -81,7 +105,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     // 验证是否所有题目都进行了同意与否操作
                     bool modifyFinish = true;
-                    List<RecheckDto> notPassRecheckList = recheckModifyService.GetRecheckInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "",false, null);
+                    List<RecheckDto> notPassRecheckList = recheckModifyService.GetRecheckInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "", false, null);
                     foreach (RecheckDto recheck in notPassRecheckList)
                     {
                         if (recheck.AgreeCheck == null)
@@ -90,11 +114,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                             break;
                         }
                     }
-                    if (!modifyFinish) {
+                    if (!modifyFinish)
+                    {
                         throw new Exception("存在未进行同意与否操作的题目");
                     }
                     // 验证是否已经复审完毕
-                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"");
+                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
                     if (recheckStatusList == null || recheckStatusList.Count == 0 || (recheckStatusList != null && recheckStatusList.Count > 0 && recheckStatusList[0].Status_S3 == ""))
                     {
                         throw new Exception("该经销商还未复审完毕,不能进行提交");
@@ -144,9 +169,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                 }
                 // 仲裁
-                if (recheckStatus.StatusCode == "S5") {
+                if (recheckStatus.StatusCode == "S5")
+                {
                     List<RecheckStatusDto> recheckStatusList_S4 = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "S4");
-                    if (recheckStatusList_S4 == null || recheckStatusList_S4.Count==0)
+                    if (recheckStatusList_S4 == null || recheckStatusList_S4.Count == 0)
                     {
                         throw new Exception("该经销商还未复审修改完毕");
                     }
@@ -160,7 +186,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (recheckStatus.StatusCode == "S6")
                 {
                     // 验证是否已经复审完毕
-                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"");
+                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
                     if (recheckStatusList == null || (recheckStatusList != null && recheckStatusList.Count > 0 && recheckStatusList[0].Status_S3 == ""))
                     {
                         throw new Exception("该经销商还未复审完毕,不能进行提交");
@@ -175,7 +201,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (recheckStatus.StatusCode == "S7")
                 {
                     // 验证是否已经复审完毕
-                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(),"");
+                    List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
                     if (recheckStatusList == null || (recheckStatusList != null && recheckStatusList.Count > 0 && recheckStatusList[0].Status_S3 == ""))
                     {
                         throw new Exception("该经销商还未复审完毕,不能进行提交");
@@ -216,7 +242,7 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 // 若所有题目都复审完毕，且全部通过，则自动复审修改完毕和自动复审确认完毕
                 // 查询该店的复审未通过数据信息
-                List<RecheckDto> recheckNotPassList  = recheckModifyService.GetRecheckInfo(recheckStatusDtl.ProjectId.ToString(), recheckStatusDtl.ShopId.ToString(), "", false, null);
+                List<RecheckDto> recheckNotPassList = recheckModifyService.GetRecheckInfo(recheckStatusDtl.ProjectId.ToString(), recheckStatusDtl.ShopId.ToString(), "", false, null);
 
                 // 查询该店当前的状态
                 List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheckStatusDtl.ProjectId.ToString(), recheckStatusDtl.ShopId.ToString(), "");
@@ -256,7 +282,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Recheck/GetRecheckStatus")]
-        public APIResult GetRecheckStatus(string projectId, string shopId,string shopCode="")
+        public APIResult GetRecheckStatus(string projectId, string shopId, string shopCode = "")
         {
             try
             {
@@ -317,7 +343,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStautsDtl(projectId, shopId,"")) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStautsDtl(projectId, shopId, "")) };
             }
             catch (Exception ex)
             {
@@ -346,11 +372,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 按状态查询复审信息
         [HttpGet]
         [Route("Recheck/GetShopRecheckStatus")]
-        public APIResult GetShopRecheckStatus(string projectId, string shopId,string statusCode)
+        public APIResult GetShopRecheckStatus(string projectId, string shopId, string statusCode)
         {
             try
             {
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatusInfo(projectId,shopId,statusCode)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckService.GetShopRecheckStatusInfo(projectId, shopId, statusCode)) };
             }
             catch (Exception ex)
             {
@@ -373,7 +399,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 // 过滤出需要复审或者需要复审确认的经销商,即，S1不为空且S3为空或者s8为空且S4不为空
-                List<RecheckStatusDto> recheckStatusDtoList = recheckService.GetShopRecheckStatus(projectId, shopId, shopCode).Where(x=>(string.IsNullOrEmpty(x.Status_S3)&&!string.IsNullOrEmpty(x.Status_S1))||(string.IsNullOrEmpty(x.Status_S8)&&!string.IsNullOrEmpty(x.Status_S4))).ToList();
+                List<RecheckStatusDto> recheckStatusDtoList = recheckService.GetShopRecheckStatus(projectId, shopId, shopCode).Where(x => (string.IsNullOrEmpty(x.Status_S3) && !string.IsNullOrEmpty(x.Status_S1)) || (string.IsNullOrEmpty(x.Status_S8) && !string.IsNullOrEmpty(x.Status_S4))).ToList();
                 foreach (RecheckStatusDto recheckStatus in recheckStatusDtoList)
                 {
                     if (!string.IsNullOrEmpty(recheckStatus.Status_S0))
@@ -404,7 +430,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-        
+
         /// <summary>
         /// 复审清单
         /// </summary>
@@ -415,7 +441,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Recheck/GetShopRecheckScoreInfo")]
-        public APIResult GetShopRecheckScoreInfo(string projectId, string shopId, string subjectId, string recheckTypeId,bool? passRecheck=null)
+        public APIResult GetShopRecheckScoreInfo(string projectId, string shopId, string subjectId, string recheckTypeId, bool? passRecheck = null)
         {
             try
             {
@@ -426,13 +452,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //    throw new Exception("该经销商还未提复审");
                 //}
                 List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, subjectId, recheckTypeId);
-                if (passRecheck != null) {
+                if (passRecheck != null)
+                {
                     if (passRecheck == true)
                     {
                         recheckList = recheckList.Where(x => x.PassRecheck == passRecheck).ToList();
                     }
-                    else {
-                        recheckList = recheckList.Where(x => x.PassRecheck == passRecheck|| x.PassRecheck==null).ToList();
+                    else
+                    {
+                        recheckList = recheckList.Where(x => x.PassRecheck == passRecheck || x.PassRecheck == null).ToList();
                     }
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckList) };
@@ -514,7 +542,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //{
                 //    throw new Exception("已复审完毕不能修改");
                 //}
-             
+
                 //List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(recheck.ProjectId.ToString(), recheck.ShopId.ToString(), "");
                 //if (!(recheckStatusList != null && recheckStatusList.Count > 0 && !string.IsNullOrEmpty(recheckStatusList[0].Status_S3)))
                 //{
@@ -534,7 +562,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                recheckService.SaveRecheckConfirmInfo(recheck.RecheckId.ToString(),recheck.PassReCheck_Confirm,recheck.ReCheckContent_Confirm,recheck.ReCheckError_Confirm,recheck.ReCheckScore_Confirm,recheck.ReCheckUserId_Confirm);
+                recheckService.SaveRecheckConfirmInfo(recheck.RecheckId.ToString(), recheck.PassReCheck_Confirm, recheck.ReCheckContent_Confirm, recheck.ReCheckError_Confirm, recheck.ReCheckScore_Confirm, recheck.ReCheckUserId_Confirm);
                 return new APIResult() { Status = true, Body = "" };
             }
             catch (Exception ex)
@@ -557,12 +585,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId,"");
-                if (recheckStatus == null|| recheckStatus.Count==0 || (recheckStatus != null && recheckStatus.Count > 0 && recheckStatus[0].Status_S3 == ""))
+                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId, "");
+                if (recheckStatus == null || recheckStatus.Count == 0 || (recheckStatus != null && recheckStatus.Count > 0 && recheckStatus[0].Status_S3 == ""))
                 {
                     throw new Exception("该经销商还未复审完毕");
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId,false, null)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId, false, null)) };
             }
             catch (Exception ex)
             {
@@ -581,7 +609,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
 
-                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(recheck.ProjectId.ToString(), recheck.ShopId.ToString(),"");
+                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(recheck.ProjectId.ToString(), recheck.ShopId.ToString(), "");
                 if (recheckStatus != null && recheckStatus.Count > 0 && !string.IsNullOrEmpty(recheckStatus[0].Status_S4))
                 {
                     throw new Exception("该经销商已经复审修改完毕，不能进行修改");
@@ -657,12 +685,12 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId,"");
+                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId, "");
                 if (recheckStatus == null || (recheckStatus != null && recheckStatus.Count > 0 && recheckStatus[0].Status_S4 == ""))
                 {
                     throw new Exception("该经销商还未复审修改完毕");
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId, false,false)) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckModifyService.GetRecheckInfo(projectId, shopId, subjectId, false, false)) };
             }
             catch (Exception ex)
             {
@@ -692,7 +720,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId,"");
+                List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatus(projectId, shopId, "");
                 if (recheckStatus == null || (recheckStatus != null && recheckStatus.Count > 0 && recheckStatus[0].Status_S3 == ""))
                 {
                     throw new Exception("该经销商还未复审完毕");
@@ -747,7 +775,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<RecheckStatusDtlDto> recheckStatusDtlList = new List<RecheckStatusDtlDto>();
                 // 其他审核信息
                 List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "");
-                 recheckStatusDtlList= recheckService.GetShopRecheckStautsDtl(projectId, shopId, "");
+                recheckStatusDtlList = recheckService.GetShopRecheckStautsDtl(projectId, shopId, "");
                 foreach (RecheckStatusDto status in recheckStatusList)
                 {
                     RecheckStatusDtlDto recheckStatusDtl = new RecheckStatusDtlDto();

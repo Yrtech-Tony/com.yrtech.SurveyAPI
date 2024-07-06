@@ -25,6 +25,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string TelNO { get; set; }
         public string Email { get; set; }
         public string HeadPicUrl { get; set; }
+        public string OSSBaseUrl { get; set; }
         public List<Tenant> TenantList { get; set; }
         public List<Brand> BrandList { get; set; }
         public List<ShopDto> ShopList { get; set; }

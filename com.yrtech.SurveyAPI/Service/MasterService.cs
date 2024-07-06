@@ -1,4 +1,5 @@
-﻿using com.yrtech.SurveyAPI.Common;
+﻿using CDO;
+using com.yrtech.SurveyAPI.Common;
 using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyAPI.DTO.Master;
 using com.yrtech.SurveyDAL;
@@ -213,7 +214,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="tenantId"></param>
         /// <returns></returns>
-        public List<Province> GetProvince(string provinceId,string provinceName)
+        public List<Province> GetProvince(string provinceId, string provinceName)
         {
             if (provinceId == null) provinceId = "";
             if (provinceName == null) provinceName = "";
@@ -304,7 +305,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk,string openId)
+        public List<UserInfo> GetUserInfo(string tenantId, string brandId, string userId, string accountId, string accountName, string roleTypeCode, string telNO, string email, bool? useChk, string openId)
         {
             if (tenantId == null) tenantId = "";
             if (brandId == null) brandId = "";
@@ -639,7 +640,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 集团管理
-        public List<Group> GetGroup(string brandId, string groupId, string groupCode, string groupName,bool? useChk)
+        public List<Group> GetGroup(string brandId, string groupId, string groupCode, string groupName, bool? useChk)
         {
             groupCode = groupCode == null ? "" : groupCode;
             brandId = brandId == null ? "" : brandId;
@@ -708,7 +709,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode, string year, string orderNO)
+        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode, string year, string orderNO, string projectType)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -716,12 +717,14 @@ namespace com.yrtech.SurveyAPI.Service
             year = year == null ? "" : year;
             projectCode = projectCode == null ? "" : projectCode;
             orderNO = orderNO == null ? "" : orderNO;
+            projectType = projectType == null ? "" : projectType;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
-                                                        new SqlParameter("@BrandId", brandId),
+                                                       new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ProjectCode", projectCode),
-                                                        new SqlParameter("@Year", year),
-                                                     new SqlParameter("@OrderNO", orderNO)};
+                                                       new SqlParameter("@Year", year),
+                                                       new SqlParameter("@OrderNO", orderNO),
+                                                       new SqlParameter("@ProjectType", projectType)};
             Type t = typeof(ProjectDto);
             string sql = "";
             sql = @"SELECT [ProjectId]
@@ -745,13 +748,15 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[AppealShow]
                           ,StartDate
                           ,EndDate
+                          ,ProjectGroup
+                          ,(SELECT TOP 1 ShopId FROM ProjectShopExamType WHERE ProjectId = A.ProjectId) AS ShopId
                           ,[InUserId]
                           ,[InDateTime]
                           ,[ModifyUserId]
                           ,[ModifyDateTime]
-                            ,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
+                          ,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
                              ELSE CAST(1 AS BIT) END AS ReportDeployChk,ISNULL(ProjectType,'明检') AS ProjectType
-                    FROM [Project]
+                    FROM [Project] A
                     WHERE 1=1
                     ";
             if (!string.IsNullOrEmpty(tenantId))
@@ -779,6 +784,10 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND OrderNO = @OrderNO";
             }
+            if (!string.IsNullOrEmpty(projectType))
+            {
+                sql += " AND ProjectType = @ProjectType";
+            }
             sql += " ORDER BY Year,OrderNO DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
@@ -789,13 +798,13 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<ProjectDto> GetPreProjectByProjectId(string brandId, string projectId,  string year)
+        public List<ProjectDto> GetPreProjectByProjectId(string brandId, string projectId, string year)
         {
-            
+
             brandId = brandId == null ? "" : brandId;
             projectId = projectId == null ? "" : projectId;
             year = year == null ? "" : year;
-            SqlParameter[] para = new SqlParameter[] { 
+            SqlParameter[] para = new SqlParameter[] {
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@Year", year),
@@ -849,10 +858,6 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ScoreShowType = project.ScoreShowType;
                 findOne.SelfTestChk = project.SelfTestChk;
                 findOne.LossCopyToSupplyChk = project.LossCopyToSupplyChk;
-                //findOne.DataScore = project.DataScore;
-                //findOne.AppealStartDate = project.AppealStartDate;
-                //findOne.AppealEndDate = project.AppealEndDate;
-                //findOne.AppealMode = project.AppealMode;
                 findOne.ReportDeployDate = project.ReportDeployDate;// 报告发布时间
                 findOne.OrderNO = project.OrderNO;
                 findOne.Quarter = project.Quarter;
@@ -863,6 +868,7 @@ namespace com.yrtech.SurveyAPI.Service
                 // 经销商自检任务开始和结束时间
                 findOne.StartDate = project.StartDate;
                 findOne.EndDate = project.EndDate;
+                findOne.ProjectGroup = project.ProjectGroup;
             }
             db.SaveChanges();
         }
@@ -875,7 +881,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<ShopDto> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key,bool? useChk)
+        public List<ShopDto> GetShop(string tenantId, string brandId, string shopId, string shopCode, string key, bool? useChk)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -976,7 +982,7 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += shop.ShopName + "','";
                 sql += shop.ShopShortName + "','";
                 sql += shop.Province + "','";
-                sql += shop.ProvinceId+ "','";
+                sql += shop.ProvinceId + "','";
                 sql += shop.City + "','";
                 sql += shop.Address + "','";
                 sql += shop.GroupId + "','";
@@ -995,7 +1001,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 只针对lotus项目使用，其他项目不使用
         public List<AreaDto> GetSaleAreaIdByShopId(string shopId)
         {
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)};
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId) };
             Type t = typeof(AreaDto);
             string sql = "";
             sql = @"SELECT B.AreaId,C.AreaCode,C.AreaName
@@ -1071,7 +1077,7 @@ namespace com.yrtech.SurveyAPI.Service
             brandId = brandId == null ? "" : brandId;
             provinceId = provinceId == null ? "" : provinceId;
             areaId = areaId == null ? "" : areaId;
-            SqlParameter[] para = new SqlParameter[] { 
+            SqlParameter[] para = new SqlParameter[] {
                                                         new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProvinceId", provinceId),
                                                     new SqlParameter("@AreaId", areaId)};
@@ -1131,6 +1137,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName,[Desc]
                         ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName,E.HiddenName AS HiddenCode_SubjectTypeName
+                        ,A.ImproveAdvice
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
                                     LEFT JOIN Label C ON   ISNULL(A.LabelId,0)  =  C.LabelId
                                     LEFT JOIN Label D ON   A.LabelId_RecheckType  =  D.LabelId
@@ -1182,6 +1189,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.HiddenCode_SubjectType = subject.HiddenCode_SubjectType;
                 findOne.SubjectCode = subject.SubjectCode;
                 findOne.MustScore = subject.MustScore;
+                findOne.ImproveAdvice = subject.ImproveAdvice;
             }
             db.SaveChanges();
         }
@@ -1252,6 +1260,7 @@ namespace com.yrtech.SurveyAPI.Service
                     findOne.FileName = subjectFile.FileName;
                     findOne.FileDemo = subjectFile.FileDemo;
                     findOne.FileDemoDesc = subjectFile.FileDemoDesc;
+                    findOne.FileRemark = subjectFile.FileRemark;
                     findOne.ModifyDateTime = DateTime.Now;
                     findOne.ModifyUserId = subjectFile.ModifyUserId;
                 }
@@ -1574,13 +1583,13 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-        public void DeleteChapterReportType(string reportTypeId,int chapterId)
+        public void DeleteChapterReportType(string reportTypeId, int chapterId)
         {
-            ChapterShopType findone = db.ChapterShopType.Where(x => x.ShopType == reportTypeId&&x.ChapterId== chapterId).FirstOrDefault();
+            ChapterShopType findone = db.ChapterShopType.Where(x => x.ShopType == reportTypeId && x.ChapterId == chapterId).FirstOrDefault();
             db.ChapterShopType.Remove(findone);
             db.SaveChanges();
         }
-        public List<ChapterDto> GetChapter(string projectId, string reportTypeId,string chapterId, string chapterCode)
+        public List<ChapterDto> GetChapter(string projectId, string reportTypeId, string chapterId, string chapterCode)
         {
             if (reportTypeId == null) reportTypeId = "";
             if (chapterId == null) chapterId = "";
@@ -1650,13 +1659,13 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveChapterSubject(ChapterSubject chapterSubject)
         {
-            ChapterSubject findOne = db.ChapterSubject.Where(x => (x.ChapterId == chapterSubject.ChapterId&&x.SubjectId== chapterSubject.SubjectId)).FirstOrDefault();
+            ChapterSubject findOne = db.ChapterSubject.Where(x => (x.ChapterId == chapterSubject.ChapterId && x.SubjectId == chapterSubject.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
                 chapterSubject.InDateTime = DateTime.Now;
                 db.ChapterSubject.Add(chapterSubject);
             }
-           
+
             db.SaveChanges();
         }
         public void DeleteChapterSubject(int chapterSubjectId)
@@ -1719,7 +1728,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         public void SaveLabel(Label label)
         {
-            Label findOne = db.Label.Where(x => (x.LabelId == label.LabelId&&x.BrandId==label.BrandId)).FirstOrDefault();
+            Label findOne = db.Label.Where(x => (x.LabelId == label.LabelId && x.BrandId == label.BrandId)).FirstOrDefault();
             if (findOne == null)
             {
                 label.InDateTime = DateTime.Now;
@@ -1775,7 +1784,7 @@ namespace com.yrtech.SurveyAPI.Service
         //    }
         //    return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
         //}
-        
+
         #endregion
         #region 照片下载命名
         public List<FileType> GetFileType()
@@ -1892,7 +1901,7 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 通知公告
         // 公告查询
-        public List<NoticeDto> GetNotice(string brandId, string noticeId,string noticeCode, string content, DateTime? startDate, DateTime? endDate,string userId)
+        public List<NoticeDto> GetNotice(string brandId, string noticeId, string noticeCode, string content, DateTime? startDate, DateTime? endDate, string userId)
         {
             brandId = brandId == null ? "" : brandId;
             noticeId = noticeId == null ? "" : noticeId;
@@ -1985,7 +1994,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<NoticeRoleTypeDto>().ToList();
         }
         //公告有权限查看人员-RoleType-userId
-        public List<NoticeUserDto> GetNoticeRoleTypeUser(string noticeId,string tenantId,string brandId)
+        public List<NoticeUserDto> GetNoticeRoleTypeUser(string noticeId, string tenantId, string brandId)
         {
             if (noticeId == null) noticeId = "";
             if (brandId == null) brandId = "";
@@ -2004,7 +2013,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<NoticeUserDto>().ToList();
         }
         // 公告阅读统计
-        public List<NoticeUserDto> GetNoticeView(string noticeId,string userId)
+        public List<NoticeUserDto> GetNoticeView(string noticeId, string userId)
         {
             if (noticeId == null) noticeId = "";
             if (userId == null) userId = "";
@@ -2023,7 +2032,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 公告保存
         public Notice SaveNotice(Notice notice)
         {
-            Notice findOne = db.Notice.Where(x => (x.NoticeId== notice.NoticeId)).FirstOrDefault();
+            Notice findOne = db.Notice.Where(x => (x.NoticeId == notice.NoticeId)).FirstOrDefault();
             if (findOne == null)
             {
                 notice.InDateTime = DateTime.Now;
@@ -2069,7 +2078,7 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
         // 公告附件删除
-        public void NoticeFileDelete(string noticeId,string seqNO)
+        public void NoticeFileDelete(string noticeId, string seqNO)
         {
             seqNO = seqNO == null ? "" : seqNO;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@NoticeId", noticeId),
@@ -2085,7 +2094,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 公告用户保存
         public void SaveNoticeUserId(NoticeUserId noticeUserId)
         {
-            NoticeUserId findOne = db.NoticeUserId.Where(x => (x.NoticeId == noticeUserId.NoticeId&&x.UserId==noticeUserId.UserId)).FirstOrDefault();
+            NoticeUserId findOne = db.NoticeUserId.Where(x => (x.NoticeId == noticeUserId.NoticeId && x.UserId == noticeUserId.UserId)).FirstOrDefault();
             if (findOne == null)
             {
                 noticeUserId.InDateTime = DateTime.Now;
@@ -2144,6 +2153,45 @@ namespace com.yrtech.SurveyAPI.Service
             db.SaveChanges();
         }
 
+        #endregion
+        #region 邮件发送
+        public void SendEmail(string emailTo, string emailCC, string subjects, string body, string attachmentStream, string attachementFileName)
+        {
+            try
+            {
+                Message oMsg = new CDO.Message();
+                Configuration conf = new ConfigurationClass();
+                conf.Fields[CdoConfiguration.cdoSendUsingMethod].Value = CdoSendUsing.cdoSendUsingPort;
+                conf.Fields[CdoConfiguration.cdoSMTPAuthenticate].Value = CdoProtocolsAuthentication.cdoBasic;
+                conf.Fields[CdoConfiguration.cdoSMTPUseSSL].Value = true;
+                conf.Fields[CdoConfiguration.cdoSMTPServer].Value = "smtp.163.com";//必填，而且要真实可用   
+                conf.Fields[CdoConfiguration.cdoSMTPServerPort].Value = "465";//465特有
+                conf.Fields[CdoConfiguration.cdoSendEmailAddress].Value = "<" + "GTMC365@163.com" + ">";
+                conf.Fields[CdoConfiguration.cdoSendUserName].Value = "GTMC365@163.com";//真实的邮件地址   
+                conf.Fields[CdoConfiguration.cdoSendPassword].Value = "GTMc365123";   //为邮箱密码，必须真实   
+                conf.Fields.Update();
+
+                oMsg.Configuration = conf;
+
+                // oMsg.TextBody = System.Text.Encoding.UTF8;
+                //Message.BodyEncoding = System.Text.Encoding.UTF8;
+                oMsg.BodyPart.Charset = "utf-8";
+                oMsg.HTMLBody = body;
+                oMsg.Subject = subjects;
+                oMsg.From = "GTMC365@163.com";
+                oMsg.To = emailTo;
+                oMsg.CC = emailCC;
+                //ADD attachment.
+                //TODO: Change the path to the file that you want to attach.
+                //oMsg.AddAttachment("C:\Hello.txt", "", "");
+                //oMsg.AddAttachment("C:\Test.doc", "", "");
+                oMsg.Send();
+            }
+            catch (System.Net.Mail.SmtpException ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

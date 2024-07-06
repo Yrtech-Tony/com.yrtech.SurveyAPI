@@ -1402,22 +1402,22 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId, string projectId, string year, string appealShow = "")
+        public APIResult GetProject(string brandId, string projectId, string year, string appealShow = "",string projectType="")
         {
             try
             {
                 List<ProjectDto> projectList = new List<ProjectDto>();
                 if (string.IsNullOrEmpty(appealShow))
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "");
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "",projectType);
                 }
                 else if (appealShow == "Y")
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "").Where(x => x.AppealShow == true).ToList();
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType).Where(x => x.AppealShow == true).ToList();
                 }
                 else
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "").Where(x => x.AppealShow == false).ToList();
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType).Where(x => x.AppealShow == false).ToList();
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
@@ -1447,15 +1447,30 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "序号不能为空或者0" };
                 }
-                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "");
+                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "","");
                 if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "代码重复" };
                 }
-                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString());
+                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString(),"");
                 if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "序号重复" };
+                }
+                if (project.ProjectType == "自检")
+                {
+                    if (project.StartDate == null)
+                    {
+                        return new APIResult() { Status = false, Body = "自检时开始时间必须填写" };
+                    }
+                    if (project.EndDate == null)
+                    {
+                        return new APIResult() { Status = false, Body = "自检时结束时间必须填写" };
+                    }
+                    if (string.IsNullOrEmpty(project.ProjectGroup))
+                    {
+                        return new APIResult() { Status = false, Body = "自检时分组不能为空" };
+                    }
                 }
                 masterService.SaveProject(project);
                 return new APIResult() { Status = true, Body = "" };
@@ -1920,7 +1935,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subject.InUserId = dto.InUserId;
                     if (!string.IsNullOrEmpty(dto.ExamTypeCode))
                     {
-                        List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
+                        List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
                         if (labelList != null && labelList.Count > 0)
                         {
                             subject.LabelId = labelList[0].LabelId;
@@ -1931,7 +1946,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.LabelId = null;
                     }
 
-                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
+                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
                     if (labelList_Recheck != null && labelList_Recheck.Count > 0)
                     {
                         subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
@@ -1943,6 +1958,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subject.ProjectId = dto.ProjectId;
                     subject.Remark = dto.Remark;
                     subject.SubjectCode = dto.SubjectCode;
+                    subject.MustScore = dto.MustScore;
+                    subject.ImproveAdvice = dto.ImproveAdvice;
                     masterService.SaveSubject(subject);
                 }
                 return new APIResult() { Status = true, Body = "" };
@@ -2237,7 +2254,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         reportTypeShopDto.ImportChk = false;
                         reportTypeShopDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList == null || shopList.Count == 0)
                     {
@@ -2269,7 +2286,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         reportTypeShop.ReportTypeId = reportTypeList[0].ReportTypeId;
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "","");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList != null && shopList.Count > 0)
                     {
@@ -2332,7 +2349,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterReportTypeDto.ImportChk = false;
                         chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                     List<ChapterDto> chapterList = masterService.GetChapter(projectId, "", "", chapterReportTypeDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {

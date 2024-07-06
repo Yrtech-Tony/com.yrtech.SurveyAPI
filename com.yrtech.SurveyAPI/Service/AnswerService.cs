@@ -189,7 +189,8 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
+            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId
+                      ,A.LabelId_RecheckType AS RecheckTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                              ,ISNULL(C.AnswerId,0) AS AnswerId,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
                              ,a.FullScore,a.LowScore,a.ImproveAdvice,E.PreProjectId,A.PreSubjectId
                     FROM [Subject] A CROSS JOIN 
@@ -210,7 +211,6 @@ namespace com.yrtech.SurveyAPI.Service
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
-       
         /// <summary>
         /// 获取经销商还未打分的题目
         /// </summary>
@@ -223,7 +223,8 @@ namespace com.yrtech.SurveyAPI.Service
             labelId = labelId == null ? "" : labelId;
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId),new SqlParameter("@LabelId", labelId)};
+                                                       new SqlParameter("@ShopId", shopId)
+                                                       ,new SqlParameter("@LabelId", labelId)};
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId,A.SubjectId,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.[Desc],A.InspectionDesc,A.HiddenCode_SubjectType
@@ -437,6 +438,7 @@ namespace com.yrtech.SurveyAPI.Service
             shopId = shopId == null ? "" : shopId;
             projectId = projectId == null ? "" : projectId;
             key = key == null ? "" : key;
+           
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),new SqlParameter("@Key", key)};
             Type t = typeof(AnswerShopInfoDto);
@@ -472,7 +474,11 @@ namespace com.yrtech.SurveyAPI.Service
                        FROM ProjectShopExamType A INNER JOIN Shop B ON A.ShopId  = B.ShopId
                                                   INNER JOIN Project X ON A.ProjectId = X.ProjectId
 							                      LEFT JOIN AnswerShopInfo C ON A.ProjectId = C.ProjectId AND A.ShopId = C.ShopId
-                            WHERE A.ProjectId = @ProjectId  ";
+                            WHERE 1=1  ";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId =@ProjectId";
+            }
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId =@ShopId";
@@ -481,6 +487,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
+            
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoDto>().ToList();
         }
         /// <summary>
@@ -755,6 +762,7 @@ namespace com.yrtech.SurveyAPI.Service
             Type t = typeof(ProjectDto);
             string sql = "";
             sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
+                    ,(SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = A.ProjectId Order By OrderNO ) AS SubjectId
                     ,(SELECT COUNT(*) 
                     FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
                                      INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId)
@@ -780,12 +788,13 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
         #endregion
+        #region 获取章节（子任务)
         /// <summary>
         /// 根据经销商ID获取章节（子任务）
         /// </summary>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<ChapterDto> GetSubtaskChapter(string projectId,string shopId)
+        public List<ChapterDto> GetSubtaskChapter(string projectId, string shopId)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
@@ -814,12 +823,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ChapterDto>().ToList();
         }
-       /// <summary>
-       /// 查询环节下题目打分数据
-       /// </summary>
-       /// <param name="shopId"></param>
-       /// <param name="chapterId"></param>
-       /// <returns></returns>
+        #endregion
+        #region 查询题目（拍照点）
+        /// <summary>
+        /// 查询环节下题目打分数据
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <param name="chapterId"></param>
+        /// <returns></returns>
         public List<AnswerDto> GetShopAnswerByChapterId(string projectId,string shopId,string chapterId)
         {
             projectId = projectId == null ? "" : projectId;
@@ -863,6 +874,24 @@ namespace com.yrtech.SurveyAPI.Service
             sql += " Order By A.OrderNO";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
+        #endregion
+        #region 生成改善事项
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="shopId"></param>
+        /// <param name="userId"></param>
+        public void ImproveCreate(string projectId, string shopId,string userId)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@UserId", userId)};
+            string sql = @"EXEC sp_Wechat_TaskReCreate @ProjectId = @ProjectId,@ShopId = @ShopId,@UserId = @UserId
+                        ";
+            db.Database.ExecuteSqlCommand(sql, para);
+        }
+        #endregion
         #endregion
         #region 特殊案例
         // 特殊案例查询

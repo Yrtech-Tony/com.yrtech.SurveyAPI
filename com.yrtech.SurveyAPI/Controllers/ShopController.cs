@@ -80,12 +80,12 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 // 验证是否设置：如果已经提交审核，执行人员就不允许查看分数
                 bool rechckShopShow = true; // true: 复审之后，执行人员还可以查到这家店,false:不能查看
-                bool selfTestChk = true;// true:经销商可以自检；false或者null 不能自检
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "");
+                string projectType = "";// 
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
                 if (projectList != null && projectList.Count > 0)
                 {
                     rechckShopShow = projectList[0].RechckShopShow == null ? true : Convert.ToBoolean(projectList[0].RechckShopShow);
-                    selfTestChk = projectList[0].SelfTestChk == null ? true : Convert.ToBoolean(projectList[0].SelfTestChk);
+                    projectType = projectList[0].ProjectType;
                 }
                 List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(projectId, "", "");
                 if (string.IsNullOrEmpty(userId))
@@ -129,7 +129,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                         else if (userInfoList[0].RoleType == "B_Shop")// 允许经销商自检时，经销商也可以使用APP
                         {
-                            if (selfTestChk)
+                            if (projectType=="自检")
                             {
                                 List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
                                 foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
