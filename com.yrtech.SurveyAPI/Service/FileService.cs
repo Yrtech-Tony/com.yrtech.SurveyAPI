@@ -16,6 +16,7 @@ namespace com.yrtech.SurveyAPI.Service
     {
         public void DBFileBak()
         {
+            // 删除数据库备份文件
             CommonHelper.log("进入方法");
             string filePath = @"D:\Survey\DBLog";
             try
@@ -45,7 +46,6 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     if (fs.CreationTime < now)
                     {
-
                         if (fs is DirectoryInfo)
                         {
                             DirectoryInfo subdr = new DirectoryInfo(fs.FullName);

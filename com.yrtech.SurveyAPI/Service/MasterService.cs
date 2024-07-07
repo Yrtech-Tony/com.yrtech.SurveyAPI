@@ -1137,11 +1137,12 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @"SELECT A.*,B.ProjectCode,B.ProjectName,C.LabelCode As ExamTypeCode,C.LabelName AS ExamTypeName,[Desc]
                         ,D.LabelCode As RecheckTypeCode,D.LabelName AS RecheckTypeName,E.HiddenName AS HiddenCode_SubjectTypeName
-                        ,A.ImproveAdvice
+                        ,A.ImproveAdvice,A.LabelId_SubjectPattern,F.LabelCode AS SubjectPatternCode,F.LabelName AS SubjectPatternName
                     FROM [Subject] A INNER JOIN Project B ON A.ProjectId = B.ProjectId 
                                     LEFT JOIN Label C ON   ISNULL(A.LabelId,0)  =  C.LabelId
                                     LEFT JOIN Label D ON   A.LabelId_RecheckType  =  D.LabelId
                                     LEFT JOIN HiddenColumn E ON A.HiddenCode_SubjectType = E.HiddenCode AND E.HiddenCodeGroup = '体系类型'
+                                    LEFT JOIN Label F ON A.LabelId_SubjectPattern = F.LabelId
                     WHERE 1=1 AND A.ProjectId = @ProjectId";
             if (!string.IsNullOrEmpty(subjectId))
             {
@@ -1187,6 +1188,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.LabelId = subject.LabelId;
                 findOne.LabelId_RecheckType = subject.LabelId_RecheckType;
                 findOne.HiddenCode_SubjectType = subject.HiddenCode_SubjectType;
+                findOne.LabelId_SubjectPattern = subject.LabelId_SubjectPattern;
                 findOne.SubjectCode = subject.SubjectCode;
                 findOne.MustScore = subject.MustScore;
                 findOne.ImproveAdvice = subject.ImproveAdvice;
@@ -1231,6 +1233,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectFile"></param>
         public void SaveSubjectFile(SubjectFile subjectFile)
         {
+            CommonHelper.log("ServiceSaveSubjectFile:" + subjectFile.FileDemo);
             if (subjectFile.SeqNO == 0)
             {
                 SubjectFile findOneMax = db.SubjectFile.Where(x => (x.SubjectId == subjectFile.SubjectId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
@@ -1245,7 +1248,6 @@ namespace com.yrtech.SurveyAPI.Service
                 subjectFile.InDateTime = DateTime.Now;
                 subjectFile.ModifyDateTime = DateTime.Now;
                 db.SubjectFile.Add(subjectFile);
-
             }
             else
             {
@@ -1676,7 +1678,7 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 标签管理
-        public List<Label> GetLabel(string brandId, string labelId, string labelType, bool? useChk, string labelCode)
+        public List<LabelDto> GetLabel(string brandId, string labelId, string labelType, bool? useChk, string labelCode)
         {
             if (labelCode == null) labelCode = "";
             if (labelType == null) labelType = "";
@@ -1686,7 +1688,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                         new SqlParameter("@BrandId", brandId),
                                                          new SqlParameter("@LabelCode", labelCode),
                                                         new SqlParameter("@LabelId", labelId)};
-            Type t = typeof(Label);
+            Type t = typeof(LabelDto);
             string sql = "";
             // 如果是试卷类型，查询出来通用卷
             if (!string.IsNullOrEmpty(labelType) && labelType == "ExamType")
@@ -1724,7 +1726,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND LabelId = @LabelId";
             }
-            return db.Database.SqlQuery(t, sql, para).Cast<Label>().ToList();
+            return db.Database.SqlQuery(t, sql, para).Cast<LabelDto>().ToList();
         }
         public void SaveLabel(Label label)
         {
@@ -2154,44 +2156,6 @@ namespace com.yrtech.SurveyAPI.Service
         }
 
         #endregion
-        #region 邮件发送
-        public void SendEmail(string emailTo, string emailCC, string subjects, string body, string attachmentStream, string attachementFileName)
-        {
-            try
-            {
-                Message oMsg = new CDO.Message();
-                Configuration conf = new ConfigurationClass();
-                conf.Fields[CdoConfiguration.cdoSendUsingMethod].Value = CdoSendUsing.cdoSendUsingPort;
-                conf.Fields[CdoConfiguration.cdoSMTPAuthenticate].Value = CdoProtocolsAuthentication.cdoBasic;
-                conf.Fields[CdoConfiguration.cdoSMTPUseSSL].Value = true;
-                conf.Fields[CdoConfiguration.cdoSMTPServer].Value = "smtp.163.com";//必填，而且要真实可用   
-                conf.Fields[CdoConfiguration.cdoSMTPServerPort].Value = "465";//465特有
-                conf.Fields[CdoConfiguration.cdoSendEmailAddress].Value = "<" + "GTMC365@163.com" + ">";
-                conf.Fields[CdoConfiguration.cdoSendUserName].Value = "GTMC365@163.com";//真实的邮件地址   
-                conf.Fields[CdoConfiguration.cdoSendPassword].Value = "GTMc365123";   //为邮箱密码，必须真实   
-                conf.Fields.Update();
-
-                oMsg.Configuration = conf;
-
-                // oMsg.TextBody = System.Text.Encoding.UTF8;
-                //Message.BodyEncoding = System.Text.Encoding.UTF8;
-                oMsg.BodyPart.Charset = "utf-8";
-                oMsg.HTMLBody = body;
-                oMsg.Subject = subjects;
-                oMsg.From = "GTMC365@163.com";
-                oMsg.To = emailTo;
-                oMsg.CC = emailCC;
-                //ADD attachment.
-                //TODO: Change the path to the file that you want to attach.
-                //oMsg.AddAttachment("C:\Hello.txt", "", "");
-                //oMsg.AddAttachment("C:\Test.doc", "", "");
-                oMsg.Send();
-            }
-            catch (System.Net.Mail.SmtpException ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
+        
     }
 }

@@ -52,9 +52,7 @@ namespace com.yrtech.SurveyAPI.Service
                 else { shop.UseChk = false; }
                 list.Add(shop);
             }
-
             return list;
-
         }
         // 导入区域
         public List<AreaDto> AreaImport(string ossPath)
@@ -263,6 +261,7 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.InspectionDesc = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
                 subject.Remark = sheet.GetCell("L" + (i + 3)).Value == null ? "" : sheet.GetCell("L" + (i + 3)).Value.ToString().Trim();
                 subject.ImproveAdvice = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
+                subject.SubjectPatternCode = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
                 list.Add(subject);
             }
             return list;

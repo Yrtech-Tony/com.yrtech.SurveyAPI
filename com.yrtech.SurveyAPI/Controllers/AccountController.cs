@@ -35,7 +35,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                var request = HttpContext.Current.Request;
+                //OSSClientHelper.AlibabaCloudSendSms();
+                //var request = HttpContext.Current.Request;
                 //var header = request.Headers[]
                 // 获取租户信息
                 string tenantId = "";
@@ -59,6 +60,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
                     account.RoleProgramList = masterService.GetRoleProgram_Tree(tenantId, account.RoleType);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
+                  
                 }
                 else
                 {

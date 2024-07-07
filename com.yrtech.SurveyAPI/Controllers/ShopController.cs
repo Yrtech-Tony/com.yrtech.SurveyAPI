@@ -60,7 +60,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     //{
                     //foreach (string examTypeId in examTypeIdList)
                     //{
-                    List<Label> labelList = masterService.GetLabel(brandId, projectShopExamType.ExamTypeId.ToString(), "ExamType", true, ""); // 根据ExamTypeId 查询Code和Name
+                    List<LabelDto> labelList = masterService.GetLabel(brandId, projectShopExamType.ExamTypeId.ToString(), "ExamType", true, ""); // 根据ExamTypeId 查询Code和Name
                     if (labelList != null && labelList.Count > 0)
                     {
                         examTypeCodeList += labelList[0].LabelCode;// + ";";
@@ -189,7 +189,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpGet]
         [Route("Shop/ProjectShopExamTypeExcelAnalysis")]
-        public APIResult ProjectShopExamTypeExcelAnalysis(string brandId, string ossPath)
+        public APIResult ProjectShopExamTypeExcelAnalysis(string brandId, string projectId,string ossPath)
         {
             try
             {
@@ -218,14 +218,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                     //{
                     //    if (!string.IsNullOrEmpty(examTypeCode))
                     //    {
-                    List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
-                    if (labelList == null || labelList.Count == 0)
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId.ToString(), "", "", "", "");
+                    string projectType = "";
+                    if (projectList != null && projectList.Count > 0)
                     {
-                        projectShopExamTypeDto.ImportChk = false;
-                        projectShopExamTypeDto.ImportRemark += "卷别代码在系统中不存在或不可用" + ";";
+                        projectType = projectList[0].ProjectType;
                     }
-                    //    }
-                    //}
+                    // 自检时经销商试卷类型由经销商在前端选择，不在后台设置
+                    if (projectType != "自检")
+                    {
+                        List<LabelDto> labelList = masterService.GetLabel(brandId, "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
+                        if (labelList == null || labelList.Count == 0)
+                        {
+                            projectShopExamTypeDto.ImportChk = false;
+                            projectShopExamTypeDto.ImportRemark += "卷别代码在系统中不存在或不可用" + ";";
+                        }
+                    }
                 }
                 list = (from projectShopExamType in list orderby projectShopExamType.ImportChk select projectShopExamType).ToList();
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
@@ -250,22 +258,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或不可用的经销商代码，请检查文件" };
                     }
-                    //string[] examTypeCodeList = null;
-                    //if (projectShopExamTypeDto.ExamTypeCode != null)
-                    //{
-                    //    examTypeCodeList = projectShopExamTypeDto.ExamTypeCode.Split(';');
-                    //}
-                    //foreach (string examTypeCode in examTypeCodeList)
-                    //{
-                    //    if (!string.IsNullOrEmpty(examTypeCode))
-                    //    {
-                    List<Label> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
-                    if (labelList == null || labelList.Count == 0)
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectShopExamTypeDto.ProjectId.ToString(), "", "", "", "");
+                    string projectType = "";
+                    if (projectList != null && projectList.Count > 0)
                     {
-                        return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或者不可用的卷别代码，请检查文件" };
+                        projectType = projectList[0].ProjectType;
                     }
-                    //    }
-                    //}
+                    // 自检时经销商试卷类型由经销商在前端选择，不在后台设置
+                    if (projectType != "自检")
+                    {
+                        List<LabelDto> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
+                        if (labelList == null || labelList.Count == 0)
+                        {
+                            return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或者不可用的卷别代码，请检查文件" };
+                        }
+                    }
                 }
                 foreach (ProjectShopExamTypeDto projectShopExamTypeDto in list)
                 {
@@ -276,26 +283,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         projectShopExamType.ShopId = shopList[0].ShopId;
                     }
-                    //string[] examTypeCodeList = null;
-                    //string examTypeIdList = "";
-                    //if (projectShopExamTypeDto.ExamTypeCode != null)
-                    //{
-                    //    examTypeCodeList = projectShopExamTypeDto.ExamTypeCode.Split(';');
-                    //}
-                    //foreach (string examTypeCode in examTypeCodeList)
-                    //{
-                    List<Label> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
-                    //if (labelList != null && labelList.Count > 0)
-                    //{
-                    //examTypeIdList += labelList[0].LabelId;// + ";";
-                    projectShopExamType.ExamTypeId = labelList[0].LabelId;
-                    //}
-                    //}
-                    // 去掉最后一个分号
-                    //if (examTypeIdList != null)
-                    //{
-                    //    projectShopExamType.ExamTypeId = examTypeIdList;//.Substring(0, examTypeIdList.Length - 1);
-                    //}
+                    List<ProjectDto> projectList = masterService.GetProject("","", projectShopExamTypeDto.ProjectId.ToString(), "","","","");
+                    string projectType = "";
+                    if (projectList != null && projectList.Count > 0)
+                    {
+                        projectType = projectList[0].ProjectType;
+                    }
+                    // 自检时经销商试卷类型由经销商在前端选择，不在后台设置
+                    if (projectType == "自检")
+                    {
+                        projectShopExamType.ExamTypeId = null;
+                    }
+                    else
+                    {
+                        List<LabelDto> labelList = masterService.GetLabel(projectShopExamTypeDto.BrandId.ToString(), "", "ExamType", true, projectShopExamTypeDto.ExamTypeCode);
+                        projectShopExamType.ExamTypeId = labelList[0].LabelId;
+                    }
                     projectShopExamType.InUserId = projectShopExamTypeDto.InUserId;
                     projectShopExamType.ModifyUserId = projectShopExamTypeDto.ModifyUserId;
 
@@ -308,6 +311,42 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
 
+        }
+
+        [HttpGet]
+        [Route("Shop/ProjectShopExamTypeSearchAll")]
+        public APIResult ProjectShopExamTypeSearchAll(string projectId,string shopId)
+        {
+            try
+            {
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "");
+                string brandId = "";
+                if (projectList != null && projectList.Count > 0)
+                {
+                    brandId = projectList[0].BrandId.ToString();
+                }
+                List<ProjectShopExamTypeDto> shopExamTypeList = shopService.GetProjectShopExamType(brandId, projectId, shopId);
+                int? examTypeId = null;
+                if (shopExamTypeList != null && shopExamTypeList.Count > 0)
+                {
+                    examTypeId = shopExamTypeList[0].ExamTypeId;
+                }
+                List<LabelDto> examTypeList = masterService.GetLabel(brandId, "", "ExamType", true, "");
+                examTypeList = examTypeList.Where(x => x.LabelId != 0).ToList();
+                foreach (LabelDto label in examTypeList)
+                {
+                    if (examTypeId!=null&&label.LabelId == examTypeId)
+                    {
+                        label.ShopId = Convert.ToInt32(shopId);
+                        label.Checked = true;
+                    }
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(examTypeList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
         }
         #endregion
     }

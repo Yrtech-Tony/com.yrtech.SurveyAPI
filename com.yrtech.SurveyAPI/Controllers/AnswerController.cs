@@ -880,7 +880,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     else
                     {
                         DateTime now = DateTime.Now;
-                        if (now > project.StartDate)
+                        if (project.SubjectCompleteCount==0)
                         {
                             project.Status = "待开始";
                         }

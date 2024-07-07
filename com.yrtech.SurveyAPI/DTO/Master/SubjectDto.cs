@@ -19,6 +19,9 @@ namespace com.yrtech.SurveyAPI.DTO
         public bool? MustScore { get; set; }
         public int? LabelId { get; set; } // 卷别类型ID
         public int? LabelId_RecheckType { get; set; } // 复审类型ID
+        public int? LabelId_SubjectPattern { get; set; }
+        public string SubjectPatternCode { get; set; } // 题目类型代码
+        public string SubjectPatternName { get; set; }// 题目类型名称
         public string ExamTypeCode { get; set; } // 卷别类型代码
         public string ExamTypeName { get; set; } // 卷别类型名称
         public string RecheckTypeCode { get; set; } // 复审类型代码

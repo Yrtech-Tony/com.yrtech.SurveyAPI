@@ -50,8 +50,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     // 获取期号信息
                     List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "","");
+                    #region 题目验证
+                    // 自检
                     if (projectList != null && projectList.Count > 0 && projectList[0].ProjectType == "自检")
                     {
+                        // 验证是否超时，如超时不能提交
+                        if (projectList[0].EndDate < DateTime.Now)
+                        {
+                            throw new Exception("已超时，无法提交，请联系管理人员");
+                        }
                         // 验证是否所有照片都已上传
                         List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
                         foreach (AnswerDto answer in answerList)
@@ -69,6 +76,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                             }
                         }
                     }
+                    // 非自检
                     else
                     {
                         List<AnswerDto> answerList = answerService.GetShopScoreInfo_NotAnswer(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), labelId);
@@ -77,7 +85,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                             throw new Exception("存在未打分的题目，请先打分完毕");
                         }
                     }
-                    // 验证照片是否已经全部上传
+                    #endregion
+                    #region 验证离线照片是否已经全部上传,自检不验证
                     bool photoUpload = true;
                     
                     if (projectList != null
@@ -99,6 +108,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                 }
+                #endregion
                 /*一审复审完毕是按照类型提交的，不在此处进行验证*/
                 // 复审修改完毕时验证
                 if (recheckStatus.StatusCode == "S4")

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CDO;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -158,7 +159,45 @@ namespace com.yrtech.SurveyAPI.Common
         {
             TimeSpan ts = new TimeSpan(endDate.Ticks - startDate.Ticks);
             return ts.TotalMinutes;
-        } 
+        }
+        #region 邮件发送
+        public static void SendEmail(string emailTo, string emailCC, string subjects, string body, string attachmentStream, string attachementFileName)
+        {
+            try
+            {
+                Message oMsg = new CDO.Message();
+                Configuration conf = new ConfigurationClass();
+                conf.Fields[CdoConfiguration.cdoSendUsingMethod].Value = CdoSendUsing.cdoSendUsingPort;
+                conf.Fields[CdoConfiguration.cdoSMTPAuthenticate].Value = CdoProtocolsAuthentication.cdoBasic;
+                conf.Fields[CdoConfiguration.cdoSMTPUseSSL].Value = true;
+                conf.Fields[CdoConfiguration.cdoSMTPServer].Value = "smtp.163.com";//必填，而且要真实可用   
+                conf.Fields[CdoConfiguration.cdoSMTPServerPort].Value = "465";//465特有
+                conf.Fields[CdoConfiguration.cdoSendEmailAddress].Value = "<" + "GTMC365@163.com" + ">";
+                conf.Fields[CdoConfiguration.cdoSendUserName].Value = "GTMC365@163.com";//真实的邮件地址   
+                conf.Fields[CdoConfiguration.cdoSendPassword].Value = "GTMc365123";   //为邮箱密码，必须真实   
+                conf.Fields.Update();
 
+                oMsg.Configuration = conf;
+
+                // oMsg.TextBody = System.Text.Encoding.UTF8;
+                //Message.BodyEncoding = System.Text.Encoding.UTF8;
+                oMsg.BodyPart.Charset = "utf-8";
+                oMsg.HTMLBody = body;
+                oMsg.Subject = subjects;
+                oMsg.From = "GTMC365@163.com";
+                oMsg.To = emailTo;
+                oMsg.CC = emailCC;
+                //ADD attachment.
+                //TODO: Change the path to the file that you want to attach.
+                //oMsg.AddAttachment("C:\Hello.txt", "", "");
+                //oMsg.AddAttachment("C:\Test.doc", "", "");
+                oMsg.Send();
+            }
+            catch (System.Net.Mail.SmtpException ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

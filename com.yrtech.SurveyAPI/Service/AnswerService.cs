@@ -167,7 +167,6 @@ namespace com.yrtech.SurveyAPI.Service
                     AND A.HiddenCode_SubjectType = @SubjectType";
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
         }
-
         /// <summary>
         /// 获取单个经销商打分信息
         /// </summary>
@@ -207,7 +206,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
-                sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO,A.SubjectId";
+                sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO ASC,A.SubjectId";
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
@@ -756,9 +755,12 @@ namespace com.yrtech.SurveyAPI.Service
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             taskType = taskType == null ? "" : taskType;
+            //DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            DateTime dtNow = new DateTime(DateTime.Now.AddDays(1).Year,DateTime.Now.AddDays(1).Month,DateTime.Now.AddDays(1).Day);
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId),
-                                                       new SqlParameter("@ProjectId", projectId)};
+                                                       new SqlParameter("@ProjectId", projectId),
+                                                       new SqlParameter("@StartDate", dtNow)};
             Type t = typeof(ProjectDto);
             string sql = "";
             sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
@@ -768,7 +770,7 @@ namespace com.yrtech.SurveyAPI.Service
                                      INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId)
                     AS SubjectCount
                     FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-                    WHERE 1=1 AND B.StartDate<GETDATE()
+                    WHERE 1=1 AND B.StartDate<@StartDate
                      ";
             if (!string.IsNullOrEmpty(shopId))
             {
@@ -912,7 +914,8 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
 
             sql = @" SELECT A.ProjectId,A.ShopId,A.SubjectId
-                            ,B.ProjectCode,B.ProjectName,F.ChapterCode,F.ChapterName
+                            ,B.ProjectCode,B.ProjectName
+                            --,F.ChapterCode,F.ChapterName
                             ,A.SpecialCaseId,A.SpecialCaseFile
                             ,A.SpecialCaseContent,SpecialCaseCode
                             ,A.SpecialFeedBack,SpecialFeedBackUserId,SpecialFeedBackDateTime
@@ -922,8 +925,8 @@ namespace com.yrtech.SurveyAPI.Service
 					                    INNER JOIN Shop C ON A.ShopId = C.ShopId
 					                    INNER JOIN [Subject] D ON A.SubjectId = D.SubjectId 
 											                    AND A.ProjectId = D.ProjectId
-                                        INNER JOIN ChapterSubject E ON D.SubjectId = E.SubjectId
-                                        INNER JOIN Chapter F ON E.ChapterId = F.ChapterId
+                                        --INNER JOIN ChapterSubject E ON D.SubjectId = E.SubjectId
+                                        --INNER JOIN Chapter F ON E.ChapterId = F.ChapterId
 
                     WHERE  1=1 ";
             if (!string.IsNullOrEmpty(projectId))

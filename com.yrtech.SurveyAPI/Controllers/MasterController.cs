@@ -1488,7 +1488,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Label> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
+                List<LabelDto> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(labelList) };
             }
             catch (Exception ex)
@@ -1502,12 +1502,36 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<Label> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
+                List<LabelDto> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
                 List<LabelDto> lableDtoList = new List<LabelDto>();
-                foreach (Label label in labelList)
+                foreach (LabelDto label in labelList)
                 {
                     LabelDto labelDto = new LabelDto();
                     labelDto.LabelId_RecheckType = label.LabelId;
+                    labelDto.LabelCode = label.LabelCode;
+                    labelDto.LabelName = label.LabelName;
+                    labelDto.LabelType = label.LabelType;
+                    lableDtoList.Add(labelDto);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(lableDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/GetLabelSubjectPattern")]
+        public APIResult GetLabelSubjectPattern(string brandId, string labelId, string labelType, bool? useChk)
+        {
+            try
+            {
+                List<LabelDto> labelList = masterService.GetLabel(brandId, labelId, labelType, useChk, "");
+                List<LabelDto> lableDtoList = new List<LabelDto>();
+                foreach (LabelDto label in labelList)
+                {
+                    LabelDto labelDto = new LabelDto();
+                    labelDto.LabelId_SubjectPattern = label.LabelId;
                     labelDto.LabelCode = label.LabelCode;
                     labelDto.LabelName = label.LabelName;
                     labelDto.LabelType = label.LabelType;
@@ -1534,7 +1558,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "标签名称不能为空" };
                 }
-                List<Label> labelList = masterService.GetLabel(label.BrandId.ToString(), "", label.LabelType, null, label.LabelCode);
+                List<LabelDto> labelList = masterService.GetLabel(label.BrandId.ToString(), "", label.LabelType, null, label.LabelCode);
                 if (labelList != null && labelList.Count > 0 && labelList[0].LabelId != label.LabelId)
                 {
                     return new APIResult() { Status = false, Body = "标签代码重复" };
@@ -1881,7 +1905,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     // 验证Excel中的卷别类型、复审类型是否存在
                     if (!string.IsNullOrEmpty(subject.ExamTypeCode.Trim()))
                     {
-                        List<Label> labelList = masterService.GetLabel(brandId, "", "ExamType", true, subject.ExamTypeCode);
+                        List<LabelDto> labelList = masterService.GetLabel(brandId, "", "ExamType", true, subject.ExamTypeCode);
                         if (labelList == null || labelList.Count == 0)
                         {
                             subject.ImportChk = false;
@@ -1891,7 +1915,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     // 验证Excel中的卷别类型、复审类型是否存在
                     if (!string.IsNullOrEmpty(subject.RecheckTypeCode.Trim()))
                     {
-                        List<Label> labelList = masterService.GetLabel(brandId, "", "RecheckType", true, subject.RecheckTypeCode);
+                        List<LabelDto> labelList = masterService.GetLabel(brandId, "", "RecheckType", true, subject.RecheckTypeCode);
                         if (labelList == null || labelList.Count == 0)
                         {
                             subject.ImportChk = false;
@@ -1935,7 +1959,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subject.InUserId = dto.InUserId;
                     if (!string.IsNullOrEmpty(dto.ExamTypeCode))
                     {
-                        List<Label> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
+                        List<LabelDto> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
                         if (labelList != null && labelList.Count > 0)
                         {
                             subject.LabelId = labelList[0].LabelId;
@@ -1946,10 +1970,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.LabelId = null;
                     }
 
-                    List<Label> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
+                    List<LabelDto> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
                     if (labelList_Recheck != null && labelList_Recheck.Count > 0)
                     {
                         subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
+                    }
+                    List<LabelDto> labelList_SubjectPattern = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "")[0].BrandId.ToString(), "", "SubjectPattern", true, dto.SubjectPatternCode);
+                    if (labelList_SubjectPattern != null && labelList_SubjectPattern.Count > 0)
+                    {
+                        subject.LabelId_SubjectPattern = labelList_SubjectPattern[0].LabelId;
                     }
                     subject.LowScore = dto.LowScore;
 
@@ -2025,10 +2054,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subjectFile.SubjectId = subjectList[0].SubjectId;
                     }
                     subjectFile.FileName = dto.FileName;
+                    subjectFile.FileDemo = dto.FileDemo;
                     subjectFile.FileDemoDesc = dto.FileDemoDesc;
+                    subjectFile.FileRemark = dto.FileRemark;
                     subjectFile.InUserId = dto.InUserId;
 
                     subjectFile.ModifyUserId = dto.ModifyUserId;
+                    CommonHelper.log("ControlSaveSubjectFile:" + subjectFile.FileDemo);
                     masterService.SaveSubjectFile(subjectFile);
                 }
                 return new APIResult() { Status = true, Body = "" };
@@ -2686,6 +2718,20 @@ namespace com.yrtech.SurveyAPI.Controllers
 
                 }
                 return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/NoticeFileSearch")]
+        public APIResult NoticeFileSearch(string noticeId)
+        {
+            try
+            {
+                List<NoticeFile> list = masterService.GetNoticeFile(noticeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
             }
             catch (Exception ex)
             {
