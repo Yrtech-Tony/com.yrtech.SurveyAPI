@@ -10,6 +10,7 @@ namespace com.yrtech.SurveyAPI.DTO
     {
         public long SubjectId { get; set; }
         public string SubjectCode { get; set; } // 题目代码
+        public string BrandId { get; set; } // 品牌Id
         public Nullable<int> ProjectId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }

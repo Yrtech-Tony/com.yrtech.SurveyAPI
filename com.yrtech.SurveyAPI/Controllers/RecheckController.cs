@@ -60,7 +60,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                             throw new Exception("已超时，无法提交，请联系管理人员");
                         }
                         // 验证是否所有照片都已上传
-                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "");
+                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "", labelId);
                         foreach (AnswerDto answer in answerList)
                         {
                             // 标准照片信息

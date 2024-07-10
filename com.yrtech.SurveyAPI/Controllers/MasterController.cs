@@ -2060,7 +2060,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subjectFile.InUserId = dto.InUserId;
 
                     subjectFile.ModifyUserId = dto.ModifyUserId;
-                    CommonHelper.log("ControlSaveSubjectFile:" + subjectFile.FileDemo);
+                    //CommonHelper.log("ControlSaveSubjectFile:" + subjectFile.FileDemo);
                     masterService.SaveSubjectFile(subjectFile);
                 }
                 return new APIResult() { Status = true, Body = "" };
@@ -2810,6 +2810,77 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
+        [Route("Master/NoticeUserSearch")]
+        public APIResult NoticeUserSearch(string noticeId)
+        {
+            try
+            {
+                List<NoticeUserDto> list = masterService.GetNoticeUserId(noticeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/NoticeUserExcelAnalysis")]
+        public APIResult NoticeUserExcelAnalysis(string tenantId, string ossPath)
+        {
+            try
+            {
+                List<NoticeUserDto> list = excelDataService.NoticeUserImport(ossPath);
+                foreach (NoticeUserDto noticeUserDto in list)
+                {
+                    noticeUserDto.ImportChk = true;
+                    noticeUserDto.ImportRemark = "";
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", noticeUserDto.AccountId, "", "", "", "", "", true, "");
+                    if (userInfoList == null || userInfoList.Count == 0)
+                    {
+                        noticeUserDto.ImportChk = false;
+                        noticeUserDto.ImportRemark += "该账号未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeUserImport")]
+        public APIResult NoticeUserImport(UploadData uploadData)
+        {
+            try
+            {
+                List<NoticeUserDto> list = CommonHelper.DecodeString<List<NoticeUserDto>>(uploadData.ListJson);
+                if (list != null && list.Count > 0)
+                {
+                    masterService.NoticeUserIdDelete(list[0].NoticeId.ToString(), "");
+                }
+                foreach (NoticeUserDto noticeUserDto in list)
+                {
+                    NoticeUserId noticeUserId = new NoticeUserId();
+                    noticeUserId.NoticeId = noticeUserDto.NoticeId;
+                    noticeUserId.InUserId = noticeUserDto.InUserId;
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(uploadData.TenantId.ToString(), "", "", noticeUserDto.AccountId, "", "", "", "", true, "");
+                    if (userInfoList != null && userInfoList.Count > 0)
+                    {
+                        noticeUserId.UserId = userInfoList[0].Id;
+                    }
+
+                    masterService.SaveNoticeUserId(noticeUserId);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         [HttpPost]
         [Route("Master/NoticeRoleTypeDelete")]
         public APIResult NoticeRoleTypeDelete(NoticeRoleType noticeRoleType)
@@ -2838,6 +2909,77 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [Route("Master/NoticeRoleTypeSearch")]
+        public APIResult NoticeRoleTypeSearch(string noticeId)
+        {
+            try
+            {
+                List<NoticeRoleTypeDto> list = masterService.GetNoticeRoleType(noticeId);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpGet]
+        [Route("Master/NoticeRoleExcelAnalysis")]
+        public APIResult NoticeRoleExcelAnalysis(string ossPath)
+        {
+            try
+            {
+                List<NoticeRoleTypeDto> list = excelDataService.NoticeRoleTypeImport(ossPath);
+                foreach (NoticeRoleTypeDto noticeRoleTypeDto in list)
+                {
+                    noticeRoleTypeDto.ImportChk = true;
+                    noticeRoleTypeDto.ImportRemark = "";
+                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleTypeDto.RoleTypeCode,"");
+                    if (roleTypeList == null || roleTypeList.Count == 0)
+                    {
+                        noticeRoleTypeDto.ImportChk = false;
+                        noticeRoleTypeDto.ImportRemark += "该权限未在系统登记" + ";";
+                    }
+                }
+                list = (from shop in list orderby shop.ImportChk select shop).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(list) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        [HttpPost]
+        [Route("Master/NoticeRoleImport")]
+        public APIResult NoticeRoleImport(UploadData uploadData)
+        {
+            try
+            {
+                List<NoticeRoleTypeDto> list = CommonHelper.DecodeString<List<NoticeRoleTypeDto>>(uploadData.ListJson);
+                if (list != null && list.Count > 0)
+                {
+                    masterService.NoticeRoleTypeDelete(list[0].NoticeId.ToString(), "");
+                }
+                foreach (NoticeRoleTypeDto noticeRoleDto in list)
+                {
+                    NoticeRoleType noticeRoleType = new NoticeRoleType();
+                    noticeRoleType.NoticeId = noticeRoleDto.NoticeId;
+                    noticeRoleType.InUserId = noticeRoleDto.InUserId;
+                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleDto.RoleTypeCode,"");
+                    if (roleTypeList != null && roleTypeList.Count > 0)
+                    {
+                        noticeRoleType.RoleTypeId = roleTypeList[0].RoleTypeId;
+                    }
+
+                    masterService.SaveNoticeRoleType(noticeRoleType);
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        // 查看公告记录保存
         [HttpPost]
         [Route("Master/NoticeViewSave")]
         public APIResult NoticeViewSave(NoticeView noticeView)
@@ -2924,6 +3066,141 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
+        }
+        #endregion
+        #region 自检
+        [HttpGet]
+        [Route("Master/TaskProjectCreate")]
+        public APIResult TaskProjectCreate(string ossPath,string userId,string brandId,string tenantId)
+        {
+            try
+            {
+                List<ProjectDto> projectList = excelDataService.TaskProjectImport(ossPath);
+                List<FileResultDto> subjectAndFileList = excelDataService.SubjectAndFileImport(ossPath);
+                foreach (ProjectDto projectDto in projectList)
+                {
+                    // 保存期号
+                    Project project = new Project();
+                    List<ProjectDto> project_check = masterService.GetProject(tenantId, brandId, "", projectDto.ProjectCode, "", "", "");
+                    if (project_check != null && project_check.Count > 0)
+                    {
+                        project.ProjectId = project_check[0].ProjectId;
+                    }
+                    project.TenantId = Convert.ToInt32(tenantId);
+                    project.BrandId = Convert.ToInt32(brandId);
+                    project.ProjectType = projectDto.ProjectType;
+                    project.ProjectCode = projectDto.ProjectCode;
+                    project.ProjectName = projectDto.ProjectName;
+                    project.ProjectShortName = projectDto.ProjectShortName;
+                    project.Year = projectDto.Year;
+                    project.Quarter = projectDto.Quarter;
+                    project.OrderNO = projectDto.OrderNO;
+                    project.StartDate = projectDto.StartDate;
+                    project.EndDate = projectDto.EndDate;
+                    project.ProjectGroup = projectDto.ProjectGroup;
+                    project.InUserId = Convert.ToInt32(userId);
+                    project.ModifyUserId = Convert.ToInt32(userId);
+                    project = masterService.SaveProject(project);
+                    // 保存章节
+                    Chapter chapter = new Chapter();
+                    List<ChapterDto> chapterList = masterService.GetChapter(project.ProjectId.ToString(), "", "", projectDto.ProjectCode);
+                    if (chapterList != null && chapterList.Count > 0)
+                    {
+                        chapter.ChapterId = chapterList[0].ChapterId;
+                    }
+                    chapter.ChapterCode = projectDto.ProjectCode;
+                    chapter.ChapterName = projectDto.ProjectName;
+                    chapter.ProjectId = project.ProjectId;
+                    chapter.StartDate = projectDto.StartDate;
+                    chapter.EndDate = projectDto.EndDate;
+                    chapter.InUserId = Convert.ToInt32(userId); ;
+                    chapter = masterService.SaveChapter(chapter);
+                    // 保存题目
+                    foreach (FileResultDto fileResult in subjectAndFileList)
+                    {
+                        Subject subject = new Subject();
+                        List<SubjectDto> subjectList = masterService.GetSubject(project.ProjectId.ToString(), "", fileResult.SubjectCode, "");
+                        if (subjectList != null && subjectList.Count > 0)
+                        {
+                            subject.SubjectId = subjectList[0].SubjectId;
+                        }
+                        subject.CheckPoint = fileResult.CheckPoint;
+                        subject.FullScore = fileResult.FullScore;
+                        subject.LowScore = fileResult.LowScore;
+                        if (fileResult.HiddenCode_SubjectTypeName == "照片")
+                        {
+                            subject.HiddenCode_SubjectType = "Photo";
+                        }
+                        else { subject.HiddenCode_SubjectType = "Process"; }
+                        subject.Implementation = fileResult.Implementation;
+                        subject.InspectionDesc = fileResult.InspectionDesc;
+                        subject.InUserId = Convert.ToInt32(userId);
+                        if (!string.IsNullOrEmpty(fileResult.ExamTypeCode))
+                        {
+                            List<LabelDto> labelList = masterService.GetLabel(brandId.ToString(), "", "ExamType", true, fileResult.ExamTypeCode);
+                            if (labelList != null && labelList.Count > 0)
+                            {
+                                subject.LabelId = labelList[0].LabelId;
+                            }
+                        }
+                        else
+                        {
+                            subject.LabelId = null;
+                        }
+
+                        List<LabelDto> labelList_Recheck = masterService.GetLabel(brandId.ToString(), "", "RecheckType", true, fileResult.RecheckTypeCode);
+                        if (labelList_Recheck != null && labelList_Recheck.Count > 0)
+                        {
+                            subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
+                        }
+                        subject.ModifyUserId = Convert.ToInt32(userId);
+                        subject.OrderNO = fileResult.OrderNO;
+                        subject.ProjectId = project.ProjectId;
+                        subject.Remark = fileResult.Remark;
+                        subject.SubjectCode = fileResult.SubjectCode;
+                        subject.MustScore = fileResult.MustScore;
+                        subject.ImproveAdvice = fileResult.ImproveAdvice;
+                        subject = masterService.SaveSubject(subject);
+                        // 保存图片
+                        SubjectFile subjectFile = new SubjectFile();
+                        subjectFile.SubjectId = subject.SubjectId;
+                        subjectFile.FileName = fileResult.FileName;
+                        subjectFile.FileDemo = fileResult.FileDemo;
+                        subjectFile.FileDemoDesc = fileResult.FileDemoDesc;
+                        subjectFile.FileRemark = fileResult.FileRemark;
+                        subjectFile.SeqNO = 1;
+                        subjectFile.InUserId = Convert.ToInt32(userId);
+                        subjectFile.ModifyUserId = Convert.ToInt32(userId);
+                        masterService.SaveSubjectFile(subjectFile);
+
+                        // 保存章节和题目关系
+                        ChapterSubject chapterSubject = new ChapterSubject();
+                        chapterSubject.ChapterId = chapter.ChapterId;
+                        chapterSubject.InUserId = Convert.ToInt32(userId);
+                        chapterSubject.SubjectId = Convert.ToInt32(subject.SubjectId);
+                        masterService.SaveChapterSubject(chapterSubject);
+
+                        // 保存ProjectShopExamType，自检题目类型为空
+                        ProjectShopExamType projectShopExamType = new ProjectShopExamType();
+                        projectShopExamType.ExamTypeId = null;
+                        projectShopExamType.InUserId = Convert.ToInt32(userId);
+                        projectShopExamType.ModifyUserId = Convert.ToInt32(userId);
+                        projectShopExamType.ProjectId = project.ProjectId;
+                        List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", projectDto.ShopCode, "", true);
+                        if (shopList != null && shopList.Count > 0)
+                        {
+                            projectShopExamType.ShopId = shopList[0].ShopId;
+                        }
+                        shopService.SaveProjectShopExamType(projectShopExamType);
+                    }
+                }
+                return new APIResult() { Status = true, Body = "" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
         }
         #endregion
     }

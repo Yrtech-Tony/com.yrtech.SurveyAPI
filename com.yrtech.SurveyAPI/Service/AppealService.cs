@@ -547,8 +547,6 @@ namespace com.yrtech.SurveyAPI.Service
                 db.SaveChanges();
                 SaveAppealLogInfo(findOne,appeal.AppealUserId, "U");
             }
-            
-            
             return appeal;
         }
         /// <summary>

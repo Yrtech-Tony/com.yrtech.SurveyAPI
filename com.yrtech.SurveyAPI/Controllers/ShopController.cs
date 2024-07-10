@@ -61,6 +61,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                     //foreach (string examTypeId in examTypeIdList)
                     //{
                     List<LabelDto> labelList = masterService.GetLabel(brandId, projectShopExamType.ExamTypeId.ToString(), "ExamType", true, ""); // 根据ExamTypeId 查询Code和Name
+                    List<ProjectDto> project = masterService.GetProject("", "", projectId, "", "", "", "");
+                    {
+                        if (project != null && project.Count > 0&&project[0].ProjectType=="自检")
+                        {
+                            labelList = labelList.Where(x => x.LabelId != 0).ToList();
+                        }
+                    }
                     if (labelList != null && labelList.Count > 0)
                     {
                         examTypeCodeList += labelList[0].LabelCode;// + ";";

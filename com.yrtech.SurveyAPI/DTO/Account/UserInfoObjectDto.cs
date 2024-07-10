@@ -13,6 +13,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> TenantId { get; set; }
         public int UserId { get; set; }
         public string AccountId { get; set; }
+        public string TelNO { get; set; }
         public int ObjectId { get; set; }
         public string ObjectCode { get; set; }
         public string ObjectName { get; set; }

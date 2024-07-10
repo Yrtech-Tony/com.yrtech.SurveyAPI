@@ -530,8 +530,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             return tokenStr;
         }
         [HttpPost]
-        [Route("Account/GetGTMCToken")]
-        public string GetGTMCToken([FromBody]WxToken wxToken)
+        [Route("Account/GetToken")]
+        public string GetToken([FromBody]WxToken wxToken)
         {
             WxToken wx = new WxToken();
             try
@@ -600,11 +600,11 @@ namespace com.yrtech.SurveyAPI.Controllers
                     wx.access_token = "";
                     wx.expires_in = 0;
                     wx.errcode = "400691";
-                    wx.errmsg = "账号或密码不正确";
+                    wx.errmsg = "AppId或AppSecret不正确";
                     wx.AppId = null;
                     wx.AppSecret = null;
                 }
-                return  CommonHelper.Encode(wx) ;
+                return  CommonHelper.EncodeDto<WxToken>(wx) ;
             }
             catch (Exception)
             {
@@ -614,7 +614,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 wx.errmsg = "系统问题请联系开发者";
                 wx.AppId = null;
                 wx.AppSecret = null;
-                return  CommonHelper.Encode(wx);
+                return  CommonHelper.EncodeDto(wx);
             };
         }
         #endregion

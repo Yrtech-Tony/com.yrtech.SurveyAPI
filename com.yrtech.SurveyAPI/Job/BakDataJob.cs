@@ -14,7 +14,6 @@ namespace com.yrtech.SurveyAPI.Job
         FileService fileService = new FileService();
         public void Execute(IJobExecutionContext context)
         {
-            CommonHelper.log("进入定时任务");
             fileService.DBFileBak();
         }
     }

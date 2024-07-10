@@ -8,6 +8,8 @@ using com.yrtech.SurveyAPI.DTO;
 using com.yrtech.SurveyDAL;
 using System.IO;
 using System.Threading;
+using System.Web;
+using System.Configuration;
 
 namespace com.yrtech.SurveyAPI.Controllers
 {
@@ -20,6 +22,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         RecheckService recheckService = new RecheckService();
         ExcelDataService excelDataService = new ExcelDataService();
         PhotoService photoService = new PhotoService();
+        ShopService shopService = new ShopService();
+        AccountService accountService = new AccountService();
         #region 得分登记
         public List<AnswerDto> AnswerScoreReset(List<AnswerDto> answerList)
         {
@@ -820,7 +824,10 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId, taskType);
+                // 小程序查询当天晚上12点之前的自检任务
+                DateTime startDate = new DateTime(2000,1,1);
+                DateTime endDate = DateTime.Now.AddDays(1).Date;
+                List<ProjectDto> projectList = answerService.GetTaskProject("",projectId, shopId, taskType,startDate,endDate,"自检");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 计算拍照点完成数量
@@ -880,7 +887,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     else
                     {
                         DateTime now = DateTime.Now;
-                        if (project.SubjectCompleteCount==0)
+                        if (project.SubjectCompleteCount == 0)
                         {
                             project.Status = "待开始";
                         }
@@ -911,16 +918,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                string labelId = "";
+
                 List<ChapterDto> chapterList = answerService.GetSubtaskChapter(projectId, shopId);
                 if (chapterList != null && chapterList.Count > 0)
                 {
 
                     foreach (ChapterDto chapter in chapterList)
                     {
+                        List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType("", chapter.ProjectId.ToString(), chapter.ShopId.ToString());
+                        if (projectShopExamTypeList != null && projectShopExamTypeList.Count > 0)
+                        {
+                            labelId = projectShopExamTypeList[0].ExamTypeId.ToString();
+                        }
                         #region 计算拍照点完成数量
                         // 已拍照或者无照片都认为已完成
                         int answerCount = 0;
-                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(chapter.ProjectId.ToString(), shopId, chapter.ChapterId.ToString());
+                        List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(chapter.ProjectId.ToString(), shopId, chapter.ChapterId.ToString(), labelId);
                         foreach (AnswerDto answer in answerList)
                         {
                             if (answer.PhotoScore == 9999) // 无照片
@@ -994,11 +1008,11 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 拍照点查询
         [HttpGet]
         [Route("Answer/GetPhotoPoint")]
-        public APIResult GetPhotoPoint(string projectId, string shopId, string chapterId)
+        public APIResult GetPhotoPoint(string projectId, string shopId, string chapterId, string examTypeId = "")
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(projectId, shopId, chapterId);
+                List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(projectId, shopId, chapterId, examTypeId);
                 foreach (AnswerDto answer in answerList)
                 {
                     // 标准照片信息
@@ -1042,33 +1056,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
-        //[HttpPost]
-        //[Route("Answer/CheckData365")]
-        //public APIResult CheckData365(string shopCode)
-        //{
-        //    try
-        //    {
-        //        //1. 上报是按照当天的数据全部上报,
-        //        //2. 
-        //        List<ShopDto> shopList = masterService.GetShop("", "32", "", shopCode, "", null);
-        //        if (shopList != null && shopList.Count > 0)
-        //        {
-        //            List<AnswerShopInfoDto> shopInfoList = answerService.GetAnswerShopInfo("", shopList[0].ShopId.ToString(), "");
-        //            shopInfoList.Where(x => !string.IsNullOrEmpty(x.TeamLeader)
-        //                                && x.ModifyDateTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
-        //                                && x.ModifyDateTime < new DateTime(DateTime.Now.AddDays(1).Year, DateTime.Now.AddDays(1).Month, DateTime.Now.AddDays(1).Day)).ToList();
-
-        //            return CommonHelper.Encode(shopInfoList);
-
-        //        }
-        //        return new APIResult() { Status = true, Body = "" };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new APIResult() { Status = false, Body = ex.Message.ToString() };
-        //    }
-        //}
         #region 待办
         // 数据采集
         [HttpGet]
@@ -1078,7 +1065,10 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 CountDto count = new CountDto();
-                List<ProjectDto> projectList = answerService.GetTaskProject(projectId, shopId, taskType);
+                // 小程序查询当天晚上12点之前的自检任务
+                DateTime startDate = new DateTime(2000,1,1);
+                DateTime endDate = DateTime.Now.AddDays(1).Date;
+                List<ProjectDto> projectList = answerService.GetTaskProject("",projectId, shopId, taskType,startDate,endDate,"自检");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 已完成和未完成数量统计
@@ -1127,6 +1117,157 @@ namespace com.yrtech.SurveyAPI.Controllers
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        #region 外部接口
+        /// <summary>
+        /// GTMC 上报，每天1次 凌晨1-3点
+        /// </summary>
+        /// <param name="gtmc"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Answer/DealerInspectionReport")]
+        public string DealerInspectionReport(GTMC365Dto gtmc)
+        {
+            List<GTMC365Dto> gtmc365List = new List<GTMC365Dto>();
+            // 
+            string brandId = ConfigurationManager.AppSettings["GTMCBrandId"];
+            string dealerCode = "";
+            if (gtmc != null)
+            {
+                dealerCode = gtmc.DEALERCODE;
+            }
+            // 调用日志
+            ExtraCallLog extraCallLog = new ExtraCallLog();
+            extraCallLog.InUserId = "gtmc";
+            extraCallLog.MethodCall = "DealerInspectionReport";
+            extraCallLog.Parater = dealerCode;
+            try
+            {   // 验证Token
+                var request = HttpContext.Current.Request;
+                var header = request.Headers["Authorization"];
+                List<AppInfo> appInfoList = accountService.GetAppInfo("gtmcyrtechsurvey");
+                if (appInfoList == null || appInfoList.Count == 0) // token 不存在
+                {
+                    GTMC365Dto gtmc365 = new GTMC365Dto();
+                    gtmc365.code = "2001";
+                    gtmc365.msg = "token不存在或已失效";
+                    gtmc365List.Add(gtmc365);
+                    extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                    masterService.SaveExtraCallLog(extraCallLog);
+                    return CommonHelper.Encode(gtmc365List);
+                }
+                if (appInfoList[0].Token != header)
+                {
+                    GTMC365Dto gtmc365 = new GTMC365Dto();
+                    gtmc365.code = "2001";
+                    gtmc365.msg = "token不存在或已失效";
+                    gtmc365List.Add(gtmc365);
+                    extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                    masterService.SaveExtraCallLog(extraCallLog);
+                    return CommonHelper.Encode(gtmc365List);
+                }
+                if (appInfoList[0].Token == header) 
+                {
+                    TimeSpan ts = DateTime.Now - Convert.ToDateTime(appInfoList[0].ModifyDateTime);
+                    double second = ts.TotalSeconds;
+                    // 如未超时，直接使用数据库token，已超时重新获取
+                    if (second > 7200) // token失效
+                    {
+                        GTMC365Dto gtmc365 = new GTMC365Dto();
+                        gtmc365.code = "2001";
+                        gtmc365.msg = "token不存在或已失效";
+                        gtmc365List.Add(gtmc365);
+                        extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                        masterService.SaveExtraCallLog(extraCallLog);
+                        return CommonHelper.Encode(gtmc365List);
+                    }
+                }
+                // 验证经销商代码是否正确
+                List<ShopDto> shopList = new List<ShopDto>();
+                if (!string.IsNullOrEmpty(dealerCode))
+                {
+                    shopList = masterService.GetShop("", brandId, "", dealerCode, "", true);
+                    if (shopList.Count == 0)
+                    {
+                        GTMC365Dto gtmc365 = new GTMC365Dto();
+                        gtmc365.code = "2002";
+                        gtmc365.msg = "参数错误,店代码不存在";
+                        gtmc365List.Add(gtmc365);
+                    }
+                    extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                    masterService.SaveExtraCallLog(extraCallLog);
+                    return CommonHelper.Encode(gtmc365List);
+                }
+                // 获取点检数据
+                shopList = masterService.GetShop("", brandId, "", dealerCode, "", true);
+                if (shopList != null && shopList.Count > 0)
+                {
+                    foreach (ShopDto shop in shopList)
+                    {
+                        GTMC365Dto gtmc365 = new GTMC365Dto();
+                        gtmc365.DEALERCODE = shop.ShopCode;
+                        gtmc365.organizename = shop.ShopName;
+                        gtmc365.province = shop.Province;
+                        gtmc365.city = shop.City;
+                        gtmc365.area = shop.AreaName;
+                        gtmc365.extract_time = DateTime.Now.ToString();
+                        // 查询当天点检任务。GTMC是凌晨1-3点调用，所以当前时间往前推1天
+                        DateTime startDate = DateTime.Now.AddDays(-1).Date;
+                        DateTime endDate = DateTime.Now.Date;
+                        List<ProjectDto> taskList = answerService.GetTaskProject("","", shop.ShopId.ToString(), "", startDate, endDate, "自检");
+                        // 无点检任务，不需要上报
+                        if (taskList != null && taskList.Count > 0)
+                        {
+                            gtmc365.code = "1000";
+                            gtmc365.msg = "";
+                            List<AnswerShopInfoDto> answerShopInfoList = answerService.GetAnswerShopInfo(taskList[0].ProjectId.ToString(), shop.ShopId.ToString(), "");
+                            if (answerShopInfoList != null && answerShopInfoList.Count > 0)
+                            {
+                                List<AnswerShopInfoUploadLog> uploadLogList = masterService.GetAnswerShopInfoUploadLog(taskList[0].ProjectId.ToString(), shop.ShopId.ToString());
+                                if (uploadLogList == null || uploadLogList.Count == 0)
+                                {
+                                    gtmc365.answer_state_translate = "I";
+                                }
+                                else
+                                {
+                                    gtmc365.answer_state_translate = "U";
+                                }
+                                gtmc365.attendance_rate = answerShopInfoList[0].SalesNameCheckMode;
+                            }
+                            List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatusInfo(taskList[0].ProjectId.ToString(), shop.ShopId.ToString(), "S1");
+                            if (recheckStatus != null && recheckStatus.Count > 0)
+                            {
+                                gtmc365.operate_type = "已提交";
+                            }
+                            else
+                            {
+                                gtmc365.operate_type = "未提交";
+                            }
+                            gtmc365List.Add(gtmc365);
+                            AnswerShopInfoUploadLog uploadLog = new AnswerShopInfoUploadLog();
+                            uploadLog.ProjectId = taskList[0].ProjectId;
+                            uploadLog.ShopId = taskList[0].ShopId;
+                            uploadLog.InUserId = "gtmc";
+                            masterService.SaveAnswerShopInfoUploadLog(uploadLog);
+                        }
+                    }
+                }
+                extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                masterService.SaveExtraCallLog(extraCallLog);
+                return CommonHelper.Encode(gtmc365List);
+            }
+            catch (Exception ex)
+            {
+                GTMC365Dto gtmc365 = new GTMC365Dto();
+                gtmc365.code = "2003";
+                gtmc365.msg = "系统错误，请联系开发人员";
+                gtmc365List.Add(gtmc365);
+                extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
+                masterService.SaveExtraCallLog(extraCallLog);
+                CommonHelper.log(ex.Message.ToString());
+                return CommonHelper.Encode(gtmc365List);
             }
         }
         #endregion

@@ -12,6 +12,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? PreProjectId { get; set; }
         public long? SubjectId { get; set; }
         public int? ShopId { get; set; }
+        public string ShopCode { get; set; }
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> BrandId { get; set; }
         public string ProjectCode { get; set; }

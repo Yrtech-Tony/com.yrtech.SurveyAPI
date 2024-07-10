@@ -750,17 +750,23 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 自检任务
         #region 获取任务（期号）
-        public List<ProjectDto> GetTaskProject(string projectId, string shopId,string taskType)
+        // 小程序任务清单
+        public List<ProjectDto> GetTaskProject(string brandId,string projectId, string shopId,string taskType,DateTime startDate,DateTime endDate,string projectType)
         {
             projectId = projectId == null ? "" : projectId;
+            brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
             taskType = taskType == null ? "" : taskType;
+            projectType = projectType == null ? "" : projectType;
             //DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-            DateTime dtNow = new DateTime(DateTime.Now.AddDays(1).Year,DateTime.Now.AddDays(1).Month,DateTime.Now.AddDays(1).Day);
+            //DateTime dtNow = new DateTime(DateTime.Now.AddDays(1).Year,DateTime.Now.AddDays(1).Month,DateTime.Now.AddDays(1).Day);
 
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@StartDate", dtNow)};
+                                                       new SqlParameter("@StartDate", startDate),
+                                                       new SqlParameter("@EndDate", endDate),
+                                                       new SqlParameter("@ProjectType", projectType),
+                                                       new SqlParameter("@BrandId", brandId)};
             Type t = typeof(ProjectDto);
             string sql = "";
             sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
@@ -770,7 +776,7 @@ namespace com.yrtech.SurveyAPI.Service
                                      INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId)
                     AS SubjectCount
                     FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-                    WHERE 1=1 AND B.StartDate<@StartDate
+                    WHERE 1=1 AND B.StartDate BETWEEN @StartDate AND @EndDate
                      ";
             if (!string.IsNullOrEmpty(shopId))
             {
@@ -779,6 +785,14 @@ namespace com.yrtech.SurveyAPI.Service
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND A.ProjectId =@ProjectId";
+            }
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectType =@ProjectType";
+            }
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND B.BrandId =@BrandId";
             }
             if (taskType == "1")// 查询改善措施
             {
@@ -789,6 +803,35 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
+        //// 上报任务查询,针对广汽丰田GTMC项目使用
+        //public List<ProjectDto> GetTaskProjectGTMC(string projectId, string shopId)
+        //{
+        //    projectId = projectId == null ? "" : projectId;
+        //    shopId = shopId == null ? "" : shopId;
+        //    //DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+        //    DateTime startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+        //    DateTime endDate = new DateTime(DateTime.Now.AddDays(1).Year, DateTime.Now.AddDays(1).Month, DateTime.Now.AddDays(1).Day);
+        //    SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId),
+        //                                               new SqlParameter("@ProjectId", projectId),
+        //                                               new SqlParameter("@StartDate", startDate),
+        //                                               new SqlParameter("@EndDate", endDate)};
+        //    Type t = typeof(ProjectDto);
+        //    string sql = "";
+        //    sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
+        //            FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
+        //            WHERE 1=1 AND B.StartDate BETWEEN @StartDate AND @EndDate
+        //            AND B.ProjectType = '自检'
+        //             ";
+        //    if (!string.IsNullOrEmpty(shopId))
+        //    {
+        //        sql += " AND A.ShopId =@ShopId";
+        //    }
+        //    if (!string.IsNullOrEmpty(projectId))
+        //    {
+        //        sql += " AND A.ProjectId =@ProjectId";
+        //    }
+        //    return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
+        //}
         #endregion
         #region 获取章节（子任务)
         /// <summary>
@@ -833,14 +876,16 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="chapterId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopAnswerByChapterId(string projectId,string shopId,string chapterId)
+        public List<AnswerDto> GetShopAnswerByChapterId(string projectId,string shopId,string chapterId,string examTypeId)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             chapterId = chapterId == null ? "" : chapterId;
+            examTypeId = examTypeId == null ? "" : examTypeId;
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ShopId", shopId)
                                                     , new SqlParameter("@ChapterId", chapterId)
-                                                    , new SqlParameter("@ProjectId", projectId) };
+                                                    , new SqlParameter("@ProjectId", projectId)
+                                                    , new SqlParameter("@ExamTypeId", examTypeId)};
            
             Type t = typeof(AnswerDto);
             string sql = "";
@@ -864,7 +909,7 @@ namespace com.yrtech.SurveyAPI.Service
                     ,B.ChapterId
                     ,A.InspectionDesc
                      FROM  [Subject] A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
-                    WHERE 1=1";
+                    WHERE 1=1 AND ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = @ExamTypeId) ";
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND A.ProjectId = @ProjectId";

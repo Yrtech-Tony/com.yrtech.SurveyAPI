@@ -464,63 +464,64 @@ namespace com.yrtech.SurveyAPI.Service
             if (userId == null) userId = "";
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                         new SqlParameter("@ObjectId", objectId),
-                                                        new SqlParameter("@UserId", userId)
+                                                        new SqlParameter("@UserId", userId),
+                                                        new SqlParameter("@RoleTypeCode", roleTypeCode)
                                                         };
             Type t = typeof(UserInfoObjectDto);
 
             string sql = "";
             if (roleTypeCode == "B_Bussiness")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='Bussiness'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_WideArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='WideArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_BigArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='BigArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_MiddleArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='MiddleArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_SmallArea")
             {
-                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.AreaCode AS ObjectCode,C.AreaName AS ObjectName,C.AreaId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN Area C ON B.ObjectId = C.AreaId AND C.AreaType='SmallArea'
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_Group")
             {
-                sql = @"SELECT B.Id,B.UserId,C.GroupCode AS ObjectCode,C.GroupName AS ObjectName,C.GroupId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.GroupCode AS ObjectCode,C.GroupName AS ObjectName,C.GroupId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                               INNER JOIN [Group] C ON B.ObjectId = C.GroupId
                           WHERE 1=1";
             }
             else if (roleTypeCode == "B_Shop")
             {
-                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
-                                              INNER JOIN Shop C ON B.ObjectId = C.ShopId
+                                            INNER JOIN Shop C ON B.ObjectId = C.ShopId
                           WHERE 1=1";
             }
             else if (roleTypeCode == "S_Execute")// 设置执行人员有权限的经销商
             {
-                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId,ISNULL(A.TelNO,'') TelNO
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                             INNER JOIN Shop C ON B.ObjectId = C.ShopId
                           WHERE 1=1 ";
@@ -529,6 +530,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
 
             }
+            sql += " AND A.RoleType  = @RoleTypeCode";
             if (!string.IsNullOrEmpty(tenantId))
             {
                 sql += " AND A.TenantId = @TenantId";
@@ -825,7 +827,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// 保存期号信息
         /// </summary>
         /// <param name="project"></param>
-        public void SaveProject(Project project)
+        public Project SaveProject(Project project)
         {
             //List<UserInfo> userList = accountService.GetUserInfo("",project.ModifyUserId.ToString(),"","");
             //if (userList == null || userList.Count == 0)
@@ -845,6 +847,8 @@ namespace com.yrtech.SurveyAPI.Service
                 project.InDateTime = DateTime.Now;
                 project.ModifyDateTime = DateTime.Now;
                 db.Project.Add(project);
+                db.SaveChanges();
+                return project;
             }
             else
             {
@@ -869,8 +873,11 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.StartDate = project.StartDate;
                 findOne.EndDate = project.EndDate;
                 findOne.ProjectGroup = project.ProjectGroup;
+                project = findOne;
+                db.SaveChanges();
+
             }
-            db.SaveChanges();
+            return project;
         }
         #endregion
         #region 经销商
@@ -907,6 +914,7 @@ namespace com.yrtech.SurveyAPI.Service
                           ,[GroupId]
                           ,(SELECT TOP 1  GroupName FROM  [GROUP] X WHERE X.GroupId = A.GroupId) AS GroupName
                           ,(SELECT TOP 1  GroupCode FROM  [GROUP] Y WHERE Y.GroupId = A.GroupId) AS GroupCode
+                          ,(SELECT TOP 1 AreaName FROM Area X INNER JOIN AreaShop Y ON X.AreaId = Y.AreaId AND Y.ShopId = A.ShopId) AS AreaName
                           ,[UseChk]
                           ,[InUserId]
                           ,[InDateTime]
@@ -1164,7 +1172,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// 保存体系信息
         /// </summary>
         /// <param name="subject"></param>
-        public void SaveSubject(Subject subject)
+        public Subject SaveSubject(Subject subject)
         {
             Subject findOne = db.Subject.Where(x => (x.SubjectId == subject.SubjectId)).FirstOrDefault();
             if (findOne == null)
@@ -1172,6 +1180,7 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.InDateTime = DateTime.Now;
                 subject.ModifyDateTime = DateTime.Now;
                 db.Subject.Add(subject);
+                db.SaveChanges();
             }
             else
             {
@@ -1192,8 +1201,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.SubjectCode = subject.SubjectCode;
                 findOne.MustScore = subject.MustScore;
                 findOne.ImproveAdvice = subject.ImproveAdvice;
+                subject = findOne;
+                db.SaveChanges();
             }
-            db.SaveChanges();
+            return subject;
         }
         /// <summary>
         /// 删除体系
@@ -1233,7 +1244,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="subjectFile"></param>
         public void SaveSubjectFile(SubjectFile subjectFile)
         {
-            CommonHelper.log("ServiceSaveSubjectFile:" + subjectFile.FileDemo);
+            // CommonHelper.log("ServiceSaveSubjectFile:" + subjectFile.FileDemo);
             if (subjectFile.SeqNO == 0)
             {
                 SubjectFile findOneMax = db.SubjectFile.Where(x => (x.SubjectId == subjectFile.SubjectId)).OrderByDescending(x => x.SeqNO).FirstOrDefault();
@@ -1255,6 +1266,7 @@ namespace com.yrtech.SurveyAPI.Service
                 if (findOne == null)
                 {
                     subjectFile.InDateTime = DateTime.Now;
+                    subjectFile.ModifyDateTime = DateTime.Now;
                     db.SubjectFile.Add(subjectFile);
                 }
                 else
@@ -1619,13 +1631,14 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return db.Database.SqlQuery(t, sql, para).Cast<ChapterDto>().ToList();
         }
-        public void SaveChapter(Chapter chapter)
+        public Chapter SaveChapter(Chapter chapter)
         {
             Chapter findOne = db.Chapter.Where(x => (x.ChapterId == chapter.ChapterId)).FirstOrDefault();
             if (findOne == null)
             {
                 chapter.InDateTime = DateTime.Now;
                 db.Chapter.Add(chapter);
+                db.SaveChanges();
             }
             else
             {
@@ -1633,8 +1646,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ChapterName = chapter.ChapterName;
                 findOne.FullScore = chapter.FullScore;
                 findOne.ReportTypeId = chapter.ReportTypeId;
+                chapter = findOne;
+                db.SaveChanges();
             }
-            db.SaveChanges();
+            return chapter;
         }
         public List<ChapterSubjectDto> GetChapterSubject(string projectId, string chapterId, string subjectId)
         {
@@ -2156,6 +2171,53 @@ namespace com.yrtech.SurveyAPI.Service
         }
 
         #endregion
-        
+        #region GTMC 上传记录
+        public List<AnswerShopInfoUploadLog> GetAnswerShopInfoUploadLog(string projectId, string shopId)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@ShopId", shopId)};
+            Type t = typeof(AnswerShopInfoUploadLog);
+            string sql = "";
+
+            sql = @"SELECT A.*
+                    FROM AnswerShopInfoUploadLog A WHERE 1=1";
+
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoUploadLog>().ToList();
+
+        }
+        public void SaveAnswerShopInfoUploadLog(AnswerShopInfoUploadLog answerShopInfoUploadLog)
+        {
+            AnswerShopInfoUploadLog findOne = db.AnswerShopInfoUploadLog.Where(x => (x.ProjectId == answerShopInfoUploadLog.ProjectId && x.ShopId == answerShopInfoUploadLog.ShopId)).FirstOrDefault();
+            if (findOne == null)
+            {
+                answerShopInfoUploadLog.InDateTime = DateTime.Now;
+                db.AnswerShopInfoUploadLog.Add(answerShopInfoUploadLog);
+            }
+            else
+            {
+            }
+            db.SaveChanges();
+        }
+
+        // 外部调用日志
+        public void SaveExtraCallLog(ExtraCallLog extraCallLog)
+        {
+            extraCallLog.InDateTime = DateTime.Now;
+            db.ExtraCallLog.Add(extraCallLog);
+            db.SaveChanges();
+        }
+        #endregion
+
     }
 }

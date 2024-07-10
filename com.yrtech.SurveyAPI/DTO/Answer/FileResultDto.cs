@@ -25,5 +25,29 @@ namespace com.yrtech.SurveyAPI.DTO
         public int ModifyUserId { get; set; }
         public bool ImportChk { get; set; }
         public string ImportRemark { get; set; }
+        public string BrandId { get; set; } // 品牌Id
+        public string ProjectCode { get; set; }
+        public string ProjectName { get; set; }
+        public Nullable<int> OrderNO { get; set; }//序号
+        public Nullable<decimal> FullScore { get; set; } // 最高分
+        public Nullable<decimal> LowScore { get; set; }// 最低分
+        public bool? MustScore { get; set; }
+        public int? LabelId { get; set; } // 卷别类型ID
+        public int? LabelId_RecheckType { get; set; } // 复审类型ID
+        public int? LabelId_SubjectPattern { get; set; }
+        public string SubjectPatternCode { get; set; } // 题目类型代码
+        public string SubjectPatternName { get; set; }// 题目类型名称
+        public string ExamTypeCode { get; set; } // 卷别类型代码
+        public string ExamTypeName { get; set; } // 卷别类型名称
+        public string RecheckTypeCode { get; set; } // 复审类型代码
+        public string RecheckTypeName { get; set; } // 复审类型名称
+        public string HiddenCode_SubjectType { get; set; } // 题目类型
+        public string HiddenCode_SubjectTypeName { get; set; } // 题目类型名称
+        public string CheckPoint { get; set; }// 检查点
+        public string Implementation { get; set; }// 执行方式
+        public string InspectionDesc { get; set; }//检查标准说明
+        public string Remark { get; set; }//备注
+        public string Desc { get; set; }//备注
+        public string ImproveAdvice { get; set; } // 改善建议
     }
 }
