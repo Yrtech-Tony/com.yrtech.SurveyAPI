@@ -31,7 +31,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             string projectId = answerList[0].ProjectId.ToString();
             // 打分默认显示
             string scoreShowType = "";
-            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "");
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
             if (projectList != null && projectList.Count > 0)
             {
                 scoreShowType = projectList[0].ScoreShowType;
@@ -101,6 +101,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         [Route("Answer/GetShopNextAnswerSubjectInfo")]
         public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO, string subjectType = "")
         {
+            //CommonHelper.log("GetShopNextAnswerSubjectInfo:"+projectId+"$"+shopId+"$"+examTypeId+"$"+orderNO+"$"+subjectType);
+            //Thread.Sleep(1000);
             try
             {
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
@@ -118,6 +120,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
             catch (Exception ex)
             {
+                //CommonHelper.log(ex.Message.ToString());
+                //Thread.Sleep(1000);
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
@@ -190,6 +194,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         [Route("Answer/SaveAnswerInfo")]
         public APIResult SaveAnswerInfo(AnswerDto answer)
         {
+            //CommonHelper.log("SaveAnswerInfo:" + answer.ProjectId + "$" + answer.ShopId + "$" + answer.FileResult + "$" + answer.PhotoScore );
+            //Thread.Sleep(1000);
             try
             {
                 #region 获取操作人权限
@@ -209,7 +215,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<RecheckStatusDto> list = recheckService.GetShopRecheckStatus(answer.ProjectId.ToString(), answer.ShopId.ToString(), "");
                     if (list != null && list.Count > 0)
                     {
-
                         if (!string.IsNullOrEmpty(list[0].Status_S4))
                         {
                             throw new Exception("已复审修改完毕，不能进行修改");
@@ -223,7 +228,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 else if (roleTypeCode == "B_Shop") // 允许经销商自检的情况
                 {
                     string projectType = "";
-                    List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", answer.ProjectId.ToString(), "", "", "", "", null, null, "");
                     if (projectList != null && projectList.Count > 0)
                     {
                         projectType = projectList[0].ProjectType;
@@ -254,6 +259,8 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
             catch (Exception ex)
             {
+                //CommonHelper.log(ex.ToString());
+                //Thread.Sleep(1000);
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
@@ -616,29 +623,30 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<AnswerShopInfoDto> result = new List<AnswerShopInfoDto>();
 
                 List<AnswerShopInfoDto> answershopInfoList = answerService.GetAnswerShopInfo(projectId, shopId, shopkey);
-                List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null, "");
-                if (string.IsNullOrEmpty(userId)
-                    || (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType != "S_Execute"
-                    && userInfoList[0].RoleType != "B_Shop")
-                    )
+
+                if (string.IsNullOrEmpty(userId))
                 {
                     result = answershopInfoList;
                 }
                 else
                 {
-                    List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", "S_Execute");
-                    if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
+                    List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null, "");
+                    if (userInfoList != null && userInfoList.Count > 0 && (userInfoList[0].RoleType == "S_Execute" || userInfoList[0].RoleType == "B_Shop"))
                     {
-                        foreach (AnswerShopInfoDto answerShopInfoDto in answershopInfoList)
-                        {
-                            List<UserInfoObjectDto> userInfoObjectList = userInfoObjectDtoList.Where(x => x.ObjectId == answerShopInfoDto.ShopId).ToList();
-                            if (userInfoObjectList != null && userInfoObjectList.Count > 0)
+                        List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
+                        //if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
+                        //{
+                            foreach (AnswerShopInfoDto answerShopInfoDto in answershopInfoList)
                             {
-                                result.Add(answerShopInfoDto);
+                                List<UserInfoObjectDto> userInfoObjectList = userInfoObjectDtoList.Where(x => x.ObjectId == answerShopInfoDto.ShopId).ToList();
+                                if (userInfoObjectList != null && userInfoObjectList.Count > 0)
+                                {
+                                    result.Add(answerShopInfoDto);
+                                }
                             }
-                        }
+                        //}
                     }
-                    else if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "B_Shop")
+                    else
                     {
                         result = answershopInfoList;
                     }
@@ -820,14 +828,19 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 查询改善事项 taskType = 1 
         [HttpGet]
         [Route("Answer/GetTaskProject")]
-        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType = "")
+        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType = "", string projectType = "")
         {
             try
             {
                 // 小程序查询当天晚上12点之前的自检任务
-                DateTime startDate = new DateTime(2000,1,1);
+                DateTime startDate = new DateTime(2000, 1, 1);
                 DateTime endDate = DateTime.Now.AddDays(1).Date;
-                List<ProjectDto> projectList = answerService.GetTaskProject("",projectId, shopId, taskType,startDate,endDate,"自检");
+                List<ProjectDto> projectList = new List<ProjectDto>();
+                string[] shopIdList = shopId.Split(';');
+                foreach (string shopIdstr in shopIdList)
+                {
+                    projectList.AddRange(answerService.GetTaskProject("", projectId, shopId, taskType, startDate, endDate, projectType));
+                }
                 foreach (ProjectDto project in projectList)
                 {
                     #region 计算拍照点完成数量
@@ -880,10 +893,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         project.Status = "已提交";
                     }
-                    else if (project.SubjectCompleteCount == project.SubjectCount)
-                    {
-                        project.Status = "已完成";
-                    }
+                    //else if (project.SubjectCompleteCount == project.SubjectCount)
+                    //{
+                    //    project.Status = "已完成";
+                    //}
                     else
                     {
                         DateTime now = DateTime.Now;
@@ -892,9 +905,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                             project.Status = "待开始";
                         }
                         if (project.SubjectCompleteCount != 0
-                           && project.SubjectCompleteCount < project.SubjectCount)
+                            )
                         {
-                            project.Status = "进行中";
+                            project.Status = "未提交";
                         }
                         if (now > project.EndDate)
                         {
@@ -1066,9 +1079,9 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 CountDto count = new CountDto();
                 // 小程序查询当天晚上12点之前的自检任务
-                DateTime startDate = new DateTime(2000,1,1);
+                DateTime startDate = new DateTime(2000, 1, 1);
                 DateTime endDate = DateTime.Now.AddDays(1).Date;
-                List<ProjectDto> projectList = answerService.GetTaskProject("",projectId, shopId, taskType,startDate,endDate,"自检");
+                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, startDate, endDate, "自检");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 已完成和未完成数量统计
@@ -1168,7 +1181,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     masterService.SaveExtraCallLog(extraCallLog);
                     return CommonHelper.Encode(gtmc365List);
                 }
-                if (appInfoList[0].Token == header) 
+                if (appInfoList[0].Token == header)
                 {
                     TimeSpan ts = DateTime.Now - Convert.ToDateTime(appInfoList[0].ModifyDateTime);
                     double second = ts.TotalSeconds;
@@ -1216,7 +1229,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         // 查询当天点检任务。GTMC是凌晨1-3点调用，所以当前时间往前推1天
                         DateTime startDate = DateTime.Now.AddDays(-1).Date;
                         DateTime endDate = DateTime.Now.Date;
-                        List<ProjectDto> taskList = answerService.GetTaskProject("","", shop.ShopId.ToString(), "", startDate, endDate, "自检");
+                        List<ProjectDto> taskList = answerService.GetTaskProject("", "", shop.ShopId.ToString(), "", startDate, endDate, "自检");
                         // 无点检任务，不需要上报
                         if (taskList != null && taskList.Count > 0)
                         {
@@ -1228,22 +1241,22 @@ namespace com.yrtech.SurveyAPI.Controllers
                                 List<AnswerShopInfoUploadLog> uploadLogList = masterService.GetAnswerShopInfoUploadLog(taskList[0].ProjectId.ToString(), shop.ShopId.ToString());
                                 if (uploadLogList == null || uploadLogList.Count == 0)
                                 {
-                                    gtmc365.answer_state_translate = "I";
+                                    gtmc365.operate_type = "I";
                                 }
                                 else
                                 {
-                                    gtmc365.answer_state_translate = "U";
+                                    gtmc365.operate_type = "U";
                                 }
                                 gtmc365.attendance_rate = answerShopInfoList[0].SalesNameCheckMode;
                             }
                             List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatusInfo(taskList[0].ProjectId.ToString(), shop.ShopId.ToString(), "S1");
                             if (recheckStatus != null && recheckStatus.Count > 0)
                             {
-                                gtmc365.operate_type = "已提交";
+                                gtmc365.answer_state_translate = "已提交";
                             }
                             else
                             {
-                                gtmc365.operate_type = "未提交";
+                                gtmc365.answer_state_translate = "未提交";
                             }
                             gtmc365List.Add(gtmc365);
                             AnswerShopInfoUploadLog uploadLog = new AnswerShopInfoUploadLog();

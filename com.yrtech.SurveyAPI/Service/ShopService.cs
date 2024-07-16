@@ -22,14 +22,15 @@ namespace com.yrtech.SurveyAPI.Service
             projectId = projectId == null ? "" : projectId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
-            if (string.IsNullOrEmpty(projectId))
+            // 如果都为空，不查询数据
+            if (string.IsNullOrEmpty(projectId)&&string.IsNullOrEmpty(brandId))
             {
                 return new List<ProjectShopExamTypeDto>();
             }
             if (string.IsNullOrEmpty(brandId))
             {
                 MasterService masterService = new MasterService();
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
                 if (projectList != null && projectList.Count > 0)
                 {
                     brandId = projectList[0].BrandId.ToString();

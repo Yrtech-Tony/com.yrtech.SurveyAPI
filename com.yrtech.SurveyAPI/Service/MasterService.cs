@@ -711,7 +711,8 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="brandId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode, string year, string orderNO, string projectType)
+        public List<ProjectDto> GetProject(string tenantId, string brandId, string projectId, string projectCode, string year, string orderNO
+                                            , string projectType, DateTime? startDate, DateTime? endDate, string key)
         {
             tenantId = tenantId == null ? "" : tenantId;
             brandId = brandId == null ? "" : brandId;
@@ -720,18 +721,38 @@ namespace com.yrtech.SurveyAPI.Service
             projectCode = projectCode == null ? "" : projectCode;
             orderNO = orderNO == null ? "" : orderNO;
             projectType = projectType == null ? "" : projectType;
+            key = key == null ? "" : key;
+            if (startDate == null)
+            {
+                startDate = new DateTime(2000, 1, 1);
+            }
+            else
+            {
+                startDate = Convert.ToDateTime(Convert.ToDateTime(startDate).Date.ToString("yyyy-MM-dd") + " 00:00:00");
+            }
+            if (endDate == null)
+            {
+                endDate = new DateTime(9999, 12, 31);
+            }
+            else
+            {
+                endDate = Convert.ToDateTime(Convert.ToDateTime(endDate).Date.ToString("yyyy-MM-dd") + " 23:59:59");
+            }
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@TenantId", tenantId),
                                                        new SqlParameter("@BrandId", brandId),
                                                        new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ProjectCode", projectCode),
                                                        new SqlParameter("@Year", year),
                                                        new SqlParameter("@OrderNO", orderNO),
-                                                       new SqlParameter("@ProjectType", projectType)};
+                                                       new SqlParameter("@ProjectType", projectType),
+                                                       new SqlParameter("@StartDate", startDate),
+                                                       new SqlParameter("@EndDate", endDate),
+                                                        new SqlParameter("@Key", key)};
             Type t = typeof(ProjectDto);
             string sql = "";
-            sql = @"SELECT [ProjectId]
-                          ,[TenantId]
-                          ,[BrandId]
+            sql = @"SELECT A.[ProjectId]
+                          ,A.[TenantId]
+                          ,A.[BrandId]
                           ,[ProjectCode]
                           ,[ProjectName]
                           ,CASE WHEN [ProjectShortName] IS NULL OR [ProjectShortName] ='' THEN ProjectName 
@@ -751,36 +772,43 @@ namespace com.yrtech.SurveyAPI.Service
                           ,StartDate
                           ,EndDate
                           ,ProjectGroup
-                          ,(SELECT TOP 1 ShopId FROM ProjectShopExamType WHERE ProjectId = A.ProjectId) AS ShopId
-                          ,[InUserId]
-                          ,[InDateTime]
-                          ,[ModifyUserId]
-                          ,[ModifyDateTime]
+                          ,A.[InUserId]
+                          ,A.[InDateTime]
+                          ,A.[ModifyUserId]
+                          ,A.[ModifyDateTime]
                           ,CASE WHEN GETDATE()<ReportDeployDate OR ReportDeployDate IS NULL THEN CAST(0 AS BIT) 
                              ELSE CAST(1 AS BIT) END AS ReportDeployChk,ISNULL(ProjectType,'明检') AS ProjectType
-                    FROM [Project] A
-                    WHERE 1=1
+                          --,B.ShopId
+                          --,C.ShopCode
+                    FROM [Project] A  
+                    
                     ";
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += @" INNER JOIN ProjectShopExamType B ON A.ProjectId = B.ProjectId
+                          INNER JOIN Shop C ON B.ShopId = C.ShopId";
+            }
+            sql += " WHERE 1=1 AND ISNULL(StartDate,'2020-01-01') BETWEEN @StartDate AND @EndDate";
             if (!string.IsNullOrEmpty(tenantId))
             {
-                sql += " AND TenantId = @TenantId";
+                sql += " AND A.TenantId = @TenantId";
             }
             if (!string.IsNullOrEmpty(brandId))
             {
-                sql += " AND BrandId = @BrandId";
+                sql += " AND A.BrandId = @BrandId";
                 // 有品牌的情况下才按照年份进行查询，如果品牌信息为空不查询
                 if (!string.IsNullOrEmpty(year))
                 {
-                    sql += " AND Year = @Year";
+                    sql += " AND A.Year = @Year";
                 }
             }
             if (!string.IsNullOrEmpty(projectId))
             {
-                sql += " AND ProjectId = @ProjectId";
+                sql += " AND A.ProjectId = @ProjectId";
             }
             if (!string.IsNullOrEmpty(projectCode))
             {
-                sql += " AND ProjectCode = @ProjectCode";
+                sql += " AND A.ProjectCode = @ProjectCode";
             }
             if (!string.IsNullOrEmpty(orderNO))
             {
@@ -790,7 +818,11 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND ProjectType = @ProjectType";
             }
-            sql += " ORDER BY Year,OrderNO DESC";
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += " AND (C.ShopCode LIKE '%'+@Key+'%' OR C.ShopShortName LIKE '%'+@Key+'%' OR C.ShopName LIKE '%'+@Key+'%')";
+            }
+            sql += " ORDER BY A.Year,A.OrderNO DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
         /// <summary>
@@ -844,6 +876,11 @@ namespace com.yrtech.SurveyAPI.Service
             Project findOne = db.Project.Where(x => (x.ProjectId == project.ProjectId)).FirstOrDefault();
             if (findOne == null)
             {
+                if (project.OrderNO == null || project.OrderNO == 0)
+                {
+                    Project findOneMax = db.Project.Where(x => x.BrandId == project.BrandId).OrderByDescending(x => x.OrderNO).FirstOrDefault();
+                    project.OrderNO = findOneMax.OrderNO == null ? 0 : findOneMax.OrderNO + 1;
+                }
                 project.InDateTime = DateTime.Now;
                 project.ModifyDateTime = DateTime.Now;
                 db.Project.Add(project);
@@ -2171,7 +2208,8 @@ namespace com.yrtech.SurveyAPI.Service
         }
 
         #endregion
-        #region GTMC 上传记录
+        #region 上报GTMC 记录
+        //查询上报记录
         public List<AnswerShopInfoUploadLog> GetAnswerShopInfoUploadLog(string projectId, string shopId)
         {
             projectId = projectId == null ? "" : projectId;
@@ -2196,6 +2234,7 @@ namespace com.yrtech.SurveyAPI.Service
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoUploadLog>().ToList();
 
         }
+        // 保存上报记录
         public void SaveAnswerShopInfoUploadLog(AnswerShopInfoUploadLog answerShopInfoUploadLog)
         {
             AnswerShopInfoUploadLog findOne = db.AnswerShopInfoUploadLog.Where(x => (x.ProjectId == answerShopInfoUploadLog.ProjectId && x.ShopId == answerShopInfoUploadLog.ShopId)).FirstOrDefault();
@@ -2209,12 +2248,75 @@ namespace com.yrtech.SurveyAPI.Service
             }
             db.SaveChanges();
         }
-
-        // 外部调用日志
+        // 保存调用日志
         public void SaveExtraCallLog(ExtraCallLog extraCallLog)
         {
             extraCallLog.InDateTime = DateTime.Now;
             db.ExtraCallLog.Add(extraCallLog);
+            db.SaveChanges();
+        }
+        #endregion
+        #region 短信发送记录
+        // 短信发送查询
+        public List<SMSInfo> GetSMSInfo(string projectId, string shopId, string smsBussinessType, string telNo)
+        {
+            projectId = projectId == null ? "" : projectId;
+            shopId = shopId == null ? "" : shopId;
+            smsBussinessType = smsBussinessType == null ? "" : smsBussinessType;
+            telNo = telNo == null ? "" : telNo;
+            SqlParameter[] para = new SqlParameter[] {
+                                                        new SqlParameter("@ProjectId", projectId),
+                                                        new SqlParameter("@ShopId", shopId),
+                                                        new SqlParameter("@SmsBussinessType", smsBussinessType),
+                                                        new SqlParameter("@TelNo", telNo)};
+            Type t = typeof(SMSInfo);
+            string sql = "";
+
+            sql = @"SELECT A.*
+                    FROM SMSInfo A WHERE 1=1";
+
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId";
+            }
+            if (!string.IsNullOrEmpty(shopId))
+            {
+                sql += " AND A.ShopId = @ShopId";
+            }
+            if (!string.IsNullOrEmpty(smsBussinessType))
+            {
+                sql += " AND A.SmsBussinessType = @SmsBussinessType";
+            }
+            if (!string.IsNullOrEmpty(telNo))
+            {
+                sql += " AND A.TelNO = @TelNO";
+            }
+            return db.Database.SqlQuery(t, sql, para).Cast<SMSInfo>().ToList();
+
+        }
+        // 保存短信发送
+        public void SaveSMSInfo(SMSInfo smsInfo)
+        {
+            SMSInfo findOne = db.SMSInfo.Where(x => (x.ProjectId == smsInfo.ProjectId
+                                                    && x.ShopId == smsInfo.ShopId
+                                                    && x.TelNO == smsInfo.TelNO
+                                                    && x.SMSBussinessType == smsInfo.SMSBussinessType)).FirstOrDefault();
+            if (findOne == null)
+            {
+                smsInfo.InDateTime = DateTime.Now;
+                smsInfo.ModifyDateTime = DateTime.Now;
+                db.SMSInfo.Add(smsInfo);
+            }
+            else
+            {
+                findOne.BizId = smsInfo.BizId;
+                findOne.ErrCode = smsInfo.ErrCode;
+                findOne.ModifyDateTime = DateTime.Now;
+                findOne.ModifyUserId = smsInfo.ModifyUserId;
+                findOne.RequestId = smsInfo.RequestId;
+                findOne.SendStatus = smsInfo.SendStatus;
+                findOne.SMSSendDate = smsInfo.SMSSendDate;
+            }
             db.SaveChanges();
         }
         #endregion

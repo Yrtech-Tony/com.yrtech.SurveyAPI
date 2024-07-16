@@ -49,7 +49,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         labelId = projectShopExamTypeList[0].ExamTypeId.ToString();
                     }
                     // 获取期号信息
-                    List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "","");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", recheckStatus.ProjectId.ToString(), "", "", "","",null,null,"");
                     #region 题目验证
                     // 自检
                     if (projectList != null && projectList.Count > 0 && projectList[0].ProjectType == "自检")

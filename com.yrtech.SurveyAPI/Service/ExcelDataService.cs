@@ -375,7 +375,9 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     subject.FullScore = Convert.ToDecimal(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
                 }
+               // CommonHelper.log("LowScore:");
                 string lowScore = sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+               // CommonHelper.log(lowScore);
                 if (string.IsNullOrEmpty(lowScore))
                 {
                     subject.LowScore = null;
@@ -695,7 +697,7 @@ namespace com.yrtech.SurveyAPI.Service
             string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
-            Worksheet sheet = book.Worksheets[0];
+            Worksheet sheet = book.Worksheets[1];
             List<NoticeUserDto> list = new List<NoticeUserDto>();
             for (int i = 0; i < 10000; i++)
             {
@@ -904,7 +906,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 得分导出-横向
         public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId, string columnList)
         {
-            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","",null,null,"");
             if (projectList == null || projectList.Count == 0)
             {
                 return "";

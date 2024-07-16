@@ -406,6 +406,7 @@ namespace com.yrtech.SurveyAPI.Service
         public void SaveAnswerLogInfo(Answer answer, string dataStatus,string openId)
         {
             AnswerLog answerLog = new AnswerLog();
+
             answerLog.AnswerId = answer.AnswerId;
             answerLog.ProjectId = answer.ProjectId;
             answerLog.ShopId = Convert.ToInt32(answer.ShopId);
@@ -420,7 +421,7 @@ namespace com.yrtech.SurveyAPI.Service
             answerLog.InDateTime = DateTime.Now;
             answerLog.InUserId = Convert.ToInt32(answer.ModifyUserId);
             answerLog.DataStatus = dataStatus;
-            answerLog.OpenId = openId;
+            answerLog.OpenId = openId==null?"":openId;
             db.AnswerLog.Add(answerLog);
             db.SaveChanges();
         }
@@ -773,7 +774,8 @@ namespace com.yrtech.SurveyAPI.Service
                     ,(SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = A.ProjectId Order By OrderNO ) AS SubjectId
                     ,(SELECT COUNT(*) 
                     FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
-                                     INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId)
+                                     INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId
+                                    WHERE  X.LabelId=0 OR X.LabelId IS NULL OR X.LabelId = A.ExamTypeId)
                     AS SubjectCount
                     FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
                     WHERE 1=1 AND B.StartDate BETWEEN @StartDate AND @EndDate

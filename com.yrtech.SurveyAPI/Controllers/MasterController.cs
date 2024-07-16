@@ -1402,22 +1402,23 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Master/GetProject")]
-        public APIResult GetProject(string brandId, string projectId, string year, string appealShow = "",string projectType="")
+        public APIResult GetProject(string brandId, string projectId, string year, string appealShow = ""
+                                    , string projectType = "", DateTime? startDate = null, DateTime? endDate = null, string key = "")
         {
             try
             {
                 List<ProjectDto> projectList = new List<ProjectDto>();
                 if (string.IsNullOrEmpty(appealShow))
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "",projectType);
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType, startDate, endDate, key);
                 }
                 else if (appealShow == "Y")
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType).Where(x => x.AppealShow == true).ToList();
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType, startDate, endDate, key).Where(x => x.AppealShow == true).ToList();
                 }
                 else
                 {
-                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType).Where(x => x.AppealShow == false).ToList();
+                    projectList = masterService.GetProject("", brandId, projectId, "", year, "", projectType, startDate, endDate, key).Where(x => x.AppealShow == false).ToList();
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
@@ -1443,16 +1444,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "名称不能为空" };
                 }
-                if (project.OrderNO == null || project.OrderNO == 0)
-                {
-                    return new APIResult() { Status = false, Body = "序号不能为空或者0" };
-                }
-                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "","");
+                //if (project.OrderNO == null || project.OrderNO == 0)
+                //{
+                //    return new APIResult() { Status = false, Body = "序号不能为空或者0" };
+                //}
+                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "", "", null, null, "");
                 if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "代码重复" };
                 }
-                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString(),"");
+                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString(), "", null, null, "");
                 if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
                 {
                     return new APIResult() { Status = false, Body = "序号重复" };
@@ -1959,7 +1960,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     subject.InUserId = dto.InUserId;
                     if (!string.IsNullOrEmpty(dto.ExamTypeCode))
                     {
-                        List<LabelDto> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
+                        List<LabelDto> labelList = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null, "")[0].BrandId.ToString(), "", "ExamType", true, dto.ExamTypeCode);
                         if (labelList != null && labelList.Count > 0)
                         {
                             subject.LabelId = labelList[0].LabelId;
@@ -1970,12 +1971,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.LabelId = null;
                     }
 
-                    List<LabelDto> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "","")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
+                    List<LabelDto> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null,"")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
                     if (labelList_Recheck != null && labelList_Recheck.Count > 0)
                     {
                         subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
                     }
-                    List<LabelDto> labelList_SubjectPattern = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "")[0].BrandId.ToString(), "", "SubjectPattern", true, dto.SubjectPatternCode);
+                    List<LabelDto> labelList_SubjectPattern = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null,"")[0].BrandId.ToString(), "", "SubjectPattern", true, dto.SubjectPatternCode);
                     if (labelList_SubjectPattern != null && labelList_SubjectPattern.Count > 0)
                     {
                         subject.LabelId_SubjectPattern = labelList_SubjectPattern[0].LabelId;
@@ -2286,7 +2287,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         reportTypeShopDto.ImportChk = false;
                         reportTypeShopDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null,"");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList == null || shopList.Count == 0)
                     {
@@ -2318,7 +2319,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         reportTypeShop.ReportTypeId = reportTypeList[0].ReportTypeId;
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "","");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "", "", null, null,"");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList != null && shopList.Count > 0)
                     {
@@ -2381,7 +2382,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterReportTypeDto.ImportChk = false;
                         chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null,"");
                     List<ChapterDto> chapterList = masterService.GetChapter(projectId, "", "", chapterReportTypeDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
@@ -2650,7 +2651,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         List<NoticeUserDto> roleUserList = masterService.GetNoticeRoleTypeUser(notice.NoticeId.ToString(), tenantId, brandId);
                         foreach (NoticeUserDto noticeUserId in roleUserList)
                         {
-                            
+
                             if (userList.Where(x => x.UserId == noticeUserId.UserId).ToList().Count == 0)
                             {
                                 userList.Add(noticeUserId);
@@ -2667,7 +2668,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                             {
                                 notice.ViewStatus = "1";
                             }
-                            else {
+                            else
+                            {
                                 notice.ViewStatus = "0";
                             }
                         }
@@ -2782,7 +2784,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Master/NoticeUserIdSave")]
-        public APIResult NoticeUserIdSave(string noticeId,string tenantId,string noticeAccount,string userId)
+        public APIResult NoticeUserIdSave(string noticeId, string tenantId, string noticeAccount, string userId)
         {
             try
             {
@@ -2835,7 +2837,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     noticeUserDto.ImportChk = true;
                     noticeUserDto.ImportRemark = "";
-                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", noticeUserDto.AccountId, "", "", "", "", "", true, "");
+                    List<UserInfo> userInfoList = masterService.GetUserInfo(tenantId, "", "", noticeUserDto.AccountId, "", "", "", "", true, "");
                     if (userInfoList == null || userInfoList.Count == 0)
                     {
                         noticeUserDto.ImportChk = false;
@@ -2909,6 +2911,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        [HttpGet]
         [Route("Master/NoticeRoleTypeSearch")]
         public APIResult NoticeRoleTypeSearch(string noticeId)
         {
@@ -2933,7 +2936,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     noticeRoleTypeDto.ImportChk = true;
                     noticeRoleTypeDto.ImportRemark = "";
-                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleTypeDto.RoleTypeCode,"");
+                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleTypeDto.RoleTypeCode, "");
                     if (roleTypeList == null || roleTypeList.Count == 0)
                     {
                         noticeRoleTypeDto.ImportChk = false;
@@ -2964,7 +2967,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     NoticeRoleType noticeRoleType = new NoticeRoleType();
                     noticeRoleType.NoticeId = noticeRoleDto.NoticeId;
                     noticeRoleType.InUserId = noticeRoleDto.InUserId;
-                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleDto.RoleTypeCode,"");
+                    List<RoleType> roleTypeList = masterService.GetRoleType("", noticeRoleDto.RoleTypeCode, "");
                     if (roleTypeList != null && roleTypeList.Count > 0)
                     {
                         noticeRoleType.RoleTypeId = roleTypeList[0].RoleTypeId;
@@ -3071,20 +3074,35 @@ namespace com.yrtech.SurveyAPI.Controllers
         #region 自检
         [HttpGet]
         [Route("Master/TaskProjectCreate")]
-        public APIResult TaskProjectCreate(string ossPath,string userId,string brandId,string tenantId)
+        public APIResult TaskProjectCreate(string ossPath, string userId, string brandId, string tenantId)
         {
             try
             {
+                //CommonHelper.log("Start");
                 List<ProjectDto> projectList = excelDataService.TaskProjectImport(ossPath);
+                //CommonHelper.log("projectList");
                 List<FileResultDto> subjectAndFileList = excelDataService.SubjectAndFileImport(ossPath);
+                // CommonHelper.log("subjectAndFileList");
                 foreach (ProjectDto projectDto in projectList)
                 {
+                    // 验证表格中的ShopCode是否正确
+                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", projectDto.ShopCode, "", true);
+                    string shopId = "";
+                    if (shopList != null && shopList.Count > 0)
+                    {
+                        shopId = shopList[0].ShopId.ToString();
+                    }
+                    if (string.IsNullOrEmpty(shopId))
+                    {
+                        return new APIResult() { Status = false, Body = "经销商代码输入错误：" + projectDto.ShopCode };
+                    }
                     // 保存期号
                     Project project = new Project();
-                    List<ProjectDto> project_check = masterService.GetProject(tenantId, brandId, "", projectDto.ProjectCode, "", "", "");
+                    List<ProjectDto> project_check = masterService.GetProject(tenantId, brandId, "", projectDto.ProjectCode, "", "", "", null, null,"");
                     if (project_check != null && project_check.Count > 0)
                     {
                         project.ProjectId = project_check[0].ProjectId;
+                        project.OrderNO = project_check[0].OrderNO;
                     }
                     project.TenantId = Convert.ToInt32(tenantId);
                     project.BrandId = Convert.ToInt32(brandId);
@@ -3094,7 +3112,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                     project.ProjectShortName = projectDto.ProjectShortName;
                     project.Year = projectDto.Year;
                     project.Quarter = projectDto.Quarter;
-                    project.OrderNO = projectDto.OrderNO;
                     project.StartDate = projectDto.StartDate;
                     project.EndDate = projectDto.EndDate;
                     project.ProjectGroup = projectDto.ProjectGroup;
@@ -3115,6 +3132,19 @@ namespace com.yrtech.SurveyAPI.Controllers
                     chapter.EndDate = projectDto.EndDate;
                     chapter.InUserId = Convert.ToInt32(userId); ;
                     chapter = masterService.SaveChapter(chapter);
+                    // 保存ProjectShopExamType
+                    ProjectShopExamType projectShopExamType = new ProjectShopExamType();
+                    //导入时ExamTypeId 不处理
+                    List<ProjectShopExamTypeDto> projectShopExamType_check = shopService.GetProjectShopExamType(brandId.ToString(), project.ProjectId.ToString(), shopId);
+                    if (projectShopExamType_check != null && projectShopExamType_check.Count > 0)
+                    {
+                        projectShopExamType.ExamTypeId = projectShopExamType_check[0].ExamTypeId;
+                    }
+                    projectShopExamType.InUserId = Convert.ToInt32(userId);
+                    projectShopExamType.ModifyUserId = Convert.ToInt32(userId);
+                    projectShopExamType.ProjectId = project.ProjectId;
+                    projectShopExamType.ShopId = Convert.ToInt32(shopId);
+                    shopService.SaveProjectShopExamType(projectShopExamType);
                     // 保存题目
                     foreach (FileResultDto fileResult in subjectAndFileList)
                     {
@@ -3162,6 +3192,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.ImproveAdvice = fileResult.ImproveAdvice;
                         subject = masterService.SaveSubject(subject);
                         // 保存图片
+
                         SubjectFile subjectFile = new SubjectFile();
                         subjectFile.SubjectId = subject.SubjectId;
                         subjectFile.FileName = fileResult.FileName;
@@ -3179,19 +3210,6 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterSubject.InUserId = Convert.ToInt32(userId);
                         chapterSubject.SubjectId = Convert.ToInt32(subject.SubjectId);
                         masterService.SaveChapterSubject(chapterSubject);
-
-                        // 保存ProjectShopExamType，自检题目类型为空
-                        ProjectShopExamType projectShopExamType = new ProjectShopExamType();
-                        projectShopExamType.ExamTypeId = null;
-                        projectShopExamType.InUserId = Convert.ToInt32(userId);
-                        projectShopExamType.ModifyUserId = Convert.ToInt32(userId);
-                        projectShopExamType.ProjectId = project.ProjectId;
-                        List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", projectDto.ShopCode, "", true);
-                        if (shopList != null && shopList.Count > 0)
-                        {
-                            projectShopExamType.ShopId = shopList[0].ShopId;
-                        }
-                        shopService.SaveProjectShopExamType(projectShopExamType);
                     }
                 }
                 return new APIResult() { Status = true, Body = "" };

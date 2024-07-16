@@ -48,53 +48,33 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ProjectShopExamTypeDto> projectShopExamTypeList = shopService.GetProjectShopExamType(brandId, projectId, shopId);// 查询当前期号下经销商设置的试卷类型
                 foreach (ProjectShopExamTypeDto projectShopExamType in projectShopExamTypeList)
                 {
-                    // 经销商试卷类型可以选择多种，重新绑定赋值，暂时默认是只有一个值
-                    // string[] examTypeIdList = null;
                     string examTypeCodeList = "";
                     string examTypeNameList = "";
-                    //if (projectShopExamType.ExamTypeId != null)
-                    //{
-                    //    examTypeIdList = projectShopExamType.ExamTypeId.Split(';');
-                    //}
-                    //if (examTypeIdList != null)
-                    //{
-                    //foreach (string examTypeId in examTypeIdList)
-                    //{
-                    List<LabelDto> labelList = masterService.GetLabel(brandId, projectShopExamType.ExamTypeId.ToString(), "ExamType", true, ""); // 根据ExamTypeId 查询Code和Name
-                    List<ProjectDto> project = masterService.GetProject("", "", projectId, "", "", "", "");
-                    {
-                        if (project != null && project.Count > 0&&project[0].ProjectType=="自检")
-                        {
-                            labelList = labelList.Where(x => x.LabelId != 0).ToList();
-                        }
+                    List<LabelDto> labelList = new List<LabelDto>();
+                    if (projectShopExamType != null && projectShopExamType.ExamTypeId != null) {
+                        labelList = masterService.GetLabel(brandId, projectShopExamType.ExamTypeId.ToString(), "ExamType", true, ""); // 根据ExamTypeId 查询Code和Name
                     }
+                    //List<ProjectDto> project = masterService.GetProject("", "", projectId, "", "", "", "",null,null,"");
+                    //{
+                    //    if (project != null && project.Count > 0&&project[0].ProjectType=="自检")
+                    //    {
+                    //        labelList = labelList.Where(x => x.LabelId != 0).ToList();
+                    //    }
+                    //}
                     if (labelList != null && labelList.Count > 0)
                     {
                         examTypeCodeList += labelList[0].LabelCode;// + ";";
                         examTypeNameList += labelList[0].LabelName;// + ";";
                     }
-                    //    }
-                    //}
-                    if (!string.IsNullOrEmpty(examTypeCodeList))
-                    {
+                    //if (!string.IsNullOrEmpty(examTypeCodeList))
+                    //{
                         projectShopExamType.ExamTypeCode = examTypeCodeList;//.Substring(0, examTypeCodeList.Length - 1);
-                    }
-                    if (!string.IsNullOrEmpty(examTypeNameList))
-                    {
+                    //}
+                    //if (!string.IsNullOrEmpty(examTypeNameList))
+                    //{
                         projectShopExamType.ExamTypeName = examTypeNameList;//.Substring(0, examTypeNameList.Length - 1);
-                    }
+                    //}
                 }
-
-                // 验证是否设置：如果已经提交审核，执行人员就不允许查看分数
-                bool rechckShopShow = true; // true: 复审之后，执行人员还可以查到这家店,false:不能查看
-                string projectType = "";// 
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","");
-                if (projectList != null && projectList.Count > 0)
-                {
-                    rechckShopShow = projectList[0].RechckShopShow == null ? true : Convert.ToBoolean(projectList[0].RechckShopShow);
-                    projectType = projectList[0].ProjectType;
-                }
-                List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(projectId, "", "");
                 if (string.IsNullOrEmpty(userId))
                 {
                     result = projectShopExamTypeList;
@@ -105,38 +85,19 @@ namespace com.yrtech.SurveyAPI.Controllers
                     List<UserInfo> userInfoList = masterService.GetUserInfo("", "", userId, "", "", "", "", "", null,"");
                     if (userInfoList != null && userInfoList.Count > 0)
                     {
-                        if (userInfoList[0].RoleType == "S_Execute")
+                        if (userInfoList[0].RoleType == "S_Execute" || userInfoList[0].RoleType == "B_Shop")
                         {
-                            List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
-                            foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
+                            // 验证是否设置：如果已经提交审核，执行人员就不允许查看分数
+                            bool rechckShopShow = true; // true: 复审之后，执行人员还可以查到这家店,false:不能查看
+                            string projectType = "";// 
+                            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
+                            if (projectList != null && projectList.Count > 0)
                             {
-                                foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
-                                {
-                                    if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
-                                    {
-                                        // 如果未设置了复审后，执行人员不能查看，直接添加
-                                        if (rechckShopShow)
-                                        {
-                                            result.Add(projectShopExamTypeDto);
-                                        }
-                                        else
-                                        {
-                                            //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
-                                            // 是否提交审核
-                                            //bool recheckStatus_S1 = false;
-                                            List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
-                                            if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
-                                            {
-                                                result.Add(projectShopExamTypeDto);
-                                            }
-                                        }
-                                    }
-                                }
+                                rechckShopShow = projectList[0].RechckShopShow == null ? true : Convert.ToBoolean(projectList[0].RechckShopShow);
+                                projectType = projectList[0].ProjectType;
                             }
-                        }
-                        else if (userInfoList[0].RoleType == "B_Shop")// 允许经销商自检时，经销商也可以使用APP
-                        {
-                            if (projectType=="自检")
+                            //List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatus(projectId, "", "");
+                            if (userInfoList[0].RoleType == "S_Execute")
                             {
                                 List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
                                 foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
@@ -155,7 +116,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                                                 //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
                                                 // 是否提交审核
                                                 //bool recheckStatus_S1 = false;
-                                                List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
+                                                //List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
+                                                List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(),"S1");
                                                 if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
                                                 {
                                                     result.Add(projectShopExamTypeDto);
@@ -165,12 +127,50 @@ namespace com.yrtech.SurveyAPI.Controllers
                                     }
                                 }
                             }
+                            else if (userInfoList[0].RoleType == "B_Shop")// 允许经销商自检时，经销商也可以使用APP
+                            {
+                                if (projectType == "自检")
+                                {
+                                    List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
+                                    foreach (UserInfoObjectDto userInfoObjectDto in userInfoObjectDtoList)
+                                    {
+                                        foreach (ProjectShopExamTypeDto projectShopExamTypeDto in projectShopExamTypeList)
+                                        {
+                                            if (userInfoObjectDto.ObjectId == projectShopExamTypeDto.ShopId)
+                                            {
+                                                // 如果未设置了复审后，执行人员不能查看，直接添加
+                                                if (rechckShopShow)
+                                                {
+                                                    result.Add(projectShopExamTypeDto);
+                                                }
+                                                else
+                                                {
+                                                    //如果设置了复审后，执行人员不能查看，先判断是否已经提交审核
+                                                    // 是否提交审核
+                                                    //bool recheckStatus_S1 = false;
+                                                    //List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
+                                                    List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(), "S1");
+                                                    if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
+                                                    {
+                                                        result.Add(projectShopExamTypeDto);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                result = projectShopExamTypeList;
+                            }
                         }
                         else
                         {
                             result = projectShopExamTypeList;
                         }
                     }
+                    
                 }
 
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(result) };
@@ -225,7 +225,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     //{
                     //    if (!string.IsNullOrEmpty(examTypeCode))
                     //    {
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId.ToString(), "", "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId.ToString(), "", "", "", "",null,null,"");
                     string projectType = "";
                     if (projectList != null && projectList.Count > 0)
                     {
@@ -265,7 +265,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         return new APIResult() { Status = false, Body = "导入失败,文件中存在在系统未登记或不可用的经销商代码，请检查文件" };
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectShopExamTypeDto.ProjectId.ToString(), "", "", "", "");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectShopExamTypeDto.ProjectId.ToString(), "", "", "", "",null,null,"");
                     string projectType = "";
                     if (projectList != null && projectList.Count > 0)
                     {
@@ -290,7 +290,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         projectShopExamType.ShopId = shopList[0].ShopId;
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("","", projectShopExamTypeDto.ProjectId.ToString(), "","","","");
+                    List<ProjectDto> projectList = masterService.GetProject("","", projectShopExamTypeDto.ProjectId.ToString(), "","","","",null,null,"");
                     string projectType = "";
                     if (projectList != null && projectList.Count > 0)
                     {
@@ -326,7 +326,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "");
+                List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "",null,null,"");
                 string brandId = "";
                 if (projectList != null && projectList.Count > 0)
                 {

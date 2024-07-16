@@ -110,7 +110,7 @@ namespace com.yrtech.SurveyAPI.Common
         public static void log(string message)
         {
             string appDomainPath = AppDomain.CurrentDomain.BaseDirectory;
-            string fileName = appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + DateTime.Now.ToString("yyyyMMddHHmmsss") + ".txt";
+            string fileName = appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + DateTime.Now.ToString("yyyyMMddHHmm") + ".txt";
             //File.Create(fileName);
             if (!Directory.Exists(appDomainPath + @"\" + "Log"))
             {
@@ -120,7 +120,7 @@ namespace com.yrtech.SurveyAPI.Common
             {
                 Directory.CreateDirectory(appDomainPath + @"\" + "Log" + @"\" + DateTime.Now.ToString("yyyyMMdd"));
             }
-            using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream(fileName, FileMode.Append))
             {
                 byte[] by = WriteStringToByte(message, fs);
                 fs.Flush();
