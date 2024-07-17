@@ -34,7 +34,11 @@ namespace com.yrtech.SurveyAPI.Service
                                     , ISNULL(F.AccountName, '') AS LastConfirmUserName,X.PhotoScore,X.Remark,
                                     X.InspectionStandardResult,X.FileResult,X.LossResult,X.LossResultAdd
                                     , (SELECT TOP 1 HiddenName FROM HiddenColumn WHERE HiddenCodeGroup = '仲裁结果' AND HiddenCode = A.LastConfirmCheck) AS LastConfirmCheckName
-
+                                     ,CASE WHEN PassRecheck IS NULL THEN '未审核'
+                                      WHEN PassRecheck=1 THEN '通过'
+                                      WHEN PassRecheck=0 THEN '未通过'
+                                      ELSE ''
+                                      END AS PassRecheckName
                           FROM Recheck A INNER JOIN Shop B ON A.ShopId = B.ShopId
                                          INNER JOIN[Subject] C ON A.ProjectId = C.ProjectId AND A.SubjectId = C.SubjectId
                                          INNER JOIN UserInfo D ON A.RecheckUserId = D.Id
