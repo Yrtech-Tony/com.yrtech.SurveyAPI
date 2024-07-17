@@ -1564,6 +1564,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     return new APIResult() { Status = false, Body = "标签代码重复" };
                 }
+                // ExtenColumn 为内置字段，不允许在前台修改
+                List<LabelDto>labelList_Id = masterService.GetLabel(label.BrandId.ToString(),label.LabelId.ToString(), label.LabelType, null, label.LabelCode);
+                if (labelList_Id != null && labelList_Id.Count > 0)
+                {
+                    label.ExtenColumn = labelList_Id[0].ExtenColumn;
+                }
                 masterService.SaveLabel(label);
                 return new APIResult() { Status = true, Body = "" };
             }

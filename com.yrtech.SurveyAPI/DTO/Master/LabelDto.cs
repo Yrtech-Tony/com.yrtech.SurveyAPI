@@ -13,6 +13,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public Nullable<int> BrandId { get; set; }
         public int ShopId { get; set; }
         public bool? Checked { get; set; }
+        public string ExtenColumn { get; set; }
         public string LabelCode { get; set; }
         public string LabelName { get; set; }
         public Nullable<bool> UseChk { get; set; }

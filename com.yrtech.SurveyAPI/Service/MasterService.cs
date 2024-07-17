@@ -781,7 +781,6 @@ namespace com.yrtech.SurveyAPI.Service
                           --,B.ShopId
                           --,C.ShopCode
                     FROM [Project] A  
-                    
                     ";
             if (!string.IsNullOrEmpty(key))
             {
@@ -1795,6 +1794,7 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.LabelName = label.LabelName;
                 findOne.Remark = label.Remark;
                 findOne.UseChk = label.UseChk;
+                findOne.ExtenColumn = label.ExtenColumn;
                 findOne.ModifyUserId = label.ModifyUserId;
                 findOne.ModifyDateTime = DateTime.Now;
             }
