@@ -100,12 +100,16 @@ namespace com.yrtech.SurveyAPI.Service
                                     string[] url = fileResult.Url.Split(';');
                                     for (int i = 0; i < url.Length; i++)
                                     {
-
                                         string urlstr = url[i].ToString();
+                                        string extend = ".jpg";
+                                        if (!string.IsNullOrEmpty(urlstr))
+                                        {
+                                            extend = urlstr.Substring(urlstr.LastIndexOf('.'));
+                                        }
                                         if (url.Length == 1)
                                         {
                                             // 已有的文件先删除
-                                            string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
+                                            string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + extend).Replace("\\", @"\");
                                             if (File.Exists(filePath))
                                             {
                                                 File.Delete(filePath);
@@ -116,11 +120,11 @@ namespace com.yrtech.SurveyAPI.Service
                                         {
                                             // 已有的文件先删除
                                             string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
-                                            if (File.Exists(filePath + "_" + (i + 1).ToString() + ".jpg"))
+                                            if (File.Exists(filePath + "_" + (i + 1).ToString() + extend))
                                             {
-                                                File.Delete(filePath + "_" + (i + 1).ToString() + ".jpg");
+                                                File.Delete(filePath + "_" + (i + 1).ToString() + extend);
                                             }
-                                            OSSClientHelper.GetObject(urlstr, filePath + "_" + (i + 1).ToString() + ".jpg");
+                                            OSSClientHelper.GetObject(urlstr, filePath + "_" + (i + 1).ToString() + extend);
                                         }
                                     }
                                 }
@@ -182,86 +186,93 @@ namespace com.yrtech.SurveyAPI.Service
                         try
                         {
 
-                        List<FileResultDto> fileResultList = new List<FileResultDto>();
-                        if (!string.IsNullOrEmpty(answer.FileResult))
-                        {
-                            List<FileResultDto> fileResultList_temp = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
-                            foreach (FileResultDto fileresult in fileResultList_temp)
+                            List<FileResultDto> fileResultList = new List<FileResultDto>();
+                            if (!string.IsNullOrEmpty(answer.FileResult))
                             {
-                                if (!string.IsNullOrEmpty(fileresult.Url))
+                                List<FileResultDto> fileResultList_temp = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                                foreach (FileResultDto fileresult in fileResultList_temp)
                                 {
-                                    fileResultList.Add(fileresult);
-                                }
-                            }
-                        }
-                        foreach (FileResultDto photo in fileResultList)
-                        {
-                            try
-                            {
-                                // 获取文件夹信息
-                                string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
-                                string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
-                                string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
-                                string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString(), "");
-                                string photoName = "";
-                                // 下载文件的名称为标准照片名称
-                                if (!string.IsNullOrEmpty(photo.Url))
-                                {
-                                    string[] url = photo.Url.Split(';');
-                                    for (int i = 0; i < url.Length; i++)
+                                    if (!string.IsNullOrEmpty(fileresult.Url))
                                     {
-                                        if (url.Length == 1)
-                                        {
-                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
-                                        }
-                                        else
-                                        {
-                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i + 1).ToString() + ".jpg";
-                                        }
-                                        // }
-                                        string file = Path.Combine(folderToZip, foler, photoName);
-                                        string extension = string.Empty;
-                                        if (!System.IO.File.Exists(file))
-                                        {
-                                            comment += foler + "，文件：" + photoName + "不存在。\r\n";
-                                            continue;
-                                        }
-                                        using (FileStream fs = System.IO.File.OpenRead(Path.Combine(folderToZip, foler, photoName)))
-                                        {
-                                            byte[] buffer = new byte[fs.Length];
-                                            fs.Read(buffer, 0, buffer.Length);
-                                            entry = new ZipEntry(foler + "/" + photoName);
-                                            entry.DateTime = DateTime.Now;
-                                            entry.Size = fs.Length;
-                                            fs.Close();
-                                            crc.Reset();
-                                            crc.Update(buffer);
-                                            entry.Crc = crc.Value;
-                                            zipOutStream.PutNextEntry(entry);
-                                            zipOutStream.Write(buffer, 0, buffer.Length);
-                                        }
+                                        fileResultList.Add(fileresult);
                                     }
                                 }
                             }
-                            catch (Exception)
+                            foreach (FileResultDto photo in fileResultList)
                             {
-                                continue;
+                                try
+                                {
+                                    // 获取文件夹信息
+                                    string folder1 = GetFolderName(answer.ProjectId.ToString(), "1", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
+                                    string folder2 = GetFolderName(answer.ProjectId.ToString(), "2", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
+                                    string folder3 = GetFolderName(answer.ProjectId.ToString(), "3", answer.ShopCode, answer.ShopName, answer.SubjectCode, "", "", "", "1", "", "");
+                                    string folder4 = GetFolderName(answer.ProjectId.ToString(), "4", answer.ShopCode, answer.ShopName, answer.SubjectCode, photo.FileName, photo.SeqNO.ToString(), photo.ModifyDateTime.ToString("yyyyMMddHHmmssfff"), "1", answer.OrderNO.ToString(), "");
+                                    string photoName = "";
+                                    // 下载文件的名称为标准照片名称
+                                    if (!string.IsNullOrEmpty(photo.Url))
+                                    {
+                                        string[] url = photo.Url.Split(';');
+
+                                        for (int i = 0; i < url.Length; i++)
+                                        {
+                                            string urlstr = url[i].ToString();
+                                            string extend = ".jpg";
+                                            if (!string.IsNullOrEmpty(urlstr))
+                                            {
+                                                extend = urlstr.Substring(urlstr.LastIndexOf('.'));
+                                            }
+                                            if (url.Length == 1)
+                                            {
+                                                photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + extend).Replace("\\", @"\");
+                                            }
+                                            else
+                                            {
+                                                photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i + 1).ToString() + extend;
+                                            }
+                                            // }
+                                            string file = Path.Combine(folderToZip, foler, photoName);
+                                            string extension = string.Empty;
+                                            if (!System.IO.File.Exists(file))
+                                            {
+                                                comment += foler + "，文件：" + photoName + "不存在。\r\n";
+                                                continue;
+                                            }
+                                            using (FileStream fs = System.IO.File.OpenRead(Path.Combine(folderToZip, foler, photoName)))
+                                            {
+                                                byte[] buffer = new byte[fs.Length];
+                                                fs.Read(buffer, 0, buffer.Length);
+                                                entry = new ZipEntry(foler + "/" + photoName);
+                                                entry.DateTime = DateTime.Now;
+                                                entry.Size = fs.Length;
+                                                fs.Close();
+                                                crc.Reset();
+                                                crc.Update(buffer);
+                                                entry.Crc = crc.Value;
+                                                zipOutStream.PutNextEntry(entry);
+                                                zipOutStream.Write(buffer, 0, buffer.Length);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    continue;
+                                }
                             }
                         }
-                    }
                         catch (Exception eex)
-            {
+                        {
 
-                continue; ;
-            }
-        }
+                            continue; ;
+                        }
+                    }
                     zipOutStream.SetComment(comment);
                     zipOutStream.Finish();
                 }
             }
             catch (Exception ex)
             {
-               // CommonHelper.log("11111" + ex.Message.ToString() + "  " + ex.InnerException);
+                // CommonHelper.log("11111" + ex.Message.ToString() + "  " + ex.InnerException);
                 isSuccess = false;
             }
             return isSuccess;
@@ -285,12 +296,12 @@ namespace com.yrtech.SurveyAPI.Service
                 Directory.CreateDirectory(folder);
             }
             #region 从OSS把文件下载到服务器
-           // string answerId = "";
+            // string answerId = "";
             foreach (AnswerDto answer in list)
             {
                 try
                 {
-                   // answerId = answer.AnswerId.ToString();
+                    // answerId = answer.AnswerId.ToString();
                     List<LossResultDto> lossResult = new List<LossResultDto>();
                     if (!string.IsNullOrEmpty(answer.LossResult))
                     {
@@ -349,10 +360,15 @@ namespace com.yrtech.SurveyAPI.Service
                                     for (int i = 0; i < url.Length; i++)
                                     {
                                         string urlstr = url[i].ToString();
+                                        string extend = ".jpg";
+                                        if (!string.IsNullOrEmpty(urlstr))
+                                        {
+                                            extend = urlstr.Substring(urlstr.LastIndexOf('.'));
+                                        }
                                         if (url.Length == 1)
                                         {
                                             // 已有的文件先删除
-                                            string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
+                                            string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + extend).Replace("\\", @"\");
                                             if (File.Exists(filePath))
                                             {
                                                 File.Delete(filePath);
@@ -363,11 +379,11 @@ namespace com.yrtech.SurveyAPI.Service
                                         {
                                             // 已有的文件先删除
                                             string filePath = (folder + @"\" + folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\");
-                                            if (File.Exists(filePath + "_" + (i + 1).ToString() + ".jpg"))
+                                            if (File.Exists(filePath + "_" + (i + 1).ToString() + extend))
                                             {
-                                                File.Delete(filePath + "_" + (i + 1).ToString() + ".jpg");
+                                                File.Delete(filePath + "_" + (i + 1).ToString() + extend);
                                             }
-                                            OSSClientHelper.GetObject(urlstr, filePath + "_" + (i + 1).ToString() + ".jpg");
+                                            OSSClientHelper.GetObject(urlstr, filePath + "_" + (i + 1).ToString() + extend);
                                         }
                                     }
                                 }
@@ -460,13 +476,19 @@ namespace com.yrtech.SurveyAPI.Service
                                     string[] url = photo.LossFileNameUrl.Split(';');
                                     for (int i = 0; i < url.Length; i++)
                                     {
+                                        string urlstr = url[i].ToString();
+                                        string extend = ".jpg";
+                                        if (!string.IsNullOrEmpty(urlstr))
+                                        {
+                                            extend = urlstr.Substring(urlstr.LastIndexOf('.'));
+                                        }
                                         if (url.Length == 1)
                                         {
-                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + ".jpg").Replace("\\", @"\");
+                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4 + extend).Replace("\\", @"\");
                                         }
                                         else
                                         {
-                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i + 1).ToString() + ".jpg";
+                                            photoName = (folder1 + @"\" + folder2 + @"\" + folder3 + @"\" + folder4).Replace("\\", @"\") + "_" + (i + 1).ToString() + extend;
                                         }
                                         // }
                                         string file = Path.Combine(folderToZip, foler, photoName);

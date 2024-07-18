@@ -264,10 +264,12 @@ namespace com.yrtech.SurveyAPI.Service
 									                       AND  A.SubjectId = B.SubjectId
 			                        INNER JOIN Shop C ON A.ShopId = C.ShopId
 			                        INNER JOIN Project D ON A.ProjectId = D.ProjectId
+                                    INNER JOIN ProjectShopExamType E ON D.ProjectId = E.ProjectId
+                                                                     AND C.ShopId = E.ShopId
 			                        LEFT JOIN Recheck X ON A.ProjectId  = X.ProjectId 
 									                    AND A.ShopId = X.ShopId 
 									                    AND A.SubjectId = X.SubjectId
-                    WHERE A.ProjectId = @ProjectId";
+                    WHERE A.ProjectId = @ProjectId AND (B.LabelId=0 OR B.LabelId IS NULL OR B.LabelId=E.ExamTypeId)";
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId =@SubjectId ";
