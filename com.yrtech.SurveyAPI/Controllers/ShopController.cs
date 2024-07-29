@@ -117,7 +117,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                                                 // 是否提交审核
                                                 //bool recheckStatus_S1 = false;
                                                 //List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
-                                                List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(),"S1");
+                                                List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(),"S1", "", null, null);
                                                 if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
                                                 {
                                                     result.Add(projectShopExamTypeDto);
@@ -149,7 +149,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                                                     // 是否提交审核
                                                     //bool recheckStatus_S1 = false;
                                                     //List<RecheckStatusDto> recheckStatusList_shop = recheckStatusList.Where(x => x.ShopId == userInfoObjectDto.ObjectId && !string.IsNullOrEmpty(x.Status_S1)).ToList();
-                                                    List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(), "S1");
+                                                    List<RecheckStatusDto> recheckStatusList_shop = recheckService.GetShopRecheckStatusInfo(projectId, userInfoObjectDto.ObjectId.ToString(), "S1", "", null, null);
                                                     if (recheckStatusList_shop == null || recheckStatusList_shop.Count == 0)
                                                     {
                                                         result.Add(projectShopExamTypeDto);

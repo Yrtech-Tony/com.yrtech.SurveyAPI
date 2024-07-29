@@ -955,7 +955,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<RecheckStatusDto> recheckStatusList_S10 = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "S10");
+                List<RecheckStatusDto> recheckStatusList_S10 = recheckService.GetShopRecheckStatusInfo(recheckStatus.ProjectId.ToString(), recheckStatus.ShopId.ToString(), "S10", "", null, null);
                 if (recheckStatusList_S10 != null && recheckStatusList_S10.Count > 0)
                 {
                     recheckService.DeleteRecheckStatus(recheckStatusList_S10[0].RecheckStatusId.ToString(), recheckStatus.RecheckUserId.ToString());

@@ -14,20 +14,41 @@ namespace com.yrtech.SurveyAPI.Service
         Survey db = new Survey();
 
         #region 复审状态
-        public List<RecheckStatusDto> GetShopRecheckStatusInfo(string projectId, string shopId, string statusCode)
+        public List<RecheckStatusDto> GetShopRecheckStatusInfo(string projectId, string shopId, string statusCode, string brandId, DateTime? startDate, DateTime? endDate)
         {
             if (shopId == null) shopId = "";
             if (projectId == null) projectId = "";
-            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
-                                                       new SqlParameter("@ShopId", shopId)
-                                                       ,new SqlParameter("@StatusCode", statusCode)};
+            if (brandId == null) brandId = "";
+            if (startDate == null)
+            {
+                startDate = new DateTime(2000, 1, 1);
+            }
+            if (endDate == null)
+            {
+                endDate = new DateTime(9999, 12, 31);
+            }
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId)
+                                                       ,new SqlParameter("@ShopId", shopId)
+                                                       ,new SqlParameter("@StatusCode", statusCode)
+                                                       ,new SqlParameter("@BrandId", brandId)
+                                                       ,new SqlParameter("@StartDate", startDate)
+                                                       ,new SqlParameter("@EndDate", endDate)};
             Type t = typeof(RecheckStatusDto);
             string sql = "";
             sql = @"SELECT A.*,B.HiddenName AS StatusName,C.ShopCode,C.ShopName,D.ProjectCode,D.ProjectName
                             FROM ReCheckStatus A INNER JOIN HiddenColumn B ON A.StatusCode = B.HiddenCode AND B.HiddenCodeGroup='调研进度'
                                                  INNER JOIN Shop C ON A.ShopId = C.ShopId
                                                  INNER JOIN Project D ON A.ProjectId = D.ProjectId
-                    WHERE A.ProjectId = @ProjectId";
+                    WHERE 1=1 AND ISNULL(D.StartDate,'2004-01-01') BETWEEN @StartDate AND @EndDate ";
+            // 通过品牌和时间查询状态
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND D.BrandId = @BrandId ";
+            }
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId";
+            }
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";
@@ -231,8 +252,18 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 一审
         #region 查询经销商复审清单
-        public List<RecheckDto> GetShopRecheckScoreInfo(string projectId, string shopId, string subjectId, string recheckTypeId)
+        public List<RecheckDto> GetShopRecheckScoreInfo(string projectId, string shopId, string subjectId, string recheckTypeId,string brandId,DateTime? startDate,DateTime? endDate)
         {
+            if (brandId == null) brandId = "";
+            if (projectId == null) projectId = "";
+            if (startDate == null)
+            {
+                startDate = new DateTime(2000, 1, 1);
+            }
+            if (endDate == null)
+            {
+                endDate = new DateTime(9999, 12, 31);
+            }
             shopId = shopId == null ? "" : shopId;
             subjectId = subjectId == null ? "" : subjectId;
             recheckTypeId = recheckTypeId == null ? "" : recheckTypeId;
@@ -240,6 +271,9 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectId", subjectId),
                                                        new SqlParameter("@RecheckTypeId", recheckTypeId)
+                                                       ,new SqlParameter("@BrandId", brandId)
+                                                       ,new SqlParameter("@StartDate", startDate)
+                                                       ,new SqlParameter("@EndDate", endDate)
                                                        };
             Type t = typeof(RecheckDto);
             string sql = "";
@@ -269,7 +303,17 @@ namespace com.yrtech.SurveyAPI.Service
 			                        LEFT JOIN Recheck X ON A.ProjectId  = X.ProjectId 
 									                    AND A.ShopId = X.ShopId 
 									                    AND A.SubjectId = X.SubjectId
-                    WHERE A.ProjectId = @ProjectId AND (B.LabelId=0 OR B.LabelId IS NULL OR B.LabelId=E.ExamTypeId)";
+                    WHERE (B.LabelId=0 OR B.LabelId IS NULL OR B.LabelId=E.ExamTypeId)
+                            AND ISNULL(D.StartDate,'2004-01-01') BETWEEN @StartDate AND @EndDate ";
+            // 通过品牌和时间查询状态
+            if (!string.IsNullOrEmpty(brandId))
+            {
+                sql += " AND D.BrandId = @BrandId ";
+            }
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId ";
+            }
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId =@SubjectId ";

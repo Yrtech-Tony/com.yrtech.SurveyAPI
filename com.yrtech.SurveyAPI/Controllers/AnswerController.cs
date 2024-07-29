@@ -25,6 +25,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         ShopService shopService = new ShopService();
         AccountService accountService = new AccountService();
         #region 得分登记
+        // 根据期号设置，分数显示不同的默认值
         public List<AnswerDto> AnswerScoreReset(List<AnswerDto> answerList)
         {
             if (answerList == null || answerList.Count == 0) return new List<AnswerDto>();
@@ -72,7 +73,6 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNeedAnswerSubject(projectId, shopId, examTypeId, subjectType));
-
                 if (answerList != null && answerList.Count > 0)
                 {
                     answerList[0].SubjectFileList = masterService.GetSubjectFile(projectId, answerList[0].SubjectId.ToString());
@@ -101,8 +101,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         [Route("Answer/GetShopNextAnswerSubjectInfo")]
         public APIResult GetShopNextAnswerSubjectInfo(string projectId, string shopId, string examTypeId, string orderNO, string subjectType = "")
         {
-            //CommonHelper.log("GetShopNextAnswerSubjectInfo:"+projectId+"$"+shopId+"$"+examTypeId+"$"+orderNO+"$"+subjectType);
-            //Thread.Sleep(1000);
             try
             {
                 List<AnswerDto> answerList = AnswerScoreReset(answerService.GetShopNextAnswerSubject(projectId, shopId, examTypeId, orderNO, subjectType));
@@ -331,7 +329,8 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key);
+                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, subjectId, key, null, null);
+
                 // 因特殊原因导致失分描述json中，有字段但无对应的数据
                 // 对于无失分说明，无补充失分说明，且无照片的失分描述的数据排除在外，不显示在页面上
                 foreach (AnswerDto answer in answerList)
@@ -356,6 +355,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                 // 2. 统计失分描述填写状态，失分照片状态及具体数量
                 foreach (AnswerDto answer in answerList)
                 {
+                    #region 特殊备注处理(APP/wechat传过来的Json),在后台管理显示处理
+
+                    #endregion
                     #region 标准照片
                     List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
                     List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
@@ -426,7 +428,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                             answer.LossPhotoStatus = "1";
                         }
                     }
-                    #endregion 
+                    #endregion
+                    #region 特殊备注按钮是否显示,针对广丰项目
+                    if (answer.ExamTypeId == 59 || answer.ExamTypeId == 60)
+                    {
+                        answer.SpecialCaseShow = "0";
+                    }
+                    else
+                    {
+                        answer.SpecialCaseShow = "1";
+                    }
+                    #endregion
                 }
                 // 在查询特定Subject得分时，返回题目的信息
                 if (!string.IsNullOrEmpty(subjectId) && answerList != null && answerList.Count > 0)
@@ -531,7 +543,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<FileResultDto> fileResultList = new List<FileResultDto>();
                 List<SubjectFile> subjectList = masterService.GetSubjectFile(projectId, "");
-                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
+                List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "", null, null);
                 foreach (SubjectFile subjectFile in subjectList)
                 {
                     FileResultDto fileResult = new FileResultDto();
@@ -636,14 +648,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                         List<UserInfoObjectDto> userInfoObjectDtoList = masterService.GetUserInfoObject(userInfoList[0].TenantId.ToString(), userId, "", userInfoList[0].RoleType);
                         //if (userInfoList != null && userInfoList.Count > 0 && userInfoList[0].RoleType == "S_Execute")
                         //{
-                            foreach (AnswerShopInfoDto answerShopInfoDto in answershopInfoList)
+                        foreach (AnswerShopInfoDto answerShopInfoDto in answershopInfoList)
+                        {
+                            List<UserInfoObjectDto> userInfoObjectList = userInfoObjectDtoList.Where(x => x.ObjectId == answerShopInfoDto.ShopId).ToList();
+                            if (userInfoObjectList != null && userInfoObjectList.Count > 0)
                             {
-                                List<UserInfoObjectDto> userInfoObjectList = userInfoObjectDtoList.Where(x => x.ObjectId == answerShopInfoDto.ShopId).ToList();
-                                if (userInfoObjectList != null && userInfoObjectList.Count > 0)
-                                {
-                                    result.Add(answerShopInfoDto);
-                                }
+                                result.Add(answerShopInfoDto);
                             }
+                        }
                         //}
                     }
                     else
@@ -824,30 +836,118 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
         #region 自检
+        [HttpGet]
+        [Route("Answer/GetTaskProjectForWeb")]
+        public APIResult GetTaskProjectForWeb(string shopId, string projectId = ""
+                                       , string taskType = "", string projectType = ""
+                                       , DateTime? startDate = null, DateTime? endDate = null
+                                       , string brandId = "",string key="")
+        {
+            try
+            {
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                else {
+                    endDate = Convert.ToDateTime(endDate).AddDays(1).Date;
+                }
+                
+                List<ProjectDto> projectList = new List<ProjectDto>();
+                // 查询任务
+                projectList = answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,key);
+                // 查询满足条件的审核状态
+                List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
+                // 查询满足条件的复审信息
+                List<RecheckDto> recheckList_brand = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate);
+                foreach (ProjectDto project in projectList)
+                {
+                    #region 任务状态
+                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        project.Status = "已提交";
+                    }
+                    else
+                    {
+                        DateTime now = DateTime.Now;
+                        project.Status = "未提交";
+                        if (now > project.EndDate)
+                        {
+                            project.Status = "超时";
+                        }
+                    }
+                    #endregion
+                    #region 审核通过数量和未通过数量
+                    List<RecheckDto> recheckList = recheckList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
+                    foreach (RecheckDto recheck in recheckList)
+                    {
+                        if (recheck.PassRecheck == true)
+                        {
+                            project.PassRecheckCount = project.PassRecheckCount + 1;
+                        }
+                        if (recheck.PassRecheck == false)
+                        {
+                            project.UnPassRecheckCount = project.UnPassRecheckCount + 1;
+                        }
+                    }
+                    #endregion
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
         // 任务查询
         // 查询改善事项 taskType = 1 
         [HttpGet]
         [Route("Answer/GetTaskProject")]
-        public APIResult GetTaskProject(string shopId, string projectId = "", string taskType = "", string projectType = "")
+        public APIResult GetTaskProject(string shopId, string projectId = ""
+                                        , string taskType = "", string projectType = ""
+                                        , DateTime? startDate = null, DateTime? endDate = null
+                                        , string brandId = "")
         {
             try
             {
-                // 小程序查询当天晚上12点之前的自检任务
-                DateTime startDate = new DateTime(2000, 1, 1);
-                DateTime endDate = DateTime.Now.AddDays(1).Date;
+                //CommonHelper.log("start"+DateTime.Now.ToString());
+                // 小程序查询当前月数据
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
                 List<ProjectDto> projectList = new List<ProjectDto>();
+                if (shopId == null)
+                {
+                    shopId = "";
+                }
                 string[] shopIdList = shopId.Split(';');
                 foreach (string shopIdstr in shopIdList)
                 {
-                    projectList.AddRange(answerService.GetTaskProject("", projectId, shopId, taskType, startDate, endDate, projectType));
+                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,""));
                 }
+                // 查询满足条件的审核状态
+                List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
+                // 查询满足条件的复审信息
+                List<RecheckDto> recheckList_brand = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate);
+                // 查询满足条件的得分信息
+                List<AnswerDto> answerList_brand = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "", startDate, endDate);
                 foreach (ProjectDto project in projectList)
                 {
                     #region 计算拍照点完成数量
                     // 已拍照或者无照片都认为已完成
                     int subjectCompleteCount = 0;
                     // 当前任务，当前经销商下所有拍照点
-                    List<AnswerDto> answerList = answerService.GetShopAnswerScoreInfo(project.ProjectId.ToString(), shopId, "", "");
+                    List<AnswerDto> answerList = answerList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
                     foreach (AnswerDto answer in answerList)
                     {
                         if (answer.PhotoScore == 9999)// 无照片
@@ -867,6 +967,17 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                     project.SubjectCompleteCount = subjectCompleteCount;
+                    if (project.SubjectCount == 0 && project.BrandId == 33)// 广丰的特殊处理
+                    {
+                        if (taskType == "1") // 改善
+                        {
+                            project.SubjectCount = 0;
+                        }
+                        else
+                        {
+                            project.SubjectCount = 5;
+                        }
+                    }
                     #endregion
                     #region 剩余时间
                     if (project.EndDate == null)
@@ -885,18 +996,13 @@ namespace com.yrtech.SurveyAPI.Controllers
                             project.LeftTime = ts.Days.ToString() + "天" + ts.Hours.ToString() + "小时" + ts.Minutes.ToString() + "分";
                         }
                     }
-
                     #endregion
                     #region 任务状态
-                    List<RecheckStatusDto> statusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), shopId, "S1");
+                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
                     if (statusList != null && statusList.Count > 0)
                     {
                         project.Status = "已提交";
                     }
-                    //else if (project.SubjectCompleteCount == project.SubjectCount)
-                    //{
-                    //    project.Status = "已完成";
-                    //}
                     else
                     {
                         DateTime now = DateTime.Now;
@@ -904,8 +1010,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             project.Status = "待开始";
                         }
-                        if (project.SubjectCompleteCount != 0
-                            )
+                        if (project.SubjectCompleteCount != 0)
                         {
                             project.Status = "未提交";
                         }
@@ -915,8 +1020,21 @@ namespace com.yrtech.SurveyAPI.Controllers
                         }
                     }
                     #endregion
+                    #region 审核通过数量和未通过数量
+                    List<RecheckDto> recheckList = recheckList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
+                    foreach (RecheckDto recheck in recheckList)
+                    {
+                        if (recheck.PassRecheck == true)
+                        {
+                            project.PassRecheckCount = project.PassRecheckCount + 1;
+                        }
+                        if (recheck.PassRecheck == false)
+                        {
+                            project.UnPassRecheckCount = project.UnPassRecheckCount + 1;
+                        }
+                    }
+                    #endregion
                 }
-                projectList = projectList.OrderByDescending(x => x.StartDate).ToList();
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
             catch (Exception ex)
@@ -1021,15 +1139,43 @@ namespace com.yrtech.SurveyAPI.Controllers
         // 拍照点查询
         [HttpGet]
         [Route("Answer/GetPhotoPoint")]
-        public APIResult GetPhotoPoint(string projectId, string shopId, string chapterId, string examTypeId = "")
+        public APIResult GetPhotoPoint(string projectId, string shopId, string chapterId, string examTypeId = ""
+                                        , string taskType = ""
+                                        , string projectType = ""
+                                        , DateTime? startDate = null
+                                        , DateTime? endDate = null
+                                        , string brandId = "")
         {
             try
             {
-                List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(projectId, shopId, chapterId, examTypeId);
+                // 先查询任务，根据任务查询拍照点
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                List<ProjectDto> projectList = new List<ProjectDto>();
+                if (shopId == null)
+                {
+                    shopId = "";
+                }
+                string[] shopIdList = shopId.Split(';');
+                foreach (string shopIdstr in shopIdList)
+                {
+                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,""));
+                }
+                List<AnswerDto> answerList = new List<AnswerDto>();
+                foreach (ProjectDto project in projectList)
+                {
+                    answerList.AddRange(answerService.GetShopAnswerByChapterId(project.ProjectId.ToString(), project.ShopId.ToString(), "", project.ExamTypeId.ToString()));
+                }
                 foreach (AnswerDto answer in answerList)
                 {
                     // 标准照片信息
-                    List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
+                    List<SubjectFile> subjectFileList = masterService.GetSubjectFile(answer.ProjectId.ToString(), answer.SubjectId.ToString());
                     List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
                     if (subjectFileList == null || subjectFileList.Count == 0)
                     {
@@ -1070,22 +1216,87 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #region 待办
-        // 数据采集
+        // 按拍照点统计,暂时不使用
         [HttpGet]
-        [Route("Answer/GetTaskProjectStat")]
-        public APIResult GetTaskProjectStat(string shopId, string projectId = "", string taskType = "")
+        [Route("Answer/GetTaskProjectPhotoStat")]
+        public APIResult GetTaskProjectPhotoStat(string shopId, string projectId = "", string taskType = "", DateTime? startDate = null, DateTime? endDate = null, string projectType = "")
         {
             try
             {
                 CountDto count = new CountDto();
-                // 小程序查询当天晚上12点之前的自检任务
-                DateTime startDate = new DateTime(2000, 1, 1);
-                DateTime endDate = DateTime.Now.AddDays(1).Date;
-                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, startDate, endDate, "自检");
+                // 小程序查询当天任务，并统计拍照点完成情况
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                if (!string.IsNullOrEmpty(projectType))
+                {
+                    projectType = "自检";
+                }
+                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,"");
+                foreach (ProjectDto project in projectList)
+                {
+                    #region 已上传照片和未上传照片统计
+                    List<AnswerDto> answerList = answerService.GetShopAnswerByChapterId(projectId, shopId, "", project.ExamTypeId.ToString());
+                    foreach (AnswerDto answer in answerList)
+                    {
+                        // 标准照片信息
+                        List<SubjectFile> subjectFileList = masterService.GetSubjectFile(projectId, answer.SubjectId.ToString());
+                        List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
+                        if (subjectFileList == null || subjectFileList.Count == 0)
+                        {
+                            // 未设置标准照片默认都是0
+                            project.SubjectCompleteCount = 0;
+                        }
+                        else
+                        {
+                            int fileResutlCount = fileResultList == null ? 0 : fileResultList.Count;
+                            if (fileResutlCount != 0 && !string.IsNullOrEmpty(fileResultList[0].Url))
+                            {
+                                project.SubjectCompleteCount = project.SubjectCompleteCount + 1;
+                            }
+                        }
+                    }
+
+                    #endregion
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        // 按任务统计,暂时未使用
+        [HttpGet]
+        [Route("Answer/GetTaskProjectStat")]
+        public APIResult GetTaskProjectStat(string shopId, string projectId = "", string taskType = "", DateTime? startDate = null, DateTime? endDate = null, string projectType = "")
+        {
+            try
+            {
+                CountDto count = new CountDto();
+                // 小程序查询当月任务情况
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                if (!string.IsNullOrEmpty(projectType))
+                {
+                    projectType = "自检";
+                }
+                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,"");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 已完成和未完成数量统计
-                    List<RecheckStatusDto> statusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), shopId, "S1");
+                    List<RecheckStatusDto> statusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), shopId, "S1", "", null, null);
                     if (statusList != null && statusList.Count > 0)
                     {
                         count.CompleteCount = count.CompleteCount + 1;
@@ -1104,8 +1315,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
-
-        // 特殊案例
+        // 特殊案例,暂时不使用
         [HttpGet]
         [Route("Answer/GetSpecialCaseStat")]
         public APIResult GetSpecialCaseStat(string shopId)
@@ -1229,7 +1439,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         // 查询当天点检任务。GTMC是凌晨1-3点调用，所以当前时间往前推1天
                         DateTime startDate = DateTime.Now.AddDays(-1).Date;
                         DateTime endDate = DateTime.Now.Date;
-                        List<ProjectDto> taskList = answerService.GetTaskProject("", "", shop.ShopId.ToString(), "", startDate, endDate, "自检");
+                        List<ProjectDto> taskList = answerService.GetTaskProject("", "", shop.ShopId.ToString(), "", startDate, endDate, "自检","");
                         // 无点检任务，不需要上报
                         if (taskList != null && taskList.Count > 0)
                         {
@@ -1247,9 +1457,9 @@ namespace com.yrtech.SurveyAPI.Controllers
                                 {
                                     gtmc365.operate_type = "U";
                                 }
-                                gtmc365.attendance_rate = answerShopInfoList[0].SalesNameCheckMode;
+                                // gtmc365.attendance_rate = answerShopInfoList[0].SalesNameCheckMode;
                             }
-                            List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatusInfo(taskList[0].ProjectId.ToString(), shop.ShopId.ToString(), "S1");
+                            List<RecheckStatusDto> recheckStatus = recheckService.GetShopRecheckStatusInfo(taskList[0].ProjectId.ToString(), shop.ShopId.ToString(), "S1", "", null, null);
                             if (recheckStatus != null && recheckStatus.Count > 0)
                             {
                                 gtmc365.answer_state_translate = "已提交";

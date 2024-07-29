@@ -199,59 +199,111 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
-        // 导入期号
-        public List<ProjectDto> TaskProjectImport(string ossPath)
+        #region 自检
+        // 导入日期
+        public List<ProjectDto> TaskProjectDateImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[0];
+            List<ProjectDto> list = new List<ProjectDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string date = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(date)) break;
+                ProjectDto project = new ProjectDto();
+                project.Date = date;
+                list.Add(project);
+            }
+            return list;
+        }
+        // 导入经销商
+        public List<ShopDto> TaskProjectShopImport(string ossPath)
         {
             // 从OSS下载文件
             string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             OSSClientHelper.GetObject(ossPath, downLoadFilePath);
             Workbook book = Workbook.Load(downLoadFilePath, false);
             Worksheet sheet = book.Worksheets[1];
-            List<ProjectDto> list = new List<ProjectDto>();
+            List<ShopDto> list = new List<ShopDto>();
             for (int i = 0; i < 10000; i++)
             {
-                string projectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(projectCode)) break;
-                ProjectDto project = new ProjectDto();
-                project.ProjectCode = projectCode;
-                project.ProjectName = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
-                project.ProjectShortName = sheet.GetCell("C" + (i + 3)).Value == null ? "" : sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
-                project.Year = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
-                project.Quarter = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
-                string orderNO = sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(orderNO))
-                {
-                    project.OrderNO = null;
-                }
-                else {
-                    project.OrderNO = Convert.ToInt32(orderNO);
-                }
-                string startDate = sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
-                //CommonHelper.log("startDate:"+startDate);
-                if (string.IsNullOrEmpty(startDate))
-                {
-                    project.StartDate = null;
-                }
-                else {
-                    project.StartDate = Convert.ToDateTime(sheet.GetCell("G" + (i + 3)).Value.ToString().Trim());
-                }
-                string endDate = sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
-                //CommonHelper.log("endDate:" + endDate);
-                if (string.IsNullOrEmpty(endDate))
-                {
-                    project.EndDate = null;
-                }
-                else
-                {
-                    project.EndDate = Convert.ToDateTime(sheet.GetCell("H" + (i + 3)).Value.ToString().Trim());
-                }
-                project.ShopCode = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
-                project.ProjectGroup = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
-                project.ProjectType = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
-                list.Add(project);
+                string shopCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(shopCode)) break;
+                ShopDto shop = new ShopDto();
+                shop.ShopCode = shopCode;
+                list.Add(shop);
             }
             return list;
         }
+        // 题目和标准照片
+        public List<FileResultDto> SubjectAndFileImport(string ossPath)
+        {
+            // 从OSS下载文件
+            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
+            Workbook book = Workbook.Load(downLoadFilePath, false);
+            Worksheet sheet = book.Worksheets[2];
+            List<FileResultDto> list = new List<FileResultDto>();
+            for (int i = 0; i < 10000; i++)
+            {
+                string date = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
+                if (string.IsNullOrEmpty(date)) break;
+                FileResultDto subject = new FileResultDto();
+                subject.Date = date;
+                subject.SubjectCode = sheet.GetCell("B" + (i + 3)).Value == null ? "" : sheet.GetCell("B" + (i + 3)).Value.ToString().Trim();
+                string orderNO = sheet.GetCell("C" + (i + 3)).Value.ToString();
+                if (string.IsNullOrEmpty(orderNO))
+                {
+                    subject.OrderNO = null;
+                }
+                else
+                {
+                    subject.OrderNO = Convert.ToInt32(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
+                }
+                //string fullScore = sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
+                //if (string.IsNullOrEmpty(fullScore))
+                //{
+                //    subject.FullScore = null;
+                //}
+                //else
+                //{
+                //    subject.FullScore = Convert.ToDecimal(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
+                //}
+                
+                //string lowScore = sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+                
+                //if (string.IsNullOrEmpty(lowScore))
+                //{
+                //    subject.LowScore = null;
+                //}
+                //else
+                //{
+                //    subject.LowScore = Convert.ToDecimal(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
+                //}
+                subject.Implementation = sheet.GetCell("D" + (i + 3)).Value == null ? "" : sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
+                subject.ExamTypeCode = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
+                subject.RecheckTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
+                //subject.HiddenCode_SubjectTypeName = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                
+                subject.CheckPoint = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
+                subject.InspectionDesc = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
+                subject.Remark = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
+                subject.ImproveAdvice = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
+                // subject.SubjectPatternCode = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
+                subject.FileName = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim(); ;
+
+                subject.FileDemo = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
+                subject.FileDemoDesc = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
+                subject.FileRemark = sheet.GetCell("O" + (i + 3)).Value == null ? "" : sheet.GetCell("O" + (i + 3)).Value.ToString().Trim();
+                list.Add(subject);
+            }
+            return list;
+        }
+        #endregion
+
         // 导入题目
         public List<SubjectDto> SubjectImport(string ossPath)
         {
@@ -342,81 +394,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return list;
         }
-        // 题目和标准照片
-        public List<FileResultDto> SubjectAndFileImport(string ossPath)
-        {
-            // 从OSS下载文件
-            string downLoadFilePath = basePath + @"Excel\ExcelImport\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
-            OSSClientHelper.GetObject(ossPath, downLoadFilePath);
-            Workbook book = Workbook.Load(downLoadFilePath, false);
-            Worksheet sheet = book.Worksheets[0];
-            List<FileResultDto> list = new List<FileResultDto>();
-            for (int i = 0; i < 10000; i++)
-            {
-                string subjectCode = sheet.GetCell("A" + (i + 3)).Value == null ? "" : sheet.GetCell("A" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(subjectCode)) break;
-                FileResultDto subject = new FileResultDto();
-                subject.SubjectCode = subjectCode;
-                string orderNO = sheet.GetCell("B" + (i + 3)).Value.ToString();
-                if (string.IsNullOrEmpty(orderNO))
-                {
-                    subject.OrderNO = null;
-                }
-                else
-                {
-                    subject.OrderNO = Convert.ToInt32(sheet.GetCell("B" + (i + 3)).Value.ToString().Trim());
-                }
-                string fullScore = sheet.GetCell("C" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(fullScore))
-                {
-                    subject.FullScore = null;
-                }
-                else
-                {
-                    subject.FullScore = Convert.ToDecimal(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
-                }
-               // CommonHelper.log("LowScore:");
-                string lowScore = sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
-               // CommonHelper.log(lowScore);
-                if (string.IsNullOrEmpty(lowScore))
-                {
-                    subject.LowScore = null;
-                }
-                else
-                {
-                    subject.LowScore = Convert.ToDecimal(sheet.GetCell("D" + (i + 3)).Value.ToString().Trim());
-                }
-                subject.Implementation = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
-                subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
-                subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
-                subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
-                string mustScore = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
-                if (string.IsNullOrEmpty(mustScore))
-                {
-                    subject.MustScore = null;
-                }
-                else if (mustScore == "1")
-                {
-                    subject.MustScore = true;
-                }
-                else
-                {
-                    subject.MustScore = false;
-                }
-                subject.CheckPoint = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
-                subject.InspectionDesc = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim();
-                subject.Remark = sheet.GetCell("L" + (i + 3)).Value == null ? "" : sheet.GetCell("L" + (i + 3)).Value.ToString().Trim();
-                subject.ImproveAdvice = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
-               // subject.SubjectPatternCode = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
-                subject.FileName = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim(); ;
-
-                subject.FileDemo = sheet.GetCell("O" + (i + 3)).Value == null ? "" : sheet.GetCell("O" + (i + 3)).Value.ToString().Trim();
-                subject.FileDemoDesc = sheet.GetCell("P" + (i + 3)).Value == null ? "" : sheet.GetCell("P" + (i + 3)).Value.ToString().Trim();
-                subject.FileRemark = sheet.GetCell("Q" + (i + 3)).Value == null ? "" : sheet.GetCell("Q" + (i + 3)).Value.ToString().Trim();
-                list.Add(subject);
-            }
-            return list;
-        }
+        
         // 标准检查标准
         public List<InspectionStandardResultDto> SubjectInspectionStandardImport(string ossPath)
         {
@@ -777,11 +755,11 @@ namespace com.yrtech.SurveyAPI.Service
                 List<ProjectShopExamTypeDto> shopList = shopService.GetProjectShopExamType("", projectId, "");
                 foreach (ProjectShopExamTypeDto shop in shopList)
                 {
-                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
+                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "","",null,null));
                 }
             }
             else {
-                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
             List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "", "", "", "");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo.xlsx", false);
@@ -931,11 +909,11 @@ namespace com.yrtech.SurveyAPI.Service
                 List<ProjectShopExamTypeDto> shopList = shopService.GetProjectShopExamType("", projectId, "");
                 foreach (ProjectShopExamTypeDto shop in shopList)
                 {
-                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
+                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "", "", null, null));
                 }
             }
             else {
-                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
             
 
@@ -1124,11 +1102,11 @@ namespace com.yrtech.SurveyAPI.Service
                 List<ProjectShopExamTypeDto> shopList = shopService.GetProjectShopExamType("", projectId, "");
                 foreach (ProjectShopExamTypeDto shop in shopList)
                 {
-                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", ""));
+                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "", "", null, null));
                 }
             }
             else {
-                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "");
+                recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
            
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();

@@ -13,6 +13,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public long? SubjectId { get; set; }
         public int? ShopId { get; set; }
         public string ShopCode { get; set; }
+        public string ShopName { get; set; }
+        public string Date { get; set; }
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> BrandId { get; set; }
         public string ProjectCode { get; set; }
@@ -39,9 +41,13 @@ namespace com.yrtech.SurveyAPI.DTO
         public int ChapterCount { get; set; }// 章节（子任务）总量
         public int SubjectCount { get; set; } // 拍照点总量
         public int SubjectCompleteCount { get; set; }  // 拍照点完成数量
+        public int PassRecheckCount { get; set; } // 审核通过数量
+        public int UnPassRecheckCount { get; set; }// 审核未通过数量
         public string Status { get; set; } // 状态
         public string StatusCode { get; set; } // 状态代码：
         public string LeftTime { get; set; } // 剩余时间
+        public int? ExamTypeId { get; set; }
+        public string ExtenColumn { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }
         public Nullable<int> ModifyUserId { get; set; }

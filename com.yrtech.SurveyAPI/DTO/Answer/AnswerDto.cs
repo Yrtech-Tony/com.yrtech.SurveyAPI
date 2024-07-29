@@ -49,6 +49,7 @@ namespace com.yrtech.SurveyAPI.DTO
         //public List<LossResultDto> LossResultList { get; set; }// 失分描述结果DTO，用于同步数据使用
         public string ShopConsultantResult { get; set; }
         public string Remark { get; set; }
+        public string RemarkJsonToString { get; set; }
         public int? InUserId { get; set; }
         public DateTime? InDateTime { get; set; }
         public int? ModifyUserId { get; set; }
@@ -61,6 +62,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public decimal? FullScore { get; set; }
         public decimal? LowScore { get; set; }
         public bool MustScore { get; set; }
+
         public string Desc { get; set; }//说明
         public string InspectionDesc { get; set; }//检查标准说明
         public string ImproveAdvice { get; set; }// 改善建议，在Subject导入
@@ -68,7 +70,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public List<SubjectInspectionStandard> SubjectInspectionStandardList { get; set; }// 体系对应的检查标准
         public List<SubjectLossResult> SubjectLossResultList { get; set; } // 体系对应的失分说明
         public RecheckDto Recheck { get; set; }
-
-
+        public string PassReCheck { get; set; }
+        public string SpecialCaseShow { get; set; }
     }
 }

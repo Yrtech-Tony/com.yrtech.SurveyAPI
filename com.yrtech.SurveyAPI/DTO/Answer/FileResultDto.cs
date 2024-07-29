@@ -12,6 +12,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string ShopId { get; set; }
         public string SubjectId { get; set; }
         public string SubjectCode { get; set; }
+        public string Date { get; set; }
         public int SeqNO { get; set; }
         public string FileName { get; set; }
         public string FileDemo { get; set; }

@@ -25,7 +25,7 @@ namespace com.yrtech.SurveyAPI.Job
             DateTime startDate = DateTime.Now.Date;
             DateTime endDate = DateTime.Now.AddDays(1).Date;
             // 获取6点需要发送短信的数据，插入smsInfo，
-            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检");
+            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检","");
             foreach (ProjectDto project in taskList)
             {
                 List<UserInfoObjectDto> userInfoObjectList = masterService.GetUserInfoObject("", "", project.ShopId.ToString(), "B_Shop");
@@ -89,10 +89,10 @@ namespace com.yrtech.SurveyAPI.Job
             string smsTemplate = "SMS_468960176";
             DateTime startDate = DateTime.Now.Date;
             DateTime endDate = DateTime.Now.AddDays(1).Date;
-            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检");
+            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检","");
             foreach (ProjectDto project in taskList)
             {
-                List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), project.ShopId.ToString(), "S1");
+                List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), project.ShopId.ToString(), "S1", "", null, null);
                 if (recheckStatusList == null || recheckStatusList.Count == 0)
                 {
                     List<UserInfoObjectDto> userInfoObjectList = masterService.GetUserInfoObject("", "", project.ShopId.ToString(), "B_Shop");
@@ -157,10 +157,10 @@ namespace com.yrtech.SurveyAPI.Job
             string smsTemplate = "SMS_468960176";
             DateTime startDate = DateTime.Now.Date;
             DateTime endDate = DateTime.Now.AddDays(1).Date;
-            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检");
+            List<ProjectDto> taskList = answerService.GetTaskProject(brandId, "", "", "", startDate, endDate, "自检","");
             foreach (ProjectDto project in taskList)
             {
-                List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), project.ShopId.ToString(), "S1");
+                List<RecheckStatusDto> recheckStatusList = recheckService.GetShopRecheckStatusInfo(project.ProjectId.ToString(), project.ShopId.ToString(), "S1", "", null, null);
                 if (recheckStatusList != null && recheckStatusList.Count > 0)
                 {
                     List<UserInfoObjectDto> userInfoObjectList = masterService.GetUserInfoObject("", "", project.ShopId.ToString(), "B_Shop");

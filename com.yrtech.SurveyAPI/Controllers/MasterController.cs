@@ -3084,139 +3084,61 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                //CommonHelper.log("Start");
-                List<ProjectDto> projectList = excelDataService.TaskProjectImport(ossPath);
-                //CommonHelper.log("projectList");
+                List<ProjectDto> dateList = excelDataService.TaskProjectDateImport(ossPath);
+                List<ShopDto> shopList = excelDataService.TaskProjectShopImport(ossPath);
                 List<FileResultDto> subjectAndFileList = excelDataService.SubjectAndFileImport(ossPath);
-                // CommonHelper.log("subjectAndFileList");
-                foreach (ProjectDto projectDto in projectList)
+                List<ShopDto> shopList_Brand = masterService.GetShop(tenantId, brandId, "", "", "", true);
+                List<LabelDto> lable_ExamType = masterService.GetLabel(brandId,"","ExamType",true,"");
+                List<LabelDto> lable_Recheck = masterService.GetLabel(brandId, "", "RecheckType", true, "");
+                foreach (ShopDto shop in shopList)
                 {
                     // 验证表格中的ShopCode是否正确
-                    List<ShopDto> shopList = masterService.GetShop(tenantId, brandId, "", projectDto.ShopCode, "", true);
-                    string shopId = "";
-                    if (shopList != null && shopList.Count > 0)
+                    List<ShopDto> shopList_Excel = shopList_Brand.Where(x => x.ShopCode == shop.ShopCode).ToList();
+                    if (shopList_Excel == null || shopList_Excel.Count == 0)
                     {
-                        shopId = shopList[0].ShopId.ToString();
+                        return new APIResult() { Status = false, Body = "经销商代码输入错误：" + shop.ShopCode };
                     }
-                    if (string.IsNullOrEmpty(shopId))
+                }
+                foreach (FileResultDto subject in subjectAndFileList)
+                {
+                    // 验证表格中的LabelCode是否正确
+                    List<LabelDto> labelList_Exam = lable_ExamType.Where(x => x.LabelCode == subject.ExamTypeCode).ToList();
+                    if (labelList_Exam == null || labelList_Exam.Count == 0)
                     {
-                        return new APIResult() { Status = false, Body = "经销商代码输入错误：" + projectDto.ShopCode };
+                        return new APIResult() { Status = false, Body = "卷别类型代码未登记：" + subject.ExamTypeCode };
                     }
-                    // 保存期号
-                    Project project = new Project();
-                    List<ProjectDto> project_check = masterService.GetProject(tenantId, brandId, "", projectDto.ProjectCode, "", "", "", null, null,"");
-                    if (project_check != null && project_check.Count > 0)
+                    List<LabelDto> labelList_Recheck = lable_Recheck.Where(x => x.LabelCode == subject.RecheckTypeCode).ToList();
+                    if (labelList_Recheck == null || labelList_Recheck.Count == 0)
                     {
-                        project.ProjectId = project_check[0].ProjectId;
-                        project.OrderNO = project_check[0].OrderNO;
+                        return new APIResult() { Status = false, Body = "复审类型代码未登记：" + subject.RecheckTypeCode };
                     }
-                    project.TenantId = Convert.ToInt32(tenantId);
-                    project.BrandId = Convert.ToInt32(brandId);
-                    project.ProjectType = projectDto.ProjectType;
-                    project.ProjectCode = projectDto.ProjectCode;
-                    project.ProjectName = projectDto.ProjectName;
-                    project.ProjectShortName = projectDto.ProjectShortName;
-                    project.Year = projectDto.Year;
-                    project.Quarter = projectDto.Quarter;
-                    project.StartDate = projectDto.StartDate;
-                    project.EndDate = projectDto.EndDate;
-                    project.ProjectGroup = projectDto.ProjectGroup;
-                    project.InUserId = Convert.ToInt32(userId);
-                    project.ModifyUserId = Convert.ToInt32(userId);
-                    project = masterService.SaveProject(project);
-                    // 保存章节
-                    Chapter chapter = new Chapter();
-                    List<ChapterDto> chapterList = masterService.GetChapter(project.ProjectId.ToString(), "", "", projectDto.ProjectCode);
-                    if (chapterList != null && chapterList.Count > 0)
-                    {
-                        chapter.ChapterId = chapterList[0].ChapterId;
-                    }
-                    chapter.ChapterCode = projectDto.ProjectCode;
-                    chapter.ChapterName = projectDto.ProjectName;
-                    chapter.ProjectId = project.ProjectId;
-                    chapter.StartDate = projectDto.StartDate;
-                    chapter.EndDate = projectDto.EndDate;
-                    chapter.InUserId = Convert.ToInt32(userId); ;
-                    chapter = masterService.SaveChapter(chapter);
-                    // 保存ProjectShopExamType
-                    ProjectShopExamType projectShopExamType = new ProjectShopExamType();
-                    //导入时ExamTypeId 不处理
-                    List<ProjectShopExamTypeDto> projectShopExamType_check = shopService.GetProjectShopExamType(brandId.ToString(), project.ProjectId.ToString(), shopId);
-                    if (projectShopExamType_check != null && projectShopExamType_check.Count > 0)
-                    {
-                        projectShopExamType.ExamTypeId = projectShopExamType_check[0].ExamTypeId;
-                    }
-                    projectShopExamType.InUserId = Convert.ToInt32(userId);
-                    projectShopExamType.ModifyUserId = Convert.ToInt32(userId);
-                    projectShopExamType.ProjectId = project.ProjectId;
-                    projectShopExamType.ShopId = Convert.ToInt32(shopId);
-                    shopService.SaveProjectShopExamType(projectShopExamType);
-                    // 保存题目
-                    foreach (FileResultDto fileResult in subjectAndFileList)
-                    {
-                        Subject subject = new Subject();
-                        List<SubjectDto> subjectList = masterService.GetSubject(project.ProjectId.ToString(), "", fileResult.SubjectCode, "");
-                        if (subjectList != null && subjectList.Count > 0)
-                        {
-                            subject.SubjectId = subjectList[0].SubjectId;
-                        }
-                        subject.CheckPoint = fileResult.CheckPoint;
-                        subject.FullScore = fileResult.FullScore;
-                        subject.LowScore = fileResult.LowScore;
-                        if (fileResult.HiddenCode_SubjectTypeName == "照片")
-                        {
-                            subject.HiddenCode_SubjectType = "Photo";
-                        }
-                        else { subject.HiddenCode_SubjectType = "Process"; }
-                        subject.Implementation = fileResult.Implementation;
-                        subject.InspectionDesc = fileResult.InspectionDesc;
-                        subject.InUserId = Convert.ToInt32(userId);
-                        if (!string.IsNullOrEmpty(fileResult.ExamTypeCode))
-                        {
-                            List<LabelDto> labelList = masterService.GetLabel(brandId.ToString(), "", "ExamType", true, fileResult.ExamTypeCode);
-                            if (labelList != null && labelList.Count > 0)
-                            {
-                                subject.LabelId = labelList[0].LabelId;
-                            }
-                        }
-                        else
-                        {
-                            subject.LabelId = null;
-                        }
+                }
+                foreach (ProjectDto date in dateList)
+                {
 
-                        List<LabelDto> labelList_Recheck = masterService.GetLabel(brandId.ToString(), "", "RecheckType", true, fileResult.RecheckTypeCode);
-                        if (labelList_Recheck != null && labelList_Recheck.Count > 0)
-                        {
-                            subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
-                        }
-                        subject.ModifyUserId = Convert.ToInt32(userId);
-                        subject.OrderNO = fileResult.OrderNO;
-                        subject.ProjectId = project.ProjectId;
-                        subject.Remark = fileResult.Remark;
-                        subject.SubjectCode = fileResult.SubjectCode;
-                        subject.MustScore = fileResult.MustScore;
-                        subject.ImproveAdvice = fileResult.ImproveAdvice;
-                        subject = masterService.SaveSubject(subject);
-                        // 保存图片
-
-                        SubjectFile subjectFile = new SubjectFile();
-                        subjectFile.SubjectId = subject.SubjectId;
-                        subjectFile.FileName = fileResult.FileName;
-                        subjectFile.FileDemo = fileResult.FileDemo;
-                        subjectFile.FileDemoDesc = fileResult.FileDemoDesc;
-                        subjectFile.FileRemark = fileResult.FileRemark;
-                        subjectFile.SeqNO = 1;
-                        subjectFile.InUserId = Convert.ToInt32(userId);
-                        subjectFile.ModifyUserId = Convert.ToInt32(userId);
-                        masterService.SaveSubjectFile(subjectFile);
-
-                        // 保存章节和题目关系
-                        ChapterSubject chapterSubject = new ChapterSubject();
-                        chapterSubject.ChapterId = chapter.ChapterId;
-                        chapterSubject.InUserId = Convert.ToInt32(userId);
-                        chapterSubject.SubjectId = Convert.ToInt32(subject.SubjectId);
-                        masterService.SaveChapterSubject(chapterSubject);
+                    List<ProjectDto> projectList = new List<ProjectDto>();
+                    foreach (ShopDto shop in shopList)
+                    {
+                        ProjectDto project = new ProjectDto();
+                        project.TenantId = Convert.ToInt32(tenantId);
+                        project.BrandId = Convert.ToInt32(brandId);
+                        project.ProjectType = "自检";
+                        project.ProjectCode = shop.ShopCode + "【" + date.Date + "】";
+                        project.ProjectName = shop.ShopCode + "【" + date.Date + "】";
+                        project.ProjectShortName = shop.ShopCode + "【" + date.Date + "】";
+                        project.ShopCode = shop.ShopCode;
+                        int year = Convert.ToInt32(date.Date.Substring(0, 4));
+                        int month = Convert.ToInt32(date.Date.Substring(4, 2));
+                        int day = Convert.ToInt32(date.Date.Substring(6, 2));
+                        project.StartDate = new DateTime(year, month, day, 6, 0, 0);
+                        project.EndDate = new DateTime(year, month, day, 12, 0, 0);
+                        project.ProjectGroup = "【" + date.Date + "】";
+                        project.InUserId = Convert.ToInt32(userId);
+                        project.ModifyUserId = Convert.ToInt32(userId);
+                        projectList.Add(project);
                     }
+                    List<FileResultDto> subjectList_date = subjectAndFileList.Where(x => x.Date == date.Date).ToList();
+                    masterService.TaskCreate(projectList, subjectList_date);
                 }
                 return new APIResult() { Status = true, Body = "" };
             }

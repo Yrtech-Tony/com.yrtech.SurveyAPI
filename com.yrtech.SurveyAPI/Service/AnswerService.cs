@@ -174,9 +174,17 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="subjectId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId, string key)
+        public List<AnswerDto> GetShopAnswerScoreInfo(string projectId, string shopId, string subjectId, string key,DateTime? startDate,DateTime? endDate)
         {
             // 获取打分的信息
+            if (startDate == null)
+            {
+                startDate = new DateTime(2000, 1, 1);
+            }
+            if (endDate == null)
+            {
+                endDate = new DateTime(9999, 12, 31);
+            }
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
             subjectId = subjectId == null ? "" : subjectId;
@@ -184,20 +192,25 @@ namespace com.yrtech.SurveyAPI.Service
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),
                                                        new SqlParameter("@SubjectId", subjectId)
-                                                       
+                                                       ,new SqlParameter("@StartDate", startDate)
+                                                       ,new SqlParameter("@EndDate", endDate)
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId
-                      ,A.LabelId_RecheckType AS RecheckTypeId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
+                      ,A.LabelId_RecheckType AS RecheckTypeId,B.BrandId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
                              ,ISNULL(C.AnswerId,0) AS AnswerId,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
                              ,a.FullScore,a.LowScore,a.ImproveAdvice,E.PreProjectId,A.PreSubjectId
                     FROM [Subject] A CROSS JOIN 
                                     (SELECT * FROM Shop WHERE ShopId = @ShopId ) B 
-							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId AND D.ProjectId=@ProjectId
+							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId AND D.ProjectId=A.ProjectId
                             INNER JOIN Project E ON A.ProjectId = E.ProjectId
                            LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
-                    WHERE A.ProjectId = @ProjectId AND ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) ";
+                    WHERE ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) AND ISNULL(E.StartDate,'2004-01-01') BETWEEN @StartDate AND @EndDate ";
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                sql += " AND A.ProjectId = @ProjectId ";
+            }
             if (!string.IsNullOrEmpty(subjectId))
             {
                 sql += " AND A.SubjectId =@SubjectId ";
@@ -206,7 +219,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
-                sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO ASC,A.SubjectId";
+            sql += " ORDER BY A.ProjectId,B.ShopCode,A.OrderNO ASC,A.SubjectId";
             List<AnswerDto> answerList = db.Database.SqlQuery(t, sql, para).Cast<AnswerDto>().ToList();
             return answerList;
         }
@@ -244,7 +257,7 @@ namespace com.yrtech.SurveyAPI.Service
         public List<AnswerPhotoLogDto> GetShopAnsewrPhotoLog(string projectId, string shopId)
         {
             PhotoService photoService = new PhotoService();
-            List<AnswerDto> answerList = GetShopAnswerScoreInfo(projectId, shopId, "", "");
+            List<AnswerDto> answerList = GetShopAnswerScoreInfo(projectId, shopId, "", "", null, null);
             List<AnswerPhotoLog> uploadLogList = photoService.GetAnswerPhoto(projectId, shopId);
             List<AnswerPhotoLogDto> photoList = new List<AnswerPhotoLogDto>();
             foreach (AnswerDto answer in answerList)
@@ -354,7 +367,7 @@ namespace com.yrtech.SurveyAPI.Service
         //        SaveAnswerLogInfo(findOne, "U");
         //    }
         //}
-        
+
         /// <summary>
         /// 保存打分信息
         /// </summary>
@@ -400,10 +413,10 @@ namespace com.yrtech.SurveyAPI.Service
                 findOne.ModifyDateTime = DateTime.Now;
                 findOne.ModifyUserId = answer.ModifyUserId;
                 db.SaveChanges();
-                SaveAnswerLogInfo(findOne, "U",answerDto.OpenId);
+                SaveAnswerLogInfo(findOne, "U", answerDto.OpenId);
             }
         }
-        public void SaveAnswerLogInfo(Answer answer, string dataStatus,string openId)
+        public void SaveAnswerLogInfo(Answer answer, string dataStatus, string openId)
         {
             AnswerLog answerLog = new AnswerLog();
 
@@ -421,7 +434,7 @@ namespace com.yrtech.SurveyAPI.Service
             answerLog.InDateTime = DateTime.Now;
             answerLog.InUserId = Convert.ToInt32(answer.ModifyUserId);
             answerLog.DataStatus = dataStatus;
-            answerLog.OpenId = openId==null?"":openId;
+            answerLog.OpenId = openId == null ? "" : openId;
             db.AnswerLog.Add(answerLog);
             db.SaveChanges();
         }
@@ -433,12 +446,12 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <returns></returns>
-        public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId,string key)
+        public List<AnswerShopInfoDto> GetAnswerShopInfo(string projectId, string shopId, string key)
         {
             shopId = shopId == null ? "" : shopId;
             projectId = projectId == null ? "" : projectId;
             key = key == null ? "" : key;
-           
+
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                        new SqlParameter("@ShopId", shopId),new SqlParameter("@Key", key)};
             Type t = typeof(AnswerShopInfoDto);
@@ -487,7 +500,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND (B.ShopCode LIKE '%" + key + "%' OR B.ShopName LIKE '%" + key + "%' OR B.ShopShortName LIKE '%" + key + "%')";
             }
-            
+
             return db.Database.SqlQuery(t, sql, para).Cast<AnswerShopInfoDto>().ToList();
         }
         /// <summary>
@@ -752,13 +765,14 @@ namespace com.yrtech.SurveyAPI.Service
         #region 自检任务
         #region 获取任务（期号）
         // 小程序任务清单
-        public List<ProjectDto> GetTaskProject(string brandId,string projectId, string shopId,string taskType,DateTime startDate,DateTime endDate,string projectType)
+        public List<ProjectDto> GetTaskProject(string brandId, string projectId, string shopId, string taskType, DateTime startDate, DateTime endDate, string projectType,string key)
         {
             projectId = projectId == null ? "" : projectId;
             brandId = brandId == null ? "" : brandId;
             shopId = shopId == null ? "" : shopId;
             taskType = taskType == null ? "" : taskType;
             projectType = projectType == null ? "" : projectType;
+            key = key == null ? "" : key;
             //DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
             //DateTime dtNow = new DateTime(DateTime.Now.AddDays(1).Year,DateTime.Now.AddDays(1).Month,DateTime.Now.AddDays(1).Day);
 
@@ -767,18 +781,21 @@ namespace com.yrtech.SurveyAPI.Service
                                                        new SqlParameter("@StartDate", startDate),
                                                        new SqlParameter("@EndDate", endDate),
                                                        new SqlParameter("@ProjectType", projectType),
+                                                       new SqlParameter("@Key", key),
                                                        new SqlParameter("@BrandId", brandId)};
             Type t = typeof(ProjectDto);
             string sql = "";
-            sql = @" SELECT A.ProjectId,B.PreProjectId,B.ProjectGroup,A.ShopId, B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
+            sql = @" SELECT B.BrandId,A.ProjectId,A.ExamTypeId
+                     ,ISNULL((SELECT ExtenColumn FROM Label WHERE LabelId = A.ExamTypeId),'') AS ExtenColumn
+                     ,B.PreProjectId,B.ProjectGroup,A.ShopId, C.ShopCode,C.ShopName,B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
                     ,(SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = A.ProjectId Order By OrderNO ) AS SubjectId
                     ,(SELECT COUNT(*) 
-                    FROM [Subject] X INNER JOIN ChapterSubject Y ON X.SubjectId = Y.SubjectId 
-                                     INNER JOIN Chapter Z ON Y.ChapterId = Z.ChapterId AND Z.ProjectId = A.ProjectId
-                                    WHERE  X.LabelId=0 OR X.LabelId IS NULL OR X.LabelId = A.ExamTypeId)
+                    FROM [Subject] X 
+                                    WHERE  (X.LabelId=0 OR X.LabelId IS NULL OR X.LabelId = A.ExamTypeId) AND X.ProjectId = B.ProjectId)
                     AS SubjectCount
                     FROM dbo.ProjectShopExamType A INNER JOIN Project B ON A.ProjectId = B.ProjectId
-                    WHERE 1=1 AND B.StartDate BETWEEN @StartDate AND @EndDate
+                                                   INNER JOIN Shop C ON A.ShopId = C.ShopId
+                    WHERE 1=1 
                      ";
             if (!string.IsNullOrEmpty(shopId))
             {
@@ -788,21 +805,42 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ProjectId =@ProjectId";
             }
-            if (!string.IsNullOrEmpty(projectId))
+            if (!string.IsNullOrEmpty(projectType))
             {
-                sql += " AND A.ProjectType =@ProjectType";
+                sql += " AND B.ProjectType =@ProjectType AND B.StartDate BETWEEN @StartDate AND @EndDate";
             }
             if (!string.IsNullOrEmpty(brandId))
             {
                 sql += " AND B.BrandId =@BrandId";
             }
-            if (taskType == "1")// 查询改善措施
+            if (taskType == "0") // 只查询采集任务
+            {
+                sql += " AND (B.PreProjectId IS NULL OR B.PreProjectId='')";
+            }
+            else if (taskType == "1")// 查询改善措施
             {
                 sql += " AND (B.PreProjectId IS NOT NULL OR B.PreProjectId<>'')";
             }
-            else {
-                sql += " AND (B.PreProjectId IS NULL OR B.PreProjectId='')";
+            else if (taskType == "2") // 查询特殊情况数据
+            {
+                // 广丰
+                sql += " AND A.ExamTypeId IN (59,60)";
             }
+            else if (taskType == "3") // 查询有审核反馈的任务
+            {
+                sql += @" AND EXISTS(SELECT 1 FROM Recheck WHERE ProjectId = A.ProjectId 
+                                                          AND ShopId = A.ShopId
+                                                          AND PassRecheck IS NOT NULL)";
+            }
+            if (!string.IsNullOrEmpty(key))
+            {
+                sql += " AND (C.ShopCode LIKE '%'+@Key+'%' OR C.ShopName LIKE '%'+@Key+'%')";
+            }
+            //else
+            //{
+            //    sql += " AND (B.PreProjectId IS NULL OR B.PreProjectId='')";
+            //}
+            sql += " ORDER BY B.StartDate DESC";
             return db.Database.SqlQuery(t, sql, para).Cast<ProjectDto>().ToList();
         }
         //// 上报任务查询,针对广汽丰田GTMC项目使用
@@ -878,7 +916,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="shopId"></param>
         /// <param name="chapterId"></param>
         /// <returns></returns>
-        public List<AnswerDto> GetShopAnswerByChapterId(string projectId,string shopId,string chapterId,string examTypeId)
+        public List<AnswerDto> GetShopAnswerByChapterId(string projectId, string shopId, string chapterId, string examTypeId)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
@@ -888,7 +926,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                     , new SqlParameter("@ChapterId", chapterId)
                                                     , new SqlParameter("@ProjectId", projectId)
                                                     , new SqlParameter("@ExamTypeId", examTypeId)};
-           
+
             Type t = typeof(AnswerDto);
             string sql = "";
             sql = @" SELECT A.SubjectId
@@ -910,6 +948,16 @@ namespace com.yrtech.SurveyAPI.Service
                     AS FileResult
                     ,B.ChapterId
                     ,A.InspectionDesc
+                    ,CASE WHEN (SELECT TOP 1 PassReCheck FROM Recheck WHERE ShopId = @ShopId 
+                                                                        AND ProjectId = A.ProjectId
+                                                                        AND SubjectId = A.SubjectId)= 1
+                    THEN '1'
+                    WHEN (SELECT TOP 1 PassReCheck FROM Recheck WHERE ShopId = @ShopId 
+                                                                        AND ProjectId = A.ProjectId
+                                                                        AND SubjectId = A.SubjectId)= 0
+                    THEN '0'  
+                    ELSE '' END                   
+                    AS PassReCheck
                      FROM  [Subject] A INNER JOIN ChapterSubject B ON A.SubjectId = B.SubjectId
                     WHERE 1=1 AND ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = @ExamTypeId) ";
             if (!string.IsNullOrEmpty(projectId))
@@ -931,7 +979,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// <param name="projectId"></param>
         /// <param name="shopId"></param>
         /// <param name="userId"></param>
-        public void ImproveCreate(string projectId, string shopId,string userId)
+        public void ImproveCreate(string projectId, string shopId, string userId)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@ProjectId", projectId),
                                                         new SqlParameter("@ShopId", shopId),
@@ -944,7 +992,7 @@ namespace com.yrtech.SurveyAPI.Service
         #endregion
         #region 特殊案例
         // 特殊案例查询
-        public List<SpecialCaseDto> GetSpecialCase(string projectId, string shopId, string subjectId,string content,string shopKey)
+        public List<SpecialCaseDto> GetSpecialCase(string projectId, string shopId, string subjectId, string content, string shopKey)
         {
             projectId = projectId == null ? "" : projectId;
             shopId = shopId == null ? "" : shopId;
@@ -1003,7 +1051,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 特殊保存
         public void SaveSpecialCase(SpecialCase specialCase)
         {
-            SpecialCase findOne = db.SpecialCase.Where(x => (x.ProjectId == specialCase.ProjectId&&x.ShopId==specialCase.ShopId&&x.SubjectId==specialCase.SubjectId)).FirstOrDefault();
+            SpecialCase findOne = db.SpecialCase.Where(x => (x.ProjectId == specialCase.ProjectId && x.ShopId == specialCase.ShopId && x.SubjectId == specialCase.SubjectId)).FirstOrDefault();
             if (findOne == null)
             {
                 specialCase.InDateTime = DateTime.Now;
@@ -1074,7 +1122,7 @@ namespace com.yrtech.SurveyAPI.Service
         /// </summary>
         /// <param name="specialCaseId"></param>
         /// <param name="seqNO"></param>
-        public void SpecialCaseFileDelete(string specialCaseId,string seqNO)
+        public void SpecialCaseFileDelete(string specialCaseId, string seqNO)
         {
             SqlParameter[] para = new SqlParameter[] { new SqlParameter("@SpecialCaseId", specialCaseId),
                                                         new SqlParameter("@SeqNO", seqNO)};

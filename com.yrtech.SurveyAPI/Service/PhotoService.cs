@@ -27,7 +27,7 @@ namespace com.yrtech.SurveyAPI.Service
         #region 下载标准照片
         public string FileResultDownLoad(string projectId, string shopId)
         {
-            List<AnswerDto> list = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
+            List<AnswerDto> list = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "",null,null);
             if (list == null || list.Count == 0) return "";
             basePath = basePath + "DownLoadFile";//根目录
             string downLoadfolder = DateTime.Now.ToString("yyyyMMddHHmmssfff");//文件下载的文件夹
@@ -281,7 +281,7 @@ namespace com.yrtech.SurveyAPI.Service
         #region 下载失分照片
         public string LossResultDownLoad(string projectId, string shopId)
         {
-            List<AnswerDto> list = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "");
+            List<AnswerDto> list = answerService.GetShopAnswerScoreInfo(projectId, shopId, "", "", null, null);
             if (list == null || list.Count == 0) return "";
             basePath = basePath + "DownLoadFile";//根目录
             string downLoadfolder = DateTime.Now.ToString("yyyyMMddHHmmssfff");//文件下载的文件夹
