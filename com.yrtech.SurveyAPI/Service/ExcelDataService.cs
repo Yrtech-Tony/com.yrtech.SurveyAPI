@@ -272,9 +272,9 @@ namespace com.yrtech.SurveyAPI.Service
                 //{
                 //    subject.FullScore = Convert.ToDecimal(sheet.GetCell("C" + (i + 3)).Value.ToString().Trim());
                 //}
-                
+
                 //string lowScore = sheet.GetCell("D" + (i + 3)).Value.ToString().Trim();
-                
+
                 //if (string.IsNullOrEmpty(lowScore))
                 //{
                 //    subject.LowScore = null;
@@ -287,7 +287,7 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.ExamTypeCode = sheet.GetCell("E" + (i + 3)).Value == null ? "" : sheet.GetCell("E" + (i + 3)).Value.ToString().Trim();
                 subject.RecheckTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
                 //subject.HiddenCode_SubjectTypeName = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
-                
+
                 subject.CheckPoint = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
                 subject.InspectionDesc = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
                 subject.Remark = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
@@ -295,9 +295,9 @@ namespace com.yrtech.SurveyAPI.Service
                 // subject.SubjectPatternCode = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
                 subject.FileName = sheet.GetCell("K" + (i + 3)).Value == null ? "" : sheet.GetCell("K" + (i + 3)).Value.ToString().Trim(); ;
 
-                subject.FileDemo = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
-                subject.FileDemoDesc = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
-                subject.FileRemark = sheet.GetCell("O" + (i + 3)).Value == null ? "" : sheet.GetCell("O" + (i + 3)).Value.ToString().Trim();
+                subject.FileDemo = sheet.GetCell("L" + (i + 3)).Value == null ? "" : sheet.GetCell("L" + (i + 3)).Value.ToString().Trim();
+                subject.FileDemoDesc = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
+                subject.FileRemark = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
                 list.Add(subject);
             }
             return list;
@@ -350,7 +350,7 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.ExamTypeCode = sheet.GetCell("F" + (i + 3)).Value == null ? "" : sheet.GetCell("F" + (i + 3)).Value.ToString().Trim();
                 subject.RecheckTypeCode = sheet.GetCell("G" + (i + 3)).Value == null ? "" : sheet.GetCell("G" + (i + 3)).Value.ToString().Trim();
                 subject.HiddenCode_SubjectTypeName = sheet.GetCell("H" + (i + 3)).Value == null ? "" : sheet.GetCell("H" + (i + 3)).Value.ToString().Trim();
-                string mustScore =  sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
+                string mustScore = sheet.GetCell("I" + (i + 3)).Value == null ? "" : sheet.GetCell("I" + (i + 3)).Value.ToString().Trim();
                 if (string.IsNullOrEmpty(mustScore))
                 {
                     subject.MustScore = null;
@@ -359,7 +359,8 @@ namespace com.yrtech.SurveyAPI.Service
                 {
                     subject.MustScore = true;
                 }
-                else {
+                else
+                {
                     subject.MustScore = false;
                 }
                 subject.CheckPoint = sheet.GetCell("J" + (i + 3)).Value == null ? "" : sheet.GetCell("J" + (i + 3)).Value.ToString().Trim();
@@ -394,7 +395,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             return list;
         }
-        
+
         // 标准检查标准
         public List<InspectionStandardResultDto> SubjectInspectionStandardImport(string ossPath)
         {
@@ -693,7 +694,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 导出账号-厂商
         public string UserInfoExport(string tenantId, string brandId)
         {
-            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "", true,"");
+            List<UserInfo> list = masterService.GetUserInfo(tenantId, brandId, "", "", "", "", "", "", true, "");
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "UserInfo.xlsx", false);
             //填充数据
             Worksheet sheet = book.Worksheets[0];
@@ -755,10 +756,11 @@ namespace com.yrtech.SurveyAPI.Service
                 List<ProjectShopExamTypeDto> shopList = shopService.GetProjectShopExamType("", projectId, "");
                 foreach (ProjectShopExamTypeDto shop in shopList)
                 {
-                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "","",null,null));
+                    recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "", "", null, null));
                 }
             }
-            else {
+            else
+            {
                 recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
             List<AppealDto> appealList = appealService.GetFeedBackInfoByAll(projectId, "", "", "", "");
@@ -884,7 +886,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 得分导出-横向
         public string ShopAnsewrScoreInfoExport_L(string projectId, string shopId, string columnList)
         {
-            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "","",null,null,"");
+            List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
             if (projectList == null || projectList.Count == 0)
             {
                 return "";
@@ -912,10 +914,11 @@ namespace com.yrtech.SurveyAPI.Service
                     recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "", "", null, null));
                 }
             }
-            else {
+            else
+            {
                 recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
-            
+
 
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L.xlsx", false);
@@ -1105,10 +1108,11 @@ namespace com.yrtech.SurveyAPI.Service
                     recheckList.AddRange(recheckService.GetShopRecheckScoreInfo(projectId, shop.ShopId.ToString(), "", "", "", null, null));
                 }
             }
-            else {
+            else
+            {
                 recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", "", null, null);
             }
-           
+
             List<SubjectDto> subjectList = masterService.GetSubject(projectId, "", "", "").OrderBy(x => x.SubjectCode).ToList();
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "ShopAnswerInfo_L_M.xlsx", false);
             //填充数据
@@ -1465,6 +1469,71 @@ namespace com.yrtech.SurveyAPI.Service
                 if (!string.IsNullOrEmpty(item.Status_S7))
                     sheet.GetCell("M" + (rowIndex + 2)).Value = "√";
 
+                rowIndex++;
+            }
+
+            //保存excel文件
+            string fileName = "复审进度" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string dirPath = basePath + @"\Temp\";
+            DirectoryInfo dir = new DirectoryInfo(dirPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            string filePath = dirPath + fileName;
+            book.Save(filePath);
+
+            return filePath.Replace(basePath, ""); ;
+        }
+        // 一审信息导出
+        public string FirstRecheckExport(string brandId, string shopId, string projectId, DateTime? startDate, DateTime? endDate)
+        {
+            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate).OrderBy(x=>x.ProjectCode).ThenBy(x=>x.ShopCode).ToList();
+            // 查询复审状态
+            List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
+            Workbook book = Workbook.Load(basePath + @"\Excel\" + "FirstRecheck.xlsx", false);
+            //填充数据
+            Worksheet sheet = book.Worksheets[0];
+            int rowIndex = 0;
+            foreach (RecheckDto item in recheckList)
+            {
+                //期号代码
+                sheet.GetCell("A" + (rowIndex + 2)).Value = item.ProjectCode;
+                //期号名称
+                sheet.GetCell("B" + (rowIndex + 2)).Value = item.ProjectName;
+                //经销商代码
+                sheet.GetCell("C" + (rowIndex + 2)).Value = item.ShopCode;
+                //经销商名称
+                sheet.GetCell("D" + (rowIndex + 2)).Value = item.ShopName;
+                //状态
+                sheet.GetCell("E" + (rowIndex + 2)).Value = item.Status;
+                //提交审核时间
+                if (item.StatusDateTime == null)
+                {
+                    sheet.GetCell("F" + (rowIndex + 2)).Value = "";
+                }
+                else
+                {
+                    sheet.GetCell("F" + (rowIndex + 2)).Value = Convert.ToDateTime(item.StatusDateTime).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                //题目代码
+                sheet.GetCell("G" + (rowIndex + 2)).Value = item.SubjectCode;
+                //检查点
+                sheet.GetCell("H" + (rowIndex + 2)).Value = item.CheckPoint;
+                // 一审结果
+                sheet.GetCell("I" + (rowIndex + 2)).Value = item.PassRecheckName;
+                // 一审意见
+                sheet.GetCell("J" + (rowIndex + 2)).Value = item.RecheckContent;
+                // 一审时间
+                //提交审核时间
+                if (item.RecheckDateTime == null)
+                {
+                    sheet.GetCell("K" + (rowIndex + 2)).Value = "";
+                }
+                else
+                {
+                    sheet.GetCell("K" + (rowIndex + 2)).Value = Convert.ToDateTime(item.RecheckDateTime).ToString("yyyy-MM-dd HH:mm:ss");
+                }
                 rowIndex++;
             }
 

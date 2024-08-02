@@ -35,7 +35,7 @@ namespace com.yrtech.SurveyAPI.Service
                                                        ,new SqlParameter("@EndDate", endDate)};
             Type t = typeof(RecheckStatusDto);
             string sql = "";
-            sql = @"SELECT A.*,B.HiddenName AS StatusName,C.ShopCode,C.ShopName,D.ProjectCode,D.ProjectName
+            sql = @"SELECT A.*,B.HiddenName AS StatusName,C.ShopCode,C.ShopName,D.ProjectCode,D.ProjectName,A.InDateTime
                             FROM ReCheckStatus A INNER JOIN HiddenColumn B ON A.StatusCode = B.HiddenCode AND B.HiddenCodeGroup='调研进度'
                                                  INNER JOIN Shop C ON A.ShopId = C.ShopId
                                                  INNER JOIN Project D ON A.ProjectId = D.ProjectId

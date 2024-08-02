@@ -514,7 +514,7 @@ namespace com.yrtech.SurveyAPI.Service
             }
             else if (roleTypeCode == "B_Shop")
             {
-                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId,ISNULL(A.TelNO,'') TelNO
+                sql = @"SELECT B.Id,B.UserId,C.ShopCode AS ObjectCode,C.ShopName AS ObjectName,C.ShopId AS ObjectId,ISNULL(A.TelNO,'') TelNO,C.ProvinceId
                           FROM [UserInfo] A INNER JOIN UserInfoObject B ON A.Id = B.UserId
                                             INNER JOIN Shop C ON B.ObjectId = C.ShopId
                           WHERE 1=1";
@@ -965,7 +965,13 @@ namespace com.yrtech.SurveyAPI.Service
             }
             if (!string.IsNullOrEmpty(brandId))
             {
-                sql += " AND BrandId = @BrandId";
+                if (brandId == "33") // 针对广丰特殊处理
+                {
+                    sql += " AND BrandId = @BrandId AND A.ShopCode NOT IN('gtmc','dealer1','dealer2','dealer3','dealer4','dealer5')";
+                }
+                else {
+                    sql += " AND BrandId = @BrandId";
+                }
             }
             if (!string.IsNullOrEmpty(shopId))
             {
@@ -2321,34 +2327,46 @@ namespace com.yrtech.SurveyAPI.Service
         }
         #endregion
         #region 自检导入任务
-        public void TaskCreate(List<ProjectDto> projectList, List<FileResultDto> subjectFileList)
+        public void TaskCreate(List<ProjectDto> projectList, List<FileResultDto> subjectFileList_all)
         {
             string sql = "";
-            sql += " DECLARE @ProjectId INT; " + "\r\n";
-            sql += " DECLARE @OrderNO_Project INT; " + "\r\n";
-            sql += " DECLARE @ChapterId INT; " + "\r\n";
-            sql += " DECLARE @ShopId INT; " + "\r\n";
+
             foreach (ProjectDto project in projectList)
             {
+                string indexProject = projectList.IndexOf(project).ToString();
+                string startDate = "";
+                string endDate = "";
+                if (project.StartDate != null)
+                {
+                    startDate = Convert.ToDateTime(project.StartDate).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                if (project.EndDate != null)
+                {
+                    endDate = Convert.ToDateTime(project.EndDate).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                sql += " DECLARE @ProjectId"+ indexProject+" INT; " + "\r\n";
+                sql += " DECLARE @OrderNO_Project" + indexProject + " INT; " + "\r\n";
+                sql += " DECLARE @ChapterId" + indexProject +" INT; " + "\r\n";
+                sql += " DECLARE @ShopId" + indexProject + " INT; " + "\r\n";
                 // Project
                 sql += " IF EXISTS(SELECT 1 FROM Project WHERE ProjectCode = '" + project.ProjectCode + "')" + "\r\n";
                 sql += " BEGIN " + "\r\n";
-                sql += " SELECT @ProjectId = ProjectId FROM Project WHERE ProjectCode ='" + project.ProjectCode + "'" + "\r\n";
+                sql += " SELECT @ProjectId" + indexProject + " = ProjectId FROM Project WHERE ProjectCode ='" + project.ProjectCode + "'" + "\r\n";
                 sql += " UPDATE Project SET ProjectCode='" + project.ProjectCode + "'," + "\r\n";
                 sql += " ProjectName='" + project.ProjectName + "'," + "\r\n";
                 sql += " ProjectShortName='" + project.ProjectShortName + "'," + "\r\n";
                 //sql += " SET Year='" + project.Year + "'," + "\r\n";
                 sql += " ProjectType='" + project.ProjectType + "'," + "\r\n";
-                sql += " StartDate='" + project.StartDate + "'," + "\r\n";
-                sql += " EndDate='" + project.EndDate + "'," + "\r\n";
+                sql += " StartDate='" + startDate + "'," + "\r\n";
+                sql += " EndDate='" + endDate + "'," + "\r\n";
                 sql += " ProjectGroup='" + project.ProjectGroup + "'," + "\r\n";
                 sql += " ModifyUserId='" + project.ModifyUserId + "'," + "\r\n";
                 sql += " ModifyDateTime=GETDATE()" + "\r\n";
-                sql += " WHERE ProjectId = @ProjectId" + "\r\n";
+                sql += " WHERE ProjectId = @ProjectId" + indexProject + "\r\n";
                 sql += " END" + "\r\n";
                 sql += " ELSE " + "\r\n";
                 sql += " BEGIN " + "\r\n";
-                sql += " SELECT @OrderNO_Project=Max(OrderNO)+1 FROM Project WHERE BrandId = " + project.BrandId.ToString() + "\r\n";
+                sql += " SELECT @OrderNO_Project"+ indexProject +"= Max(OrderNO)+1 FROM Project WHERE BrandId = " + project.BrandId.ToString() + "\r\n";
                 sql += @" INSERT INTO Project(TenantId,BrandId,ProjectCode,ProjectName,ProjectShortName
                           ,OrderNO,ProjectType,StartDate,EndDate,ProjectGroup,InUserId,InDateTime,ModifyUserId,ModifyDateTime)
                          VALUES('";
@@ -2357,96 +2375,95 @@ namespace com.yrtech.SurveyAPI.Service
                 sql += project.ProjectCode + "','";
                 sql += project.ProjectName + "','";
                 sql += project.ProjectShortName + "',";
-                sql += "@OrderNO_Project" + ",'";
+                sql += "@OrderNO_Project"+indexProject + ",'";
                 sql += project.ProjectType + "','";
-                sql += Convert.ToDateTime(project.StartDate).ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                sql += Convert.ToDateTime(project.EndDate).ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                sql += startDate + "','";
+                sql += endDate + "','";
                 sql += project.ProjectGroup + "','";
                 sql += project.InUserId + "',";
                 sql += "GETDATE(),'";
                 sql += project.ModifyUserId + "',";
                 sql += "GETDATE()";
                 sql += ")" + "\r\n";
-                sql += "SELECT @ProjectId = SCOPE_IDENTITY()" + "\r\n";
+                sql += "SELECT @ProjectId"+indexProject+" = SCOPE_IDENTITY()" + "\r\n";
                 sql += " END" + "\r\n";
                 //Chapter
                 sql += " IF EXISTS(SELECT 1 FROM Chapter WHERE ChapterCode = '" + project.ProjectCode + "')" + "\r\n";
                 sql += " BEGIN " + "\r\n";
-                sql += " SELECT @ChapterId = ChapterId FROM Chapter WHERE ChapterCode = '" + project.ProjectCode + "'" + "\r\n";
+                sql += " SELECT @ChapterId"+indexProject+" = ChapterId FROM Chapter WHERE ChapterCode = '" + project.ProjectCode + "'" + "\r\n";
                 sql += " UPDATE Chapter SET ChapterName = '" + project.ProjectCode + "'," + "\r\n";
-                sql += " ProjectId=@ProjectId" + "," + "\r\n";
-                sql += " StartDate = '" + project.StartDate + "'," + "\r\n";
-                sql += " EndDate = '" + project.EndDate + "'" + "\r\n";
-                sql += " WHERE ChapterId = @ChapterId" + "\r\n";
+                sql += " ProjectId=@ProjectId"+indexProject + "," + "\r\n";
+                sql += " StartDate = '" + startDate + "'," + "\r\n";
+                sql += " EndDate = '" + endDate + "'" + "\r\n";
+                sql += " WHERE ChapterId = @ChapterId"+indexProject + "\r\n";
                 sql += " END" + "\r\n";
                 sql += " ELSE " + "\r\n";
                 sql += " BEGIN" + "\r\n";
                 sql += " INSERT INTO Chapter(ChapterCode,ChapterName,ProjectId,StartDate,EndDate,InUserId,InDateTime) VALUES('";
                 sql += project.ProjectCode + "','";
                 sql += project.ProjectCode + "',";
-                sql += "@ProjectId" + ",'";
-                sql += Convert.ToDateTime(project.StartDate).ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                sql += Convert.ToDateTime(project.EndDate).ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                sql += "@ProjectId"+indexProject + ",'";
+                sql += startDate + "','";
+                sql += endDate + "','";
                 sql += project.InUserId + "',";
                 sql += "GETDATE()";
                 sql += ")" + "\r\n";
-                sql += "SELECT @ChapterId = SCOPE_IDENTITY()" + "\r\n";
+                sql += "SELECT @ChapterId"+indexProject+" = SCOPE_IDENTITY()" + "\r\n";
                 sql += " END" + "\r\n";
 
                 // ProjectShopExamType
-                sql += "SELECT @ShopId = ShopId FROM Shop WHERE ShopCode= '";
+                sql += "SELECT @ShopId"+indexProject+" = ShopId FROM Shop WHERE ShopCode= '";
                 sql += project.ShopCode + "'";
                 sql += "AND BrandId=";
                 sql += project.BrandId + "\r\n";
 
-                sql += " IF NOT EXISTS(SELECT 1 FROM ProjectShopExamType WHERE ProjectId = @ProjectId AND ShopId = @ShopId)" + "\r\n";
+                sql += " IF NOT EXISTS(SELECT 1 FROM ProjectShopExamType WHERE ProjectId = @ProjectId"+indexProject+" AND ShopId = @ShopId"+indexProject+")" + "\r\n";
                 sql += " BEGIN " + "\r\n";
-                sql += " INSERT INTO ProjectShopExamType VALUES(@ProjectId,@ShopId,null,";
+                sql += " INSERT INTO ProjectShopExamType VALUES(@ProjectId"+indexProject+",@ShopId"+indexProject+",null,";
                 sql += project.InUserId + ",GETDATE(),";
                 sql += project.InUserId + ",GETDATE())" + "\r\n";
                 sql += "END" + "\r\n";
-
-
-                sql += " DECLARE @SubjectId INT; " + "\r\n";
-                sql += " DECLARE @LabelId INT;" + "\r\n";
-                sql += " DECLARE @LabelId_Recheck INT;" + "\r\n";
-
+                List<FileResultDto> subjectFileList = subjectFileList_all.Where(x => x.Date == project.Date).ToList();
                 foreach (FileResultDto subjectFile in subjectFileList)
                 {
+                    string index = "p"+projectList.IndexOf(project).ToString() + "s"+subjectFileList.IndexOf(subjectFile).ToString();
+                    sql += " DECLARE @SubjectId"+ index+" INT; " + "\r\n";
+                    sql += " DECLARE @LabelId"+index+" INT;" + "\r\n";
+                    sql += " DECLARE @LabelId_Recheck"+index+" INT;" + "\r\n";
                     // Subject
-                    sql += "SELECT @LabelId = LabelId FROM Label WHERE LabelType='ExamType' AND BrandId=" + project.BrandId;
+                    sql += "SELECT @LabelId"+index+" = LabelId FROM Label WHERE LabelType='ExamType' AND BrandId=" + project.BrandId;
                     sql += " AND LabelCode = '" + subjectFile.ExamTypeCode + "'" + "\r\n";
-                    sql += "SELECT @LabelId_Recheck=LabelId FROM Label WHERE LabelType='RecheckType' AND BrandId=" + project.BrandId;
+                    sql += "SELECT @LabelId_Recheck"+index+"=LabelId FROM Label WHERE LabelType='RecheckType' AND BrandId=" + project.BrandId;
                     sql += " AND LabelCode='" + subjectFile.RecheckTypeCode + "'" + "\r\n";
-                    sql += " IF EXISTS(SELECT 1 FROM Subject WHERE ProjectId = @ProjectId AND SubjectCode='";
+                    sql += " IF EXISTS(SELECT 1 FROM Subject WHERE ProjectId = @ProjectId"+indexProject+" AND SubjectCode='";
                     sql += subjectFile.SubjectCode + "')" + "\r\n";
                     sql += "BEGIN" + "\r\n";
-                    sql += "SELECT @SubjectId = SubjectId FROM Subject WHERE ProjectId = @ProjectId AND SubjectCode='";
+                    sql += "SELECT @SubjectId"+index+" = SubjectId FROM Subject WHERE ProjectId = @ProjectId"+indexProject+" AND SubjectCode='";
                     sql += subjectFile.SubjectCode + "'" + "\r\n";
                     sql += "UPDATE Subject SET SubjectCode = '" + subjectFile.SubjectCode + "'," + "\r\n";
-                    sql += "ProjectId = @ProjectId," + "\r\n";
+                    sql += "ProjectId = @ProjectId"+indexProject+"," + "\r\n";
                     sql += "OrderNO = '" + subjectFile.OrderNO + "'," + "\r\n";
                     sql += "[CheckPoint] = '" + subjectFile.CheckPoint + "'," + "\r\n";
                     sql += "Implementation='" + subjectFile.Implementation + "'," + "\r\n";
                     sql += "InspectionDesc='" + subjectFile.InspectionDesc + "'," + "\r\n";
-                    sql += "LabelId=@LabelId," + "\r\n";
-                    sql += "LabelId_RecheckType=@LabelId_Recheck," + "\r\n";
+                    sql += "LabelId=@LabelId"+index+"," + "\r\n";
+                    sql += "LabelId_RecheckType=@LabelId_Recheck"+index+"," + "\r\n";
                     //sql += "HiddenCode_SubjectType='" + subjectFile.HiddenCode_SubjectType + "'," + "\r\n";
                     sql += "Remark='" + subjectFile.Remark + "'," + "\r\n";
                     sql += "ImproveAdvice='" + subjectFile.ImproveAdvice + "'," + "\r\n";
                     sql += "ModifyUserId='" + project.InUserId + "'," + "\r\n";
                     sql += "ModifyDateTime=GETDATE()" + "\r\n";
-                    sql += " WHERE SubjectId = @SubjectId" + "\r\n";
+                    sql += " WHERE SubjectId = @SubjectId"+index + "\r\n";
                     sql += "END" + "\r\n";
                     sql += "ELSE" + "\r\n";
                     sql += "BEGIN" + "\r\n";
                     sql += @"INSERT INTO Subject(SubjectCode,ProjectId,OrderNO,[CheckPoint],Implementation,InspectionDesc,LabelId,LabelId_RecheckType,
                            HiddenCode_SubjectType,Remark,ImproveAdvice,InUserId,InDateTime,ModifyUserId,ModifyDateTime) VALUES('";
-                    sql += subjectFile.SubjectCode + "',@ProjectId,'";
+                    sql += subjectFile.SubjectCode + "',@ProjectId"+indexProject+",'";
                     sql += subjectFile.OrderNO + "','";
                     sql += subjectFile.CheckPoint + "','";
                     sql += subjectFile.Implementation + "','";
-                    sql += subjectFile.InspectionDesc + "',@LabelId,@LabelId_Recheck,'";
+                    sql += subjectFile.InspectionDesc + "',@LabelId"+index+",@LabelId_Recheck"+index+",'";
                     sql += "Photo" + "','";
                     sql += subjectFile.Remark + "','";
                     sql += subjectFile.ImproveAdvice + "','";
@@ -2454,10 +2471,10 @@ namespace com.yrtech.SurveyAPI.Service
                     sql += "GETDATE(),'";
                     sql += project.InUserId + "',";
                     sql += "GETDATE())" + "\r\n";
-                    sql += "SELECT @SubjectId = SCOPE_IDENTITY()" + "\r\n";
+                    sql += "SELECT @SubjectId"+index+" = SCOPE_IDENTITY()" + "\r\n";
                     sql += "END" + "\r\n";
                     // SubjectFile
-                    sql += " IF EXISTS(SELECT 1 FROM SubjectFile WHERE SubjectId = @SubjectId AND SeqNO=1)"+ "\r\n";
+                    sql += " IF EXISTS(SELECT 1 FROM SubjectFile WHERE SubjectId = @SubjectId"+index+" AND SeqNO=1)"+ "\r\n";
                     sql += " BEGIN" + "\r\n";
                     sql += " UPDATE SubjectFile SET [FileName] = '" + subjectFile.FileName + "'," + "\r\n"; ;
                     sql += " FileDemo = '" + subjectFile.FileDemo + "'," + "\r\n";
@@ -2465,11 +2482,11 @@ namespace com.yrtech.SurveyAPI.Service
                     sql += " FileRemark='" + subjectFile.FileRemark + "'," + "\r\n";
                     sql += " ModifyUserId=" + project.InUserId + "," + "\r\n";
                     sql += " ModifyDateTime=GETDATE()" + "\r\n";
-                    sql += " WHERE SubjectId = @SubjectId AND SeqNO=1" + "\r\n";
+                    sql += " WHERE SubjectId = @SubjectId"+index+" AND SeqNO=1" + "\r\n";
                     sql += " END" + "\r\n";
                     sql += " ELSE" + "\r\n";
                     sql += " BEGIN" + "\r\n";
-                    sql += " INSERT INTO SubjectFile VALUES(@SubjectId,1,'" + subjectFile.FileName + "','";
+                    sql += " INSERT INTO SubjectFile VALUES(@SubjectId"+index+",1,'" + subjectFile.FileName + "','";
                     sql += project.InUserId + "',";
                     sql += "GETDATE(),";
                     sql += project.InUserId + ",";
@@ -2480,9 +2497,9 @@ namespace com.yrtech.SurveyAPI.Service
                     sql += " END " + "\r\n";
 
                     // chapterSubject
-                    sql += " IF NOT EXISTS(SELECT 1 FROM ChapterSubject WHERE ChapterId = @ChapterId AND SubjectId = @SubjectId)" + "\r\n";
+                    sql += " IF NOT EXISTS(SELECT 1 FROM ChapterSubject WHERE ChapterId = @ChapterId"+indexProject+" AND SubjectId = @SubjectId"+index+")" + "\r\n";
                     sql += " BEGIN " + "\r\n";
-                    sql += " INSERT INTO ChapterSubject VALUES(@ChapterId,@SubjectId,";
+                    sql += " INSERT INTO ChapterSubject VALUES(@ChapterId"+indexProject+",@SubjectId"+index+",";
                     sql += project.InUserId + ",GETDATE())" + "\r\n";
                     sql += " END" + "\r\n";
 
