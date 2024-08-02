@@ -72,5 +72,6 @@ namespace com.yrtech.SurveyAPI.DTO
         public RecheckDto Recheck { get; set; }
         public string PassReCheck { get; set; }
         public string SpecialCaseShow { get; set; }
+        public string Status { get; set; } // 期号的提交状态
     }
 }

@@ -11,6 +11,8 @@ namespace com.yrtech.SurveyAPI.DTO
         public int? ProjectId { get; set; }
         public string ProjectCode { get; set; }
         public string ProjectName { get; set; }
+        public string Status { get; set; } // 自检提交状态
+        public DateTime? StatusDateTime { get; set; } // 自检提交时间
         public int ShopId { get; set; }
         public string ShopCode { get; set; }
         public string ShopName { get; set; }

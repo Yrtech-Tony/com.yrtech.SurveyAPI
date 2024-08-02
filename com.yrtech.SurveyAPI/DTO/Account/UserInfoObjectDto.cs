@@ -17,6 +17,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int ObjectId { get; set; }
         public string ObjectCode { get; set; }
         public string ObjectName { get; set; }
+        public int? ProvinceId { get; set; }
         public bool? ImportChk { get; set; }
         public string ImportRemark { get; set; }
         public Nullable<int> InUserId { get; set; }

@@ -43,6 +43,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public int SubjectCompleteCount { get; set; }  // 拍照点完成数量
         public int PassRecheckCount { get; set; } // 审核通过数量
         public int UnPassRecheckCount { get; set; }// 审核未通过数量
+        public int RecheckCount { get; set; } // 已审核数量
         public string Status { get; set; } // 状态
         public string StatusCode { get; set; } // 状态代码：
         public string LeftTime { get; set; } // 剩余时间

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace com.yrtech.SurveyAPI.DTO
 {
-    [Serializable]
+   // [Serializable]
     public class GTMC365Dto
     {
         //public long Id { get; set; }
