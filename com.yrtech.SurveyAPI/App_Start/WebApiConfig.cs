@@ -29,8 +29,6 @@ namespace com.yrtech.SurveyAPI
                 name: "DefaultApi",
                 routeTemplate: "survey/api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
-                
-
             );
         }
     }
