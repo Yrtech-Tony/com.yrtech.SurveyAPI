@@ -16,11 +16,18 @@ namespace com.yrtech.SurveyAPI.Common
     {
         static JsonSerializerSettings defaultJsonSetting = new JsonSerializerSettings
         {
-            Formatting = Newtonsoft.Json.Formatting.Indented,
+            Formatting = Newtonsoft.Json.Formatting.None,
+           
             ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore,
             DateFormatString = "yyyy-MM-dd HH:mm:ss"
         };
+        public static string RemoveEscapeCharacters(string json)
+        {
+            var jsonObj = JsonConvert.DeserializeObject(json);
+            var cleanJson = JsonConvert.SerializeObject(jsonObj);
+            return cleanJson;
+        }
         public static string Encode(object obj)
         {
             string jsonString = string.Empty;
@@ -28,7 +35,7 @@ namespace com.yrtech.SurveyAPI.Common
             {
                 return jsonString;
             }
-            jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, defaultJsonSetting);
+            jsonString = JsonConvert.SerializeObject(obj, Formatting.None, defaultJsonSetting);
             return jsonString;
         }
         public static string EncodeDto<T>(IEnumerable t)
