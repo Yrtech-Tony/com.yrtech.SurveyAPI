@@ -24,6 +24,22 @@ namespace com.yrtech.SurveyAPI.Controllers
         ShopService shopService = new ShopService();
         ExcelDataService excelDataService = new ExcelDataService();
         PhotoService photoService = new PhotoService();
+        #region ping
+        [HttpGet]
+        [Route("Master/GetPing")]
+        public APIResult GetPing()
+        {
+            try
+            {
+                return new APIResult() { Status = true, Body = "PingTest" };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
+        }
+        #endregion
         #region 租户管理
         [HttpGet]
         [Route("Master/GetTenant")]
@@ -1565,7 +1581,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     return new APIResult() { Status = false, Body = "标签代码重复" };
                 }
                 // ExtenColumn 为内置字段，不允许在前台修改
-                List<LabelDto>labelList_Id = masterService.GetLabel(label.BrandId.ToString(),label.LabelId.ToString(), label.LabelType, null, label.LabelCode);
+                List<LabelDto> labelList_Id = masterService.GetLabel(label.BrandId.ToString(), label.LabelId.ToString(), label.LabelType, null, label.LabelCode);
                 if (labelList_Id != null && labelList_Id.Count > 0)
                 {
                     label.ExtenColumn = labelList_Id[0].ExtenColumn;
@@ -1977,12 +1993,12 @@ namespace com.yrtech.SurveyAPI.Controllers
                         subject.LabelId = null;
                     }
 
-                    List<LabelDto> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null,"")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
+                    List<LabelDto> labelList_Recheck = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null, "")[0].BrandId.ToString(), "", "RecheckType", true, dto.RecheckTypeCode);
                     if (labelList_Recheck != null && labelList_Recheck.Count > 0)
                     {
                         subject.LabelId_RecheckType = labelList_Recheck[0].LabelId;
                     }
-                    List<LabelDto> labelList_SubjectPattern = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null,"")[0].BrandId.ToString(), "", "SubjectPattern", true, dto.SubjectPatternCode);
+                    List<LabelDto> labelList_SubjectPattern = masterService.GetLabel(masterService.GetProject("", "", dto.ProjectId.ToString(), "", "", "", "", null, null, "")[0].BrandId.ToString(), "", "SubjectPattern", true, dto.SubjectPatternCode);
                     if (labelList_SubjectPattern != null && labelList_SubjectPattern.Count > 0)
                     {
                         subject.LabelId_SubjectPattern = labelList_SubjectPattern[0].LabelId;
@@ -2293,7 +2309,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         reportTypeShopDto.ImportChk = false;
                         reportTypeShopDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null,"");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList == null || shopList.Count == 0)
                     {
@@ -2325,7 +2341,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                     {
                         reportTypeShop.ReportTypeId = reportTypeList[0].ReportTypeId;
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "", "", null, null,"");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", reportTypeShopDto.ProjectId.ToString(), "", "", "", "", null, null, "");
                     List<ShopDto> shopList = masterService.GetShop("", projectList[0].BrandId.ToString(), "", reportTypeShopDto.ShopCode, "", true);
                     if (shopList != null && shopList.Count > 0)
                     {
@@ -2388,7 +2404,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         chapterReportTypeDto.ImportChk = false;
                         chapterReportTypeDto.ImportRemark += "该类型未在系统登记" + ";";
                     }
-                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null,"");
+                    List<ProjectDto> projectList = masterService.GetProject("", "", projectId, "", "", "", "", null, null, "");
                     List<ChapterDto> chapterList = masterService.GetChapter(projectId, "", "", chapterReportTypeDto.ChapterCode);
                     if (chapterList == null || chapterList.Count == 0)
                     {
@@ -3088,7 +3104,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<ShopDto> shopList = excelDataService.TaskProjectShopImport(ossPath);
                 List<FileResultDto> subjectAndFileList = excelDataService.SubjectAndFileImport(ossPath);
                 List<ShopDto> shopList_Brand = masterService.GetShop(tenantId, brandId, "", "", "", true);
-                List<LabelDto> lable_ExamType = masterService.GetLabel(brandId,"","ExamType",true,"");
+                List<LabelDto> lable_ExamType = masterService.GetLabel(brandId, "", "ExamType", true, "");
                 List<LabelDto> lable_Recheck = masterService.GetLabel(brandId, "", "RecheckType", true, "");
                 foreach (ShopDto shop in shopList)
                 {
@@ -3113,32 +3129,82 @@ namespace com.yrtech.SurveyAPI.Controllers
                         return new APIResult() { Status = false, Body = "复审类型代码未登记：" + subject.RecheckTypeCode };
                     }
                 }
-                foreach (ProjectDto date in dateList)
+                //foreach (ProjectDto date in dateList)
+                //{
+                //    List<ProjectDto> projectList = new List<ProjectDto>();
+                //    foreach (ShopDto shop in shopList)
+                //    {
+                //        ProjectDto project = new ProjectDto();
+                //        int year = Convert.ToInt32(date.Date.Substring(0, 4));
+                //        int month = Convert.ToInt32(date.Date.Substring(4, 2));
+                //        int day = Convert.ToInt32(date.Date.Substring(6, 2));
+                //        project.TenantId = Convert.ToInt32(tenantId);
+                //        project.BrandId = Convert.ToInt32(brandId);
+                //        project.ProjectType = "自检";
+                //        project.ProjectCode = shop.ShopCode + "【" + date.Date + "】";
+                //        //project.ProjectName = shop.ShopCode + "【" + date.Date + "】";
+                //        //project.ProjectShortName = shop.ShopCode + "【" + date.Date + "】";
+                //        string monthstr = month.ToString();
+                //        string daystr = day.ToString();
+                //        if (month < 10)
+                //        {
+                //            monthstr = "0" + month.ToString();
+                //        }
+                //        if (day < 10)
+                //        {
+                //            daystr = "0" + day.ToString();
+                //        }
+                //        project.ProjectName = "365点检" + monthstr + "月" + daystr + "日";
+                //        project.ProjectShortName = "365点检" + monthstr + "月" + daystr + "日";
+                //        project.ShopCode = shop.ShopCode;
+                //        project.StartDate = new DateTime(year, month, day, 6, 0, 0);
+                //        project.EndDate = new DateTime(year, month, day, 12, 0, 0);
+                //        project.ProjectGroup = "【" + date.Date + "】";
+                //        project.InUserId = Convert.ToInt32(userId);
+                //        project.ModifyUserId = Convert.ToInt32(userId);
+                //        projectList.Add(project);
+                //    }
+                //    List<FileResultDto> subjectList_date = subjectAndFileList.Where(x => x.Date == date.Date).ToList();
+                //    masterService.TaskCreate(projectList, subjectList_date);
+                //}
+                foreach (ShopDto shop in shopList)
                 {
-
                     List<ProjectDto> projectList = new List<ProjectDto>();
-                    foreach (ShopDto shop in shopList)
+                    foreach (ProjectDto date in dateList)
                     {
                         ProjectDto project = new ProjectDto();
+                        int year = Convert.ToInt32(date.Date.Substring(0, 4));
+                        int month = Convert.ToInt32(date.Date.Substring(4, 2));
+                        int day = Convert.ToInt32(date.Date.Substring(6, 2));
                         project.TenantId = Convert.ToInt32(tenantId);
                         project.BrandId = Convert.ToInt32(brandId);
                         project.ProjectType = "自检";
                         project.ProjectCode = shop.ShopCode + "【" + date.Date + "】";
-                        project.ProjectName = shop.ShopCode + "【" + date.Date + "】";
-                        project.ProjectShortName = shop.ShopCode + "【" + date.Date + "】";
+                        //project.ProjectName = shop.ShopCode + "【" + date.Date + "】";
+                        //project.ProjectShortName = shop.ShopCode + "【" + date.Date + "】";
+                        string monthstr = month.ToString();
+                        string daystr = day.ToString();
+                        if (month < 10)
+                        {
+                            monthstr = "0" + month.ToString();
+                        }
+                        if (day < 10)
+                        {
+                            daystr = "0" + day.ToString();
+                        }
+                        project.ProjectName = "365点检" + monthstr + "月" + daystr + "日";
+                        project.ProjectShortName = "365点检" + monthstr + "月" + daystr + "日";
                         project.ShopCode = shop.ShopCode;
-                        int year = Convert.ToInt32(date.Date.Substring(0, 4));
-                        int month = Convert.ToInt32(date.Date.Substring(4, 2));
-                        int day = Convert.ToInt32(date.Date.Substring(6, 2));
                         project.StartDate = new DateTime(year, month, day, 6, 0, 0);
                         project.EndDate = new DateTime(year, month, day, 12, 0, 0);
                         project.ProjectGroup = "【" + date.Date + "】";
                         project.InUserId = Convert.ToInt32(userId);
                         project.ModifyUserId = Convert.ToInt32(userId);
+                        project.Date = date.Date;
                         projectList.Add(project);
                     }
-                    List<FileResultDto> subjectList_date = subjectAndFileList.Where(x => x.Date == date.Date).ToList();
-                    masterService.TaskCreate(projectList, subjectList_date);
+                    //List<FileResultDto> subjectList_date = subjectAndFileList.Where(x => x.Date == date.Date).ToList();
+                    masterService.TaskCreate(projectList, subjectAndFileList);
                 }
                 return new APIResult() { Status = true, Body = "" };
             }

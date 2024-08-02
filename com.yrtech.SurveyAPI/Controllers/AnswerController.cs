@@ -841,7 +841,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         public APIResult GetTaskProjectForWeb(string shopId, string projectId = ""
                                        , string taskType = "", string projectType = ""
                                        , DateTime? startDate = null, DateTime? endDate = null
-                                       , string brandId = "",string key="")
+                                       , string brandId = "", string key = "")
         {
             try
             {
@@ -853,35 +853,20 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     endDate = DateTime.Now.AddDays(1).Date;
                 }
-                else {
+                else
+                {
                     endDate = Convert.ToDateTime(endDate).AddDays(1).Date;
                 }
-                
+
                 List<ProjectDto> projectList = new List<ProjectDto>();
                 // 查询任务
-                projectList = answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,key);
+                projectList = answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType, key);
                 // 查询满足条件的审核状态
                 List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
                 // 查询满足条件的复审信息
                 List<RecheckDto> recheckList_brand = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate);
                 foreach (ProjectDto project in projectList)
                 {
-                    #region 任务状态
-                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
-                    if (statusList != null && statusList.Count > 0)
-                    {
-                        project.Status = "已提交";
-                    }
-                    else
-                    {
-                        DateTime now = DateTime.Now;
-                        project.Status = "未提交";
-                        if (now > project.EndDate)
-                        {
-                            project.Status = "超时";
-                        }
-                    }
-                    #endregion
                     #region 审核通过数量和未通过数量
                     List<RecheckDto> recheckList = recheckList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
                     foreach (RecheckDto recheck in recheckList)
@@ -895,7 +880,29 @@ namespace com.yrtech.SurveyAPI.Controllers
                             project.UnPassRecheckCount = project.UnPassRecheckCount + 1;
                         }
                     }
+                    project.RecheckCount = project.PassRecheckCount + project.UnPassRecheckCount;
                     #endregion
+                    #region 任务状态
+                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        project.Status = "已提交";
+                    }
+                    else
+                    {
+                        //DateTime now = DateTime.Now;
+                        project.Status = "未提交";
+                        //if (now > project.EndDate)
+                        //{
+                        //    project.Status = "超时";
+                        //}
+                    }
+                    if (project.RecheckCount > 0)
+                    {
+                        project.Status = "已审核";
+                    }
+                    #endregion
+
                 }
                 return new APIResult() { Status = true, Body = CommonHelper.Encode(projectList) };
             }
@@ -920,6 +927,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 if (startDate == null)
                 {
                     startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                    // startDate = DateTime.Now.Date;
                 }
                 if (endDate == null)
                 {
@@ -933,7 +941,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 string[] shopIdList = shopId.Split(';');
                 foreach (string shopIdstr in shopIdList)
                 {
-                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,""));
+                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType, ""));
                 }
                 // 查询满足条件的审核状态
                 List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
@@ -1006,17 +1014,18 @@ namespace com.yrtech.SurveyAPI.Controllers
                     else
                     {
                         DateTime now = DateTime.Now;
-                        if (project.SubjectCompleteCount == 0)
-                        {
-                            project.Status = "待开始";
-                        }
-                        if (project.SubjectCompleteCount != 0)
-                        {
-                            project.Status = "未提交";
-                        }
+                        //if (project.SubjectCompleteCount == 0)
+                        //{
+                        //    project.Status = "待开始";
+                        //}
+                        //if (project.SubjectCompleteCount != 0)
+                        //{                        //}
                         if (now > project.EndDate)
                         {
                             project.Status = "超时";
+                        }
+                        else {
+                            project.Status = "未提交";
                         }
                     }
                     #endregion
@@ -1165,15 +1174,38 @@ namespace com.yrtech.SurveyAPI.Controllers
                 string[] shopIdList = shopId.Split(';');
                 foreach (string shopIdstr in shopIdList)
                 {
-                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,""));
+                    projectList.AddRange(answerService.GetTaskProject(brandId, projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType, ""));
                 }
+                // 查询满足条件的审核状态
+                List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
                 List<AnswerDto> answerList = new List<AnswerDto>();
                 foreach (ProjectDto project in projectList)
                 {
+                    #region 任务状态
+                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == project.ProjectId && x.ShopId == project.ShopId).ToList();
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        project.Status = "已提交";
+                    }
+                    else
+                    {
+                        project.Status = "未提交";
+                    }
+                    #endregion
+                    // 任务下所有拍照点
                     answerList.AddRange(answerService.GetShopAnswerByChapterId(project.ProjectId.ToString(), project.ShopId.ToString(), "", project.ExamTypeId.ToString()));
                 }
                 foreach (AnswerDto answer in answerList)
                 {
+                    //所属任务的提交状态
+                    List<ProjectDto> projectList_Answer = projectList.Where(x => x.ProjectId == answer.ProjectId && x.ShopId == answer.ShopId).ToList();
+                    if (projectList_Answer != null && projectList_Answer.Count > 0)
+                    {
+                        answer.Status = projectList_Answer[0].Status;
+                    }
+                    else {
+                        answer.Status = "未提交";
+                    }
                     // 标准照片信息
                     List<SubjectFile> subjectFileList = masterService.GetSubjectFile(answer.ProjectId.ToString(), answer.SubjectId.ToString());
                     List<FileResultDto> fileResultList = CommonHelper.DecodeString<List<FileResultDto>>(answer.FileResult);
@@ -1237,7 +1269,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     projectType = "自检";
                 }
-                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,"");
+                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType, "");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 已上传照片和未上传照片统计
@@ -1292,7 +1324,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                 {
                     projectType = "自检";
                 }
-                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType,"");
+                List<ProjectDto> projectList = answerService.GetTaskProject("", projectId, shopId, taskType, Convert.ToDateTime(startDate), Convert.ToDateTime(endDate), projectType, "");
                 foreach (ProjectDto project in projectList)
                 {
                     #region 已完成和未完成数量统计
@@ -1351,7 +1383,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Answer/DealerInspectionReport")]
-        public string DealerInspectionReport(GTMC365Dto gtmc)
+        public Object DealerInspectionReport(GTMC365Dto gtmc)
         {
             List<GTMC365Dto> gtmc365List = new List<GTMC365Dto>();
             // 
@@ -1379,7 +1411,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     gtmc365List.Add(gtmc365);
                     extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                     masterService.SaveExtraCallLog(extraCallLog);
-                    return CommonHelper.Encode(gtmc365List);
+                    //return CommonHelper.Encode(gtmc365List);
+                    return gtmc365List;
                 }
                 if (appInfoList[0].Token != header)
                 {
@@ -1389,7 +1422,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     gtmc365List.Add(gtmc365);
                     extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                     masterService.SaveExtraCallLog(extraCallLog);
-                    return CommonHelper.Encode(gtmc365List);
+                    //return CommonHelper.Encode(gtmc365List);
+                    return gtmc365List;
                 }
                 if (appInfoList[0].Token == header)
                 {
@@ -1404,7 +1438,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                         gtmc365List.Add(gtmc365);
                         extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                         masterService.SaveExtraCallLog(extraCallLog);
-                        return CommonHelper.Encode(gtmc365List);
+                        //return CommonHelper.Encode(gtmc365List);
+                        return gtmc365List;
                     }
                 }
                 // 验证经销商代码是否正确
@@ -1421,10 +1456,15 @@ namespace com.yrtech.SurveyAPI.Controllers
                     }
                     extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                     masterService.SaveExtraCallLog(extraCallLog);
-                    return CommonHelper.Encode(gtmc365List);
+                    //return CommonHelper.Encode(gtmc365List);
+                    return gtmc365List;
                 }
                 // 获取点检数据
                 shopList = masterService.GetShop("", brandId, "", dealerCode, "", true);
+                // 获取当前品牌全部任务
+                DateTime startDate = DateTime.Now.AddDays(-1).Date;
+                DateTime endDate = DateTime.Now.Date;
+                List<ProjectDto> taskList_brand = answerService.GetTaskProject(brandId, "", "", "0", startDate, endDate, "自检", "");
                 if (shopList != null && shopList.Count > 0)
                 {
                     foreach (ShopDto shop in shopList)
@@ -1437,9 +1477,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         gtmc365.area = shop.AreaName;
                         gtmc365.extract_time = DateTime.Now.ToString();
                         // 查询当天点检任务。GTMC是凌晨1-3点调用，所以当前时间往前推1天
-                        DateTime startDate = DateTime.Now.AddDays(-1).Date;
-                        DateTime endDate = DateTime.Now.Date;
-                        List<ProjectDto> taskList = answerService.GetTaskProject("", "", shop.ShopId.ToString(), "", startDate, endDate, "自检","");
+                        List<ProjectDto> taskList = taskList_brand.Where(x => x.ShopId == shop.ShopId).ToList();
                         // 无点检任务，不需要上报
                         if (taskList != null && taskList.Count > 0)
                         {
@@ -1479,7 +1517,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 }
                 extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                 masterService.SaveExtraCallLog(extraCallLog);
-                return CommonHelper.Encode(gtmc365List);
+                // return CommonHelper.RemoveEscapeCharacters(CommonHelper.Encode(gtmc365List));
+                return gtmc365List;
             }
             catch (Exception ex)
             {
@@ -1490,7 +1529,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 extraCallLog.Respond = CommonHelper.Encode(gtmc365List);
                 masterService.SaveExtraCallLog(extraCallLog);
                 CommonHelper.log(ex.Message.ToString());
-                return CommonHelper.Encode(gtmc365List);
+                //return CommonHelper.Encode(gtmc365List);
+                return gtmc365List;
             }
         }
         #endregion

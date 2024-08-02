@@ -20,6 +20,8 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
+        LoginService loginService = new LoginService(); 
+
         #region 登陆和修改密码
         /// <summary>
         /// 
@@ -311,7 +313,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 List<UserInfoOpenId> userInfoOpenIdList = new List<UserInfoOpenId>();
                 WxToken wt = new WxToken();
-                wt = GetAppIdAndSecret("轻智巡");
+                wt = loginService.GetAppIdAndSecret("轻智巡");
                 HttpClient client = new HttpClient();
                 Uri uri = new Uri("https://api.weixin.qq.com/");
                 client.BaseAddress = uri;
@@ -347,7 +349,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                string token = GetWXToken();
+                string token = loginService.GetWXToken();
                 HttpClient client = new HttpClient();
                 string url = "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=" + token;
                 //Uri uri = new Uri("https://api.weixin.qq.com/");
@@ -367,87 +369,10 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message };
             }
         }
-        //获取小程序的Token
-        public string GetWXToken()
-        {
-            try
-            {
-                string token = "";
-                WxToken wt = new WxToken();
-                wt = GetAppIdAndSecret("轻智巡");
-                // 从数据库获取Token
-                List<AppInfo> appInfoList = accountService.GetAppInfo(wt.AppId);
-                if (appInfoList == null || appInfoList.Count == 0)
-                {
-                    token = AppInfoSave();
-                }
-                else
-                {
-                    TimeSpan ts = DateTime.Now - Convert.ToDateTime(appInfoList[0].ModifyDateTime);
-                    double second = ts.TotalSeconds;
-                    // 如未超时，直接使用数据库token，已超时重新获取
-                    if (second < 7000)
-                    {
-                        token = appInfoList[0].Token;
-                    }
-                    else
-                    {
-                        token = AppInfoSave();
-                    }
-                }
-                return token;
-                //return new APIResult() { Status = true, Body = CommonHelper.Encode(token) };
-            }
-            catch (Exception ex)
-            {
-                return ex.Message.ToString();
-                //return new APIResult() { Status = false, Body = "绑定失败！ " + ex.Message };
-            }
-        }
-        // Token 保存
-        public string AppInfoSave()
-        {
-            string token = "";
-            WxToken wt = new WxToken();
-            wt = GetAppIdAndSecret("轻智巡");
-            HttpClient client = new HttpClient();
-            Uri uri = new Uri("https://api.weixin.qq.com/");
-            client.BaseAddress = uri;
-            //添加请求的头文件
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            string getUserApi = string.Format("cgi-bin/token?grant_type={0}&appid={1}&secret={2}", "client_credential", wt.AppId, wt.AppSecret);
-            HttpResponseMessage message = client.GetAsync(getUserApi).Result;
-            string json = message.Content.ReadAsStringAsync().Result;
-            WxToken wxToken = CommonHelper.DecodeString<WxToken>(json);
-            if (wxToken != null)
-            {
-                AppInfo appInfo = new AppInfo();
-                appInfo.AppId = wt.AppId;
-                appInfo.Token = wxToken.access_token;
-                accountService.AppInfoSave(appInfo);
-                token = wxToken.access_token;
-            }
-            return token;
-        }
+       
         #endregion
         #region 公用
-        // 获取密钥
-        public WxToken GetAppIdAndSecret(string groupName)
-        {
-            // 获取wx appId和secret
-            WxToken wt = new WxToken();
-            List<HiddenColumn> appInfoList_Id = masterService.GetHiddenCode(groupName, "AppId");
-            if (appInfoList_Id != null && appInfoList_Id.Count > 0)
-            {
-                wt.AppId = appInfoList_Id[0].HiddenName;
-            }
-            List<HiddenColumn> appInfoList_secret = masterService.GetHiddenCode(groupName, "AppSecret");
-            if (appInfoList_secret != null && appInfoList_secret.Count > 0)
-            {
-                wt.AppSecret = appInfoList_secret[0].HiddenName;
-            }
-            return wt;
-        }
+        
         // 平台验证
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
@@ -531,13 +456,15 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         [HttpPost]
         [Route("Account/GetToken")]
-        public string GetToken([FromBody]WxToken wxToken)
+        public object GetToken([FromBody]GTMCToken wxToken)
         {
-            WxToken wx = new WxToken();
+            GTMCToken wx = new GTMCToken();
             try
             {
                 string token = "";
-                wx= GetAppIdAndSecret("GTMC");
+                WxToken wxtoke= loginService.GetAppIdAndSecret("GTMC");
+                wx.AppId = wxtoke.AppId;
+                wx.AppSecret = wxtoke.AppSecret;
                 wx.token_type = "gtmc";
                 wx.scope = "read";
                 if (wxToken.client_id == wx.AppId && wxToken.client_secret == wx.AppSecret)
@@ -604,7 +531,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                     wx.AppId = null;
                     wx.AppSecret = null;
                 }
-                return  CommonHelper.EncodeDto<WxToken>(wx) ;
+                //return  CommonHelper.EncodeDto<WxToken>(wx).Replace("\r\n","") ;
+                return wx;
             }
             catch (Exception)
             {
@@ -614,33 +542,51 @@ namespace com.yrtech.SurveyAPI.Controllers
                 wx.errmsg = "系统问题请联系开发者";
                 wx.AppId = null;
                 wx.AppSecret = null;
-                return  CommonHelper.EncodeDto(wx);
+                //return  CommonHelper.EncodeDto(wx);
+                return wx;
             };
         }
         #endregion
     }
-    [Serializable]
-    public class WxToken
-    {
-        public string AppId { get; set; }
-        public string AppSecret { get; set; }
-        public string client_id { get; set; }
-        public string client_secret { get; set; }
-        public string access_token { get; set; }
-        public int expires_in { get; set; }
-        public string token_type { get; set; }
-        public string scope { get; set; }
-        public string openid { get; set; }
-        public string errcode { get; set; }
-        public string errmsg { get; set; }
-        public string grant_type { get; set;}
-        public WxTelNO phone_info { get; set; }
+    //[Serializable]
+    //public class WxToken
+    //{
+    //    public string AppId { get; set; }
+    //    public string AppSecret { get; set; }
+    //    public string client_id { get; set; }
+    //    public string client_secret { get; set; }
+    //    public string access_token { get; set; }
+    //    public int expires_in { get; set; }
+    //    public string token_type { get; set; }
+    //    public string scope { get; set; }
+    //    public string openid { get; set; }
+    //    public string errcode { get; set; }
+    //    public string errmsg { get; set; }
+    //    public string grant_type { get; set;}
+    //    public WxTelNO phone_info { get; set; }
 
-    }
-    public class WxTelNO
-    {
-        public string phoneNumber { get; set; }
-        public string purePhoneNumber { get; set; }
-        public string countryCode { get; set; }
-    }
+    //}
+    //public class WxTelNO
+    //{
+    //    public string phoneNumber { get; set; }
+    //    public string purePhoneNumber { get; set; }
+    //    public string countryCode { get; set; }
+    //}
+    //public class GTMCToken
+    //{
+    //    public string AppId { get; set; }
+    //    public string AppSecret { get; set; }
+    //    public string client_id { get; set; }
+    //    public string client_secret { get; set; }
+    //    public string access_token { get; set; }
+    //    public int expires_in { get; set; }
+    //    public string token_type { get; set; }
+    //    public string scope { get; set; }
+    //    public string openid { get; set; }
+    //    public string errcode { get; set; }
+    //    public string errmsg { get; set; }
+    //    public string grant_type { get; set; }
+    //    public WxTelNO phone_info { get; set; }
+
+    //}
 }

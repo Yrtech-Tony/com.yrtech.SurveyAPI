@@ -875,5 +875,59 @@ namespace com.yrtech.SurveyAPI.Controllers
             }
         }
         #endregion
+        #region 自检
+        #region 审核进度查询
+        [HttpGet]
+        [Route("Recheck/GetTaskRecheckInfo")]
+        public APIResult GetTaskRecheckInfo(string brandId,string shopId,string projectId,DateTime? startDate,DateTime? endDate)
+        {
+            try
+            {
+                List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate);
+                // 查询满足条件的审核状态
+                List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
+                foreach (RecheckDto recheck in recheckList)
+                {
+                    List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == recheck.ProjectId && x.ShopId == recheck.ShopId).ToList();
+                    if (statusList != null && statusList.Count > 0)
+                    {
+                        recheck.Status = "已提交";
+                        recheck.StatusDateTime = statusList[0].InDateTime;
+                    }
+                    else
+                    {
+                        //DateTime now = DateTime.Now;
+                        recheck.Status = "未提交";
+                        recheck.StatusDateTime = null;
+                        //if (now > project.EndDate)
+                        //{
+                        //    project.Status = "超时";
+                        //}
+                    }
+                }
+                recheckList = recheckList.OrderBy(x => x.ProjectCode).ThenBy(x => x.ShopCode).ToList();
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(recheckList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
+        [HttpGet]
+        [Route("Recheck/TaskRecheckExport")]
+        public APIResult TaskRecheckExport(string brandId, string shopId, string projectId, DateTime? startDate, DateTime? endDate)
+        {
+            try
+            {
+                string downloadPath = excelDataService.FirstRecheckExport(brandId,shopId,projectId,startDate,endDate);
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(downloadPath) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        #endregion
     }
 }
