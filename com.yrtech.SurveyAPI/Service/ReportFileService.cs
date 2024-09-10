@@ -809,7 +809,6 @@ namespace com.yrtech.SurveyAPI.Service
             return isSuccess;
         }
         #endregion
-
         #region 得分查询
         /// <summary>
         /// 

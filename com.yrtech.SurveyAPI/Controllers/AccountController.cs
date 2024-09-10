@@ -20,7 +20,7 @@ namespace com.yrtech.SurveyAPI.Controllers
     {
         AccountService accountService = new AccountService();
         MasterService masterService = new MasterService();
-        LoginService loginService = new LoginService(); 
+        LoginService loginService = new LoginService();
 
         #region 登陆和修改密码
         /// <summary>
@@ -37,9 +37,6 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                //OSSClientHelper.AlibabaCloudSendSms();
-                //var request = HttpContext.Current.Request;
-                //var header = request.Headers[]
                 // 获取租户信息
                 string tenantId = "";
                 List<Tenant> tenantList = masterService.GetTenant("", tenantCode, "");
@@ -62,7 +59,40 @@ namespace com.yrtech.SurveyAPI.Controllers
                     account.OSSInfo = masterService.GetHiddenCode("OSS信息", "");
                     account.RoleProgramList = masterService.GetRoleProgram_Tree(tenantId, account.RoleType);
                     return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
-                  
+
+                }
+                else
+                {
+                    return new APIResult() { Status = false, Body = "用户不存在或者密码不正确" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <param name="platformType"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/LoginTenantByAccount")]
+        public APIResult LoginTenantByAccount(string accountId, string password, string platformType)
+        {
+            try
+            {
+                List<AccountDto> accountlist = accountService.LoginTenantByAccount(accountId, password);
+                if (accountlist != null && accountlist.Count != 0)
+                {
+                    AccountDto account = accountlist[0];
+                    if (!platformTypeCheck(platformType, account.RoleType))
+                    {
+                        return new APIResult() { Status = false, Body = "该用户无此平台权限" };
+                    }
+                    return new APIResult() { Status = true, Body = CommonHelper.Encode(accountlist) };
                 }
                 else
                 {
@@ -187,6 +217,43 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
         }
+        /// <summary>
+        /// 调用用户登录返回有权限的经销商信息
+        /// </summary>
+        /// <param name="brandId"></param>
+        /// <param name="userId"></param>
+        /// <param name="roleType"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Account/LoginInfoForSurvey")]
+        public APIResult LoginInfoForSurvey(string userId, string roleType)
+        {
+            try
+            {
+                AccountDto account = new AccountDto();
+                List<ShopDto> shopList = new List<ShopDto>();
+                List<UserInfoObjectDto> userInfoObjectList = masterService.GetUserInfoObject("", userId, "", roleType);
+                if (userInfoObjectList==null|| userInfoObjectList.Count==0)
+                {
+                    return new APIResult() { Status = false, Body = "此用户无经销商信息" };
+                }
+                foreach (UserInfoObjectDto userInfoObject in userInfoObjectList)
+                {
+                    ShopDto shop = new ShopDto();
+                    shop.ShopId = userInfoObject.ObjectId;
+                    shop.ShopCode = userInfoObject.ObjectCode;
+                    shop.ShopName = userInfoObject.ObjectName;
+                    shopList.Add(shop);
+                }
+                account.ShopList = shopList;
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(account) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+        }
+
         /// <summary>
         /// 刷新品牌信息时使用
         /// </summary>
@@ -369,10 +436,8 @@ namespace com.yrtech.SurveyAPI.Controllers
                 return new APIResult() { Status = false, Body = ex.Message };
             }
         }
-       
         #endregion
         #region 公用
-        
         // 平台验证
         public bool platformTypeCheck(string platform, string roleTypeCode)
         {
@@ -407,7 +472,7 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
-                List<UserInfoDto> userInfoList = CommonHelper.DecodeString<List<UserInfoDto>>(uploadData.AnswerListJson);
+                List<UserInfoDto> userInfoList = CommonHelper.DecodeString<List<UserInfoDto>>(uploadData.ListJson);
                 if (userInfoList != null && userInfoList.Count > 0)
                 {
                     List<Tenant> tenantList_Name = masterService.GetTenant("", userInfoList[0].TenantCode, "");
@@ -462,7 +527,7 @@ namespace com.yrtech.SurveyAPI.Controllers
             try
             {
                 string token = "";
-                WxToken wxtoke= loginService.GetAppIdAndSecret("GTMC");
+                WxToken wxtoke = loginService.GetAppIdAndSecret("GTMC");
                 wx.AppId = wxtoke.AppId;
                 wx.AppSecret = wxtoke.AppSecret;
                 wx.token_type = "gtmc";
@@ -497,7 +562,7 @@ namespace com.yrtech.SurveyAPI.Controllers
                         {
                             token = appInfoList[0].Token;
                             wx.access_token = token;
-                            wx.expires_in = Convert.ToInt32(7200-second);
+                            wx.expires_in = Convert.ToInt32(7200 - second);
                             wx.errcode = "0";
                             wx.errmsg = "";
                             wx.AppId = null;
@@ -548,45 +613,4 @@ namespace com.yrtech.SurveyAPI.Controllers
         }
         #endregion
     }
-    //[Serializable]
-    //public class WxToken
-    //{
-    //    public string AppId { get; set; }
-    //    public string AppSecret { get; set; }
-    //    public string client_id { get; set; }
-    //    public string client_secret { get; set; }
-    //    public string access_token { get; set; }
-    //    public int expires_in { get; set; }
-    //    public string token_type { get; set; }
-    //    public string scope { get; set; }
-    //    public string openid { get; set; }
-    //    public string errcode { get; set; }
-    //    public string errmsg { get; set; }
-    //    public string grant_type { get; set;}
-    //    public WxTelNO phone_info { get; set; }
-
-    //}
-    //public class WxTelNO
-    //{
-    //    public string phoneNumber { get; set; }
-    //    public string purePhoneNumber { get; set; }
-    //    public string countryCode { get; set; }
-    //}
-    //public class GTMCToken
-    //{
-    //    public string AppId { get; set; }
-    //    public string AppSecret { get; set; }
-    //    public string client_id { get; set; }
-    //    public string client_secret { get; set; }
-    //    public string access_token { get; set; }
-    //    public int expires_in { get; set; }
-    //    public string token_type { get; set; }
-    //    public string scope { get; set; }
-    //    public string openid { get; set; }
-    //    public string errcode { get; set; }
-    //    public string errmsg { get; set; }
-    //    public string grant_type { get; set; }
-    //    public WxTelNO phone_info { get; set; }
-
-    //}
 }

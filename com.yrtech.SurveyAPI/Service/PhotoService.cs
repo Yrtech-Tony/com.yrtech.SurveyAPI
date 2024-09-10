@@ -135,7 +135,6 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 catch (Exception eex)
                 {
-
                     continue;
                 }
             }
@@ -262,7 +261,6 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         catch (Exception eex)
                         {
-
                             continue; ;
                         }
                     }
@@ -272,7 +270,6 @@ namespace com.yrtech.SurveyAPI.Service
             }
             catch (Exception ex)
             {
-                // CommonHelper.log("11111" + ex.Message.ToString() + "  " + ex.InnerException);
                 isSuccess = false;
             }
             return isSuccess;
@@ -395,7 +392,6 @@ namespace com.yrtech.SurveyAPI.Service
                 }
                 catch (Exception eex)
                 {
-                    //string msg = eex.Message + "_" + answerId;
                     continue;
                 }
             }
@@ -518,7 +514,6 @@ namespace com.yrtech.SurveyAPI.Service
                         }
                         catch (Exception eex)
                         {
-
                             continue; ;
                         }
                     }

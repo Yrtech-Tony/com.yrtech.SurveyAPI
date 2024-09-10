@@ -18,6 +18,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string FileDemo { get; set; }
         public string FileDemoDesc { get; set; }
         public string FileRemark { get; set; }
+        public string FileMode { get; set; }
         public string Url { get; set; }
         public string Status { get; set; }
         public DateTime InDateTime { get; set; }

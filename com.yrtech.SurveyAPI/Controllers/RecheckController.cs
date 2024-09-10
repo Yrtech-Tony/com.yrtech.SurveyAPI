@@ -883,6 +883,18 @@ namespace com.yrtech.SurveyAPI.Controllers
         {
             try
             {
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                else
+                {
+                    endDate = Convert.ToDateTime(endDate).AddDays(1).Date;
+                }
                 List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate);
                 // 查询满足条件的审核状态
                 List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);

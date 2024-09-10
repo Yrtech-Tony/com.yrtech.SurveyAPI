@@ -32,6 +32,23 @@ namespace com.yrtech.SurveyAPI.Service
                             AND UseChk = 1";
             return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
         }
+        /// <summary>
+        /// 登陆获取租户
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public List<AccountDto> LoginTenantByAccount(string accountId, string password)
+        {
+            SqlParameter[] para = new SqlParameter[] { new SqlParameter("@AccountId", accountId),
+                                                       new SqlParameter("@Password",password)};
+            Type t = typeof(AccountDto);
+            string sql = @"SELECT A.Id,A.TenantId,B.TenantCode,B.TenantName,AccountId,AccountName,ISNULL(A.UseChk,0) AS UseChk,A.TelNO,A.Email,A.HeadPicUrl,A.RoleType,A.UserType,A.OpenId
+                            FROM UserInfo A INNER JOIN Tenant B ON A.TenantId = B.TenantId
+                            WHERE AccountId = @AccountId AND[Password] = @Password
+                            AND A.UseChk = 1";
+            return db.Database.SqlQuery(t, sql, para).Cast<AccountDto>().ToList();
+        }
         // 暂时不用
         public List<AccountDto> LoginByOpenId(string openId)
         {
@@ -690,6 +707,13 @@ namespace com.yrtech.SurveyAPI.Service
             return list;
 
         }
+        /// <summary>
+        /// 根据权限查询品牌信息
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <param name="userId"></param>
+        /// <param name="roleType"></param>
+        /// <returns></returns>
         public List<Brand> GetBrandByRole(string tenantId, string userId, string roleType)
         {
             tenantId = tenantId == null ? "" : tenantId;

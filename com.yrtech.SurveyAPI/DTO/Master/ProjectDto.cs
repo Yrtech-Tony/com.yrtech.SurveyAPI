@@ -48,6 +48,7 @@ namespace com.yrtech.SurveyAPI.DTO
         public string StatusCode { get; set; } // 状态代码：
         public string LeftTime { get; set; } // 剩余时间
         public int? ExamTypeId { get; set; }
+        public string ExamTypeName { get; set; }
         public string ExtenColumn { get; set; }
         public Nullable<int> InUserId { get; set; }
         public Nullable<System.DateTime> InDateTime { get; set; }

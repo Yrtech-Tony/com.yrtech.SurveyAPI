@@ -5,7 +5,8 @@ using System.Web;
 
 namespace com.yrtech.SurveyAPI.DTO
 {
-   // [Serializable]
+    // 不使用序列化，如果用序列化转不成json格式
+   // [Serializable] 
     public class GTMC365Dto
     {
         //public long Id { get; set; }

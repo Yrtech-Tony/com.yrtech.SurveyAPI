@@ -197,16 +197,26 @@ namespace com.yrtech.SurveyAPI.Service
                                                        };
             Type t = typeof(AnswerDto);
             string sql = "";
-            sql = @"  SELECT  A.ProjectId,A.LabelId AS ExamTypeId
-                      ,A.LabelId_RecheckType AS RecheckTypeId,B.BrandId,B.ShopId,A.SubjectId,B.ShopCode,B.ShopName,A.SubjectCode,A.[CheckPoint],A.OrderNO,A.Remark AS [Desc],A.InspectionDesc,A.HiddenCode_SubjectType
-                             ,ISNULL(C.AnswerId,0) AS AnswerId,C.PhotoScore, C.Remark,C.InspectionStandardResult,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
-                             ,a.FullScore,a.LowScore,a.ImproveAdvice,E.PreProjectId,A.PreSubjectId
+            sql = @"  SELECT A.ProjectId,A.LabelId AS ExamTypeId
+                            ,A.LabelId_RecheckType AS RecheckTypeId
+                            ,A.FullScore,A.LowScore,A.ImproveAdvice,E.PreProjectId
+                            ,A.PreSubjectId,A.SubjectId,A.SubjectCode,A.[CheckPoint]
+                            ,A.OrderNO,A.Remark AS [Desc],A.InspectionDesc
+                            ,A.HiddenCode_SubjectType,A.Implementation
+                            ,B.BrandId,B.ShopId,B.ShopCode,B.ShopName
+                            ,ISNULL(C.AnswerId,0) AS AnswerId
+                            ,C.PhotoScore, C.Remark,C.InspectionStandardResult
+                            ,C.FileResult,C.LossResult,C.InDateTime,C.ModifyDateTime
                     FROM [Subject] A CROSS JOIN 
                                     (SELECT * FROM Shop WHERE ShopId = @ShopId ) B 
-							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId AND D.ProjectId=A.ProjectId
+							INNER JOIN ProjectShopExamType D ON B.ShopId = D.ShopId 
+                                                            AND D.ProjectId=A.ProjectId
                             INNER JOIN Project E ON A.ProjectId = E.ProjectId
-                           LEFT JOIN Answer C ON A.SubjectId = c.SubjectId AND A.ProjectId = C.ProjectId AND B.ShopId = C.ShopId
-                    WHERE ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) AND ISNULL(E.StartDate,'2004-01-01') BETWEEN @StartDate AND @EndDate ";
+                            LEFT JOIN Answer C ON A.SubjectId = c.SubjectId 
+                                                AND A.ProjectId = C.ProjectId 
+                                                AND B.ShopId = C.ShopId
+                    WHERE ( A.LabelId=0 OR A.LabelId IS NULL OR A.LabelId = D.ExamTypeId) 
+                            AND ISNULL(E.StartDate,'2004-01-01') BETWEEN @StartDate AND @EndDate ";
             if (!string.IsNullOrEmpty(projectId))
             {
                 sql += " AND A.ProjectId = @ProjectId ";
@@ -787,6 +797,7 @@ namespace com.yrtech.SurveyAPI.Service
             string sql = "";
             sql = @" SELECT B.BrandId,A.ProjectId,A.ExamTypeId
                      ,ISNULL((SELECT ExtenColumn FROM Label WHERE LabelId = A.ExamTypeId),'') AS ExtenColumn
+                     ,ISNULL((SELECT LabelName FROM Label WHERE LabelId = A.ExamTypeId),'') AS ExamTypeName
                      ,B.PreProjectId,B.ProjectGroup,A.ShopId, C.ShopCode,C.ShopName,B.ProjectCode,B.ProjectName,B.StartDate,B.EndDate
                     ,(SELECT TOP 1 SubjectId FROM Subject WHERE ProjectId = A.ProjectId Order By OrderNO ) AS SubjectId
                     ,(SELECT COUNT(*) 

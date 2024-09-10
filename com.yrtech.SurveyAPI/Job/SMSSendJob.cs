@@ -42,7 +42,7 @@ namespace com.yrtech.SurveyAPI.Job
                     if (!string.IsNullOrEmpty(telNO))
                     {
                         SMSInfo smsInfo = new SMSInfo();
-                        List<SMSInfo> smsInfoList = masterService.GetSMSInfo(project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc0600", telNO);
+                        List<SMSInfo> smsInfoList = masterService.GetSMSInfo(brandId,project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc0600", telNO,null,null,"");
                         if (smsInfoList != null && smsInfoList.Count > 0)
                         {
                             smsInfo = smsInfoList[0];
@@ -67,6 +67,7 @@ namespace com.yrtech.SurveyAPI.Job
                         // 数据还未插入，发送短信并插入数据
                         else
                         {
+                            smsInfo.BrandId = Convert.ToInt32(brandId);
                             smsInfo.ProjectId = project.ProjectId;
                             smsInfo.ShopId = userInfoObjectList[0].ObjectId;
                             smsInfo.SMSBussinessType = "gtmc0600";
@@ -118,13 +119,13 @@ namespace com.yrtech.SurveyAPI.Job
                         if (provinceId == 34)
                         {
                             time = 12;// 新疆要求完成时间
-                            
+
                         }
                         if (!string.IsNullOrEmpty(telNO))
                         {
-                            CommonHelper.log("TelNO"+telNO);
+                            //CommonHelper.log("TelNO" + telNO);
                             SMSInfo smsInfo = new SMSInfo();
-                            List<SMSInfo> smsInfoList = masterService.GetSMSInfo(project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc1030", telNO);
+                            List<SMSInfo> smsInfoList = masterService.GetSMSInfo(brandId,project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc1030", telNO,null,null,"");
                             if (smsInfoList != null && smsInfoList.Count > 0)
                             {
 
@@ -150,6 +151,7 @@ namespace com.yrtech.SurveyAPI.Job
                             // 数据还未插入，发送短信并插入数据
                             else
                             {
+                                smsInfo.BrandId = Convert.ToInt32(brandId);
                                 smsInfo.ProjectId = project.ProjectId;
                                 smsInfo.ShopId = userInfoObjectList[0].ObjectId;
                                 smsInfo.SMSBussinessType = "gtmc1030";
@@ -205,17 +207,19 @@ namespace com.yrtech.SurveyAPI.Job
                     {
                         smsTemplate = "SMS_470750005";
                     }
-                    else {
+                    else
+                    {
                         smsTemplate = "SMS_470545144";
                     }
                 }
-                else {
+                else
+                {
                     smsTemplate = "SMS_470780052";
                 }
                 if (!string.IsNullOrEmpty(telNO))
                 {
                     SMSInfo smsInfo = new SMSInfo();
-                    List<SMSInfo> smsInfoList = masterService.GetSMSInfo(project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc1500", telNO);
+                    List<SMSInfo> smsInfoList = masterService.GetSMSInfo(brandId,project.ProjectId.ToString(), userInfoObjectList[0].ObjectId.ToString(), "gtmc1500", telNO,null,null,"");
                     if (smsInfoList != null && smsInfoList.Count > 0)
                     {
                         smsInfo = smsInfoList[0];
@@ -240,10 +244,73 @@ namespace com.yrtech.SurveyAPI.Job
                     // 数据还未插入，发送短信并插入数据
                     else
                     {
+                        smsInfo.BrandId = Convert.ToInt32(brandId);
                         smsInfo.ProjectId = project.ProjectId;
                         smsInfo.ShopId = userInfoObjectList[0].ObjectId;
                         smsInfo.SMSBussinessType = "gtmc1500";
                         smsInfo.TelNO = telNO;
+                        smsInfo.InUserId = 1;
+                        smsInfo.ModifyUserId = 1;
+                        smsInfo.SMSSendDate = DateTime.Now;
+                        smsInfo = OSSClientHelper.AlibabaCloudSendSms(smsInfo, "", smsTemplate);
+                        masterService.SaveSMSInfo(smsInfo);
+                    }
+                }
+
+            }
+        }
+    }
+    // 改善措施执行异常提醒
+    public class SMSSendJob_Improve:IJob
+    {
+        MasterService masterService = new MasterService();
+        string brandId = ConfigurationManager.AppSettings["GTMCBrandId"];
+        public void Execute(IJobExecutionContext context)
+        {
+            CommonHelper.log("extraCallLog start");
+            string smsTemplate = "SMS_472460331";
+            DateTime startDate = DateTime.Now.Date;
+            DateTime endDate = DateTime.Now;
+            List<ExtraCallLog> extraCallLog = masterService.GetExtraCallLog("sp_Wechat_ImproveCreate", startDate, endDate, "");
+            CommonHelper.log("extraCallLog search");
+            if (extraCallLog == null || extraCallLog.Count == 0)
+            {
+                CommonHelper.log("extraCallLog");
+                string telStr = "13601287145;13810506740";
+                string[] telList = telStr.Split(';');
+                foreach (string tel in telList)
+                {
+                    SMSInfo smsInfo = new SMSInfo();
+                    List<SMSInfo> smsInfoList = masterService.GetSMSInfo(brandId, "", "", "gtmcImprove0630", tel,null,null,"");
+                    if (smsInfoList != null && smsInfoList.Count > 0)
+                    {
+                        smsInfo = smsInfoList[0];
+                        // 状态未更新状态，或者等待回执，先去查询状态并更新
+                        if (smsInfo.SendStatus == null
+                            || string.IsNullOrEmpty(smsInfo.SendStatus)
+                            || smsInfo.SendStatus == "1")
+                        {
+                            smsInfo = OSSClientHelper.AlibabaCloudQuerySendDetail(smsInfo, 10, 1);
+                            masterService.SaveSMSInfo(smsInfo);
+                        }
+                        // 发送失败，重新发送，同时把状态置为""
+                        else if (smsInfo.SendStatus == "2")
+                        {
+                            smsInfo = OSSClientHelper.AlibabaCloudSendSms(smsInfo, "", smsTemplate);
+                            smsInfo.SMSSendDate = DateTime.Now;
+                            smsInfo.ErrCode = "";
+                            smsInfo.SendStatus = "";
+                            masterService.SaveSMSInfo(smsInfo);
+                        }
+                    }
+                    // 数据还未插入，发送短信并插入数据
+                    else
+                    {
+                        smsInfo.BrandId = Convert.ToInt32(brandId);
+                        smsInfo.ProjectId = 0;
+                        smsInfo.ShopId = 0;
+                        smsInfo.SMSBussinessType = "gtmcImprove0630";
+                        smsInfo.TelNO = tel;
                         smsInfo.InUserId = 1;
                         smsInfo.ModifyUserId = 1;
                         smsInfo.SMSSendDate = DateTime.Now;

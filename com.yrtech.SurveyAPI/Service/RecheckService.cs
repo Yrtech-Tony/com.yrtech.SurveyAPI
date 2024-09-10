@@ -49,6 +49,7 @@ namespace com.yrtech.SurveyAPI.Service
             {
                 sql += " AND A.ProjectId = @ProjectId";
             }
+            
             if (!string.IsNullOrEmpty(shopId))
             {
                 sql += " AND A.ShopId = @ShopId";

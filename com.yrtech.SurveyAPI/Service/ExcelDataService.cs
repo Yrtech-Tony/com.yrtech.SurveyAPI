@@ -298,6 +298,7 @@ namespace com.yrtech.SurveyAPI.Service
                 subject.FileDemo = sheet.GetCell("L" + (i + 3)).Value == null ? "" : sheet.GetCell("L" + (i + 3)).Value.ToString().Trim();
                 subject.FileDemoDesc = sheet.GetCell("M" + (i + 3)).Value == null ? "" : sheet.GetCell("M" + (i + 3)).Value.ToString().Trim();
                 subject.FileRemark = sheet.GetCell("N" + (i + 3)).Value == null ? "" : sheet.GetCell("N" + (i + 3)).Value.ToString().Trim();
+                subject.FileMode = sheet.GetCell("O" + (i + 3)).Value == null ? "" : sheet.GetCell("O" + (i + 3)).Value.ToString().Trim();
                 list.Add(subject);
             }
             return list;
@@ -1488,7 +1489,7 @@ namespace com.yrtech.SurveyAPI.Service
         // 一审信息导出
         public string FirstRecheckExport(string brandId, string shopId, string projectId, DateTime? startDate, DateTime? endDate)
         {
-            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate).OrderBy(x=>x.ProjectCode).ThenBy(x=>x.ShopCode).ToList();
+            List<RecheckDto> recheckList = recheckService.GetShopRecheckScoreInfo(projectId, shopId, "", "", brandId, startDate, endDate).OrderBy(x => x.ProjectCode).ThenBy(x => x.ShopCode).ToList();
             // 查询复审状态
             List<RecheckStatusDto> statusList_brand = recheckService.GetShopRecheckStatusInfo(projectId, shopId, "S1", brandId, startDate, endDate);
             Workbook book = Workbook.Load(basePath + @"\Excel\" + "FirstRecheck.xlsx", false);
@@ -1505,6 +1506,17 @@ namespace com.yrtech.SurveyAPI.Service
                 sheet.GetCell("C" + (rowIndex + 2)).Value = item.ShopCode;
                 //经销商名称
                 sheet.GetCell("D" + (rowIndex + 2)).Value = item.ShopName;
+                List<RecheckStatusDto> statusList = statusList_brand.Where(x => x.ProjectId == item.ProjectId && x.ShopId == item.ShopId).ToList();
+                if (statusList != null && statusList.Count > 0)
+                {
+                    item.Status = "已提交";
+                    item.StatusDateTime = statusList[0].InDateTime;
+                }
+                else
+                {
+                    item.Status = "未提交";
+                    item.StatusDateTime = null;
+                }
                 //状态
                 sheet.GetCell("E" + (rowIndex + 2)).Value = item.Status;
                 //提交审核时间

@@ -33,7 +33,7 @@ namespace com.yrtech.SurveyAPI
             scheduler_bakDelete.Start();
             #endregion
             #region GTMC 点检开始短信通知
-            CommonHelper.log("点检开始短信通知");
+           // CommonHelper.log("点检开始短信通知");
             //1.创建作业调度池(Scheduler)
             IScheduler scheduler_smsStart = StdSchedulerFactory.GetDefaultScheduler();
             //2.创建一个具体的作业即job (具体的job需要单独在一个文件中执行)
@@ -71,6 +71,19 @@ namespace com.yrtech.SurveyAPI
             scheduler_smsFinish.ScheduleJob(job_smsFinish, trigger_smsFinish);
             //5.开启调度
             scheduler_smsFinish.Start();
+            #endregion
+            #region GTMC 改善措施生成情况通知
+            //1.创建作业调度池(Scheduler)
+            IScheduler scheduler_smsImprove = StdSchedulerFactory.GetDefaultScheduler();
+            //2.创建一个具体的作业即job (具体的job需要单独在一个文件中执行)
+            var job_smsImprove = JobBuilder.Create<SMSSendJob_Improve>().Build();
+            //3.创建并配置一个触发器即trigger   1s执行一次
+            var cron_smsImprove = ConfigurationManager.AppSettings["smsImprove_corn"];
+            var trigger_smsImprove = TriggerBuilder.Create().WithCronSchedule(cron_smsImprove).Build();
+            //4.将job和trigger加入到作业调度池中
+            scheduler_smsImprove.ScheduleJob(job_smsImprove, trigger_smsImprove);
+            //5.开启调度
+            scheduler_smsImprove.Start();
             #endregion
         }
         protected void Application_End(object sender, EventArgs e)

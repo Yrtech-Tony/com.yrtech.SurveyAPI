@@ -50,15 +50,14 @@ namespace com.yrtech.SurveyAPI.Controllers
                 List<Tenant> tenantList = masterService.GetTenant("", tenantCode, "");
                 if (tenantList == null || tenantList.Count == 0)
                 {
-                    return new APIResult() { Status = false, Body = "租户代码不存在" };
+                    return new APIResult() { Status = false, Body = "租户不存在" };
                 }
-                return new APIResult() { Status = true, Body = CommonHelper.Encode(tenantList) };
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(masterService.GetTenant(tenantId, tenantCode, tenantName)) };
             }
             catch (Exception ex)
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
-
         }
         #endregion
         #region 省份管理
@@ -1464,16 +1463,16 @@ namespace com.yrtech.SurveyAPI.Controllers
                 //{
                 //    return new APIResult() { Status = false, Body = "序号不能为空或者0" };
                 //}
-                List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "", "", null, null, "");
-                if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
-                {
-                    return new APIResult() { Status = false, Body = "代码重复" };
-                }
-                List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString(), "", null, null, "");
-                if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
-                {
-                    return new APIResult() { Status = false, Body = "序号重复" };
-                }
+                //List<ProjectDto> projectList_ProjectCode = masterService.GetProject("", project.BrandId.ToString(), "", project.ProjectCode, "", "", "", null, null, "");
+                //if (projectList_ProjectCode != null && projectList_ProjectCode.Count > 0 && projectList_ProjectCode[0].ProjectId != project.ProjectId)
+                //{
+                //    return new APIResult() { Status = false, Body = "代码重复" };
+                //}
+                //List<ProjectDto> projectList_OrderNO = masterService.GetProject("", project.BrandId.ToString(), "", "", project.Year, project.OrderNO.ToString(), "", null, null, "");
+                //if (projectList_OrderNO != null && projectList_OrderNO.Count > 0 && projectList_OrderNO[0].ProjectId != project.ProjectId)
+                //{
+                //    return new APIResult() { Status = false, Body = "序号重复" };
+                //}
                 if (project.ProjectType == "自检")
                 {
                     if (project.StartDate == null)
@@ -3018,6 +3017,113 @@ namespace com.yrtech.SurveyAPI.Controllers
             {
                 return new APIResult() { Status = false, Body = ex.Message.ToString() };
             }
+        }
+        #endregion
+        #region 短信
+        [HttpGet]
+        [Route("Master/GetSMSInfo")]
+        public APIResult GetSMSInfo(string brandId,string smsBussinessType, string telNo, DateTime? startDate, DateTime? endDate, string sendStatus)
+        {
+            try
+            {
+                if (startDate == null)
+                {
+                    startDate = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date;
+                }
+                if (endDate == null)
+                {
+                    endDate = DateTime.Now.AddDays(1).Date;
+                }
+                else
+                {
+                    endDate = Convert.ToDateTime(endDate).AddDays(1).Date;
+                }
+                List<SMSInfo> smsList = masterService.GetSMSInfo(brandId,"", "", smsBussinessType, telNo, startDate, endDate, sendStatus);
+                // 获取任务时用的开始时间同短信发送的时间
+                List<ProjectDto> projectList = masterService.GetProject("",brandId, "", "", "", "", "", startDate, endDate, "");
+                List<ShopDto> shopList = masterService.GetShop("", brandId, "", "", "", null);
+                List<SMSInfoDto> smsInfoDtoList = new List<SMSInfoDto>();
+                foreach (SMSInfo smsInfo in smsList)
+                {
+                    SMSInfoDto smsInfoDto = new SMSInfoDto();
+                    smsInfoDto.SMSId = smsInfo.SMSId;
+                    smsInfoDto.BizId = smsInfo.BizId;
+                    smsInfoDto.InDateTime = smsInfo.InDateTime;
+                    smsInfoDto.InUserId = smsInfo.InUserId;
+                    smsInfoDto.ModifyDateTime = smsInfo.ModifyDateTime;
+                    smsInfoDto.ModifyUserId = smsInfo.ModifyUserId;
+                    smsInfoDto.ProjectId = smsInfo.ProjectId;
+                    smsInfoDto.ProjectCode = "";
+                    smsInfoDto.ProjectName = "";
+                    if (smsInfo.ProjectId != null)
+                    {
+                        List<ProjectDto> projectList_Project = projectList.Where(x=>x.ProjectId== smsInfo.ProjectId).ToList();
+                        if (projectList_Project != null && projectList_Project.Count > 0)
+                        {
+                            smsInfoDto.ProjectCode = projectList_Project[0].ProjectCode;
+                            smsInfoDto.ProjectName = projectList_Project[0].ProjectName;
+                        }
+                    }
+                    smsInfoDto.RequestId = smsInfo.RequestId;
+                    smsInfoDto.SendStatus = smsInfo.SendStatus;
+                    if (smsInfo.SendStatus == "2")
+                    {
+                        smsInfoDto.SendStatusName = "发送失败";
+                        smsInfoDto.ErrCode = smsInfo.ErrCode;
+                    }
+                    else if (smsInfo.SendStatus == "3")
+                    {
+                        smsInfoDto.SendStatusName = "发送成功";
+                        smsInfoDto.ErrCode = smsInfo.ErrCode;
+                    }
+                    else
+                    {
+                        smsInfoDto.SendStatusName = "发送中";
+                        smsInfoDto.ErrCode = "长时间未发送成功请检查手机号";
+                    }
+                    smsInfoDto.ShopId = smsInfo.ShopId;
+                    smsInfoDto.ShopCode = "";
+                    smsInfoDto.ShopName = "";
+                    if (smsInfo.ShopId != null)
+                    {
+                        List<ShopDto> shopList_Shop = shopList.Where(x=>x.ShopId== smsInfo.ShopId).ToList();
+                        if (shopList_Shop != null && shopList_Shop.Count > 0)
+                        {
+                            smsInfoDto.ShopCode = shopList_Shop[0].ShopCode;
+                            smsInfoDto.ShopName = shopList_Shop[0].ShopName;
+                        }
+                    }
+                    smsInfoDto.SMSBussinessType = smsInfo.SMSBussinessType;
+                    if (smsInfo.SMSBussinessType == "gtmc0600")
+                    {
+                        smsInfoDto.SMSBussinessName = "自主点检8:00-9:00";
+                    }
+                    else if (smsInfo.SMSBussinessType == "gtmc1030")
+                    {
+                        smsInfoDto.SMSBussinessName = "自主点检10:30-11:30";
+                    }
+                    else if (smsInfo.SMSBussinessType == "gtmc1500")
+                    {
+                        smsInfoDto.SMSBussinessName = "自主点检15:00-16:00";
+                    }
+                    else if (smsInfo.SMSBussinessType == "gtmcImprove0630")
+                    {
+                        smsInfoDto.SMSBussinessName = "改善事项异常06:30-07:00";
+                    }
+                    else {
+                        smsInfoDto.SMSBussinessName = "";
+                    }
+                    smsInfoDto.SMSSendDate = smsInfo.SMSSendDate;
+                    smsInfoDto.TelNO = smsInfo.TelNO;
+                    smsInfoDtoList.Add(smsInfoDto);
+                }
+                return new APIResult() { Status = true, Body = CommonHelper.Encode(smsInfoDtoList) };
+            }
+            catch (Exception ex)
+            {
+                return new APIResult() { Status = false, Body = ex.Message.ToString() };
+            }
+
         }
         #endregion
         #region 版本管理
